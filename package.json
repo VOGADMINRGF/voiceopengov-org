@@ -1,0 +1,24 @@
+{
+  "name": "voiceopengov-platform",
+  "private": true,
+  "version": "1.0.0",
+  "packageManager": "pnpm@8.9.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "core",
+    "data",
+    "features"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint"
+  },
+  "devDependencies": {
+    "turbo": "^1.11.3"
+  },
+  "dependencies": {
+    "react-icons": "^5.5.0"
+  }
+}
