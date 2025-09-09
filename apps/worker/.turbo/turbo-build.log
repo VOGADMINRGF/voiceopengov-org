@@ -1,0 +1,5 @@
+
+
+> @vog/worker@0.0.0 build /Users/RF/VPM25/apps/worker
+> tsc -p tsconfig.json
+

@@ -1,20 +1,25 @@
 "use client";
+import React from "react";
+import { colors } from "../theme";
 
 interface BadgeProps {
   text: string;
-  color?: string;
-  textColor?: string;
+  color?: string; // optional, für spezielle Anwendungsfälle
   className?: string;
 }
-
-export default function Badge({
-  text,
-  color = "bg-gray-200",
-  textColor = "text-white",
-  className = "",
-}: BadgeProps) {
+const BADGE_COLORS: Record<string, string> = {
+  live: colors.coral,
+  replay: colors.indigo,
+  geplant: "#008B8B",
+  default: "#9CA3AF"
+};
+export default function Badge({ text, color, className = "" }: BadgeProps) {
+  const bg = color || BADGE_COLORS[text?.toLowerCase()] || BADGE_COLORS.default;
   return (
-    <span className={`inline-block px-2 py-1 text-xs font-semibold rounded ${color} ${textColor} ${className}`}>
+    <span
+      className={`px-3 py-1 rounded-full text-xs font-semibold shadow inline-block select-none ${className}`}
+      style={{ backgroundColor: bg, color: "#fff" }}
+    >
       {text}
     </span>
   );

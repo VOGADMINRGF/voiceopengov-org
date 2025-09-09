@@ -1,31 +1,39 @@
 // tsconfig.base.json
 {
-    "compilerOptions": {
-      "target": "ES2020",
-      "lib": ["dom", "dom.iterable", "esnext"],
-      "module": "esnext",
-      "moduleResolution": "bundler",
-      "jsx": "preserve",
-      "strict": true,
-      "noEmit": true,
-      "allowJs": true,
-      "skipLibCheck": true,
-      "esModuleInterop": true,
-      "resolveJsonModule": true,
-      "isolatedModules": true,
-      "baseUrl": ".",
-      "paths": {
-        "@/*": ["apps/web/src/*"],
-        "@features/*": ["apps/web/src/features/*"],
-        "@components/*": ["apps/web/src/components/*"],
-        "@constants/*": ["apps/web/src/constants/*"],
-        "@context/*": ["apps/web/src/context/*"],
-        "@types/*": ["apps/web/src/types/*"],
-        "@data/*": ["apps/web/src/data/*"],
-        "@utils/*": ["apps/web/src/utils/*"],
-        "@ui": ["packages/ui/src/index.ts"], 
-        "@ui/*": ["packages/ui/src/*"]
-      }
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "strict": true,
+    "noEmit": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "core/*": ["core/*"],
+      "features/*": ["features/*"],
+      "@core/*": ["core/*"],
+      "@features/*": ["features/*"],
+      "@/*": ["apps/web/src/*"],
+      "@models/*": ["models/*"],
+      "@components/*": ["apps/web/src/components/*"],
+      "@constants/*": ["apps/web/src/constants/*"],
+      "@context/*": ["core/context/*"],
+      "@types/*": ["apps/web/src/types/*"],
+      "@hooks/*": ["apps/web/src/hooks/*"],
+      "@data/*": ["apps/web/src/data/*"],
+      "@lib/*": ["apps/web/src/lib/*"],
+      "@utils/*": ["apps/web/src/utils/*"],
+      "@ui": ["packages/ui/src/index.ts"], 
+      "@ui/*": ["packages/ui/src/*"],
+      "@ui/button": ["packages/ui/src/design/Button.tsx"],
+      "@ui/theme": ["packages/ui/src/theme.ts"]
+
     }
   }
-  
+}
