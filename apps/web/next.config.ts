@@ -24,21 +24,22 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: "standalone",
 
+  /** <- HIER: typedRoutes gehört unter experimental */
+  experimental: {
+    typedRoutes: true,
+  },
+
   images: {
     domains: ["localhost", "voiceopengov.org"],
     formats: ["image/webp", "image/avif"],
   },
 
-  // Next 15: außerhalb von `experimental`
-  experimental: {
-    typedRoutes: true,
-  },
+  // Nur includen, wenn der Ordner existiert
   outputFileTracingIncludes: promptsDir
     ? { "/api/ai/run": [`${promptsDir}/**/*`] }
     : {},
 
-  // Wenn ihr externe Pakete im Monorepo transpilen wollt, hier eintragen.
-  // (Nur aktiv, wenn die Ordner existieren)
+  // Monorepo-Pakete transpilen (nur wenn vorhanden)
   transpilePackages: [
     ...(exists("../../packages/ui") ? ["ui"] : []),
   ],
@@ -47,14 +48,11 @@ const nextConfig: NextConfig = {
     config.resolve ??= {};
     config.resolve.alias = {
       ...(config.resolve.alias ?? {}),
-
-      // Monorepo-Aliasse (werden nur gesetzt, wenn die Ordner existieren)
+      // Monorepo-Aliasse
       "@core": firstExisting("../../core", "./src"),
       "@features": firstExisting("../../features", "./src"),
-
-      // UI: bevorzugt Monorepo, sonst lokale Stubs in apps/web/src/ui
       "@ui": firstExisting("../../packages/ui/src", "./src/ui"),
-      // gängige App-internen Kurzpfade
+      // App-interne Kurzpfade
       "@": R("./src"),
       "@components": R("./src/components"),
       "@hooks": R("./src/hooks"),
@@ -64,9 +62,21 @@ const nextConfig: NextConfig = {
     return config;
   },
 
-  // Build robuster machen (optional; kann auf `false` bleiben, wenn ihr strikt seid)
   typescript: { ignoreBuildErrors: false },
   eslint: { ignoreDuringBuilds: true },
+
+  // Robots & Cache für Review-Snapshot
+  async headers() {
+    return [
+      {
+        source: "/_review/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "Cache-Control", value: "no-store" },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
