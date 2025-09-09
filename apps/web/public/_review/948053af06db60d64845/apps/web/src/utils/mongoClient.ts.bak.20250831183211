@@ -1,0 +1,19 @@
+// apps/web/src/utils/mongoClient.ts
+import "server-only";
+import type { Db, Collection } from "mongodb";
+import { getCoreDb, coreCol, piiCol } from "@/utils/triMongo";
+
+const PII_NAMES = new Set(["users", "tokens", "sessions"]);
+
+export async function getDb(): Promise<Db> {
+  return getCoreDb();
+}
+
+export async function getCol<T = any>(name: string): Promise<Collection<T>> {
+  return PII_NAMES.has(name) ? piiCol<T>(name) : coreCol<T>(name);
+}
+
+// Legacy – absichtlich nicht unterstützt
+export async function getMongoClient(): Promise<never> {
+  throw new Error("getMongoClient is not exposed under triMongo. Use getCol/coreCol/piiCol.");
+}

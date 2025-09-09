@@ -1,0 +1,3906 @@
+{
+  "createdAt": 1757415783687,
+  "root": "/",
+  "files": [
+    {
+      "path": ".gitignore",
+      "size": 459,
+      "mtime": 1747760298000
+    },
+    {
+      "path": "PROJECT_TREE.md",
+      "size": 30759,
+      "mtime": 1757413893113.5127
+    },
+    {
+      "path": "docker-compose.graphdb.yml",
+      "size": 3566,
+      "mtime": 1756993196061.2297
+    },
+    {
+      "path": "docker-compose.yml",
+      "size": 1121,
+      "mtime": 1757275243976.2231
+    },
+    {
+      "path": "package.json",
+      "size": 3222,
+      "mtime": 1757415772566.7507
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "size": 291997,
+      "mtime": 1757415199147.938
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "size": 77,
+      "mtime": 1756993217178.6204
+    },
+    {
+      "path": "tsconfig.base.json",
+      "size": 1168,
+      "mtime": 1755032391076.31
+    },
+    {
+      "path": "turbo.json",
+      "size": 308,
+      "mtime": 1756088347181.308
+    },
+    {
+      "path": ".vercel/README.txt",
+      "size": 520,
+      "mtime": 1747653067000
+    },
+    {
+      "path": ".vercel/project.json",
+      "size": 135,
+      "mtime": 1747678986000
+    },
+    {
+      "path": "apps/jest.config.ts",
+      "size": 320,
+      "mtime": 1757281322280.062
+    },
+    {
+      "path": "core/tsconfig.json",
+      "size": 190,
+      "mtime": 1755382117941.9883
+    },
+    {
+      "path": ".zap/rules.tsv",
+      "size": 634,
+      "mtime": 1757280373586.7817
+    },
+    {
+      "path": ".vscode/extensions.json",
+      "size": 67,
+      "mtime": 1753035326373.0715
+    },
+    {
+      "path": "features/eslintrc.js",
+      "size": 697,
+      "mtime": 1757281316845.0454
+    },
+    {
+      "path": "packages/package.json",
+      "size": 407,
+      "mtime": 1746642688000
+    },
+    {
+      "path": "scripts/absurlify.mjs",
+      "size": 2697,
+      "mtime": 1756713825750.0408
+    },
+    {
+      "path": "scripts/e150_bootstrap_content.sh",
+      "size": 5861,
+      "mtime": 1756716552660.6667
+    },
+    {
+      "path": "scripts/e150_seed.sh",
+      "size": 4037,
+      "mtime": 1756716681435.9583
+    },
+    {
+      "path": "scripts/ensureIndexes.ts",
+      "size": 10,
+      "mtime": 1756680293259.6804
+    },
+    {
+      "path": "scripts/kafka-consumer.js",
+      "size": 782,
+      "mtime": 1755106564994.2842
+    },
+    {
+      "path": "scripts/kafka-producer.js",
+      "size": 639,
+      "mtime": 1755106564990.9736
+    },
+    {
+      "path": "scripts/make-review-snapshot.mjs",
+      "size": 4222,
+      "mtime": 1757415748662.1963
+    },
+    {
+      "path": "scripts/make_review_snapshot.mjs",
+      "size": 4995,
+      "mtime": 1757415243838.3958
+    },
+    {
+      "path": "scripts/optional-prisma.js",
+      "size": 355,
+      "mtime": 1756750777663.5806
+    },
+    {
+      "path": "scripts/seed.demo.data.ts",
+      "size": 10,
+      "mtime": 1756680293270.1362
+    },
+    {
+      "path": "scripts/verifyEnv.ts",
+      "size": 10,
+      "mtime": 1756680293264.6182
+    },
+    {
+      "path": ".github/workflows/e150-ci.yml",
+      "size": 4552,
+      "mtime": 1757280365465.111
+    },
+    {
+      "path": "apps/web/Dockerfile",
+      "size": 520,
+      "mtime": 1757280732118.6206
+    },
+    {
+      "path": "apps/web/README.md",
+      "size": 1450,
+      "mtime": 1746639502000
+    },
+    {
+      "path": "apps/web/eslint.config.mjs",
+      "size": 393,
+      "mtime": 1746639502000
+    },
+    {
+      "path": "apps/web/next.config.ts",
+      "size": 2516,
+      "mtime": 1757415505872.8872
+    },
+    {
+      "path": "apps/web/package.json",
+      "size": 2231,
+      "mtime": 1757408821079.0195
+    },
+    {
+      "path": "apps/web/postcss.config.mjs",
+      "size": 81,
+      "mtime": 1746653898000
+    },
+    {
+      "path": "apps/web/tailwind.config.js",
+      "size": 972,
+      "mtime": 1756242607707.5798
+    },
+    {
+      "path": "apps/web/tsconfig.base.json",
+      "size": 262,
+      "mtime": 1757248725343.0776
+    },
+    {
+      "path": "apps/web/tsconfig.json",
+      "size": 1928,
+      "mtime": 1757356126953.0808
+    },
+    {
+      "path": "prisma/seed.cjs",
+      "size": 4648,
+      "mtime": 1755636706171.0557
+    },
+    {
+      "path": "apps/worker/package.json",
+      "size": 749,
+      "mtime": 1756970939580.4622
+    },
+    {
+      "path": "apps/worker/tsconfig.json",
+      "size": 466,
+      "mtime": 1756235914008.775
+    },
+    {
+      "path": "core/context/LocaleContext.tsx",
+      "size": 3717,
+      "mtime": 1756233378332.8376
+    },
+    {
+      "path": "core/auth/rbac.ts",
+      "size": 1385,
+      "mtime": 1756144456377.9414
+    },
+    {
+      "path": "core/errors/formatError.ts",
+      "size": 395,
+      "mtime": 1755853051292.6682
+    },
+    {
+      "path": "core/ari/ariClient.ts",
+      "size": 371,
+      "mtime": 1753364716617.575
+    },
+    {
+      "path": "core/db/prisma.ts",
+      "size": 272,
+      "mtime": 1756111705716.4583
+    },
+    {
+      "path": "core/factcheck/canonical.ts",
+      "size": 589,
+      "mtime": 1756228606048.3928
+    },
+    {
+      "path": "core/factcheck/claimDecompose.ts",
+      "size": 1120,
+      "mtime": 1756581344450.7844
+    },
+    {
+      "path": "core/factcheck/classify.ts",
+      "size": 2853,
+      "mtime": 1756228599834.107
+    },
+    {
+      "path": "core/factcheck/consensus.ts",
+      "size": 2016,
+      "mtime": 1756064826972.9321
+    },
+    {
+      "path": "core/factcheck/extractAndPersist.ts",
+      "size": 1864,
+      "mtime": 1756228596431.1672
+    },
+    {
+      "path": "core/factcheck/narrative.ts",
+      "size": 1597,
+      "mtime": 1756069591011.8936
+    },
+    {
+      "path": "core/factcheck/policy.factcheck.ts",
+      "size": 2518,
+      "mtime": 1756069587815.7212
+    },
+    {
+      "path": "core/factcheck/splitter.ts",
+      "size": 1743,
+      "mtime": 1756452241228.5867
+    },
+    {
+      "path": "core/factcheck/triage.ts",
+      "size": 656,
+      "mtime": 1756228602757.0596
+    },
+    {
+      "path": "core/factcheck/trust.ts",
+      "size": 1119,
+      "mtime": 1756064823343.1492
+    },
+    {
+      "path": "core/factcheck/types.ts",
+      "size": 1133,
+      "mtime": 1756069567458.1196
+    },
+    {
+      "path": "core/factcheck/version.ts",
+      "size": 43,
+      "mtime": 1756069563954.5818
+    },
+    {
+      "path": "core/locale/locales.ts",
+      "size": 547,
+      "mtime": 1756233435958.4692
+    },
+    {
+      "path": "core/locale/server.ts",
+      "size": 650,
+      "mtime": 1756286174832.687
+    },
+    {
+      "path": "core/observability/logger.ts",
+      "size": 262,
+      "mtime": 1755853048535.3423
+    },
+    {
+      "path": "core/logic/storeContribution.ts",
+      "size": 941,
+      "mtime": 1748286689278.2886
+    },
+    {
+      "path": "core/gpt/analyzeContribution.ts",
+      "size": 6145,
+      "mtime": 1755032824685.3804
+    },
+    {
+      "path": "core/gpt/parseAnalysisResponse.ts",
+      "size": 2583,
+      "mtime": 1755022928903.705
+    },
+    {
+      "path": "core/gpt/schemas.ts",
+      "size": 2650,
+      "mtime": 1754990063696.7139
+    },
+    {
+      "path": "core/config/pagesConfig.ts",
+      "size": 391,
+      "mtime": 1748431564779.6968
+    },
+    {
+      "path": "core/queue/factcheckQueue.ts",
+      "size": 887,
+      "mtime": 1756453911147.389
+    },
+    {
+      "path": "core/schemas/editor.ts",
+      "size": 569,
+      "mtime": 1756064897692.8608
+    },
+    {
+      "path": "_reports/structure/vpm25_structure_2025-09-04_04-46-14.txt",
+      "size": 29115,
+      "mtime": 1756953974445.717
+    },
+    {
+      "path": "core/prompts/_shared_constraints.md",
+      "size": 1248,
+      "mtime": 1754929254890.95
+    },
+    {
+      "path": "core/prompts/alternatives_only.md",
+      "size": 554,
+      "mtime": 1754929454846.3638
+    },
+    {
+      "path": "core/prompts/ari_audit.md",
+      "size": 1551,
+      "mtime": 1755025401141.6677
+    },
+    {
+      "path": "core/prompts/claude_analysis.md",
+      "size": 832,
+      "mtime": 1754929186365.752
+    },
+    {
+      "path": "core/prompts/consensus_ranking.md",
+      "size": 740,
+      "mtime": 1755029799384.686
+    },
+    {
+      "path": "core/prompts/factcheck_only.de.md",
+      "size": 1236,
+      "mtime": 1755029795132.2996
+    },
+    {
+      "path": "core/prompts/factcheck_only.md",
+      "size": 933,
+      "mtime": 1755026364331.7332
+    },
+    {
+      "path": "core/prompts/gemini_analysis.md",
+      "size": 860,
+      "mtime": 1754929209602.3284
+    },
+    {
+      "path": "core/prompts/gpt_analysis.md",
+      "size": 1693,
+      "mtime": 1754929151834.4895
+    },
+    {
+      "path": "core/prompts/impact_only.md",
+      "size": 315,
+      "mtime": 1754929440292.215
+    },
+    {
+      "path": "core/prompts/llama_analysis.md",
+      "size": 324,
+      "mtime": 1754929224835.4238
+    },
+    {
+      "path": "core/prompts/mistral_analysis.md",
+      "size": 292,
+      "mtime": 1754929249475.3674
+    },
+    {
+      "path": "core/web/worker-client.ts",
+      "size": 5960,
+      "mtime": 1756149143515.9783
+    },
+    {
+      "path": "core/utils/hash.ts",
+      "size": 230,
+      "mtime": 1754863102290.6191
+    },
+    {
+      "path": "core/utils/jsonRepair.ts",
+      "size": 3050,
+      "mtime": 1754990362912.8552
+    },
+    {
+      "path": "features/contribution/README.md",
+      "size": 366,
+      "mtime": 1752339906060.6443
+    },
+    {
+      "path": "features/contribution/SmartContribution.tsx",
+      "size": 3525,
+      "mtime": 1748379316331.95
+    },
+    {
+      "path": "features/ai/health.ts",
+      "size": 7237,
+      "mtime": 1755024022746.3416
+    },
+    {
+      "path": "features/ai/orchestrator.ts",
+      "size": 10331,
+      "mtime": 1755499710074.1235
+    },
+    {
+      "path": "features/ai/telemetry.ts",
+      "size": 1245,
+      "mtime": 1755024016784.3477
+    },
+    {
+      "path": "features/editor/index.ts",
+      "size": 201,
+      "mtime": 1755771484326.6123
+    },
+    {
+      "path": "features/editor/types.ts",
+      "size": 897,
+      "mtime": 1755771326173.5767
+    },
+    {
+      "path": "features/event/projekt.tsx",
+      "size": 11,
+      "mtime": 1750242953741.1765
+    },
+    {
+      "path": "features/organization/REDAME.md",
+      "size": 601,
+      "mtime": 1752339774187.573
+    },
+    {
+      "path": "features/utils/mfaCrypto.ts",
+      "size": 912,
+      "mtime": 1754413304655.051
+    },
+    {
+      "path": "features/user/README.md",
+      "size": 1704,
+      "mtime": 1752339718305.467
+    },
+    {
+      "path": "packages/ui/package.json",
+      "size": 121,
+      "mtime": 1756242816581.9927
+    },
+    {
+      "path": "packages/ui/theme.cjs.js",
+      "size": 95,
+      "mtime": 1746725445000
+    },
+    {
+      "path": "packages/ui/tsconfig.json",
+      "size": 725,
+      "mtime": 1756582067823.6016
+    },
+    {
+      "path": "packages/ui/tsconfig.json.bak",
+      "size": 725,
+      "mtime": 1756582067818.7056
+    },
+    {
+      "path": "apps/web/public/file.svg",
+      "size": 391,
+      "mtime": 1746639502000
+    },
+    {
+      "path": "apps/web/public/globe.svg",
+      "size": 1035,
+      "mtime": 1746639502000
+    },
+    {
+      "path": "apps/web/public/next.svg",
+      "size": 1375,
+      "mtime": 1746639502000
+    },
+    {
+      "path": "apps/web/public/vercel.svg",
+      "size": 128,
+      "mtime": 1746639502000
+    },
+    {
+      "path": "apps/web/public/window.svg",
+      "size": 385,
+      "mtime": 1746639502000
+    },
+    {
+      "path": "features/vote/useVoteStream.ts",
+      "size": 994,
+      "mtime": 1757284294398.3813
+    },
+    {
+      "path": "apps/web/src/middleware.ts",
+      "size": 6900,
+      "mtime": 1757402751202.6116
+    },
+    {
+      "path": "apps/web/scripts/check_incomplete_files.ts",
+      "size": 945,
+      "mtime": 1756679351573.9023
+    },
+    {
+      "path": "apps/web/scripts/core.ensureIndexes.ts",
+      "size": 4560,
+      "mtime": 1757026024206.9578
+    },
+    {
+      "path": "apps/web/scripts/ensureIndexes.ts",
+      "size": 3841,
+      "mtime": 1756458594376.8613
+    },
+    {
+      "path": "apps/web/scripts/importReports.js",
+      "size": 3595,
+      "mtime": 1753720945386.0825
+    },
+    {
+      "path": "apps/web/scripts/importStatements.js",
+      "size": 3595,
+      "mtime": 1753720888416.3604
+    },
+    {
+      "path": "apps/web/scripts/kafka-consumer.ts",
+      "size": 543,
+      "mtime": 1755106312122.4612
+    },
+    {
+      "path": "apps/web/scripts/kafka-producer.ts",
+      "size": 480,
+      "mtime": 1755106279924.8152
+    },
+    {
+      "path": "apps/web/scripts/mongo.ensure-geo-index.ts",
+      "size": 1137,
+      "mtime": 1757402768396.4773
+    },
+    {
+      "path": "apps/web/scripts/pii.ensureIndexes.ts",
+      "size": 1007,
+      "mtime": 1755387993202.1814
+    },
+    {
+      "path": "apps/web/scripts/ping.all.dbs.ts",
+      "size": 1112,
+      "mtime": 1755385755551.8298
+    },
+    {
+      "path": "apps/web/scripts/r2.smoke.ts",
+      "size": 1262,
+      "mtime": 1757190720210.8616
+    },
+    {
+      "path": "apps/web/scripts/seed.map.points.ts",
+      "size": 0,
+      "mtime": 1757407786644.9006
+    },
+    {
+      "path": "apps/web/scripts/tokens.ensureIndexes.ts",
+      "size": 1167,
+      "mtime": 1756672490060.2795
+    },
+    {
+      "path": "apps/web/scripts/votes.ensureIndexes.ts",
+      "size": 2115,
+      "mtime": 1756661171345.9043
+    },
+    {
+      "path": "scripts/oldscripts/e1500_relocate_to_web.sh",
+      "size": 3086,
+      "mtime": 1756680918497.5566
+    },
+    {
+      "path": "scripts/oldscripts/e150_apply_batch.sh",
+      "size": 26648,
+      "mtime": 1756680283011.2654
+    },
+    {
+      "path": "scripts/oldscripts/e150_apply_batch_v2.sh",
+      "size": 10081,
+      "mtime": 1756681136475.5476
+    },
+    {
+      "path": "scripts/oldscripts/e150_fix_admin_reports_contrib.sh",
+      "size": 5642,
+      "mtime": 1756714699000.683
+    },
+    {
+      "path": "scripts/oldscripts/e150_fix_relative_fetch.sh",
+      "size": 5895,
+      "mtime": 1756713810983.9463
+    },
+    {
+      "path": "scripts/oldscripts/e150_quickcheck.sh",
+      "size": 930,
+      "mtime": 1756708997013.0576
+    },
+    {
+      "path": "apps/web/tools/refactor-imports.js",
+      "size": 857,
+      "mtime": 1747293280000
+    },
+    {
+      "path": "apps/web/tools/vog-next-intl-setup.zip",
+      "size": 4740,
+      "mtime": 1747417348000
+    },
+    {
+      "path": "worker/factcheck/worker.ts",
+      "size": 10,
+      "mtime": 1756680293215.1758
+    },
+    {
+      "path": "apps/web/.vercel/README.txt",
+      "size": 520,
+      "mtime": 1757191440302.594
+    },
+    {
+      "path": "apps/web/.vercel/project.json",
+      "size": 108,
+      "mtime": 1757191440301.5615
+    },
+    {
+      "path": "src/graph/syncStatementsToGraph.ts",
+      "size": 10,
+      "mtime": 1756680293221.3286
+    },
+    {
+      "path": "src/utils/logger.ts",
+      "size": 10,
+      "mtime": 1756680293275.192
+    },
+    {
+      "path": "apps/web/tests/admin.analytics.summary.test.ts",
+      "size": 371,
+      "mtime": 1756670433978.6355
+    },
+    {
+      "path": "apps/web/tests/vote.stats.test.ts",
+      "size": 1150,
+      "mtime": 1757281319697.5745
+    },
+    {
+      "path": "prisma/core/schema.prisma",
+      "size": 11113,
+      "mtime": 1757080185634.3218
+    },
+    {
+      "path": "core/factcheck/__tests__/canonical.test.ts",
+      "size": 383,
+      "mtime": 1756228763845.398
+    },
+    {
+      "path": "prisma/web/schema.prisma",
+      "size": 3058,
+      "mtime": 1756989529020.151
+    },
+    {
+      "path": "prisma/migrations/migration_lock.toml",
+      "size": 128,
+      "mtime": 1756896032669.1038
+    },
+    {
+      "path": "core/factcheck/providers/ari.provider.ts",
+      "size": 1526,
+      "mtime": 1756064830001.925
+    },
+    {
+      "path": "core/factcheck/providers/claude.provider.ts",
+      "size": 717,
+      "mtime": 1756064832681.7883
+    },
+    {
+      "path": "core/factcheck/providers/mistral.provider.ts",
+      "size": 734,
+      "mtime": 1756064838684.7412
+    },
+    {
+      "path": "features/contribution/components/ContributionCard.tsx",
+      "size": 704,
+      "mtime": 1752339909549.7456
+    },
+    {
+      "path": "features/contribution/components/ContributionForm.tsx",
+      "size": 10748,
+      "mtime": 1754299725201.0442
+    },
+    {
+      "path": "features/contribution/components/ContributionList.tsx",
+      "size": 3039,
+      "mtime": 1752436998563.5522
+    },
+    {
+      "path": "apps/worker/src/index.ts",
+      "size": 2185,
+      "mtime": 1756756748765.6455
+    },
+    {
+      "path": "apps/worker/src/testJob.ts",
+      "size": 571,
+      "mtime": 1756103195527.2036
+    },
+    {
+      "path": "core/factcheck/export/claimtrust.ts",
+      "size": 1224,
+      "mtime": 1756064907253.8613
+    },
+    {
+      "path": "features/auth/components/withPageGuard.tsx",
+      "size": 727,
+      "mtime": 1757402771287.1218
+    },
+    {
+      "path": "features/auth/hooks/useAuth.ts",
+      "size": 1034,
+      "mtime": 1752427473672.5647
+    },
+    {
+      "path": "features/auth/hooks/usePermission.ts",
+      "size": 289,
+      "mtime": 1754479518306.49
+    },
+    {
+      "path": "features/auth/hooks/useRouteGuard.ts",
+      "size": 875,
+      "mtime": 1754494696050.7188
+    },
+    {
+      "path": "core/utils/validation/promptSchemas.ts",
+      "size": 6953,
+      "mtime": 1755019113053.5173
+    },
+    {
+      "path": "features/contribution/types/ ExpectedTendency.ts",
+      "size": 275,
+      "mtime": 1750242555547.9187
+    },
+    {
+      "path": "features/contribution/types/ ParticipantEntry.ts",
+      "size": 452,
+      "mtime": 1750242946607.5884
+    },
+    {
+      "path": "features/contribution/types/AgendaItem.ts",
+      "size": 696,
+      "mtime": 1750359478865.0908
+    },
+    {
+      "path": "features/contribution/types/AnalyticsType.ts",
+      "size": 552,
+      "mtime": 1750875364958.9531
+    },
+    {
+      "path": "features/contribution/types/ContributionType.ts",
+      "size": 1732,
+      "mtime": 1754689968486.2546
+    },
+    {
+      "path": "features/contribution/types/EventAnalytics.ts",
+      "size": 414,
+      "mtime": 1750242944116.0498
+    },
+    {
+      "path": "features/contribution/types/FactBoxEntry.ts",
+      "size": 998,
+      "mtime": 1750875400688.9456
+    },
+    {
+      "path": "features/contribution/types/FeedReference.ts",
+      "size": 684,
+      "mtime": 1750875383957.1824
+    },
+    {
+      "path": "features/contribution/types/GamificationStats.ts",
+      "size": 743,
+      "mtime": 1750875394560.44
+    },
+    {
+      "path": "features/contribution/types/OrganizationEvent.ts",
+      "size": 1098,
+      "mtime": 1750875409696.6978
+    },
+    {
+      "path": "features/contribution/types/PoliticalArea.ts",
+      "size": 709,
+      "mtime": 1750875379842.4023
+    },
+    {
+      "path": "features/contribution/types/QRCodeEntry.ts",
+      "size": 769,
+      "mtime": 1750875387346.9968
+    },
+    {
+      "path": "features/contribution/types/StatementType.ts",
+      "size": 763,
+      "mtime": 1750351628472.0862
+    },
+    {
+      "path": "features/contribution/types/VotingRule.ts",
+      "size": 322,
+      "mtime": 1753776596602.1362
+    },
+    {
+      "path": "features/contribution/types/VotingStats.ts",
+      "size": 260,
+      "mtime": 1750242562791.9941
+    },
+    {
+      "path": "features/common/types/ModAction.ts",
+      "size": 464,
+      "mtime": 1750875390242.456
+    },
+    {
+      "path": "features/common/components/DemoWatermark.tsx",
+      "size": 636,
+      "mtime": 1753561129634.47
+    },
+    {
+      "path": "features/common/components/UniversalSearchBar.tsx",
+      "size": 4792,
+      "mtime": 1753585668135.0955
+    },
+    {
+      "path": "features/ai/providers/anthropic.ts",
+      "size": 1327,
+      "mtime": 1755033346171.5503
+    },
+    {
+      "path": "features/ai/providers/gemini.ts",
+      "size": 1270,
+      "mtime": 1755033330985.7483
+    },
+    {
+      "path": "features/ai/providers/mistral.ts",
+      "size": 1285,
+      "mtime": 1756242162451.3208
+    },
+    {
+      "path": "features/ai/providers/openai.ts",
+      "size": 2608,
+      "mtime": 1755029771660.1555
+    },
+    {
+      "path": "features/common/hooks/useApiOrDummy.ts",
+      "size": 874,
+      "mtime": 1753560231171.6086
+    },
+    {
+      "path": "features/dashboard/components/AnalyticsPanel.tsx",
+      "size": 484,
+      "mtime": 1754391864882.1082
+    },
+    {
+      "path": "features/dashboard/components/ApiDashboard.tsx",
+      "size": 4643,
+      "mtime": 1754392161090.2632
+    },
+    {
+      "path": "features/dashboard/components/DashboardLayout.tsx",
+      "size": 363,
+      "mtime": 1754491833754.5854
+    },
+    {
+      "path": "features/dashboard/components/ErrorLog.tsx",
+      "size": 2075,
+      "mtime": 1754390895428.803
+    },
+    {
+      "path": "features/dashboard/components/SidebarNav.tsx",
+      "size": 906,
+      "mtime": 1756810596917.952
+    },
+    {
+      "path": "features/dashboard/components/StreamsPanel.tsx",
+      "size": 7616,
+      "mtime": 1757319336579.2625
+    },
+    {
+      "path": "features/dashboard/components/SystemMatrix.tsx",
+      "size": 8631,
+      "mtime": 1757356121913.976
+    },
+    {
+      "path": "features/dashboard/components/UsageKIPanel.tsx",
+      "size": 1141,
+      "mtime": 1754390898688.4126
+    },
+    {
+      "path": "features/dashboard/components/index.ts",
+      "size": 400,
+      "mtime": 1754391314459.0906
+    },
+    {
+      "path": "features/contribution/utils/analyze.ts",
+      "size": 590,
+      "mtime": 1756241854675.6848
+    },
+    {
+      "path": "features/contribution/utils/cacheAIResponses.ts",
+      "size": 766,
+      "mtime": 1754647637755.0327
+    },
+    {
+      "path": "features/contribution/utils/loadPrompt.ts",
+      "size": 777,
+      "mtime": 1756241868679.8176
+    },
+    {
+      "path": "features/contribution/utils/mapToSwipeStatement.ts",
+      "size": 5087,
+      "mtime": 1754611299967.0496
+    },
+    {
+      "path": "features/contribution/utils/preprocessMedia.ts",
+      "size": 750,
+      "mtime": 1754598732615.5498
+    },
+    {
+      "path": "features/contribution/utils/promptRegistry.ts",
+      "size": 913,
+      "mtime": 1755022348678.4277
+    },
+    {
+      "path": "features/contribution/utils/retry.ts",
+      "size": 316,
+      "mtime": 1754690073514.2917
+    },
+    {
+      "path": "features/contribution/utils/textSim.ts",
+      "size": 563,
+      "mtime": 1754610120465.0173
+    },
+    {
+      "path": "features/editor/utils/http.ts",
+      "size": 1088,
+      "mtime": 1755789859029.1733
+    },
+    {
+      "path": "features/map/components/MapClient.tsx",
+      "size": 2965,
+      "mtime": 1757356125662.874
+    },
+    {
+      "path": "features/event/components/ProjectForm.tsx",
+      "size": 2815,
+      "mtime": 1750351704397.3293
+    },
+    {
+      "path": "features/event/components/ProjectList.tsx",
+      "size": 538,
+      "mtime": 1752436716332.1497
+    },
+    {
+      "path": "features/editor/components/EditorGate.tsx",
+      "size": 1279,
+      "mtime": 1755638803582.29
+    },
+    {
+      "path": "features/event/types/ProjectType.ts",
+      "size": 431,
+      "mtime": 1750351381763.216
+    },
+    {
+      "path": "features/common/utils/date.ts",
+      "size": 176,
+      "mtime": 1752340809110.6533
+    },
+    {
+      "path": "features/common/utils/error.ts",
+      "size": 280,
+      "mtime": 1752341280631.4834
+    },
+    {
+      "path": "features/organization/components/OrgDashboard.tsx",
+      "size": 1211,
+      "mtime": 1752339751085.1472
+    },
+    {
+      "path": "features/editor/api/ItemClient.ts",
+      "size": 1965,
+      "mtime": 1755789873132.9053
+    },
+    {
+      "path": "features/organization/types/OrganizationType.ts",
+      "size": 1292,
+      "mtime": 1752338894171.5164
+    },
+    {
+      "path": "features/organization/models/Organization.ts",
+      "size": 700,
+      "mtime": 1752338016469.4915
+    },
+    {
+      "path": "features/qr/models/QRCodeEntry.ts",
+      "size": 1356,
+      "mtime": 1752392273592.5454
+    },
+    {
+      "path": "features/organization/utils/orgHelper.ts",
+      "size": 379,
+      "mtime": 1752339740760.614
+    },
+    {
+      "path": "features/politics/components/AnalyticsBox.tsx",
+      "size": 2925,
+      "mtime": 1752437095632.8225
+    },
+    {
+      "path": "features/politics/components/ReportingWidget.tsx",
+      "size": 5503,
+      "mtime": 1752444075376.355
+    },
+    {
+      "path": "features/report/data/demoReports.ts",
+      "size": 7592,
+      "mtime": 1753728758662.5679
+    },
+    {
+      "path": "features/report/data/demoStatements.ts",
+      "size": 2653,
+      "mtime": 1753560431411.6584
+    },
+    {
+      "path": "features/report/data/listReports.ts",
+      "size": 519,
+      "mtime": 1757281314024.5498
+    },
+    {
+      "path": "features/report/data/reportData.ts",
+      "size": 1573,
+      "mtime": 1750875345674.1604
+    },
+    {
+      "path": "features/report/types/AnalyticsReportType.ts",
+      "size": 1563,
+      "mtime": 1750351697468.204
+    },
+    {
+      "path": "features/report/types/PublicReportType.ts",
+      "size": 1293,
+      "mtime": 1750351713821.9114
+    },
+    {
+      "path": "features/report/types/Report.ts",
+      "size": 2986,
+      "mtime": 1753695469202.975
+    },
+    {
+      "path": "features/stream/components/StreamCard.tsx",
+      "size": 13110,
+      "mtime": 1754300322220.2915
+    },
+    {
+      "path": "features/stream/components/StreamFilters.tsx",
+      "size": 1754,
+      "mtime": 1753584759586.9114
+    },
+    {
+      "path": "features/stream/components/StreamForm.tsx",
+      "size": 6518,
+      "mtime": 1752434910621.279
+    },
+    {
+      "path": "features/stream/components/StreamList.tsx",
+      "size": 7114,
+      "mtime": 1754255771309.6055
+    },
+    {
+      "path": "features/stream/components/StreamListPause.tsx",
+      "size": 6074,
+      "mtime": 1750070342257.0688
+    },
+    {
+      "path": "features/stream/components/StreamModal.tsx",
+      "size": 3443,
+      "mtime": 1751045975198.4236
+    },
+    {
+      "path": "features/stream/components/StreamViewToggle.tsx",
+      "size": 1103,
+      "mtime": 1748841078150.542
+    },
+    {
+      "path": "features/stream/components/VideoPlayer.tsx",
+      "size": 615,
+      "mtime": 1747336133000
+    },
+    {
+      "path": "features/report/components/ImpactModal.tsx",
+      "size": 1149,
+      "mtime": 1753560361547.2463
+    },
+    {
+      "path": "features/report/components/LeftSidebar.tsx",
+      "size": 768,
+      "mtime": 1753528628931.4612
+    },
+    {
+      "path": "features/report/components/MiniLineChart.tsx",
+      "size": 615,
+      "mtime": 1753739823254.1406
+    },
+    {
+      "path": "features/report/components/NewTrendsWidget.tsx",
+      "size": 1244,
+      "mtime": 1753816299057.256
+    },
+    {
+      "path": "features/report/components/Report.tsx",
+      "size": 1280,
+      "mtime": 1753622860057.588
+    },
+    {
+      "path": "features/report/components/ReportCard.tsx",
+      "size": 20006,
+      "mtime": 1754301969331.2305
+    },
+    {
+      "path": "features/report/components/ReportDetails.tsx",
+      "size": 731,
+      "mtime": 1753364174601.1948
+    },
+    {
+      "path": "features/report/components/ReportForm.tsx",
+      "size": 1297,
+      "mtime": 1752531961199.635
+    },
+    {
+      "path": "features/report/components/ReportGridLayout.tsx",
+      "size": 644,
+      "mtime": 1753468690930.3389
+    },
+    {
+      "path": "features/report/components/ReportList.tsx",
+      "size": 337,
+      "mtime": 1753462605733.3132
+    },
+    {
+      "path": "features/report/components/ReportPage.tsx",
+      "size": 5653,
+      "mtime": 1757281309680.5613
+    },
+    {
+      "path": "features/report/components/ReportStatsChart.tsx",
+      "size": 966,
+      "mtime": 1753462669572.461
+    },
+    {
+      "path": "features/report/components/ReportView.tsx",
+      "size": 665,
+      "mtime": 1753462874723.7607
+    },
+    {
+      "path": "features/report/components/RightSidebar.tsx",
+      "size": 906,
+      "mtime": 1753816292775.8752
+    },
+    {
+      "path": "features/report/components/SectionTitle.tsx",
+      "size": 333,
+      "mtime": 1753461692582.3914
+    },
+    {
+      "path": "features/report/components/VoicesList.tsx",
+      "size": 723,
+      "mtime": 1753739828862.7244
+    },
+    {
+      "path": "features/report/components/WatermarkImage.tsx",
+      "size": 824,
+      "mtime": 1753468962709.8037
+    },
+    {
+      "path": "features/stream/utils/nationalFlag.ts",
+      "size": 3907,
+      "mtime": 1753817060504.7842
+    },
+    {
+      "path": "features/swipe/components/AlternativeCard.tsx",
+      "size": 756,
+      "mtime": 1753088078391.2996
+    },
+    {
+      "path": "features/swipe/components/ImpactIndicator.tsx",
+      "size": 260,
+      "mtime": 1753087192312.3223
+    },
+    {
+      "path": "features/swipe/components/KompromissModal.tsx",
+      "size": 2209,
+      "mtime": 1751605073727.37
+    },
+    {
+      "path": "features/swipe/components/SwipeAdminList.tsx",
+      "size": 2621,
+      "mtime": 1752433004125.0571
+    },
+    {
+      "path": "features/swipe/components/SwipeCard.tsx",
+      "size": 8204,
+      "mtime": 1754301029823.4795
+    },
+    {
+      "path": "features/swipe/components/SwipeDeck.tsx",
+      "size": 682,
+      "mtime": 1753779798040.0134
+    },
+    {
+      "path": "features/stream/data/streamData.ts",
+      "size": 12342,
+      "mtime": 1750068520496.7656
+    },
+    {
+      "path": "features/factcheck/components/UnitList.tsx",
+      "size": 1072,
+      "mtime": 1756228766885.0884
+    },
+    {
+      "path": "features/moderation/models/ModAction.ts",
+      "size": 1576,
+      "mtime": 1750882185097.4172
+    },
+    {
+      "path": "features/swipe/types/swipe.ts",
+      "size": 1991,
+      "mtime": 1754253093822.8547
+    },
+    {
+      "path": "features/utils/ai/askers.ts",
+      "size": 5852,
+      "mtime": 1755022971206.898
+    },
+    {
+      "path": "features/utils/ai/generateImage.ts",
+      "size": 1417,
+      "mtime": 1754399481617.3564
+    },
+    {
+      "path": "features/utils/ai/youClient.ts",
+      "size": 6066,
+      "mtime": 1754798806544.3982
+    },
+    {
+      "path": "features/utils/ai/youEntities.ts",
+      "size": 5027,
+      "mtime": 1754863024780.867
+    },
+    {
+      "path": "features/user/__tests__/onboarding.test.ts",
+      "size": 2414,
+      "mtime": 1752339113169.536
+    },
+    {
+      "path": "features/user/components/LogoutButton.tsx",
+      "size": 276,
+      "mtime": 1757356141547.0164
+    },
+    {
+      "path": "features/user/components/UserAdminList.tsx",
+      "size": 4000,
+      "mtime": 1755335903238.1287
+    },
+    {
+      "path": "features/user/components/UserDashboard.tsx",
+      "size": 2134,
+      "mtime": 1755335903238.6626
+    },
+    {
+      "path": "features/user/hooks/useActionPermission.ts",
+      "size": 2066,
+      "mtime": 1755335903238.3555
+    },
+    {
+      "path": "features/user/hooks/usePermission.ts",
+      "size": 2652,
+      "mtime": 1755335903238.5603
+    },
+    {
+      "path": "features/user/hooks/useRolePermission.ts",
+      "size": 388,
+      "mtime": 1752437163401.3135
+    },
+    {
+      "path": "features/user/models/index.ts",
+      "size": 120,
+      "mtime": 1755335903254.3145
+    },
+    {
+      "path": "features/user/utils/onboarding.ts",
+      "size": 1424,
+      "mtime": 1755335903238.6116
+    },
+    {
+      "path": "features/user/utils/trustScore.ts",
+      "size": 893,
+      "mtime": 1755335903238.6975
+    },
+    {
+      "path": "features/swipe/data/swipesStatements.mock.json",
+      "size": 2950,
+      "mtime": 1754253382397.338
+    },
+    {
+      "path": "features/user/context/UserContext.tsx",
+      "size": 2295,
+      "mtime": 1756810393516.1213
+    },
+    {
+      "path": "features/statement/components/StatementCard.tsx",
+      "size": 11938,
+      "mtime": 1754301056684.9485
+    },
+    {
+      "path": "features/statement/components/StatementDetailClient.tsx",
+      "size": 2461,
+      "mtime": 1756620947733.9138
+    },
+    {
+      "path": "features/statement/components/StatementForm.tsx",
+      "size": 6510,
+      "mtime": 1756620949333.41
+    },
+    {
+      "path": "features/statement/components/StatementList.tsx",
+      "size": 4361,
+      "mtime": 1752453478238.237
+    },
+    {
+      "path": "features/statement/components/StatementListDisplay.tsx",
+      "size": 1582,
+      "mtime": 1753553784391.22
+    },
+    {
+      "path": "features/statement/components/StatementMiniChart.tsx",
+      "size": 998,
+      "mtime": 1756574672347.3606
+    },
+    {
+      "path": "features/statement/constants/statementCategories.ts",
+      "size": 447,
+      "mtime": 1752452280152.642
+    },
+    {
+      "path": "features/statement/constants/status.ts",
+      "size": 216,
+      "mtime": 1750882168083.7021
+    },
+    {
+      "path": "features/statement/models/index.ts",
+      "size": 190,
+      "mtime": 1753693294351.354
+    },
+    {
+      "path": "packages/ui/src/index.tsx",
+      "size": 607,
+      "mtime": 1754300203298.2944
+    },
+    {
+      "path": "packages/ui/src/theme.ts",
+      "size": 1293,
+      "mtime": 1753528435611.1692
+    },
+    {
+      "path": "apps/web/public/dummy/dummy1.jpg",
+      "size": 115569,
+      "mtime": 1746038401000
+    },
+    {
+      "path": "apps/web/public/dummy/dummy10.jpg",
+      "size": 94093,
+      "mtime": 1746038329000
+    },
+    {
+      "path": "apps/web/public/dummy/dummy11.jpg",
+      "size": 65821,
+      "mtime": 1746038320000
+    },
+    {
+      "path": "apps/web/public/dummy/dummy12.jpg",
+      "size": 68316,
+      "mtime": 1746038311000
+    },
+    {
+      "path": "apps/web/public/dummy/dummy2.jpg",
+      "size": 79979,
+      "mtime": 1746038393000
+    },
+    {
+      "path": "apps/web/public/dummy/dummy3.jpg",
+      "size": 84074,
+      "mtime": 1746038386000
+    },
+    {
+      "path": "apps/web/public/dummy/dummy4.jpg",
+      "size": 85502,
+      "mtime": 1746038379000
+    },
+    {
+      "path": "apps/web/public/dummy/dummy5.jpg",
+      "size": 101101,
+      "mtime": 1746038372000
+    },
+    {
+      "path": "apps/web/public/dummy/dummy6.jpg",
+      "size": 63242,
+      "mtime": 1746038365000
+    },
+    {
+      "path": "apps/web/public/dummy/dummy7.jpg",
+      "size": 91699,
+      "mtime": 1746038357000
+    },
+    {
+      "path": "apps/web/public/dummy/dummy8.jpg",
+      "size": 67616,
+      "mtime": 1746038349000
+    },
+    {
+      "path": "apps/web/public/dummy/dummy9.jpg",
+      "size": 67892,
+      "mtime": 1746038339000
+    },
+    {
+      "path": "apps/web/public/dummy/trailer-1.mp4",
+      "size": 9840497,
+      "mtime": 1746198300000
+    },
+    {
+      "path": "features/user/types/UserType.ts",
+      "size": 884,
+      "mtime": 1752338223607.925
+    },
+    {
+      "path": "features/statement/data/statements_demo.ts",
+      "size": 11355,
+      "mtime": 1753606533146.8936
+    },
+    {
+      "path": "apps/web/public/videos/WertderStimme_DE.mp4",
+      "size": 30449747,
+      "mtime": 1751887948189.6985
+    },
+    {
+      "path": "apps/web/src/app/favicon.ico",
+      "size": 25931,
+      "mtime": 1746639502000
+    },
+    {
+      "path": "apps/web/src/app/globals.css",
+      "size": 59,
+      "mtime": 1746652066000
+    },
+    {
+      "path": "apps/web/src/app/layout.tsx",
+      "size": 2061,
+      "mtime": 1757281341351.174
+    },
+    {
+      "path": "apps/web/src/app/page.tsx",
+      "size": 1110,
+      "mtime": 1756810661192.5706
+    },
+    {
+      "path": "apps/web/src/app/providers.tsx",
+      "size": 473,
+      "mtime": 1757155742046.3098
+    },
+    {
+      "path": "features/vote/components/CountryAccordion.tsx",
+      "size": 3008,
+      "mtime": 1754300873451.1765
+    },
+    {
+      "path": "features/vote/components/UserVoteBar.tsx",
+      "size": 3918,
+      "mtime": 1757284434167.3237
+    },
+    {
+      "path": "features/vote/components/VoteBar.tsx",
+      "size": 3224,
+      "mtime": 1753857457669.9822
+    },
+    {
+      "path": "features/vote/components/VoteButton.tsx",
+      "size": 4025,
+      "mtime": 1756574671378.619
+    },
+    {
+      "path": "features/vote/components/VotingRuleBadge.tsx",
+      "size": 827,
+      "mtime": 1753778083655.5945
+    },
+    {
+      "path": "apps/web/src/components/FAQTabs.tsx",
+      "size": 5633,
+      "mtime": 1756711720509.1592
+    },
+    {
+      "path": "apps/web/src/components/Headline.tsx",
+      "size": 285,
+      "mtime": 1756711720609.0925
+    },
+    {
+      "path": "apps/web/src/components/IntroSection.tsx",
+      "size": 1208,
+      "mtime": 1756810616881.5015
+    },
+    {
+      "path": "apps/web/src/components/LanguageSwitcher.tsx",
+      "size": 403,
+      "mtime": 1756711720740.6323
+    },
+    {
+      "path": "apps/web/src/components/MembershipInfo.tsx",
+      "size": 586,
+      "mtime": 1756711720515.4058
+    },
+    {
+      "path": "apps/web/src/components/MiniAccordion.tsx",
+      "size": 1115,
+      "mtime": 1756711720512.5276
+    },
+    {
+      "path": "apps/web/src/components/MiniFeed.tsx",
+      "size": 767,
+      "mtime": 1756711720525.7012
+    },
+    {
+      "path": "apps/web/src/components/PageWrapper.tsx",
+      "size": 490,
+      "mtime": 1756711720551.547
+    },
+    {
+      "path": "apps/web/src/components/PasswordField.tsx",
+      "size": 813,
+      "mtime": 1756711720502.459
+    },
+    {
+      "path": "apps/web/src/components/QRCodeGenerator.tsx",
+      "size": 460,
+      "mtime": 1756711720586.2786
+    },
+    {
+      "path": "apps/web/src/components/QRCodeWizard.tsx",
+      "size": 9753,
+      "mtime": 1756711720576.4531
+    },
+    {
+      "path": "apps/web/src/components/QuickRegister.tsx",
+      "size": 1669,
+      "mtime": 1756713826079.1895
+    },
+    {
+      "path": "apps/web/src/components/SetBuilder.tsx",
+      "size": 1394,
+      "mtime": 1756711720527.2856
+    },
+    {
+      "path": "apps/web/src/components/SiteHeader.tsx",
+      "size": 357,
+      "mtime": 1756711720513.718
+    },
+    {
+      "path": "apps/web/src/components/StreamForm.tsx",
+      "size": 2011,
+      "mtime": 1756711720733.718
+    },
+    {
+      "path": "apps/web/src/components/Stufenbalken.tsx",
+      "size": 838,
+      "mtime": 1756711720600.9177
+    },
+    {
+      "path": "apps/web/src/components/SupportBenefits.tsx",
+      "size": 587,
+      "mtime": 1756711720559.6995
+    },
+    {
+      "path": "apps/web/src/components/SupportCTA.tsx",
+      "size": 369,
+      "mtime": 1756711720528.7578
+    },
+    {
+      "path": "apps/web/src/components/SwipeTeaser.tsx",
+      "size": 2006,
+      "mtime": 1756810634657.803
+    },
+    {
+      "path": "apps/web/src/components/TabNav.tsx",
+      "size": 785,
+      "mtime": 1756711720511.4595
+    },
+    {
+      "path": "apps/web/src/components/ThemaGrid.tsx",
+      "size": 1009,
+      "mtime": 1756711720664.7734
+    },
+    {
+      "path": "apps/web/src/constants/languages.ts",
+      "size": 497,
+      "mtime": 1756711720233.6267
+    },
+    {
+      "path": "apps/web/src/constants/roles.ts",
+      "size": 258,
+      "mtime": 1756711720234.4763
+    },
+    {
+      "path": "packages/api/projects/[id].ts",
+      "size": 1110,
+      "mtime": 1750875338942.0051
+    },
+    {
+      "path": "apps/web/src/config/accessControl.ts",
+      "size": 987,
+      "mtime": 1756711720220.3657
+    },
+    {
+      "path": "apps/web/src/config/prompts.json",
+      "size": 704,
+      "mtime": 1754934206633.0254
+    },
+    {
+      "path": "apps/web/src/hooks/useErrorToast.ts",
+      "size": 538,
+      "mtime": 1756711720751.9614
+    },
+    {
+      "path": "apps/web/src/hooks/useFactcheckJob.ts",
+      "size": 6467,
+      "mtime": 1756713826098.0793
+    },
+    {
+      "path": "apps/web/src/hooks/useRegionPreference.ts",
+      "size": 2236,
+      "mtime": 1756988011482.5083
+    },
+    {
+      "path": "apps/web/src/lib/audit.ts",
+      "size": 0,
+      "mtime": 1756711720810.561
+    },
+    {
+      "path": "apps/web/src/lib/db.ts",
+      "size": 819,
+      "mtime": 1757402844051.653
+    },
+    {
+      "path": "apps/web/src/lib/dbCore.ts",
+      "size": 324,
+      "mtime": 1756972183894.8933
+    },
+    {
+      "path": "apps/web/src/lib/dbWeb.ts",
+      "size": 321,
+      "mtime": 1756972186565.365
+    },
+    {
+      "path": "apps/web/src/lib/mongo.ts",
+      "size": 504,
+      "mtime": 1756711720787.0652
+    },
+    {
+      "path": "apps/web/src/lib/neo4j.ts",
+      "size": 840,
+      "mtime": 1757281346616.5977
+    },
+    {
+      "path": "apps/web/src/lib/redis.ts",
+      "size": 3973,
+      "mtime": 1757365340284.2385
+    },
+    {
+      "path": "apps/web/src/lib/s3.ts",
+      "size": 1296,
+      "mtime": 1757190856709.1277
+    },
+    {
+      "path": "apps/web/src/lib/worker.ts",
+      "size": 2021,
+      "mtime": 1756711720818.7366
+    },
+    {
+      "path": "apps/web/src/models/org.ts",
+      "size": 212,
+      "mtime": 1756711720501.9355
+    },
+    {
+      "path": "apps/web/src/graph/arangoRepo.ts",
+      "size": 2905,
+      "mtime": 1756711720253.4536
+    },
+    {
+      "path": "apps/web/src/graph/config.ts",
+      "size": 145,
+      "mtime": 1756711720265.6577
+    },
+    {
+      "path": "apps/web/src/graph/index.ts",
+      "size": 422,
+      "mtime": 1756711720264.804
+    },
+    {
+      "path": "apps/web/src/graph/memgraphRepo.ts",
+      "size": 3026,
+      "mtime": 1756711720252.69
+    },
+    {
+      "path": "apps/web/src/graph/neo4jRepo.ts",
+      "size": 3467,
+      "mtime": 1756711720259.4526
+    },
+    {
+      "path": "apps/web/src/graph/syncStatementsToGraph.ts",
+      "size": 0,
+      "mtime": 1756711720270.0083
+    },
+    {
+      "path": "apps/web/src/graph/types.ts",
+      "size": 1056,
+      "mtime": 1756711720263.6895
+    },
+    {
+      "path": "apps/web/src/middleware/editorAuth.ts",
+      "size": 1393,
+      "mtime": 1756711718524.8127
+    },
+    {
+      "path": "apps/web/src/openapi/v1.yaml",
+      "size": 1338,
+      "mtime": 1757281330956.0493
+    },
+    {
+      "path": "apps/web/src/server/health.ts",
+      "size": 2197,
+      "mtime": 1756756454359.1687
+    },
+    {
+      "path": "apps/web/src/server/services.ts",
+      "size": 1636,
+      "mtime": 1756759604504.242
+    },
+    {
+      "path": "apps/web/src/styles/dashboard.css",
+      "size": 2397,
+      "mtime": 1747977155396.3325
+    },
+    {
+      "path": "apps/web/src/utils/AccessControl.ts",
+      "size": 1193,
+      "mtime": 1756711720479.5908
+    },
+    {
+      "path": "apps/web/src/utils/aiPing.ts",
+      "size": 2930,
+      "mtime": 1756754757663.0476
+    },
+    {
+      "path": "apps/web/src/utils/aiProviders.ts",
+      "size": 4522,
+      "mtime": 1756711720379.1775
+    },
+    {
+      "path": "apps/web/src/utils/arangoClient.ts",
+      "size": 641,
+      "mtime": 1756711720397.241
+    },
+    {
+      "path": "apps/web/src/utils/authSchemas.ts",
+      "size": 546,
+      "mtime": 1756711720468.1816
+    },
+    {
+      "path": "apps/web/src/utils/email.ts",
+      "size": 8406,
+      "mtime": 1756756321505.7878
+    },
+    {
+      "path": "apps/web/src/utils/env.server.ts",
+      "size": 4904,
+      "mtime": 1756711720329.096
+    },
+    {
+      "path": "apps/web/src/utils/env.shared.ts",
+      "size": 498,
+      "mtime": 1756711720395.0789
+    },
+    {
+      "path": "apps/web/src/utils/gptTranslator.ts",
+      "size": 763,
+      "mtime": 1756711720380.0361
+    },
+    {
+      "path": "apps/web/src/utils/jwt.ts",
+      "size": 1371,
+      "mtime": 1756711720348.4526
+    },
+    {
+      "path": "apps/web/src/utils/log.ts",
+      "size": 769,
+      "mtime": 1756711720411.2825
+    },
+    {
+      "path": "apps/web/src/utils/logger.ts",
+      "size": 357,
+      "mtime": 1757356120970.3694
+    },
+    {
+      "path": "apps/web/src/utils/mailer.ts",
+      "size": 1870,
+      "mtime": 1756711720352.3447
+    },
+    {
+      "path": "apps/web/src/utils/memgraphClient.ts",
+      "size": 702,
+      "mtime": 1756711720365.4746
+    },
+    {
+      "path": "apps/web/src/utils/mongoClient.ts",
+      "size": 1031,
+      "mtime": 1756737771206.0095
+    },
+    {
+      "path": "apps/web/src/utils/mongoClient.ts.bak.20250831183211",
+      "size": 648,
+      "mtime": 1756711720354.461
+    },
+    {
+      "path": "apps/web/src/utils/mongoPing.ts",
+      "size": 856,
+      "mtime": 1756729426934.9727
+    },
+    {
+      "path": "apps/web/src/utils/neo4jClient.ts",
+      "size": 819,
+      "mtime": 1756738074253.7332
+    },
+    {
+      "path": "apps/web/src/utils/normalizeStatus.ts",
+      "size": 373,
+      "mtime": 1756711720408.8145
+    },
+    {
+      "path": "apps/web/src/utils/password.ts",
+      "size": 347,
+      "mtime": 1756711720353.7217
+    },
+    {
+      "path": "apps/web/src/utils/password.ts.bak.20250831183211",
+      "size": 342,
+      "mtime": 1756711720311.5073
+    },
+    {
+      "path": "apps/web/src/utils/publicOrigin.ts",
+      "size": 325,
+      "mtime": 1756711720384.8696
+    },
+    {
+      "path": "apps/web/src/utils/rateLimit.ts",
+      "size": 582,
+      "mtime": 1756711720384.077
+    },
+    {
+      "path": "apps/web/src/utils/rateLimit.ts.bak.20250831183211",
+      "size": 902,
+      "mtime": 1756711720347.0444
+    },
+    {
+      "path": "apps/web/src/utils/redisPing.ts",
+      "size": 1556,
+      "mtime": 1756754196308.4927
+    },
+    {
+      "path": "apps/web/src/utils/serverBaseUrl.ts",
+      "size": 697,
+      "mtime": 1756713825731.7527
+    },
+    {
+      "path": "apps/web/src/utils/session.ts",
+      "size": 2190,
+      "mtime": 1756711720400.6416
+    },
+    {
+      "path": "apps/web/src/utils/tokens.ts",
+      "size": 1098,
+      "mtime": 1756711720380.9827
+    },
+    {
+      "path": "apps/web/src/utils/translationCache.ts",
+      "size": 467,
+      "mtime": 1756711720413.4612
+    },
+    {
+      "path": "apps/web/src/utils/triMongo.ts",
+      "size": 1737,
+      "mtime": 1756711720362.6545
+    },
+    {
+      "path": "apps/web/src/utils/useTranslation.ts",
+      "size": 425,
+      "mtime": 1756713826115.5918
+    },
+    {
+      "path": "apps/web/src/utils/validation.ts",
+      "size": 299,
+      "mtime": 1757356120098.9246
+    },
+    {
+      "path": "src/app/admin/page.tsx",
+      "size": 10,
+      "mtime": 1756680293226.3516
+    },
+    {
+      "path": "apps/web/scripts/data/exampleStatements.json",
+      "size": 1285,
+      "mtime": 1752857007607.9883
+    },
+    {
+      "path": "apps/web/scripts/data/feedNews.json",
+      "size": 1677,
+      "mtime": 1752855729500.6343
+    },
+    {
+      "path": "apps/web/scripts/data/initialReports.json",
+      "size": 4725,
+      "mtime": 1754253627980.7786
+    },
+    {
+      "path": "apps/web/scripts/data/initialStatements.json",
+      "size": 6150,
+      "mtime": 1754606348157.3994
+    },
+    {
+      "path": "apps/web/scripts/data/initialStatements.schema.js",
+      "size": 2549,
+      "mtime": 1752837845872.8792
+    },
+    {
+      "path": "apps/web/scripts/data/initialStatementsReadme.md",
+      "size": 3316,
+      "mtime": 1752837837298.0627
+    },
+    {
+      "path": "apps/web/scripts/data/reportSchema.json",
+      "size": 3843,
+      "mtime": 1753641833616.1963
+    },
+    {
+      "path": "apps/web/scripts/data/statementSchema.json",
+      "size": 7391,
+      "mtime": 1754606587406.6602
+    },
+    {
+      "path": "apps/web/scripts/data/vogReports.json",
+      "size": 1220,
+      "mtime": 1752855741728.3496
+    },
+    {
+      "path": "apps/web/src/types/optional-mods.d.ts",
+      "size": 272,
+      "mtime": 1756711718525.6692
+    },
+    {
+      "path": "src/app/contributions/page.tsx",
+      "size": 10,
+      "mtime": 1756680293187.8877
+    },
+    {
+      "path": "src/app/reports/page.tsx",
+      "size": 10,
+      "mtime": 1756680293119.3535
+    },
+    {
+      "path": "src/core/errors/formatError.ts",
+      "size": 10,
+      "mtime": 1756680293280.9807
+    },
+    {
+      "path": "src/app/stream/page.tsx",
+      "size": 10,
+      "mtime": 1756680293160.1829
+    },
+    {
+      "path": "prisma/migrations/20250819202532_add_region_closure_and_indices/migration.sql",
+      "size": 6366,
+      "mtime": 1755635132493.0024
+    },
+    {
+      "path": "apps/web/tests/e2e/admin.spec.ts",
+      "size": 194,
+      "mtime": 1756670433017.1257
+    },
+    {
+      "path": "prisma/migrations/20250824215107_factcheck_worldclass_v1/migration.sql",
+      "size": 6079,
+      "mtime": 1756072267676.2537
+    },
+    {
+      "path": "prisma/migrations/20250826175058_factcheck_units_findings_v1/migration.sql",
+      "size": 509,
+      "mtime": 1756230658806.3481
+    },
+    {
+      "path": "prisma/migrations/20250903104032_init_topics_statements/migration.sql",
+      "size": 6612,
+      "mtime": 1756896032667.658
+    },
+    {
+      "path": "apps/worker/src/queues/factcheck.worker.ts",
+      "size": 13240,
+      "mtime": 1756228585130.465
+    },
+    {
+      "path": "features/dashboard/components/admin/SidebarNavAdmin.ts",
+      "size": 968,
+      "mtime": 1757370939740.631
+    },
+    {
+      "path": "packages/ui/src/constants/languageOptions.ts",
+      "size": 1605,
+      "mtime": 1747416240000
+    },
+    {
+      "path": "packages/ui/src/design/Badge.tsx",
+      "size": 723,
+      "mtime": 1751400760548.002
+    },
+    {
+      "path": "packages/ui/src/design/Button.tsx",
+      "size": 1145,
+      "mtime": 1748433506721.4766
+    },
+    {
+      "path": "packages/ui/src/design/LoadingOverlay.tsx",
+      "size": 405,
+      "mtime": 1747277662000
+    },
+    {
+      "path": "packages/ui/src/design/Modal.tsx",
+      "size": 1452,
+      "mtime": 1747205275000
+    },
+    {
+      "path": "packages/ui/src/design/ModalConfirm.tsx",
+      "size": 831,
+      "mtime": 1747339204000
+    },
+    {
+      "path": "packages/ui/src/design/Spinner.tsx",
+      "size": 243,
+      "mtime": 1747204894000
+    },
+    {
+      "path": "packages/ui/src/design/Toast.tsx",
+      "size": 780,
+      "mtime": 1747230403000
+    },
+    {
+      "path": "packages/ui/src/design/badgeColor.ts",
+      "size": 264,
+      "mtime": 1754300168411.058
+    },
+    {
+      "path": "packages/ui/src/design/badgeColors.ts",
+      "size": 139,
+      "mtime": 1756581715034.2852
+    },
+    {
+      "path": "packages/ui/src/layout/Footer.tsx",
+      "size": 2782,
+      "mtime": 1756810520824.41
+    },
+    {
+      "path": "packages/ui/src/layout/Header.tsx",
+      "size": 7716,
+      "mtime": 1756893092235.4087
+    },
+    {
+      "path": "packages/ui/src/types/externals.d.ts",
+      "size": 370,
+      "mtime": 1756582067829.385
+    },
+    {
+      "path": "apps/web/src/app/[locale]/layout.tsx",
+      "size": 624,
+      "mtime": 1756711718534.0764
+    },
+    {
+      "path": "apps/worker/src/jobs/factcheck.job.ts",
+      "size": 442,
+      "mtime": 1756728283490.994
+    },
+    {
+      "path": "apps/worker/src/jobs/healthWatch.ts",
+      "size": 2165,
+      "mtime": 1756759618571.2322
+    },
+    {
+      "path": "prisma/migrations/20250826070626_factcheck_expansion_fix/migration.sql",
+      "size": 3602,
+      "mtime": 1756191986110.3618
+    },
+    {
+      "path": "apps/worker/src/lib/extractFallback.ts",
+      "size": 730,
+      "mtime": 1756728292488.0127
+    },
+    {
+      "path": "apps/worker/src/lib/redis.ts",
+      "size": 1685,
+      "mtime": 1756756596786.671
+    },
+    {
+      "path": "apps/web/src/app/admin/layout.tsx",
+      "size": 1032,
+      "mtime": 1757402776305.7932
+    },
+    {
+      "path": "apps/web/src/app/admin/page.tsx",
+      "size": 2073,
+      "mtime": 1756714703301.2317
+    },
+    {
+      "path": "apps/web/src/app/barrierefreiheit/page.tsx",
+      "size": 405,
+      "mtime": 1756711719928.7769
+    },
+    {
+      "path": "apps/web/src/app/contact/page.tsx",
+      "size": 1708,
+      "mtime": 1756711718531.2183
+    },
+    {
+      "path": "apps/web/src/app/context/page.tsx",
+      "size": 339,
+      "mtime": 1756711718532.648
+    },
+    {
+      "path": "apps/web/src/app/contribute/ContributionForm.tsx",
+      "size": 4043,
+      "mtime": 1756711718723.8318
+    },
+    {
+      "path": "apps/web/src/app/contribute/page.tsx",
+      "size": 166,
+      "mtime": 1756711718724.3457
+    },
+    {
+      "path": "apps/web/src/app/contributions/page.tsx",
+      "size": 854,
+      "mtime": 1756714703309.3567
+    },
+    {
+      "path": "apps/web/src/app/daten/page.tsx",
+      "size": 1505,
+      "mtime": 1756711718526.543
+    },
+    {
+      "path": "apps/web/src/app/dashboard/StreamDashboard.tsx",
+      "size": 3078,
+      "mtime": 1756711718700.9224
+    },
+    {
+      "path": "apps/web/src/app/dashboard/errors.tsx",
+      "size": 291,
+      "mtime": 1756711718665.1062
+    },
+    {
+      "path": "apps/web/src/app/dashboard/index.tsx",
+      "size": 470,
+      "mtime": 1756711718660.5989
+    },
+    {
+      "path": "apps/web/src/app/dashboard/layout.tsx",
+      "size": 469,
+      "mtime": 1756711718702.7786
+    },
+    {
+      "path": "apps/web/src/app/dashboard/orgs.tsx",
+      "size": 438,
+      "mtime": 1756711718711.149
+    },
+    {
+      "path": "apps/web/src/app/dashboard/page.tsx",
+      "size": 2633,
+      "mtime": 1756711718710.5984
+    },
+    {
+      "path": "apps/web/src/app/dashboard/redaktion.tsx",
+      "size": 424,
+      "mtime": 1756711718706.3354
+    },
+    {
+      "path": "apps/web/src/app/dashboard/usage.tsx",
+      "size": 433,
+      "mtime": 1756711718701.964
+    },
+    {
+      "path": "apps/web/src/app/dashboard/user.tsx",
+      "size": 865,
+      "mtime": 1756711718695.175
+    },
+    {
+      "path": "apps/web/src/app/faq/page.tsx",
+      "size": 1714,
+      "mtime": 1756711718545.9534
+    },
+    {
+      "path": "apps/web/src/app/impressum/page.tsx",
+      "size": 1378,
+      "mtime": 1756711718717.2256
+    },
+    {
+      "path": "apps/web/src/app/kontakt/page.tsx",
+      "size": 387,
+      "mtime": 1756711718535.3767
+    },
+    {
+      "path": "apps/web/src/app/login/page.tsx",
+      "size": 2888,
+      "mtime": 1756711720100.3967
+    },
+    {
+      "path": "apps/web/src/app/demo/page.tsx",
+      "size": 1582,
+      "mtime": 1756711718527.9517
+    },
+    {
+      "path": "apps/web/src/app/mitglied-werden/page.tsx",
+      "size": 1502,
+      "mtime": 1756711718547.4602
+    },
+    {
+      "path": "apps/web/src/app/not-found/page.tsx",
+      "size": 407,
+      "mtime": 1756711718541.919
+    },
+    {
+      "path": "apps/web/src/app/presse/page.tsx",
+      "size": 15153,
+      "mtime": 1756711720115.9622
+    },
+    {
+      "path": "apps/web/src/app/profile/page.tsx",
+      "size": 250,
+      "mtime": 1756711718720.5427
+    },
+    {
+      "path": "apps/web/src/app/messages/ar.json",
+      "size": 200,
+      "mtime": 1747410044000
+    },
+    {
+      "path": "apps/web/src/app/messages/cs.json",
+      "size": 271,
+      "mtime": 1747413094000
+    },
+    {
+      "path": "apps/web/src/app/messages/de.json",
+      "size": 200,
+      "mtime": 1747410044000
+    },
+    {
+      "path": "apps/web/src/app/messages/el.json",
+      "size": 271,
+      "mtime": 1747413094000
+    },
+    {
+      "path": "apps/web/src/app/messages/en.json",
+      "size": 200,
+      "mtime": 1747410044000
+    },
+    {
+      "path": "apps/web/src/app/messages/es.json",
+      "size": 200,
+      "mtime": 1747410044000
+    },
+    {
+      "path": "apps/web/src/app/messages/fi.json",
+      "size": 271,
+      "mtime": 1747413094000
+    },
+    {
+      "path": "apps/web/src/app/messages/fr.json",
+      "size": 200,
+      "mtime": 1747410044000
+    },
+    {
+      "path": "apps/web/src/app/messages/hi.json",
+      "size": 271,
+      "mtime": 1747413094000
+    },
+    {
+      "path": "apps/web/src/app/messages/it.json",
+      "size": 271,
+      "mtime": 1747413094000
+    },
+    {
+      "path": "apps/web/src/app/messages/nl.json",
+      "size": 271,
+      "mtime": 1747413094000
+    },
+    {
+      "path": "apps/web/src/app/messages/no.json",
+      "size": 271,
+      "mtime": 1747413094000
+    },
+    {
+      "path": "apps/web/src/app/messages/pl.json",
+      "size": 200,
+      "mtime": 1747410044000
+    },
+    {
+      "path": "apps/web/src/app/messages/pt.json",
+      "size": 271,
+      "mtime": 1747413094000
+    },
+    {
+      "path": "apps/web/src/app/messages/ro.json",
+      "size": 271,
+      "mtime": 1747413094000
+    },
+    {
+      "path": "apps/web/src/app/messages/ru.json",
+      "size": 200,
+      "mtime": 1747410044000
+    },
+    {
+      "path": "apps/web/src/app/messages/sv.json",
+      "size": 271,
+      "mtime": 1747413094000
+    },
+    {
+      "path": "apps/web/src/app/messages/tr.json",
+      "size": 271,
+      "mtime": 1747413094000
+    },
+    {
+      "path": "apps/web/src/app/messages/uk.json",
+      "size": 271,
+      "mtime": 1747413094000
+    },
+    {
+      "path": "apps/web/src/app/map/page.tsx",
+      "size": 517,
+      "mtime": 1757356140661.645
+    },
+    {
+      "path": "apps/web/src/app/qrcodewizard/page.tsx",
+      "size": 393,
+      "mtime": 1756711720137.015
+    },
+    {
+      "path": "apps/web/src/app/beitraege/page.tsx",
+      "size": 1866,
+      "mtime": 1756711718718.1785
+    },
+    {
+      "path": "apps/web/src/app/report/page.tsx",
+      "size": 723,
+      "mtime": 1757281093682.3152
+    },
+    {
+      "path": "apps/web/src/app/qrcodegenerator/page.tsx",
+      "size": 480,
+      "mtime": 1756711720218.675
+    },
+    {
+      "path": "apps/web/src/app/satzung/page.tsx",
+      "size": 2073,
+      "mtime": 1756711718533.5142
+    },
+    {
+      "path": "apps/web/src/app/settings/page.tsx",
+      "size": 359,
+      "mtime": 1756711718529.6365
+    },
+    {
+      "path": "apps/web/src/app/register/page.tsx",
+      "size": 5388,
+      "mtime": 1756711718718.9597
+    },
+    {
+      "path": "apps/web/src/app/stream/page.tsx",
+      "size": 0,
+      "mtime": 1756711718549.7107
+    },
+    {
+      "path": "apps/web/src/app/stream/pausepage.tsx",
+      "size": 1020,
+      "mtime": 1756711718549.2227
+    },
+    {
+      "path": "apps/web/src/app/swipe/page.tsx",
+      "size": 323,
+      "mtime": 1756711718652.4832
+    },
+    {
+      "path": "apps/web/src/app/team/page.tsx",
+      "size": 381,
+      "mtime": 1756711718723.074
+    },
+    {
+      "path": "apps/web/src/app/unterstuetzen/page.tsx",
+      "size": 1748,
+      "mtime": 1756711720085.3633
+    },
+    {
+      "path": "apps/web/src/app/verhaltenskodex/page.tsx",
+      "size": 403,
+      "mtime": 1756711718548.2341
+    },
+    {
+      "path": "apps/web/src/app/verify/page.tsx",
+      "size": 5541,
+      "mtime": 1756711718540.4182
+    },
+    {
+      "path": "apps/web/src/app/reset/page.tsx",
+      "size": 2989,
+      "mtime": 1756711718550.815
+    },
+    {
+      "path": "apps/web/src/db/core/client.d.ts",
+      "size": 23,
+      "mtime": 1757248693682.3352
+    },
+    {
+      "path": "apps/web/src/db/core/client.js",
+      "size": 125,
+      "mtime": 1757248693682.3147
+    },
+    {
+      "path": "apps/web/src/db/core/default.d.ts",
+      "size": 23,
+      "mtime": 1757248693682.5947
+    },
+    {
+      "path": "apps/web/src/db/core/default.js",
+      "size": 125,
+      "mtime": 1757248693682.5413
+    },
+    {
+      "path": "apps/web/src/db/core/edge.d.ts",
+      "size": 25,
+      "mtime": 1757248693682.2957
+    },
+    {
+      "path": "apps/web/src/db/core/edge.js",
+      "size": 82493,
+      "mtime": 1757248693682.572
+    },
+    {
+      "path": "apps/web/src/db/core/index-browser.js",
+      "size": 12023,
+      "mtime": 1757248693682.2683
+    },
+    {
+      "path": "apps/web/src/db/core/index.d.ts",
+      "size": 1232309,
+      "mtime": 1757248693682.7002
+    },
+    {
+      "path": "apps/web/src/db/core/index.js",
+      "size": 83137,
+      "mtime": 1757248693682.1448
+    },
+    {
+      "path": "apps/web/src/db/core/libquery_engine-darwin-arm64.dylib.node",
+      "size": 19354784,
+      "mtime": 1757248693709.9602
+    },
+    {
+      "path": "apps/web/src/db/core/package.json",
+      "size": 4326,
+      "mtime": 1757248693682.4949
+    },
+    {
+      "path": "apps/web/src/db/core/schema.prisma",
+      "size": 11002,
+      "mtime": 1757248693718.1328
+    },
+    {
+      "path": "apps/web/src/db/core/wasm.d.ts",
+      "size": 23,
+      "mtime": 1757248693682.3608
+    },
+    {
+      "path": "apps/web/src/db/core/wasm.js",
+      "size": 12023,
+      "mtime": 1757248693682.4202
+    },
+    {
+      "path": "apps/web/src/components/region/RegionConsent.tsx",
+      "size": 2590,
+      "mtime": 1756988014846.8445
+    },
+    {
+      "path": "apps/web/src/components/theme/ThemeProvider.tsx",
+      "size": 1178,
+      "mtime": 1756711720553.333
+    },
+    {
+      "path": "apps/web/src/app/testinput/page.tsx",
+      "size": 565,
+      "mtime": 1756711719968.9878
+    },
+    {
+      "path": "apps/web/src/lib/contribution/extractStatements.ts",
+      "size": 207,
+      "mtime": 1756711720785.451
+    },
+    {
+      "path": "apps/web/src/lib/contribution/storeContribution.ts",
+      "size": 525,
+      "mtime": 1756711720775.319
+    },
+    {
+      "path": "apps/web/src/lib/contribution/translateAndCache.ts",
+      "size": 678,
+      "mtime": 1756711720778.7886
+    },
+    {
+      "path": "apps/web/src/db/web/client.d.ts",
+      "size": 23,
+      "mtime": 1757415201005.0217
+    },
+    {
+      "path": "apps/web/src/db/web/client.js",
+      "size": 125,
+      "mtime": 1757415201005.0913
+    },
+    {
+      "path": "apps/web/src/db/web/default.d.ts",
+      "size": 23,
+      "mtime": 1757415201005.007
+    },
+    {
+      "path": "apps/web/src/db/web/default.js",
+      "size": 125,
+      "mtime": 1757415201005.275
+    },
+    {
+      "path": "apps/web/src/db/web/edge.d.ts",
+      "size": 25,
+      "mtime": 1757415201005.152
+    },
+    {
+      "path": "apps/web/src/db/web/edge.js",
+      "size": 27264,
+      "mtime": 1757415201005.3594
+    },
+    {
+      "path": "apps/web/src/db/web/index-browser.js",
+      "size": 8312,
+      "mtime": 1757415201005.1375
+    },
+    {
+      "path": "apps/web/src/db/web/index.d.ts",
+      "size": 415134,
+      "mtime": 1757415201005.2512
+    },
+    {
+      "path": "apps/web/src/db/web/index.js",
+      "size": 27869,
+      "mtime": 1757415201004.9778
+    },
+    {
+      "path": "apps/web/src/db/web/libquery_engine-darwin-arm64.dylib.node",
+      "size": 19354784,
+      "mtime": 1757415201029.1797
+    },
+    {
+      "path": "apps/web/src/db/web/package.json",
+      "size": 4326,
+      "mtime": 1757415201005.184
+    },
+    {
+      "path": "apps/web/src/db/web/schema.prisma",
+      "size": 3024,
+      "mtime": 1757415201029.5803
+    },
+    {
+      "path": "apps/web/src/db/web/wasm.d.ts",
+      "size": 23,
+      "mtime": 1757415201005.441
+    },
+    {
+      "path": "apps/web/src/db/web/wasm.js",
+      "size": 8312,
+      "mtime": 1757415201005.0752
+    },
+    {
+      "path": "apps/web/src/lib/logging/pino.ts",
+      "size": 193,
+      "mtime": 1757281389795.913
+    },
+    {
+      "path": "apps/web/src/lib/auth/getServerUser.ts",
+      "size": 807,
+      "mtime": 1757281764743.947
+    },
+    {
+      "path": "apps/web/src/lib/errors/formatError.ts",
+      "size": 544,
+      "mtime": 1757281392882.4255
+    },
+    {
+      "path": "apps/web/src/lib/db/core.ts",
+      "size": 2479,
+      "mtime": 1757025863682.2039
+    },
+    {
+      "path": "apps/web/src/lib/db/index.ts",
+      "size": 2674,
+      "mtime": 1757272006136.9956
+    },
+    {
+      "path": "apps/web/src/lib/db/modelOn.ts",
+      "size": 407,
+      "mtime": 1756711720761.3037
+    },
+    {
+      "path": "apps/web/src/lib/db/mongo.ts",
+      "size": 1467,
+      "mtime": 1757281354119.6633
+    },
+    {
+      "path": "apps/web/src/lib/db/mongoose.ts",
+      "size": 397,
+      "mtime": 1757284533148.9912
+    },
+    {
+      "path": "apps/web/src/lib/db/pii.ts",
+      "size": 369,
+      "mtime": 1756711720753.341
+    },
+    {
+      "path": "apps/web/src/lib/db/votes.ts",
+      "size": 375,
+      "mtime": 1756711720764.7502
+    },
+    {
+      "path": "apps/web/src/lib/vote/stats.ts",
+      "size": 3219,
+      "mtime": 1757284520775.9856
+    },
+    {
+      "path": "apps/web/src/models/pii/UserDemographics.ts",
+      "size": 4083,
+      "mtime": 1756711720480.6055
+    },
+    {
+      "path": "apps/web/src/models/pii/UserProfile.ts",
+      "size": 6078,
+      "mtime": 1756985771322.1484
+    },
+    {
+      "path": "apps/web/src/models/votes/Vote.ts",
+      "size": 4120,
+      "mtime": 1757281939332.99
+    },
+    {
+      "path": "apps/web/src/models/core/Contribution.ts",
+      "size": 4565,
+      "mtime": 1756711720487.0315
+    },
+    {
+      "path": "apps/web/src/models/core/ErrorLog.ts",
+      "size": 1105,
+      "mtime": 1756711720498.9543
+    },
+    {
+      "path": "apps/web/src/models/core/MediaItem.ts",
+      "size": 857,
+      "mtime": 1756711720500.7375
+    },
+    {
+      "path": "apps/web/src/models/core/Report.ts",
+      "size": 5880,
+      "mtime": 1756711720483.968
+    },
+    {
+      "path": "apps/web/src/models/core/Source.ts",
+      "size": 4162,
+      "mtime": 1756989745200.9744
+    },
+    {
+      "path": "apps/web/src/models/core/Stream.ts",
+      "size": 1270,
+      "mtime": 1756993883117.627
+    },
+    {
+      "path": "apps/web/src/models/core/StreamEvent.ts",
+      "size": 3439,
+      "mtime": 1757059254352.8945
+    },
+    {
+      "path": "apps/web/src/models/core/VotingRule.ts",
+      "size": 888,
+      "mtime": 1756711720483.345
+    },
+    {
+      "path": "src/app/api/reports/route.ts",
+      "size": 10,
+      "mtime": 1756680293094.9172
+    },
+    {
+      "path": "src/app/reports/[id]/page.tsx",
+      "size": 10,
+      "mtime": 1756680293125.3765
+    },
+    {
+      "path": "apps/web/src/utils/geo/normalize.ts",
+      "size": 652,
+      "mtime": 1757356124822.1072
+    },
+    {
+      "path": "src/features/report/components/ReportCard.tsx",
+      "size": 10,
+      "mtime": 1756680293106.9412
+    },
+    {
+      "path": "src/features/report/components/ReportList.tsx",
+      "size": 10,
+      "mtime": 1756680293112.4348
+    },
+    {
+      "path": "src/features/stream/components/StreamCard.tsx",
+      "size": 10,
+      "mtime": 1756680293141.579
+    },
+    {
+      "path": "src/features/stream/components/StreamFilters.tsx",
+      "size": 10,
+      "mtime": 1756680293154.5056
+    },
+    {
+      "path": "src/features/stream/components/StreamList.tsx",
+      "size": 10,
+      "mtime": 1756680293147.4636
+    },
+    {
+      "path": "src/app/contributions/new/page.tsx",
+      "size": 10,
+      "mtime": 1756680293177.017
+    },
+    {
+      "path": "src/features/contribution/components/ContributionForm.tsx",
+      "size": 10,
+      "mtime": 1756680293165.863
+    },
+    {
+      "path": "src/features/contribution/components/ContributionList.tsx",
+      "size": 10,
+      "mtime": 1756680293171.0898
+    },
+    {
+      "path": "apps/web/src/services/core/stream.ts",
+      "size": 2321,
+      "mtime": 1757059313304.03
+    },
+    {
+      "path": "apps/web/src/utils/mongo/votes.ts",
+      "size": 474,
+      "mtime": 1756711720410.5916
+    },
+    {
+      "path": "apps/web/src/app/(admin)/factcheck/actions.ts",
+      "size": 325,
+      "mtime": 1756711720158.6797
+    },
+    {
+      "path": "apps/web/src/app/(admin)/factcheck/page.tsx",
+      "size": 190,
+      "mtime": 1756711720203.2651
+    },
+    {
+      "path": "apps/web/src/app/admin/health/page.tsx",
+      "size": 544,
+      "mtime": 1756711718577.3474
+    },
+    {
+      "path": "apps/web/src/app/admin/access/page.tsx",
+      "size": 985,
+      "mtime": 1756711718551.9595
+    },
+    {
+      "path": "apps/web/src/app/admin/config/adminConfig.ts",
+      "size": 633,
+      "mtime": 1757404011599.3948
+    },
+    {
+      "path": "apps/web/src/app/admin/errors/page.tsx",
+      "size": 1934,
+      "mtime": 1756713826043.2334
+    },
+    {
+      "path": "apps/web/src/app/admin/logs/page.tsx",
+      "size": 1624,
+      "mtime": 1756711718609.796
+    },
+    {
+      "path": "apps/web/src/app/admin/orgs/page.tsx",
+      "size": 1991,
+      "mtime": 1756711718597.7383
+    },
+    {
+      "path": "apps/web/src/app/admin/system/MonitoringControls.tsx",
+      "size": 3251,
+      "mtime": 1756755323004.3523
+    },
+    {
+      "path": "apps/web/src/app/admin/system/page.tsx",
+      "size": 408,
+      "mtime": 1757268062803.2815
+    },
+    {
+      "path": "apps/web/src/app/admin/test/page.tsx",
+      "size": 1620,
+      "mtime": 1756711718551.3835
+    },
+    {
+      "path": "apps/web/src/app/admin/users/page.tsx",
+      "size": 3957,
+      "mtime": 1756711718636.2122
+    },
+    {
+      "path": "apps/web/src/app/api/ari/page.tsx",
+      "size": 0,
+      "mtime": 1756711718986.4119
+    },
+    {
+      "path": "apps/web/src/app/api/contributions/route.ts",
+      "size": 716,
+      "mtime": 1756716699288.1814
+    },
+    {
+      "path": "apps/web/src/app/admin/telemetry/page.tsx",
+      "size": 1185,
+      "mtime": 1756751950232.6946
+    },
+    {
+      "path": "apps/web/src/app/api/csrf/route.ts",
+      "size": 1063,
+      "mtime": 1757281336523.7476
+    },
+    {
+      "path": "apps/web/src/app/api/errors/resolve.ts",
+      "size": 583,
+      "mtime": 1756711719669.2476
+    },
+    {
+      "path": "apps/web/src/app/api/factcheck/internal",
+      "size": 0,
+      "mtime": 1756454217584.0369
+    },
+    {
+      "path": "apps/web/src/app/api/factcheck/page.tsx",
+      "size": 2682,
+      "mtime": 1756711718730.2476
+    },
+    {
+      "path": "apps/web/src/app/api/_echo/route.ts",
+      "size": 199,
+      "mtime": 1756711718731.691
+    },
+    {
+      "path": "apps/web/src/app/api/items/route.ts",
+      "size": 2406,
+      "mtime": 1756711719678.5518
+    },
+    {
+      "path": "apps/web/src/app/api/reports/route.ts",
+      "size": 698,
+      "mtime": 1756716699289.9624
+    },
+    {
+      "path": "apps/web/src/app/api/health/elastic.ts",
+      "size": 0,
+      "mtime": 1756711718783.4912
+    },
+    {
+      "path": "apps/web/src/app/api/health/gemini.ts",
+      "size": 0,
+      "mtime": 1756711718939.4421
+    },
+    {
+      "path": "apps/web/src/app/api/health/gpt.ts",
+      "size": 144,
+      "mtime": 1756711718760.8152
+    },
+    {
+      "path": "apps/web/src/app/api/health/graphdb.ts",
+      "size": 0,
+      "mtime": 1756711718984.103
+    },
+    {
+      "path": "apps/web/src/app/api/health/llama3.ts",
+      "size": 0,
+      "mtime": 1756711718776.5024
+    },
+    {
+      "path": "apps/web/src/app/api/health/mongo.ts",
+      "size": 128,
+      "mtime": 1756711718985.904
+    },
+    {
+      "path": "apps/web/src/app/api/health/qdrant.ts",
+      "size": 0,
+      "mtime": 1756711718984.791
+    },
+    {
+      "path": "apps/web/src/app/api/health/route.ts",
+      "size": 6225,
+      "mtime": 1757280968391.9138
+    },
+    {
+      "path": "apps/web/src/app/api/statements/route.ts",
+      "size": 5032,
+      "mtime": 1756711719411.361
+    },
+    {
+      "path": "apps/web/src/app/api/topics/route.ts",
+      "size": 1160,
+      "mtime": 1756972176037.1924
+    },
+    {
+      "path": "apps/web/src/app/api/translate/route.ts",
+      "size": 1462,
+      "mtime": 1756711718735.3953
+    },
+    {
+      "path": "apps/web/src/app/api/swipeStatements/route.ts",
+      "size": 657,
+      "mtime": 1756716699291.607
+    },
+    {
+      "path": "apps/web/src/app/api/vote/user.ts",
+      "size": 595,
+      "mtime": 1756711719188.7551
+    },
+    {
+      "path": "apps/web/src/app/contributions/new/page.tsx",
+      "size": 0,
+      "mtime": 1756711718535.9875
+    },
+    {
+      "path": "apps/web/src/app/api/user-demographics/[id].ts",
+      "size": 1411,
+      "mtime": 1756711719700.735
+    },
+    {
+      "path": "apps/web/src/app/api/users/[id].ts",
+      "size": 1317,
+      "mtime": 1756711719619.0125
+    },
+    {
+      "path": "apps/web/src/app/dashboard/api/pages.tsx",
+      "size": 366,
+      "mtime": 1756711718703.6902
+    },
+    {
+      "path": "apps/web/src/app/dashboard/config/dashboardConfig.ts",
+      "size": 702,
+      "mtime": 1756711718670.4119
+    },
+    {
+      "path": "apps/web/src/app/dashboard/create-stream/page.tsx",
+      "size": 2728,
+      "mtime": 1756711718691.6475
+    },
+    {
+      "path": "apps/web/src/app/dashboard/community/page.tsx",
+      "size": 932,
+      "mtime": 1756711718710.0208
+    },
+    {
+      "path": "apps/web/src/app/dashboard/errors/ErrorTable.tsx",
+      "size": 1861,
+      "mtime": 1756711718708.2334
+    },
+    {
+      "path": "apps/web/src/app/dashboard/errors/page.tsx",
+      "size": 137,
+      "mtime": 1756711718709.3647
+    },
+    {
+      "path": "apps/web/src/app/dashboard/admin/AdminErrorLog.tsx",
+      "size": 1545,
+      "mtime": 1756711718699.1902
+    },
+    {
+      "path": "apps/web/src/app/dashboard/admin/page.tsx",
+      "size": 734,
+      "mtime": 1756711718700.138
+    },
+    {
+      "path": "apps/web/src/app/dashboard/manage-streams/page.tsx",
+      "size": 3653,
+      "mtime": 1756711718668.1472
+    },
+    {
+      "path": "apps/web/src/app/dashboard/health/page.tsx",
+      "size": 241,
+      "mtime": 1756711718696.599
+    },
+    {
+      "path": "apps/web/src/app/dashboard/presse/page.tsx",
+      "size": 3476,
+      "mtime": 1756711718712.7634
+    },
+    {
+      "path": "apps/web/src/app/dashboard/ngo/page.tsx",
+      "size": 4426,
+      "mtime": 1756711718707.4512
+    },
+    {
+      "path": "apps/web/src/app/dashboard/reporting/page.tsx",
+      "size": 2553,
+      "mtime": 1756711718661.4387
+    },
+    {
+      "path": "apps/web/src/app/dashboard/manage-contributions/page.tsx",
+      "size": 1096,
+      "mtime": 1756711718702.4097
+    },
+    {
+      "path": "apps/web/src/app/dashboard/qr-codes/page.tsx",
+      "size": 1183,
+      "mtime": 1756711718665.652
+    },
+    {
+      "path": "apps/web/src/app/dashboard/translation/page.tsx",
+      "size": 2071,
+      "mtime": 1756711718669.8843
+    },
+    {
+      "path": "apps/web/src/app/dashboard/tv/page.tsx",
+      "size": 2197,
+      "mtime": 1756711718701.5364
+    },
+    {
+      "path": "apps/web/src/app/dashboard/users/page.tsx",
+      "size": 2199,
+      "mtime": 1756711718703.2883
+    },
+    {
+      "path": "apps/web/src/app/auth/2fa-setup/page.tsx",
+      "size": 1944,
+      "mtime": 1756711718543.175
+    },
+    {
+      "path": "apps/web/src/app/dashboard/politik/page.tsx",
+      "size": 5257,
+      "mtime": 1756711718664.0308
+    },
+    {
+      "path": "apps/web/src/app/beitraege/neu/page.tsx",
+      "size": 107,
+      "mtime": 1756711718717.69
+    },
+    {
+      "path": "apps/web/src/app/report/[id]/page.tsx",
+      "size": 0,
+      "mtime": 1756711720208.2942
+    },
+    {
+      "path": "apps/web/src/app/qr/[qrId]/page.tsx",
+      "size": 1536,
+      "mtime": 1756711718657.2024
+    },
+    {
+      "path": "apps/web/src/app/stream/[slug]/page.tsx",
+      "size": 1193,
+      "mtime": 1756711718550.1846
+    },
+    {
+      "path": "apps/web/src/app/statements/new/page.tsx",
+      "size": 1798,
+      "mtime": 1756711718719.6294
+    },
+    {
+      "path": "apps/web/src/db/core/runtime/edge-esm.js",
+      "size": 170220,
+      "mtime": 1757248693684.4478
+    },
+    {
+      "path": "apps/web/src/db/core/runtime/edge.js",
+      "size": 170768,
+      "mtime": 1757248693684.3071
+    },
+    {
+      "path": "apps/web/src/db/core/runtime/index-browser.d.ts",
+      "size": 11915,
+      "mtime": 1757248693683.6736
+    },
+    {
+      "path": "apps/web/src/db/core/runtime/index-browser.js",
+      "size": 35421,
+      "mtime": 1757248693685.4355
+    },
+    {
+      "path": "apps/web/src/db/core/runtime/library.d.ts",
+      "size": 130640,
+      "mtime": 1757248693683.7979
+    },
+    {
+      "path": "apps/web/src/db/core/runtime/library.js",
+      "size": 202660,
+      "mtime": 1757248693684.3782
+    },
+    {
+      "path": "apps/web/src/db/core/runtime/react-native.js",
+      "size": 182807,
+      "mtime": 1757248693684.3306
+    },
+    {
+      "path": "apps/web/src/db/core/runtime/wasm-compiler-edge.js",
+      "size": 206589,
+      "mtime": 1757248693684.3552
+    },
+    {
+      "path": "apps/web/src/db/core/runtime/wasm-engine-edge.js",
+      "size": 132248,
+      "mtime": 1757248693684.4072
+    },
+    {
+      "path": "apps/web/src/app/dashboard/test/page.tsx",
+      "size": 865,
+      "mtime": 1756711718669.0972
+    },
+    {
+      "path": "apps/web/src/features/contribution/components/ContributionForm.tsx",
+      "size": 0,
+      "mtime": 1756711720249.5747
+    },
+    {
+      "path": "apps/web/src/features/contribution/components/ContributionList.tsx",
+      "size": 0,
+      "mtime": 1756711720236.833
+    },
+    {
+      "path": "apps/web/src/features/report/components/ReportCard.tsx",
+      "size": 0,
+      "mtime": 1756711720251.7578
+    },
+    {
+      "path": "apps/web/src/features/report/components/ReportList.tsx",
+      "size": 0,
+      "mtime": 1756711720250.1753
+    },
+    {
+      "path": "apps/web/src/features/stream/components/StreamCard.tsx",
+      "size": 0,
+      "mtime": 1756711720234.979
+    },
+    {
+      "path": "apps/web/src/features/stream/components/StreamFilters.tsx",
+      "size": 0,
+      "mtime": 1756711720236.2395
+    },
+    {
+      "path": "apps/web/src/features/stream/components/StreamList.tsx",
+      "size": 0,
+      "mtime": 1756711720235.372
+    },
+    {
+      "path": "apps/web/src/app/statements/[id]/page.tsx",
+      "size": 2027,
+      "mtime": 1756711718720.1228
+    },
+    {
+      "path": "apps/web/src/db/web/runtime/edge-esm.js",
+      "size": 170220,
+      "mtime": 1757415201008.2156
+    },
+    {
+      "path": "apps/web/src/db/web/runtime/edge.js",
+      "size": 170768,
+      "mtime": 1757415201008.6008
+    },
+    {
+      "path": "apps/web/src/db/web/runtime/index-browser.d.ts",
+      "size": 11915,
+      "mtime": 1757415201006.0854
+    },
+    {
+      "path": "apps/web/src/db/web/runtime/index-browser.js",
+      "size": 35421,
+      "mtime": 1757415201008.098
+    },
+    {
+      "path": "apps/web/src/db/web/runtime/library.d.ts",
+      "size": 130640,
+      "mtime": 1757415201007.4377
+    },
+    {
+      "path": "apps/web/src/db/web/runtime/library.js",
+      "size": 202660,
+      "mtime": 1757415201008.9277
+    },
+    {
+      "path": "apps/web/src/db/web/runtime/react-native.js",
+      "size": 182807,
+      "mtime": 1757415201008.6921
+    },
+    {
+      "path": "apps/web/src/db/web/runtime/wasm-compiler-edge.js",
+      "size": 206589,
+      "mtime": 1757415201008.832
+    },
+    {
+      "path": "apps/web/src/db/web/runtime/wasm-engine-edge.js",
+      "size": 132248,
+      "mtime": 1757415201008.4316
+    },
+    {
+      "path": "apps/web/src/pages/api/auth/[...nextauth].ts",
+      "size": 2503,
+      "mtime": 1757356118764.2449
+    },
+    {
+      "path": "apps/web/src/lib/services/stream/appendEvent.ts",
+      "size": 950,
+      "mtime": 1757012143248.5078
+    },
+    {
+      "path": "src/app/api/admin/orgs/route.ts",
+      "size": 10,
+      "mtime": 1756680293241.899
+    },
+    {
+      "path": "src/app/api/admin/streams/route.ts",
+      "size": 10,
+      "mtime": 1756680293130.858
+    },
+    {
+      "path": "src/app/api/factcheck/enqueue/route.ts",
+      "size": 218,
+      "mtime": 1756728199448.086
+    },
+    {
+      "path": "src/app/api/factcheck/status/route.ts",
+      "size": 10,
+      "mtime": 1756680293207.5662
+    },
+    {
+      "path": "src/app/api/public/streams/route.ts",
+      "size": 10,
+      "mtime": 1756680293136.4412
+    },
+    {
+      "path": "src/app/api/reports/[id]/route.ts",
+      "size": 10,
+      "mtime": 1756680293101.8633
+    },
+    {
+      "path": "apps/web/src/app/admin/errors/[id]/page.tsx",
+      "size": 1900,
+      "mtime": 1756711718645.7705
+    },
+    {
+      "path": "apps/web/src/app/admin/orgs/delete/route.ts",
+      "size": 465,
+      "mtime": 1756711718580.2905
+    },
+    {
+      "path": "apps/web/src/app/admin/orgs/upsert/route.ts",
+      "size": 696,
+      "mtime": 1756711718585.4336
+    },
+    {
+      "path": "apps/web/src/app/api/ai/analyze/route.ts",
+      "size": 663,
+      "mtime": 1756711719557.4487
+    },
+    {
+      "path": "src/app/api/profile/location/route.ts",
+      "size": 10,
+      "mtime": 1756680293252.3616
+    },
+    {
+      "path": "apps/web/src/app/admin/orgs/list/route.ts",
+      "size": 388,
+      "mtime": 1756711718587.5176
+    },
+    {
+      "path": "apps/web/src/app/api/ai/health/route.ts",
+      "size": 2303,
+      "mtime": 1757271515848.1619
+    },
+    {
+      "path": "apps/web/src/app/api/ai/run/route.ts",
+      "size": 606,
+      "mtime": 1756711719617.7205
+    },
+    {
+      "path": "apps/web/src/app/api/admin/dev-elevate/route.ts",
+      "size": 751,
+      "mtime": 1756711719073.2102
+    },
+    {
+      "path": "apps/web/src/app/admin/users/[id]/page.tsx",
+      "size": 2563,
+      "mtime": 1756711718634.79
+    },
+    {
+      "path": "apps/web/src/app/api/ai/region-summary/route.ts",
+      "size": 2174,
+      "mtime": 1757355730325.8938
+    },
+    {
+      "path": "apps/web/src/app/api/admin/streams/route.ts",
+      "size": 0,
+      "mtime": 1756711718986.8816
+    },
+    {
+      "path": "apps/web/src/app/api/contributions/analyze/analyze.ts",
+      "size": 1428,
+      "mtime": 1756711718733.0073
+    },
+    {
+      "path": "apps/web/src/app/api/contributions/analyze/route.ts",
+      "size": 2259,
+      "mtime": 1756711718733.5776
+    },
+    {
+      "path": "apps/web/src/app/api/contributions/analyze/save.ts",
+      "size": 1067,
+      "mtime": 1756711718734.0544
+    },
+    {
+      "path": "apps/web/src/app/api/auth/location/route.ts",
+      "size": 1148,
+      "mtime": 1756711718741.0913
+    },
+    {
+      "path": "apps/web/src/app/api/auth/logout/route.ts",
+      "size": 266,
+      "mtime": 1756711718746.5518
+    },
+    {
+      "path": "apps/web/src/app/api/auth/logout/route.ts.bak.20250831183211",
+      "size": 220,
+      "mtime": 1756711718744.1843
+    },
+    {
+      "path": "apps/web/src/app/api/contributions/save/route.ts",
+      "size": 1166,
+      "mtime": 1756711718734.5657
+    },
+    {
+      "path": "apps/web/src/app/api/auth/login/route.ts",
+      "size": 2205,
+      "mtime": 1756711718759.1272
+    },
+    {
+      "path": "apps/web/src/app/api/auth/login/route.ts.bak.20250831183211",
+      "size": 1576,
+      "mtime": 1756711718753.3115
+    },
+    {
+      "path": "apps/web/src/app/api/auth/register/route.ts",
+      "size": 3556,
+      "mtime": 1756711718748.798
+    },
+    {
+      "path": "apps/web/src/app/api/auth/register/route.ts.bak.20250831183211",
+      "size": 1468,
+      "mtime": 1756711718748.004
+    },
+    {
+      "path": "apps/web/src/app/api/auth/me/route.ts",
+      "size": 656,
+      "mtime": 1756711718749.5295
+    },
+    {
+      "path": "apps/web/src/app/api/auth/reset/route.ts",
+      "size": 857,
+      "mtime": 1756711718742.6362
+    },
+    {
+      "path": "apps/web/src/app/api/auth/request-reset/route.ts",
+      "size": 1246,
+      "mtime": 1756711718750.147
+    },
+    {
+      "path": "apps/web/src/app/api/auth/verify/route.ts",
+      "size": 1084,
+      "mtime": 1756711718739.8428
+    },
+    {
+      "path": "apps/web/src/app/api/editor/items/route.ts",
+      "size": 3690,
+      "mtime": 1756711719850.644
+    },
+    {
+      "path": "apps/web/src/app/api/editor/tags/route.ts",
+      "size": 770,
+      "mtime": 1756711719829.2188
+    },
+    {
+      "path": "apps/web/src/app/api/editor/regions/route.ts",
+      "size": 899,
+      "mtime": 1756711719702.5613
+    },
+    {
+      "path": "apps/web/src/app/api/editor/triage/route.ts",
+      "size": 1311,
+      "mtime": 1756711719735.5288
+    },
+    {
+      "path": "apps/web/src/app/api/factcheck/enqueue/route.ts",
+      "size": 0,
+      "mtime": 1756711718727.0076
+    },
+    {
+      "path": "apps/web/src/app/api/editor/topics/route.ts",
+      "size": 1558,
+      "mtime": 1756890500966.8691
+    },
+    {
+      "path": "apps/web/src/app/api/editor/statements/route.ts",
+      "size": 1433,
+      "mtime": 1756893068079.296
+    },
+    {
+      "path": "apps/web/src/app/api/editor/_utils/auth.ts",
+      "size": 643,
+      "mtime": 1756822624198.0474
+    },
+    {
+      "path": "apps/web/src/app/api/finding/upsert/route.ts",
+      "size": 2122,
+      "mtime": 1756711718760.0725
+    },
+    {
+      "path": "apps/web/src/app/api/gdpr/export/route.ts",
+      "size": 1087,
+      "mtime": 1757281327999.814
+    },
+    {
+      "path": "apps/web/src/app/api/gdpr/delete/route.ts",
+      "size": 914,
+      "mtime": 1757281325021.701
+    },
+    {
+      "path": "apps/web/src/app/api/geo/lookup/route.ts",
+      "size": 892,
+      "mtime": 1757356145463.5295
+    },
+    {
+      "path": "apps/web/src/app/api/factcheck/status/route.ts",
+      "size": 0,
+      "mtime": 1756711718727.399
+    },
+    {
+      "path": "apps/web/src/app/api/map/points/route.ts",
+      "size": 2539,
+      "mtime": 1757365096327.367
+    },
+    {
+      "path": "apps/web/src/app/api/public/streams/route.ts",
+      "size": 0,
+      "mtime": 1756711719550.4646
+    },
+    {
+      "path": "apps/web/src/app/api/region/effective/route.ts",
+      "size": 1597,
+      "mtime": 1756972489493.1018
+    },
+    {
+      "path": "apps/web/src/app/api/reports/[id]/route.ts",
+      "size": 0,
+      "mtime": 1756711719925.8003
+    },
+    {
+      "path": "apps/web/src/app/api/geo/nuts/route.ts",
+      "size": 0,
+      "mtime": 1757409072576.077
+    },
+    {
+      "path": "apps/web/src/app/api/geo/region-meta/route.ts",
+      "size": 609,
+      "mtime": 1757355745508.0518
+    },
+    {
+      "path": "apps/web/src/app/api/health/map/route.ts",
+      "size": 1577,
+      "mtime": 1757365193347.9937
+    },
+    {
+      "path": "apps/web/src/app/api/health/ai-models/route.ts",
+      "size": 3457,
+      "mtime": 1756729505999.3396
+    },
+    {
+      "path": "apps/web/src/app/api/health/ari/route.ts",
+      "size": 1750,
+      "mtime": 1756738532353.3108
+    },
+    {
+      "path": "apps/web/src/app/api/health/streams/route.ts",
+      "size": 1031,
+      "mtime": 1757268021986.206
+    },
+    {
+      "path": "apps/web/src/app/api/health/prisma/route.ts",
+      "size": 1155,
+      "mtime": 1757267985883.2769
+    },
+    {
+      "path": "apps/web/src/app/api/health/system/route.ts",
+      "size": 4673,
+      "mtime": 1757364183086.587
+    },
+    {
+      "path": "apps/web/src/app/api/health/typensense/route.ts",
+      "size": 940,
+      "mtime": 1756711718795.1045
+    },
+    {
+      "path": "apps/web/src/app/api/health/redis/route.ts",
+      "size": 249,
+      "mtime": 1756732538460.2007
+    },
+    {
+      "path": "apps/web/src/app/api/statements/[id]/route.ts",
+      "size": 529,
+      "mtime": 1756711719525.3335
+    },
+    {
+      "path": "apps/web/src/app/api/statements/create/route.ts",
+      "size": 1851,
+      "mtime": 1756711719549.9172
+    },
+    {
+      "path": "apps/web/src/app/api/topics/[slug]/route.ts",
+      "size": 1316,
+      "mtime": 1756890631956.1714
+    },
+    {
+      "path": "apps/web/src/app/api/translate/contribution/analyze.ts",
+      "size": 661,
+      "mtime": 1756711718735.8706
+    },
+    {
+      "path": "apps/web/src/app/api/translate/contribution/route.ts",
+      "size": 940,
+      "mtime": 1756711718736.3472
+    },
+    {
+      "path": "apps/web/src/app/api/vote/cast/route.ts",
+      "size": 3071,
+      "mtime": 1756711719133.5137
+    },
+    {
+      "path": "apps/web/src/app/api/stream/append/route.ts",
+      "size": 482,
+      "mtime": 1757012119497.9456
+    },
+    {
+      "path": "apps/web/src/app/api/health/system-matrix/route.ts",
+      "size": 300,
+      "mtime": 1756756440440.1719
+    },
+    {
+      "path": "apps/web/src/app/api/health/worker/route.ts",
+      "size": 999,
+      "mtime": 1756751611978.6414
+    },
+    {
+      "path": "apps/web/src/app/api/vote/submit/route.ts",
+      "size": 1211,
+      "mtime": 1756711719126.3328
+    },
+    {
+      "path": "apps/web/src/app/api/you/ping/route.ts",
+      "size": 259,
+      "mtime": 1756711719619.8113
+    },
+    {
+      "path": "apps/web/src/app/api/you/query/route.ts",
+      "size": 686,
+      "mtime": 1756711719639.9707
+    },
+    {
+      "path": "apps/web/src/app/dashboard/editor/components/fetchWithToken.ts",
+      "size": 392,
+      "mtime": 1756711718713.447
+    },
+    {
+      "path": "apps/web/src/app/api/vote/summary/route.ts",
+      "size": 3000,
+      "mtime": 1756717908600.848
+    },
+    {
+      "path": "apps/web/src/app/dashboard/editor/items/ItemsClient.tsx",
+      "size": 5408,
+      "mtime": 1756711718714.2703
+    },
+    {
+      "path": "apps/web/src/app/dashboard/editor/items/page.tsx",
+      "size": 1045,
+      "mtime": 1756711718715.6216
+    },
+    {
+      "path": "apps/web/src/app/dashboard/editor/topics/page.tsx",
+      "size": 2666,
+      "mtime": 1756711718716.6992
+    },
+    {
+      "path": "apps/web/src/app/auth/onboarding/location/page.tsx",
+      "size": 2341,
+      "mtime": 1756711718544.1277
+    },
+    {
+      "path": "apps/web/src/app/api/vote/user/route.ts",
+      "size": 1163,
+      "mtime": 1757284526493.8599
+    },
+    {
+      "path": "src/app/api/admin/analytics/summary/route.ts",
+      "size": 10,
+      "mtime": 1756680293236.284
+    },
+    {
+      "path": "src/app/api/admin/errors/last24/route.ts",
+      "size": 10,
+      "mtime": 1756680293231.3362
+    },
+    {
+      "path": "src/app/api/contributions/analytics/summary/route.ts",
+      "size": 10,
+      "mtime": 1756680293193.851
+    },
+    {
+      "path": "apps/web/src/app/api/admin/errors/export/route.ts",
+      "size": 963,
+      "mtime": 1756711719099.7986
+    },
+    {
+      "path": "apps/web/src/app/api/admin/analytics/summary/route.ts",
+      "size": 0,
+      "mtime": 1756711719117.0881
+    },
+    {
+      "path": "apps/web/src/app/dashboard/editor/login/page.tsx",
+      "size": 1045,
+      "mtime": 1756711718716.1262
+    },
+    {
+      "path": "apps/web/src/app/api/vote/stream/route.ts",
+      "size": 1564,
+      "mtime": 1757284410501.6062
+    },
+    {
+      "path": "apps/web/src/app/api/admin/errors/last24/route.ts",
+      "size": 0,
+      "mtime": 1756711719098.8318
+    },
+    {
+      "path": "apps/web/src/app/api/admin/graph/ensure/route.ts",
+      "size": 184,
+      "mtime": 1756711718990.1187
+    },
+    {
+      "path": "apps/web/src/app/api/admin/alerts/settings/route.ts",
+      "size": 1184,
+      "mtime": 1756755499743.8003
+    },
+    {
+      "path": "apps/web/src/app/api/admin/alerts/test/route.ts",
+      "size": 1232,
+      "mtime": 1756756568376.3447
+    },
+    {
+      "path": "apps/web/src/app/api/admin/settings/get/route.ts",
+      "size": 764,
+      "mtime": 1756754685668.195
+    },
+    {
+      "path": "apps/web/src/app/api/admin/settings/save/route.ts",
+      "size": 930,
+      "mtime": 1756734927787.5764
+    },
+    {
+      "path": "apps/web/src/app/api/admin/health/check/route.ts",
+      "size": 540,
+      "mtime": 1756755851719.2332
+    },
+    {
+      "path": "apps/web/src/app/api/admin/alerts/notify/route.ts",
+      "size": 900,
+      "mtime": 1756755884732.9175
+    },
+    {
+      "path": "apps/web/src/app/api/admin/system/ping/route.ts",
+      "size": 1655,
+      "mtime": 1756711719000.1702
+    },
+    {
+      "path": "apps/web/src/app/api/contributions/analytics/summary/route.ts",
+      "size": 0,
+      "mtime": 1756711718734.8516
+    },
+    {
+      "path": "apps/web/src/app/api/admin/graph/seed/route.ts",
+      "size": 2004,
+      "mtime": 1756711718992.325
+    },
+    {
+      "path": "apps/web/src/app/api/admin/telemetry/ai/route.ts",
+      "size": 1155,
+      "mtime": 1756712257878.6265
+    },
+    {
+      "path": "apps/web/src/app/api/admin/users/detail/route.ts",
+      "size": 982,
+      "mtime": 1756711719002.2874
+    },
+    {
+      "path": "apps/web/src/app/api/admin/users/list/route.ts",
+      "size": 1281,
+      "mtime": 1756711719017.874
+    },
+    {
+      "path": "apps/web/src/app/api/admin/users/reset2fa/route.ts",
+      "size": 554,
+      "mtime": 1756711719014.5354
+    },
+    {
+      "path": "apps/web/src/app/api/admin/users/resetVerify/route.ts",
+      "size": 1071,
+      "mtime": 1756711719000.796
+    },
+    {
+      "path": "apps/web/src/app/api/admin/users/suspend/route.ts",
+      "size": 543,
+      "mtime": 1756711719001.2798
+    },
+    {
+      "path": "apps/web/src/app/api/admin/orgs/upsert/route.ts",
+      "size": 768,
+      "mtime": 1756711718998.326
+    },
+    {
+      "path": "apps/web/src/app/api/admin/users/updateRole/route.ts",
+      "size": 585,
+      "mtime": 1756711719001.7856
+    },
+    {
+      "path": "apps/web/src/app/api/auth/magic/consume/route.ts",
+      "size": 1577,
+      "mtime": 1756711718736.835
+    },
+    {
+      "path": "apps/web/src/app/api/auth/magic/request/route.ts",
+      "size": 1503,
+      "mtime": 1756711718737.9805
+    },
+    {
+      "path": "apps/web/src/app/api/auth/totp/initiate/route.ts",
+      "size": 1109,
+      "mtime": 1756711718751.3235
+    },
+    {
+      "path": "apps/web/src/app/api/editor/items/[id]/route.ts",
+      "size": 7166,
+      "mtime": 1756711719863.0232
+    },
+    {
+      "path": "apps/web/src/app/api/auth/totp/verify/route.ts",
+      "size": 1489,
+      "mtime": 1756711718750.7568
+    },
+    {
+      "path": "apps/web/src/app/api/editor/server/validation/contentValidation.ts",
+      "size": 4243,
+      "mtime": 1756711719716.34
+    },
+    {
+      "path": "apps/web/src/app/api/editor/items/export.csv/route.ts",
+      "size": 1368,
+      "mtime": 1756711719845.757
+    },
+    {
+      "path": "apps/web/src/app/api/editor/topics/[id]/route.ts",
+      "size": 1924,
+      "mtime": 1756893074264.5955
+    },
+    {
+      "path": "apps/web/src/app/api/editor/statements/[id]/route.ts",
+      "size": 2064,
+      "mtime": 1756893071366.6938
+    },
+    {
+      "path": "apps/web/src/app/api/factcheck/intern/enqueue/route.ts",
+      "size": 5052,
+      "mtime": 1756711718729.296
+    },
+    {
+      "path": "apps/web/src/app/api/factcheck/result/[contributionId]/route.ts",
+      "size": 758,
+      "mtime": 1756711718726.607
+    },
+    {
+      "path": "apps/web/src/app/api/factcheck/status/[jobId]/route.ts",
+      "size": 3544,
+      "mtime": 1756711718728.2617
+    },
+    {
+      "path": "apps/web/src/app/api/auth/verify/resend/route.ts",
+      "size": 1477,
+      "mtime": 1756711718740.329
+    },
+    {
+      "path": "apps/web/src/app/api/statements/[id]/react/route.ts",
+      "size": 972,
+      "mtime": 1756711719526.6057
+    },
+    {
+      "path": "apps/web/src/app/api/unit/[id]/interest/route.ts",
+      "size": 1208,
+      "mtime": 1756711718731.0764
+    },
+    {
+      "path": "apps/web/src/app/api/vote/stats/[statementId]/route.ts",
+      "size": 446,
+      "mtime": 1757356146543.5063
+    },
+    {
+      "path": "apps/web/src/app/dashboard/editor/items/[id]/page.tsx",
+      "size": 3468,
+      "mtime": 1756711718715.034
+    },
+    {
+      "path": "apps/web/src/app/api/statements/[id]/stats/route.ts",
+      "size": 766,
+      "mtime": 1756711719536.612
+    },
+    {
+      "path": "apps/web/src/app/api/statements/[id]/timeseries/route.ts",
+      "size": 1242,
+      "mtime": 1756711719519.9812
+    },
+    {
+      "path": "apps/web/src/app/api/editor/items/[id]/tags/route.ts",
+      "size": 1051,
+      "mtime": 1756711719853.7388
+    },
+    {
+      "path": "apps/web/src/app/api/editor/items/[id]/publish/route.ts",
+      "size": 4445,
+      "mtime": 1756711719861.4004
+    },
+    {
+      "path": "apps/web/src/app/api/admin/analytics/summary/contrib-timeseries/route.ts",
+      "size": 554,
+      "mtime": 1756711719117.963
+    },
+    {
+      "path": "apps/web/src/app/api/editor/items/reorder/route.ts",
+      "size": 3286,
+      "mtime": 1756711719833.3018
+    }
+  ]
+}
