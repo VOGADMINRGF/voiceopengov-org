@@ -43,3 +43,8 @@ packages/**/dist/
 
 /apps/landing/data/*.json
 .vercel/
+.DS_Store
+.vercel/
+*.zip
+apps/web/src/db/**/libquery_engine*
+apps/web/src/db/**/query_engine_bg.*
