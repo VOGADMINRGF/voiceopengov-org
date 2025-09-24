@@ -39,3 +39,5 @@ apps/**/.next/
 apps/**/dist/
 packages/**/node_modules/
 packages/**/dist/
+.DS_Store
+*.zip

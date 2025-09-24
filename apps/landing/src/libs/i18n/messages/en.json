@@ -1,0 +1,13 @@
+{
+    "nav": {
+    "about": "About",
+    "press": "Press",
+    "membership": "Membership & Sponsorship",
+    "chapters": "Chapters",
+    "contact": "Contact"
+    },
+    "hero": {
+    "title": "Let’s improve politics together",
+    "cta": "Join now"
+    }
+    }
