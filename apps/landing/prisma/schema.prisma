@@ -1,0 +1,99 @@
+// Prisma Schema für VoiceOpenGov Landing (Dev: SQLite)
+// Prod: DATABASE_URL auf Postgres umstellen und provider anpassen
+
+
+generator client {
+provider = "prisma-client-js"
+}
+
+
+datasource db {
+provider = "sqlite"
+url = env("DATABASE_URL")
+}
+
+
+enum ChapterIntent {
+JOIN
+FOUND
+}
+
+
+model Supporter {
+id String @id @default(cuid())
+email String @unique
+firstName String @default("")
+lastName String @default("")
+createdAt DateTime @default(now())
+
+
+// Relations
+newsletter NewsletterSubscription?
+leads ChapterLead[]
+}
+
+
+model NewsletterSubscription {
+id String @id @default(cuid())
+supporterId String @unique
+supporter Supporter @relation(fields: [supporterId], references: [id])
+
+
+token String @unique
+subscribed Boolean @default(true)
+confirmedAt DateTime?
+unsubscribedAt DateTime?
+
+
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+}
+
+
+model ChapterLead {
+id String @id @default(cuid())
+createdAt DateTime @default(now())
+
+
+// Kontakt & Region
+email String
+countryCode String
+postal String?
+city String?
+locale String? // z.B. "de"
+
+
+// Absicht & Nachricht
+intent ChapterIntent @default(FOUND)
+message String?
+
+
+// Status
+processedAt DateTime?
+
+
+// Relation
+supporter Supporter? @relation(fields: [supporterId], references: [id])
+supporterId String?
+
+
+@@index([email])
+@@index([countryCode, city])
+}
+
+
+model AuditLog {
+id String @id @default(cuid())
+createdAt DateTime @default(now())
+
+
+actor String? // E-Mail oder System
+action String // z.B. "newsletter.subscribe", "contact.submit"
+payload Json?
+ip String?
+userAgent String?
+
+
+@@index([createdAt])
+@@index([action])
+}
