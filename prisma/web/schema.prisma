@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("WEB_POSTGRES_URL") // ggf. an deine ENV anpassen
+  url      = env("WEB_POSTGRES_URL")
 }
 
 //
@@ -46,7 +46,7 @@ enum Locale {
 }
 
 //
-// ---------- CONTENT / TOPIC / TAG ----------
+// ---------- TOPIC / TAG ----------
 model Topic {
   id          String     @id @default(cuid())
   slug        String     @unique
@@ -97,6 +97,8 @@ model ItemTag {
   @@index([tagId])
 }
 
+//
+// ---------- CONTENT ----------
 model ContentItem {
   id        String      @id @default(cuid())
   kind      ContentKind
@@ -108,7 +110,7 @@ model ContentItem {
   title     String?
   text      String
   richText  String?
-  sortOrder Int         @default(0) @map("order") // statt "order"
+  sortOrder Int         @default(0) @map("order") // „order“ ist reserved → mappen
 
   status     PublishStatus @default(draft)
   authorName String?
@@ -133,6 +135,8 @@ model ContentItem {
   @@index([publishAt])
   @@index([topicId])
   @@index([createdAt])
+  // optionaler Performance-Index für Event-Teaser:
+  @@index([topicId, kind, status, publishAt])
 }
 
 model AnswerOption {
@@ -147,4 +151,73 @@ model AnswerOption {
 
   @@unique([itemId, sortOrder])
   @@unique([itemId, value])
+}
+
+//
+// ---------- REGION / USER ----------
+model Region {
+  id     String @id @default(cuid())
+  code   String @unique
+  name   String
+  level  String
+
+  userProfiles  UserProfile[]
+  contributions Contribution[]
+}
+
+model UserProfile {
+  userId   String  @id
+  regionId String?
+  region   Region? @relation(fields: [regionId], references: [id])
+  // weitere Felder nach Bedarf …
+}
+
+//
+// ---------- CONTRIBUTION PIPELINE ----------
+model Contribution {
+  id               String   @id @default(cuid())
+  originalText     String
+  userId           String?
+  regionId         String?
+  region           Region?  @relation(fields: [regionId], references: [id])
+  topicsJson       Json?
+  translationsJson Json?
+  createdAt        DateTime @default(now())
+
+  statements       ContributionStatement[]
+
+  @@index([createdAt])
+  @@index([regionId])
+  @@index([userId])
+}
+
+model ContributionStatement {
+  id             String   @id @default(cuid())
+  contributionId String
+  contribution   Contribution @relation(fields: [contributionId], references: [id], onDelete: Cascade)
+  order          Int
+  text           String
+  type           String
+  polarity       String
+  createdAt      DateTime @default(now())
+
+  @@index([contributionId, order])
+}
+
+//
+// ---------- QUICK SIGNUP ----------
+model QuickSignup {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  name       String?
+  email      String?  @db.VarChar(190)
+  consent    Boolean
+  source     String   @default("quick")
+  ip         String?  @db.VarChar(64)
+  userAgent  String?
+  userId     String?
+
+  @@index([email])
+  @@index([createdAt])
+  @@index([source])
 }

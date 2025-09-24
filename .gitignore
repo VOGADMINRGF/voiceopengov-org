@@ -39,3 +39,7 @@ apps/**/.next/
 apps/**/dist/
 packages/**/node_modules/
 packages/**/dist/
+.vercel
+
+/apps/landing/data/*.json
+.vercel/

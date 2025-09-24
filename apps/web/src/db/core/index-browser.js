@@ -20,12 +20,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.14.0
- * Query Engine version: 717184b7b35ea05dfa71a3236b7af656013e1e49
+ * Prisma Client JS version: 6.16.1
+ * Query Engine version: 1c57fdcd7e44b29b9313256c76699e91c3ac3c43
  */
 Prisma.prismaVersion = {
-  client: "6.14.0",
-  engine: "717184b7b35ea05dfa71a3236b7af656013e1e49"
+  client: "6.16.1",
+  engine: "1c57fdcd7e44b29b9313256c76699e91c3ac3c43"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -322,6 +322,57 @@ exports.Prisma.AdminSettingsScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.SupporterScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  phone: 'phone',
+  postalCode: 'postalCode',
+  city: 'city',
+  countryCode: 'countryCode',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SupportIntentScalarFieldEnum = {
+  id: 'id',
+  persona: 'persona',
+  cycle: 'cycle',
+  amountCents: 'amountCents',
+  persons: 'persons',
+  pledgeTopic: 'pledgeTopic',
+  skills: 'skills',
+  source: 'source',
+  createdAt: 'createdAt',
+  supporterId: 'supporterId'
+};
+
+exports.Prisma.SepaMandateScalarFieldEnum = {
+  id: 'id',
+  creditorId: 'creditorId',
+  mandateRef: 'mandateRef',
+  ibanMasked: 'ibanMasked',
+  ibanHash: 'ibanHash',
+  bic: 'bic',
+  consentAt: 'consentAt',
+  ipAddress: 'ipAddress',
+  signatureName: 'signatureName',
+  signatureType: 'signatureType',
+  validFrom: 'validFrom',
+  revokedAt: 'revokedAt',
+  supporterId: 'supporterId'
+};
+
+exports.Prisma.NewsletterSubscriptionScalarFieldEnum = {
+  id: 'id',
+  supporterId: 'supporterId',
+  subscribed: 'subscribed',
+  token: 'token',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -419,7 +470,11 @@ exports.Prisma.ModelName = {
   AuditLog: 'AuditLog',
   ExtractedUnit: 'ExtractedUnit',
   Finding: 'Finding',
-  AdminSettings: 'AdminSettings'
+  AdminSettings: 'AdminSettings',
+  Supporter: 'Supporter',
+  SupportIntent: 'SupportIntent',
+  SepaMandate: 'SepaMandate',
+  NewsletterSubscription: 'NewsletterSubscription'
 };
 
 /**

@@ -5,13 +5,28 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 
 const {
+  PrismaClientKnownRequestError,
+  PrismaClientUnknownRequestError,
+  PrismaClientRustPanicError,
+  PrismaClientInitializationError,
+  PrismaClientValidationError,
+  getPrismaClient,
+  sqltag,
+  empty,
+  join,
+  raw,
+  skip,
   Decimal,
+  Debug,
   objectEnumValues,
   makeStrictEnum,
+  Extensions,
+  warnOnce,
+  defineDmmfProperty,
   Public,
   getRuntime,
-  skip
-} = require('./runtime/index-browser.js')
+  createParam,
+} = require('./runtime/wasm-engine-edge.js')
 
 
 const Prisma = {}
@@ -20,79 +35,35 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.14.0
- * Query Engine version: 717184b7b35ea05dfa71a3236b7af656013e1e49
+ * Prisma Client JS version: 6.16.1
+ * Query Engine version: 1c57fdcd7e44b29b9313256c76699e91c3ac3c43
  */
 Prisma.prismaVersion = {
-  client: "6.14.0",
-  engine: "717184b7b35ea05dfa71a3236b7af656013e1e49"
+  client: "6.16.1",
+  engine: "1c57fdcd7e44b29b9313256c76699e91c3ac3c43"
 }
 
-Prisma.PrismaClientKnownRequestError = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`PrismaClientKnownRequestError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)};
-Prisma.PrismaClientUnknownRequestError = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`PrismaClientUnknownRequestError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.PrismaClientRustPanicError = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`PrismaClientRustPanicError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.PrismaClientInitializationError = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`PrismaClientInitializationError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.PrismaClientValidationError = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`PrismaClientValidationError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+Prisma.PrismaClientKnownRequestError = PrismaClientKnownRequestError;
+Prisma.PrismaClientUnknownRequestError = PrismaClientUnknownRequestError
+Prisma.PrismaClientRustPanicError = PrismaClientRustPanicError
+Prisma.PrismaClientInitializationError = PrismaClientInitializationError
+Prisma.PrismaClientValidationError = PrismaClientValidationError
 Prisma.Decimal = Decimal
 
 /**
  * Re-export of sql-template-tag
  */
-Prisma.sql = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`sqltag is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.empty = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`empty is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.join = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`join is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.raw = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`raw is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+Prisma.sql = sqltag
+Prisma.empty = empty
+Prisma.join = join
+Prisma.raw = raw
 Prisma.validator = Public.validator
 
 /**
 * Extensions
 */
-Prisma.getExtensionContext = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`Extensions.getExtensionContext is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.defineExtension = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`Extensions.defineExtension is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+Prisma.getExtensionContext = Extensions.getExtensionContext
+Prisma.defineExtension = Extensions.defineExtension
 
 /**
  * Shorthand utilities for JSON filtering
@@ -109,10 +80,11 @@ Prisma.NullTypes = {
 
 
 
+
+
 /**
  * Enums
  */
-
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   ReadUncommitted: 'ReadUncommitted',
   ReadCommitted: 'ReadCommitted',
@@ -181,6 +153,50 @@ exports.Prisma.AnswerOptionScalarFieldEnum = {
   meta: 'meta'
 };
 
+exports.Prisma.RegionScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  level: 'level'
+};
+
+exports.Prisma.UserProfileScalarFieldEnum = {
+  userId: 'userId',
+  regionId: 'regionId'
+};
+
+exports.Prisma.ContributionScalarFieldEnum = {
+  id: 'id',
+  originalText: 'originalText',
+  userId: 'userId',
+  regionId: 'regionId',
+  topicsJson: 'topicsJson',
+  translationsJson: 'translationsJson',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ContributionStatementScalarFieldEnum = {
+  id: 'id',
+  contributionId: 'contributionId',
+  order: 'order',
+  text: 'text',
+  type: 'type',
+  polarity: 'polarity',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.QuickSignupScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  name: 'name',
+  email: 'email',
+  consent: 'consent',
+  source: 'source',
+  ip: 'ip',
+  userAgent: 'userAgent',
+  userId: 'userId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -206,21 +222,6 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
-exports.Locale = exports.$Enums.Locale = {
-  de: 'de',
-  en: 'en',
-  fr: 'fr',
-  it: 'it',
-  es: 'es',
-  pl: 'pl',
-  uk: 'uk',
-  ru: 'ru',
-  tr: 'tr',
-  hi: 'hi',
-  zh: 'zh',
-  ar: 'ar'
-};
-
 exports.ContentKind = exports.$Enums.ContentKind = {
   SWIPE: 'SWIPE',
   EVENT: 'EVENT',
@@ -239,42 +240,111 @@ exports.RegionMode = exports.$Enums.RegionMode = {
   MANUAL: 'MANUAL'
 };
 
+exports.Locale = exports.$Enums.Locale = {
+  de: 'de',
+  en: 'en',
+  fr: 'fr',
+  it: 'it',
+  es: 'es',
+  pl: 'pl',
+  uk: 'uk',
+  ru: 'ru',
+  tr: 'tr',
+  hi: 'hi',
+  zh: 'zh',
+  ar: 'ar'
+};
+
 exports.Prisma.ModelName = {
   Topic: 'Topic',
   Tag: 'Tag',
   TopicTag: 'TopicTag',
   ItemTag: 'ItemTag',
   ContentItem: 'ContentItem',
-  AnswerOption: 'AnswerOption'
+  AnswerOption: 'AnswerOption',
+  Region: 'Region',
+  UserProfile: 'UserProfile',
+  Contribution: 'Contribution',
+  ContributionStatement: 'ContributionStatement',
+  QuickSignup: 'QuickSignup'
 };
-
 /**
- * This is a stub Prisma Client that will error at runtime if called.
+ * Create the Client
  */
-class PrismaClient {
-  constructor() {
-    return new Proxy(this, {
-      get(target, prop) {
-        let message
-        const runtime = getRuntime()
-        if (runtime.isEdge) {
-          message = `PrismaClient is not configured to run in ${runtime.prettyName}. In order to run Prisma Client on edge runtime, either:
-- Use Prisma Accelerate: https://pris.ly/d/accelerate
-- Use Driver Adapters: https://pris.ly/d/driver-adapters
-`;
-        } else {
-          message = 'PrismaClient is unable to run in this browser environment, or has been bundled for the browser (running in `' + runtime.prettyName + '`).'
-        }
-
-        message += `
-If this is unexpected, please open an issue: https://pris.ly/prisma-prisma-bug-report`
-
-        throw new Error(message)
+const config = {
+  "generator": {
+    "name": "client",
+    "provider": {
+      "fromEnvVar": null,
+      "value": "prisma-client-js"
+    },
+    "output": {
+      "value": "/Users/RF/VPM25/apps/web/src/db/web",
+      "fromEnvVar": null
+    },
+    "config": {
+      "engineType": "library"
+    },
+    "binaryTargets": [
+      {
+        "fromEnvVar": null,
+        "value": "darwin-arm64",
+        "native": true
       }
-    })
+    ],
+    "previewFeatures": [],
+    "sourceFilePath": "/Users/RF/VPM25/prisma/landing/schema.prisma",
+    "isCustomOutput": true
+  },
+  "relativeEnvPaths": {
+    "rootEnvPath": null,
+    "schemaEnvPath": "../../../../../prisma/landing/.env"
+  },
+  "relativePath": "../../../../../prisma/landing",
+  "clientVersion": "6.16.1",
+  "engineVersion": "1c57fdcd7e44b29b9313256c76699e91c3ac3c43",
+  "datasourceNames": [
+    "db"
+  ],
+  "activeProvider": "postgresql",
+  "postinstall": false,
+  "inlineDatasources": {
+    "db": {
+      "url": {
+        "fromEnvVar": "DATABASE_URL",
+        "value": null
+      }
+    }
+  },
+  "inlineSchema": "// prisma/web/schema.prisma\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../../apps/web/src/db/web\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\n//\n// ---------- ENUMS ----------\nenum ContentKind {\n  SWIPE\n  EVENT\n  SUNDAY_POLL\n}\n\nenum PublishStatus {\n  draft\n  review\n  published\n  archived\n}\n\nenum RegionMode {\n  AUTO\n  MANUAL\n}\n\nenum Locale {\n  de\n  en\n  fr\n  it\n  es\n  pl\n  uk\n  ru\n  tr\n  hi\n  zh\n  ar\n}\n\n//\n// ---------- TOPIC / TAG ----------\nmodel Topic {\n  id          String   @id @default(cuid())\n  slug        String   @unique\n  title       String\n  description String?\n  locale      Locale   @default(de)\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n\n  items ContentItem[]\n  tags  TopicTag[]\n\n  @@index([locale])\n  @@index([createdAt])\n}\n\nmodel Tag {\n  id     String     @id @default(cuid())\n  slug   String     @unique\n  label  String\n  topics TopicTag[]\n  items  ItemTag[]\n}\n\nmodel TopicTag {\n  id      String @id @default(cuid())\n  topicId String\n  tagId   String\n\n  topic Topic @relation(fields: [topicId], references: [id], onDelete: Restrict, onUpdate: Cascade)\n  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: Restrict, onUpdate: Cascade)\n\n  @@unique([topicId, tagId])\n  @@index([topicId])\n  @@index([tagId])\n}\n\nmodel ItemTag {\n  id     String @id @default(cuid())\n  itemId String\n  tagId  String\n\n  item ContentItem @relation(fields: [itemId], references: [id], onDelete: Restrict, onUpdate: Cascade)\n  tag  Tag         @relation(fields: [tagId], references: [id], onDelete: Restrict, onUpdate: Cascade)\n\n  @@unique([itemId, tagId])\n  @@index([itemId])\n  @@index([tagId])\n}\n\n//\n// ---------- CONTENT ----------\nmodel ContentItem {\n  id   String      @id @default(cuid())\n  kind ContentKind\n\n  topicId String\n  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Restrict, onUpdate: Cascade)\n\n  locale    Locale  @default(de)\n  title     String?\n  text      String\n  richText  String?\n  sortOrder Int     @default(0) @map(\"order\") // „order“ ist reserved → mappen\n\n  status     PublishStatus @default(draft)\n  authorName String?\n  createdAt  DateTime      @default(now())\n  updatedAt  DateTime      @updatedAt\n\n  publishAt DateTime?\n  expireAt  DateTime?\n\n  regionMode        RegionMode @default(AUTO)\n  regionManualId    String?\n  regionEffectiveId String?\n  regionAuto        Json?\n\n  validation Json?\n  meta       Json?\n\n  answerOptions AnswerOption[]\n  tags          ItemTag[]\n\n  @@index([kind, status, locale])\n  @@index([publishAt])\n  @@index([topicId])\n  @@index([createdAt])\n  // optionaler Performance-Index für Event-Teaser:\n  @@index([topicId, kind, status, publishAt])\n}\n\nmodel AnswerOption {\n  id        String      @id @default(cuid())\n  itemId    String\n  item      ContentItem @relation(fields: [itemId], references: [id], onDelete: Cascade, onUpdate: Cascade)\n  label     String\n  value     String\n  sortOrder Int         @default(0) @map(\"order\")\n  exclusive Boolean     @default(false)\n  meta      Json?\n\n  @@unique([itemId, sortOrder])\n  @@unique([itemId, value])\n}\n\n//\n// ---------- REGION / USER ----------\nmodel Region {\n  id    String @id @default(cuid())\n  code  String @unique\n  name  String\n  level String\n\n  userProfiles  UserProfile[]\n  contributions Contribution[]\n}\n\nmodel UserProfile {\n  userId   String  @id\n  regionId String?\n  region   Region? @relation(fields: [regionId], references: [id])\n  // weitere Felder nach Bedarf …\n}\n\n//\n// ---------- CONTRIBUTION PIPELINE ----------\nmodel Contribution {\n  id               String   @id @default(cuid())\n  originalText     String\n  userId           String?\n  regionId         String?\n  region           Region?  @relation(fields: [regionId], references: [id])\n  topicsJson       Json?\n  translationsJson Json?\n  createdAt        DateTime @default(now())\n\n  statements ContributionStatement[]\n\n  @@index([createdAt])\n  @@index([regionId])\n  @@index([userId])\n}\n\nmodel ContributionStatement {\n  id             String       @id @default(cuid())\n  contributionId String\n  contribution   Contribution @relation(fields: [contributionId], references: [id], onDelete: Cascade)\n  order          Int\n  text           String\n  type           String\n  polarity       String\n  createdAt      DateTime     @default(now())\n\n  @@index([contributionId, order])\n}\n\n//\n// ---------- QUICK SIGNUP ----------\nmodel QuickSignup {\n  id        String   @id @default(cuid())\n  createdAt DateTime @default(now())\n  name      String?\n  email     String?  @db.VarChar(190)\n  consent   Boolean\n  source    String   @default(\"quick\")\n  ip        String?  @db.VarChar(64)\n  userAgent String?\n  userId    String?\n\n  @@index([email])\n  @@index([createdAt])\n  @@index([source])\n}\n",
+  "inlineSchemaHash": "82a26bcd644e01832a079d30cba9894d8fc8af646cf26eca3ce885fc6bfa7388",
+  "copyEngine": true
+}
+config.dirname = '/'
+
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Topic\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"slug\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"locale\",\"kind\":\"enum\",\"type\":\"Locale\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"items\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"ContentItemToTopic\"},{\"name\":\"tags\",\"kind\":\"object\",\"type\":\"TopicTag\",\"relationName\":\"TopicToTopicTag\"}],\"dbName\":null},\"Tag\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"slug\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"label\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topics\",\"kind\":\"object\",\"type\":\"TopicTag\",\"relationName\":\"TagToTopicTag\"},{\"name\":\"items\",\"kind\":\"object\",\"type\":\"ItemTag\",\"relationName\":\"ItemTagToTag\"}],\"dbName\":null},\"TopicTag\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topicId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tagId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topic\",\"kind\":\"object\",\"type\":\"Topic\",\"relationName\":\"TopicToTopicTag\"},{\"name\":\"tag\",\"kind\":\"object\",\"type\":\"Tag\",\"relationName\":\"TagToTopicTag\"}],\"dbName\":null},\"ItemTag\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"itemId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tagId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"item\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"ContentItemToItemTag\"},{\"name\":\"tag\",\"kind\":\"object\",\"type\":\"Tag\",\"relationName\":\"ItemTagToTag\"}],\"dbName\":null},\"ContentItem\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"kind\",\"kind\":\"enum\",\"type\":\"ContentKind\"},{\"name\":\"topicId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topic\",\"kind\":\"object\",\"type\":\"Topic\",\"relationName\":\"ContentItemToTopic\"},{\"name\":\"locale\",\"kind\":\"enum\",\"type\":\"Locale\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"text\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"richText\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sortOrder\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"order\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"PublishStatus\"},{\"name\":\"authorName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"publishAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"expireAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"regionMode\",\"kind\":\"enum\",\"type\":\"RegionMode\"},{\"name\":\"regionManualId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"regionEffectiveId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"regionAuto\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"validation\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"meta\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"answerOptions\",\"kind\":\"object\",\"type\":\"AnswerOption\",\"relationName\":\"AnswerOptionToContentItem\"},{\"name\":\"tags\",\"kind\":\"object\",\"type\":\"ItemTag\",\"relationName\":\"ContentItemToItemTag\"}],\"dbName\":null},\"AnswerOption\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"itemId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"item\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"AnswerOptionToContentItem\"},{\"name\":\"label\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sortOrder\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"order\"},{\"name\":\"exclusive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"meta\",\"kind\":\"scalar\",\"type\":\"Json\"}],\"dbName\":null},\"Region\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"level\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userProfiles\",\"kind\":\"object\",\"type\":\"UserProfile\",\"relationName\":\"RegionToUserProfile\"},{\"name\":\"contributions\",\"kind\":\"object\",\"type\":\"Contribution\",\"relationName\":\"ContributionToRegion\"}],\"dbName\":null},\"UserProfile\":{\"fields\":[{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"regionId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"region\",\"kind\":\"object\",\"type\":\"Region\",\"relationName\":\"RegionToUserProfile\"}],\"dbName\":null},\"Contribution\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"originalText\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"regionId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"region\",\"kind\":\"object\",\"type\":\"Region\",\"relationName\":\"ContributionToRegion\"},{\"name\":\"topicsJson\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"translationsJson\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"statements\",\"kind\":\"object\",\"type\":\"ContributionStatement\",\"relationName\":\"ContributionToContributionStatement\"}],\"dbName\":null},\"ContributionStatement\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"contributionId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"contribution\",\"kind\":\"object\",\"type\":\"Contribution\",\"relationName\":\"ContributionToContributionStatement\"},{\"name\":\"order\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"text\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"polarity\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"QuickSignup\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"consent\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"source\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ip\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userAgent\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
+config.engineWasm = {
+  getRuntime: async () => require('./query_engine_bg.js'),
+  getQueryEngineWasmModule: async () => {
+    const loader = (await import('#wasm-engine-loader')).default
+    const engine = (await loader).default
+    return engine
   }
 }
+config.compilerWasm = undefined
 
+config.injectableEdgeEnv = () => ({
+  parsed: {
+    DATABASE_URL: typeof globalThis !== 'undefined' && globalThis['DATABASE_URL'] || typeof process !== 'undefined' && process.env && process.env.DATABASE_URL || undefined
+  }
+})
+
+if (typeof globalThis !== 'undefined' && globalThis['DEBUG'] || typeof process !== 'undefined' && process.env && process.env.DEBUG || undefined) {
+  Debug.enable(typeof globalThis !== 'undefined' && globalThis['DEBUG'] || typeof process !== 'undefined' && process.env && process.env.DEBUG || undefined)
+}
+
+const PrismaClient = getPrismaClient(config)
 exports.PrismaClient = PrismaClient
-
 Object.assign(exports, Prisma)
+

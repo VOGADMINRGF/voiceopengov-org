@@ -3,30 +3,26 @@ import fs from "node:fs";
 import path from "node:path";
 import type { NextConfig } from "next";
 
-/** Hilfsfunktionen */
 const R = (...p: string[]) => path.resolve(__dirname, ...p);
 const exists = (...p: string[]) => fs.existsSync(R(...p));
 
-/** Alias-Resolver: nimm den ersten existierenden Pfad */
 function firstExisting(...candidates: string[]) {
   for (const c of candidates) {
     const abs = R(c);
     if (fs.existsSync(abs)) return abs;
   }
-  // Fallback: auf App-Src zeigen, damit Build nie crasht
   return R("./src");
 }
 
-/** Optional: Prompts aus dem Monorepo nur einbinden, wenn vorhanden */
 const promptsDir = exists("../../core/prompts") ? R("../../core/prompts") : null;
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: "standalone",
 
-  /** <- HIER: typedRoutes gehört unter experimental */
   experimental: {
     typedRoutes: true,
+    externalDir: true,
   },
 
   images: {
@@ -34,25 +30,19 @@ const nextConfig: NextConfig = {
     formats: ["image/webp", "image/avif"],
   },
 
-  // Nur includen, wenn der Ordner existiert
-  outputFileTracingIncludes: promptsDir
-    ? { "/api/ai/run": [`${promptsDir}/**/*`] }
-    : {},
+  outputFileTracingIncludes: promptsDir ? { "/api/ai/run": [`${promptsDir}/**/*`] } : {},
 
-  // Monorepo-Pakete transpilen (nur wenn vorhanden)
-  transpilePackages: [
-    ...(exists("../../packages/ui") ? ["ui"] : []),
-  ],
+  transpilePackages: [...(exists("../../packages/ui") ? ["ui"] : [])],
 
   webpack(config) {
-    config.resolve ??= {};
+    // WICHTIG: erst resolve sicherstellen, dann Aliasse setzen
+    config.resolve = config.resolve ?? {};
     config.resolve.alias = {
       ...(config.resolve.alias ?? {}),
-      // Monorepo-Aliasse
+      "@features": firstExisting("../../features", "./src/features"),
+      "@/features": firstExisting("../../features", "./src/features"),
       "@core": firstExisting("../../core", "./src"),
-      "@features": firstExisting("../../features", "./src"),
       "@ui": firstExisting("../../packages/ui/src", "./src/ui"),
-      // App-interne Kurzpfade
       "@": R("./src"),
       "@components": R("./src/components"),
       "@hooks": R("./src/hooks"),
@@ -65,7 +55,6 @@ const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: false },
   eslint: { ignoreDuringBuilds: true },
 
-  // Robots & Cache für Review-Snapshot
   async headers() {
     return [
       {

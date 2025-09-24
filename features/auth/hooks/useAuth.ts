@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { IUserProfile } from "../models/UserProfile";
+import { IUserProfile } from "@/models/pii/UserProfile";
 
 type LoginParams = { email: string; password: string };
 

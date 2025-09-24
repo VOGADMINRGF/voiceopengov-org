@@ -103,7 +103,7 @@ enum StreamStatus {
 }
 
 //
-// ---------- CONTENT / TOPIC / TAG ----------
+/// ---------- CONTENT / TOPIC / TAG ----------
 model Topic {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   slug        String   @unique
@@ -121,7 +121,7 @@ model Topic {
 }
 
 model Tag {
-  id     String     @id @default(cuid()) @map("_id")
+  id     String     @id @default(auto()) @map("_id") @db.ObjectId
   slug   String     @unique
   label  String
   topics TopicTag[]
@@ -129,9 +129,9 @@ model Tag {
 }
 
 model TopicTag {
-  id      String @id @default(cuid()) @map("_id") // Mongo: keine Composite-IDs
+  id      String @id @default(auto()) @map("_id") @db.ObjectId // Mongo: keine Composite-IDs
   topicId String @db.ObjectId
-  tagId   String
+  tagId   String @db.ObjectId
 
   topic Topic @relation(fields: [topicId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   tag   Tag   @relation(fields: [tagId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -142,9 +142,9 @@ model TopicTag {
 }
 
 model ItemTag {
-  id     String @id @default(cuid()) @map("_id") // Mongo: keine Composite-IDs
-  itemId String
-  tagId  String
+  id     String @id @default(auto()) @map("_id") @db.ObjectId // Mongo: keine Composite-IDs
+  itemId String @db.ObjectId
+  tagId  String @db.ObjectId
 
   item ContentItem @relation(fields: [itemId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   tag  Tag         @relation(fields: [tagId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -154,14 +154,13 @@ model ItemTag {
   @@index([tagId])
 }
 
-//
-// ---------- REGION + CLOSURE ----------
+/// ---------- REGION + CLOSURE ----------
 model Region {
-  id        String   @id @default(cuid()) @map("_id")
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   code      String   @unique
   name      String
   level     Int
-  parentId  String?
+  parentId  String?  @db.ObjectId
   parent    Region?  @relation("RegionHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   children  Region[] @relation("RegionHierarchy")
   meta      Json?
@@ -180,9 +179,9 @@ model Region {
 }
 
 model RegionClosure {
-  id           String @id @default(cuid()) @map("_id")
-  ancestorId   String
-  descendantId String
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  ancestorId   String @db.ObjectId
+  descendantId String @db.ObjectId
   depth        Int
 
   ancestor   Region @relation("RegionAncestor", fields: [ancestorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -193,10 +192,9 @@ model RegionClosure {
   @@index([descendantId, depth])
 }
 
-//
-// ---------- CONTENT ITEMS ----------
+/// ---------- CONTENT ITEMS ----------
 model ContentItem {
-  id   String      @id @default(cuid()) @map("_id")
+  id   String      @id @default(auto()) @map("_id") @db.ObjectId
   kind ContentKind
 
   topicId String @db.ObjectId
@@ -206,7 +204,7 @@ model ContentItem {
   title     String?
   text      String
   richText  String?
-  sortOrder Int     @default(0) @map("order") // statt "order"
+  sortOrder Int     @default(0) @map("order")
 
   units ExtractedUnit[]
 
@@ -219,10 +217,10 @@ model ContentItem {
   expireAt  DateTime?
 
   regionMode        RegionMode @default(AUTO)
-  regionManualId    String?
+  regionManualId    String?    @db.ObjectId
   regionManual      Region?    @relation("ItemRegionManual", fields: [regionManualId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   regionAuto        Json?
-  regionEffectiveId String?
+  regionEffectiveId String?    @db.ObjectId
   regionEffective   Region?    @relation("ItemRegionEffective", fields: [regionEffectiveId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   validation Json?
@@ -239,24 +237,22 @@ model ContentItem {
 }
 
 model AnswerOption {
-  id        String      @id @default(cuid()) @map("_id")
-  itemId    String
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  itemId    String      @db.ObjectId
   item      ContentItem @relation(fields: [itemId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   label     String
   value     String
   sortOrder Int         @default(0) @map("order")
   exclusive Boolean     @default(false)
   meta      Json?
-  // (kein weiterer @@index mehr auf order/sortOrder, sonst doppelt)
 
   @@unique([itemId, sortOrder])
   @@unique([itemId, value])
 }
 
-//
-// ---------- FACT-CHECK DOMAIN ----------
+/// ---------- FACT-CHECK DOMAIN ----------
 model FactcheckJob {
-  id             String   @id @default(cuid()) @map("_id")
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
   jobId          String   @unique
   contributionId String
   status         String // PENDING | PROCESSING | COMPLETED | FAILED
@@ -272,8 +268,8 @@ model FactcheckJob {
 }
 
 model FactcheckClaim {
-  id              String   @id @default(cuid()) @map("_id")
-  jobId           String
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  jobId           String   @db.ObjectId
   text            String
   language        String?
   topic           String?
@@ -302,8 +298,8 @@ model FactcheckClaim {
 }
 
 model ProviderRun {
-  id         String   @id @default(cuid()) @map("_id")
-  claimId    String
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  claimId    String   @db.ObjectId
   provider   String
   verdict    String
   confidence Float
@@ -319,8 +315,8 @@ model ProviderRun {
 }
 
 model ConsensusRun {
-  id             String   @id @default(cuid()) @map("_id")
-  claimId        String   @unique
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  claimId        String   @unique @db.ObjectId
   method         String
   verdict        String
   confidence     Float
@@ -333,8 +329,8 @@ model ConsensusRun {
 }
 
 model Evidence {
-  id           String    @id @default(cuid()) @map("_id")
-  claimId      String
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  claimId      String    @db.ObjectId
   url          String
   domain       String
   stance       Stance
@@ -348,8 +344,8 @@ model Evidence {
 }
 
 model VerdictVersion {
-  id         String   @id @default(cuid()) @map("_id")
-  claimId    String
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  claimId    String   @db.ObjectId
   verdict    String
   confidence Float
   asOf       DateTime @default(now())
@@ -361,8 +357,8 @@ model VerdictVersion {
 }
 
 model FactcheckResult {
-  id        String   @id @default(cuid()) @map("_id")
-  jobId     String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  jobId     String   @db.ObjectId
   verdict   String
   rawOutput Json
   createdAt DateTime @default(now())
@@ -373,7 +369,7 @@ model FactcheckResult {
 }
 
 model AuditLog {
-  id         String   @id @default(cuid()) @map("_id")
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
   entityType String
   entityId   String
   action     String
@@ -384,13 +380,12 @@ model AuditLog {
   @@index([entityType, at])
 }
 
-//
-// ---------- ERWEITERUNG: Extracted Units & Findings ----------
+/// ---------- ERWEITERUNG: Extracted Units & Findings ----------
 model ExtractedUnit {
-  id String @id @default(cuid()) @map("_id")
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   // V2-Relation (optional für V1-Kompatibilität)
-  itemId String?
+  itemId String?      @db.ObjectId
   item   ContentItem? @relation(fields: [itemId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   // V1-Feld: externer/Mongo Statement-Ref (optional)
@@ -408,7 +403,7 @@ model ExtractedUnit {
   timeframe    String?
 
   // Verknüpfung auf Prisma-Claim
-  claimId String?
+  claimId String?         @db.ObjectId
   claim   FactcheckClaim? @relation(fields: [claimId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   interest   Interest @default(undecided)
@@ -425,10 +420,10 @@ model ExtractedUnit {
 }
 
 model Finding {
-  id String @id @default(cuid()) @map("_id")
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   // 1:1 – Finding hält den FK auf Claim (stabil & eindeutig)
-  claimId String         @unique
+  claimId String         @unique @db.ObjectId
   claim   FactcheckClaim @relation(fields: [claimId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   summary               String
@@ -441,8 +436,7 @@ model Finding {
   updatedAt             DateTime @updatedAt
 }
 
-//
-// ---------- ADMIN SETTINGS (Singleton) ----------
+/// ---------- ADMIN SETTINGS (Singleton) ----------
 model AdminSettings {
   id         String   @id @default("global") @map("_id") // feste ID
   onboarding Json?
@@ -450,4 +444,64 @@ model AdminSettings {
   updatedAt  DateTime @updatedAt
 }
 
-//
+/// --- SUPPORT & MANDATE -------------------------------------------------------
+model Supporter {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  email       String   @unique
+  firstName   String
+  lastName    String
+  phone       String?
+  postalCode  String?
+  city        String?
+  countryCode String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  intents    SupportIntent[]
+  mandates   SepaMandate[]
+  newsletter NewsletterSubscription?
+}
+
+model SupportIntent {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  persona     String
+  cycle       String?
+  amountCents Int?
+  persons     Int?
+  pledgeTopic String?
+  skills      String?
+  source      String?
+  createdAt   DateTime @default(now())
+
+  supporterId String    @db.ObjectId
+  supporter   Supporter @relation(fields: [supporterId], references: [id])
+}
+
+model SepaMandate {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  creditorId    String
+  mandateRef    String    @unique
+  ibanMasked    String
+  ibanHash      String
+  bic           String?
+  consentAt     DateTime
+  ipAddress     String?
+  signatureName String
+  signatureType String
+  validFrom     DateTime
+  revokedAt     DateTime?
+
+  supporterId String    @db.ObjectId
+  supporter   Supporter @relation(fields: [supporterId], references: [id])
+}
+
+model NewsletterSubscription {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  supporterId String    @unique @db.ObjectId
+  supporter   Supporter @relation(fields: [supporterId], references: [id])
+
+  subscribed Boolean  @default(true)
+  token      String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}

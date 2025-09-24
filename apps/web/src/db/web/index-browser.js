@@ -20,12 +20,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.14.0
- * Query Engine version: 717184b7b35ea05dfa71a3236b7af656013e1e49
+ * Prisma Client JS version: 6.16.1
+ * Query Engine version: 1c57fdcd7e44b29b9313256c76699e91c3ac3c43
  */
 Prisma.prismaVersion = {
-  client: "6.14.0",
-  engine: "717184b7b35ea05dfa71a3236b7af656013e1e49"
+  client: "6.16.1",
+  engine: "1c57fdcd7e44b29b9313256c76699e91c3ac3c43"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -181,6 +181,50 @@ exports.Prisma.AnswerOptionScalarFieldEnum = {
   meta: 'meta'
 };
 
+exports.Prisma.RegionScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  level: 'level'
+};
+
+exports.Prisma.UserProfileScalarFieldEnum = {
+  userId: 'userId',
+  regionId: 'regionId'
+};
+
+exports.Prisma.ContributionScalarFieldEnum = {
+  id: 'id',
+  originalText: 'originalText',
+  userId: 'userId',
+  regionId: 'regionId',
+  topicsJson: 'topicsJson',
+  translationsJson: 'translationsJson',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ContributionStatementScalarFieldEnum = {
+  id: 'id',
+  contributionId: 'contributionId',
+  order: 'order',
+  text: 'text',
+  type: 'type',
+  polarity: 'polarity',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.QuickSignupScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  name: 'name',
+  email: 'email',
+  consent: 'consent',
+  source: 'source',
+  ip: 'ip',
+  userAgent: 'userAgent',
+  userId: 'userId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -245,7 +289,12 @@ exports.Prisma.ModelName = {
   TopicTag: 'TopicTag',
   ItemTag: 'ItemTag',
   ContentItem: 'ContentItem',
-  AnswerOption: 'AnswerOption'
+  AnswerOption: 'AnswerOption',
+  Region: 'Region',
+  UserProfile: 'UserProfile',
+  Contribution: 'Contribution',
+  ContributionStatement: 'ContributionStatement',
+  QuickSignup: 'QuickSignup'
 };
 
 /**

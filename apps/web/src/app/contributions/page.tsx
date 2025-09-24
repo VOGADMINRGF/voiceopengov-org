@@ -1,5 +1,5 @@
 import "server-only";
-import { absUrl } from "@/utils/serverBaseUrl";
+import { absUrl } from "@/utils/absUrl";
 
 async function getContribs() {
   const r = await fetch(absUrl("/api/contributions"), { cache: "no-store" });

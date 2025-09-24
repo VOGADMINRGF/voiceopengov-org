@@ -111,7 +111,7 @@ export interface E100Report {
   // Quellen
   sources?: ReportSource[];
   internationalComparison?: Array<{
-    country: string;
+    countryCode: string;
     votingAge: number;
     effects: string;
   }>;

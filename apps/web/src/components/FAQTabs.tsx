@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import Headline from "@/components/Headline";
+import { Headline } from "@/components/Headline"; 
 import {
   UserIcon,
   BuildingLibraryIcon,

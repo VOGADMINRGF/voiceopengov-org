@@ -1,31 +1,16 @@
-import { useState } from "react";
-import { colors } from "@ui/theme";
+import type { ReactNode } from "react";
 
-export function MiniAccordion({ items }) {
-  const [open, setOpen] = useState(-1);
+export type AccordionItem = { title: string; content: ReactNode };
+
+export function MiniAccordion({ items }: { items: AccordionItem[] }) {
   return (
-    <div className="space-y-2">
+    <div>
       {items.map((item, idx) => (
-        <div key={idx} className="rounded-lg border bg-white/90 shadow">
-          <button
-            onClick={() => setOpen(open === idx ? -1 : idx)}
-            className="w-full text-left flex items-center px-4 py-3 font-semibold"
-            style={{ color: colors.coral }}
-          >
-            <span className="mr-2">{item.icon || "❔"}</span>{item.title}
-            <span className="ml-auto">{open === idx ? "▲" : "▼"}</span>
-          </button>
-          {open === idx && (
-            <div className="px-6 pb-4 text-gray-700">{item.content}</div>
-          )}
-        </div>
+        <details key={idx}>
+          <summary>{item.title}</summary>
+          <div>{item.content}</div>
+        </details>
       ))}
     </div>
   );
 }
-
-// Beispiel-Aufruf:
-// <MiniAccordion items={[
-//   { icon: "📍", title: "Regionale Ansprechpartner", content: "Hier findest du Kontakte vor Ort." },
-//   { icon: "💡", title: "Tipp: Anliegen starten", content: "So reichst du ein Anliegen ein..." }
-// ]} />

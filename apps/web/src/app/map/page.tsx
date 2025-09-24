@@ -1,18 +1,14 @@
 // apps/web/src/app/map/page.tsx
-import NextDynamic from "next/dynamic";
+import dynamic from "next/dynamic";
 
-const MapClient = NextDynamic(() => import("@/features/map/components/MapClient"), { ssr: false });
-
-// Diese Zeile ist ok – jetzt kein Konflikt mehr:
+const OLMap = dynamic(() => import("@features/map/OLMap"), { ssr: false });
 export const dynamic = "force-dynamic";
 
-export default function Page() {
+export default function MapPage() {
   return (
     <main style={{ padding: 16 }}>
-      <h1 style={{ marginBottom: 12 }}>Interaktive Karte</h1>
-      <div style={{ height: "calc(100vh - 140px)" }}>
-        <MapClient />
-      </div>
+      <h1 style={{ marginBottom: 12 }}>Karte</h1>
+      <OLMap />
     </main>
   );
 }

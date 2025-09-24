@@ -1,8 +1,8 @@
 // apps/web/src/app/dashboard/test/page.tsx
 "use client";
-import AdminDashboard from "./admin/page";
-import NGODashboard from "./ngo/page";
-import ManageContributionsDashboard from "./manage-contributions/page";
+import AdminDashboard from "../admin/page";
+import NGODashboard from "../ngo/page";
+import ManageContributionsDashboard from "../manage-contributions/page";
 
 export default function TestDashboardOverview() {
   return (

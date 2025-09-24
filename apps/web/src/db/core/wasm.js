@@ -5,13 +5,28 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 
 const {
+  PrismaClientKnownRequestError,
+  PrismaClientUnknownRequestError,
+  PrismaClientRustPanicError,
+  PrismaClientInitializationError,
+  PrismaClientValidationError,
+  getPrismaClient,
+  sqltag,
+  empty,
+  join,
+  raw,
+  skip,
   Decimal,
+  Debug,
   objectEnumValues,
   makeStrictEnum,
+  Extensions,
+  warnOnce,
+  defineDmmfProperty,
   Public,
   getRuntime,
-  skip
-} = require('./runtime/index-browser.js')
+  createParam,
+} = require('./runtime/wasm-engine-edge.js')
 
 
 const Prisma = {}
@@ -20,79 +35,35 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.14.0
- * Query Engine version: 717184b7b35ea05dfa71a3236b7af656013e1e49
+ * Prisma Client JS version: 6.16.1
+ * Query Engine version: 1c57fdcd7e44b29b9313256c76699e91c3ac3c43
  */
 Prisma.prismaVersion = {
-  client: "6.14.0",
-  engine: "717184b7b35ea05dfa71a3236b7af656013e1e49"
+  client: "6.16.1",
+  engine: "1c57fdcd7e44b29b9313256c76699e91c3ac3c43"
 }
 
-Prisma.PrismaClientKnownRequestError = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`PrismaClientKnownRequestError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)};
-Prisma.PrismaClientUnknownRequestError = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`PrismaClientUnknownRequestError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.PrismaClientRustPanicError = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`PrismaClientRustPanicError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.PrismaClientInitializationError = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`PrismaClientInitializationError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.PrismaClientValidationError = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`PrismaClientValidationError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+Prisma.PrismaClientKnownRequestError = PrismaClientKnownRequestError;
+Prisma.PrismaClientUnknownRequestError = PrismaClientUnknownRequestError
+Prisma.PrismaClientRustPanicError = PrismaClientRustPanicError
+Prisma.PrismaClientInitializationError = PrismaClientInitializationError
+Prisma.PrismaClientValidationError = PrismaClientValidationError
 Prisma.Decimal = Decimal
 
 /**
  * Re-export of sql-template-tag
  */
-Prisma.sql = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`sqltag is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.empty = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`empty is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.join = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`join is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.raw = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`raw is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+Prisma.sql = sqltag
+Prisma.empty = empty
+Prisma.join = join
+Prisma.raw = raw
 Prisma.validator = Public.validator
 
 /**
 * Extensions
 */
-Prisma.getExtensionContext = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`Extensions.getExtensionContext is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.defineExtension = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`Extensions.defineExtension is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+Prisma.getExtensionContext = Extensions.getExtensionContext
+Prisma.defineExtension = Extensions.defineExtension
 
 /**
  * Shorthand utilities for JSON filtering
@@ -109,10 +80,11 @@ Prisma.NullTypes = {
 
 
 
+
+
 /**
  * Enums
  */
-
 exports.Prisma.TopicScalarFieldEnum = {
   id: 'id',
   slug: 'slug',
@@ -322,6 +294,57 @@ exports.Prisma.AdminSettingsScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.SupporterScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  phone: 'phone',
+  postalCode: 'postalCode',
+  city: 'city',
+  countryCode: 'countryCode',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SupportIntentScalarFieldEnum = {
+  id: 'id',
+  persona: 'persona',
+  cycle: 'cycle',
+  amountCents: 'amountCents',
+  persons: 'persons',
+  pledgeTopic: 'pledgeTopic',
+  skills: 'skills',
+  source: 'source',
+  createdAt: 'createdAt',
+  supporterId: 'supporterId'
+};
+
+exports.Prisma.SepaMandateScalarFieldEnum = {
+  id: 'id',
+  creditorId: 'creditorId',
+  mandateRef: 'mandateRef',
+  ibanMasked: 'ibanMasked',
+  ibanHash: 'ibanHash',
+  bic: 'bic',
+  consentAt: 'consentAt',
+  ipAddress: 'ipAddress',
+  signatureName: 'signatureName',
+  signatureType: 'signatureType',
+  validFrom: 'validFrom',
+  revokedAt: 'revokedAt',
+  supporterId: 'supporterId'
+};
+
+exports.Prisma.NewsletterSubscriptionScalarFieldEnum = {
+  id: 'id',
+  supporterId: 'supporterId',
+  subscribed: 'subscribed',
+  token: 'token',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -331,21 +354,6 @@ exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 };
-exports.Locale = exports.$Enums.Locale = {
-  de: 'de',
-  en: 'en',
-  fr: 'fr',
-  it: 'it',
-  es: 'es',
-  pl: 'pl',
-  uk: 'uk',
-  ru: 'ru',
-  tr: 'tr',
-  hi: 'hi',
-  zh: 'zh',
-  ar: 'ar'
-};
-
 exports.ContentKind = exports.$Enums.ContentKind = {
   SWIPE: 'SWIPE',
   EVENT: 'EVENT',
@@ -364,14 +372,19 @@ exports.RegionMode = exports.$Enums.RegionMode = {
   MANUAL: 'MANUAL'
 };
 
-exports.ReviewStatus = exports.$Enums.ReviewStatus = {
-  OPEN: 'OPEN',
-  IN_PROGRESS: 'IN_PROGRESS',
-  VERIFIED: 'VERIFIED',
-  REFUTED: 'REFUTED',
-  MIXED: 'MIXED',
-  STALE: 'STALE',
-  ARCHIVED: 'ARCHIVED'
+exports.Locale = exports.$Enums.Locale = {
+  de: 'de',
+  en: 'en',
+  fr: 'fr',
+  it: 'it',
+  es: 'es',
+  pl: 'pl',
+  uk: 'uk',
+  ru: 'ru',
+  tr: 'tr',
+  hi: 'hi',
+  zh: 'zh',
+  ar: 'ar'
 };
 
 exports.Stance = exports.$Enums.Stance = {
@@ -388,6 +401,16 @@ exports.UnitKind = exports.$Enums.UnitKind = {
   prediction: 'prediction'
 };
 
+exports.ReviewStatus = exports.$Enums.ReviewStatus = {
+  OPEN: 'OPEN',
+  IN_PROGRESS: 'IN_PROGRESS',
+  VERIFIED: 'VERIFIED',
+  REFUTED: 'REFUTED',
+  MIXED: 'MIXED',
+  STALE: 'STALE',
+  ARCHIVED: 'ARCHIVED'
+};
+
 exports.Interest = exports.$Enums.Interest = {
   interested: 'interested',
   ignored: 'ignored',
@@ -398,6 +421,26 @@ exports.Triage = exports.$Enums.Triage = {
   none: 'none',
   watchlist: 'watchlist',
   escalate: 'escalate'
+};
+
+exports.SourceKind = exports.$Enums.SourceKind = {
+  USER: 'USER',
+  NEWS: 'NEWS',
+  SOCIAL: 'SOCIAL',
+  API: 'API',
+  SYSTEM: 'SYSTEM'
+};
+
+exports.StreamKind = exports.$Enums.StreamKind = {
+  EVENT: 'EVENT',
+  METRIC: 'METRIC',
+  LOG: 'LOG'
+};
+
+exports.StreamStatus = exports.$Enums.StreamStatus = {
+  ACCEPTED: 'ACCEPTED',
+  APPLIED: 'APPLIED',
+  REJECTED: 'REJECTED'
 };
 
 exports.Prisma.ModelName = {
@@ -419,36 +462,88 @@ exports.Prisma.ModelName = {
   AuditLog: 'AuditLog',
   ExtractedUnit: 'ExtractedUnit',
   Finding: 'Finding',
-  AdminSettings: 'AdminSettings'
+  AdminSettings: 'AdminSettings',
+  Supporter: 'Supporter',
+  SupportIntent: 'SupportIntent',
+  SepaMandate: 'SepaMandate',
+  NewsletterSubscription: 'NewsletterSubscription'
 };
-
 /**
- * This is a stub Prisma Client that will error at runtime if called.
+ * Create the Client
  */
-class PrismaClient {
-  constructor() {
-    return new Proxy(this, {
-      get(target, prop) {
-        let message
-        const runtime = getRuntime()
-        if (runtime.isEdge) {
-          message = `PrismaClient is not configured to run in ${runtime.prettyName}. In order to run Prisma Client on edge runtime, either:
-- Use Prisma Accelerate: https://pris.ly/d/accelerate
-- Use Driver Adapters: https://pris.ly/d/driver-adapters
-`;
-        } else {
-          message = 'PrismaClient is unable to run in this browser environment, or has been bundled for the browser (running in `' + runtime.prettyName + '`).'
-        }
-
-        message += `
-If this is unexpected, please open an issue: https://pris.ly/prisma-prisma-bug-report`
-
-        throw new Error(message)
+const config = {
+  "generator": {
+    "name": "client",
+    "provider": {
+      "fromEnvVar": null,
+      "value": "prisma-client-js"
+    },
+    "output": {
+      "value": "/Users/RF/VPM25/apps/web/src/db/core",
+      "fromEnvVar": null
+    },
+    "config": {
+      "engineType": "library"
+    },
+    "binaryTargets": [
+      {
+        "fromEnvVar": null,
+        "value": "darwin-arm64",
+        "native": true
       }
-    })
+    ],
+    "previewFeatures": [],
+    "sourceFilePath": "/Users/RF/VPM25/prisma/core/schema.prisma",
+    "isCustomOutput": true
+  },
+  "relativeEnvPaths": {
+    "rootEnvPath": null,
+    "schemaEnvPath": "../../../../../prisma/.env"
+  },
+  "relativePath": "../../../../../prisma/core",
+  "clientVersion": "6.16.1",
+  "engineVersion": "1c57fdcd7e44b29b9313256c76699e91c3ac3c43",
+  "datasourceNames": [
+    "db"
+  ],
+  "activeProvider": "mongodb",
+  "inlineDatasources": {
+    "db": {
+      "url": {
+        "fromEnvVar": "CORE_MONGODB_URI",
+        "value": null
+      }
+    }
+  },
+  "inlineSchema": "// prisma/core/schema.prisma\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../../apps/web/src/db/core\"\n}\n\ndatasource db {\n  provider = \"mongodb\"\n  url      = env(\"CORE_MONGODB_URI\")\n}\n\n//\n// ---------- ENUMS ----------\nenum ContentKind {\n  SWIPE\n  EVENT\n  SUNDAY_POLL\n}\n\nenum PublishStatus {\n  draft\n  review\n  published\n  archived\n}\n\nenum RegionMode {\n  AUTO\n  MANUAL\n}\n\nenum Locale {\n  de\n  en\n  fr\n  it\n  es\n  pl\n  uk\n  ru\n  tr\n  hi\n  zh\n  ar\n}\n\nenum Stance {\n  FOR\n  AGAINST\n  NEUTRAL\n}\n\nenum UnitKind {\n  claim\n  opinion\n  policy\n  question\n  prediction\n}\n\nenum ReviewStatus {\n  OPEN\n  IN_PROGRESS\n  VERIFIED\n  REFUTED\n  MIXED\n  STALE\n  ARCHIVED\n}\n\nenum Interest {\n  interested\n  ignored\n  undecided\n}\n\nenum Triage {\n  none\n  watchlist\n  escalate\n}\n\n// --- Stream & Source Enums (ADD) ---\nenum SourceKind {\n  USER // direkte User-Einsendung\n  NEWS // News/Crawler\n  SOCIAL // Social API\n  API // Partner-API\n  SYSTEM // interne Jobs\n}\n\nenum StreamKind {\n  EVENT // fachliche Events (ContributionCreated, VoteCast, ...)\n  METRIC // Kennzahlen, Zähler\n  LOG // Prozess-/Workflow-Logs\n}\n\nenum StreamStatus {\n  ACCEPTED\n  APPLIED\n  REJECTED\n}\n\n//\n/// ---------- CONTENT / TOPIC / TAG ----------\nmodel Topic {\n  id          String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  slug        String   @unique\n  title       String\n  description String?\n  locale      Locale   @default(de)\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n\n  items ContentItem[]\n  tags  TopicTag[]\n\n  @@index([locale])\n  @@index([createdAt])\n}\n\nmodel Tag {\n  id     String     @id @default(auto()) @map(\"_id\") @db.ObjectId\n  slug   String     @unique\n  label  String\n  topics TopicTag[]\n  items  ItemTag[]\n}\n\nmodel TopicTag {\n  id      String @id @default(auto()) @map(\"_id\") @db.ObjectId // Mongo: keine Composite-IDs\n  topicId String @db.ObjectId\n  tagId   String @db.ObjectId\n\n  topic Topic @relation(fields: [topicId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n\n  @@unique([topicId, tagId])\n  @@index([topicId])\n  @@index([tagId])\n}\n\nmodel ItemTag {\n  id     String @id @default(auto()) @map(\"_id\") @db.ObjectId // Mongo: keine Composite-IDs\n  itemId String @db.ObjectId\n  tagId  String @db.ObjectId\n\n  item ContentItem @relation(fields: [itemId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n  tag  Tag         @relation(fields: [tagId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n\n  @@unique([itemId, tagId])\n  @@index([itemId])\n  @@index([tagId])\n}\n\n/// ---------- REGION + CLOSURE ----------\nmodel Region {\n  id        String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  code      String   @unique\n  name      String\n  level     Int\n  parentId  String?  @db.ObjectId\n  parent    Region?  @relation(\"RegionHierarchy\", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n  children  Region[] @relation(\"RegionHierarchy\")\n  meta      Json?\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  // Relations zu ContentItem\n  itemsManual    ContentItem[] @relation(\"ItemRegionManual\")\n  itemsEffective ContentItem[] @relation(\"ItemRegionEffective\")\n\n  // Closure-Table\n  ancestors   RegionClosure[] @relation(\"RegionAncestor\")\n  descendants RegionClosure[] @relation(\"RegionDescendant\")\n\n  @@index([level])\n}\n\nmodel RegionClosure {\n  id           String @id @default(auto()) @map(\"_id\") @db.ObjectId\n  ancestorId   String @db.ObjectId\n  descendantId String @db.ObjectId\n  depth        Int\n\n  ancestor   Region @relation(\"RegionAncestor\", fields: [ancestorId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n  descendant Region @relation(\"RegionDescendant\", fields: [descendantId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n\n  @@unique([ancestorId, descendantId])\n  @@index([ancestorId, depth])\n  @@index([descendantId, depth])\n}\n\n/// ---------- CONTENT ITEMS ----------\nmodel ContentItem {\n  id   String      @id @default(auto()) @map(\"_id\") @db.ObjectId\n  kind ContentKind\n\n  topicId String @db.ObjectId\n  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n\n  locale    Locale  @default(de)\n  title     String?\n  text      String\n  richText  String?\n  sortOrder Int     @default(0) @map(\"order\")\n\n  units ExtractedUnit[]\n\n  status     PublishStatus @default(draft)\n  authorName String?\n  createdAt  DateTime      @default(now())\n  updatedAt  DateTime      @updatedAt\n\n  publishAt DateTime?\n  expireAt  DateTime?\n\n  regionMode        RegionMode @default(AUTO)\n  regionManualId    String?    @db.ObjectId\n  regionManual      Region?    @relation(\"ItemRegionManual\", fields: [regionManualId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n  regionAuto        Json?\n  regionEffectiveId String?    @db.ObjectId\n  regionEffective   Region?    @relation(\"ItemRegionEffective\", fields: [regionEffectiveId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n\n  validation Json?\n  meta       Json?\n\n  answerOptions AnswerOption[]\n  tags          ItemTag[]\n\n  @@index([kind, status, locale])\n  @@index([publishAt])\n  @@index([topicId])\n  @@index([regionEffectiveId])\n  @@index([createdAt])\n}\n\nmodel AnswerOption {\n  id        String      @id @default(auto()) @map(\"_id\") @db.ObjectId\n  itemId    String      @db.ObjectId\n  item      ContentItem @relation(fields: [itemId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n  label     String\n  value     String\n  sortOrder Int         @default(0) @map(\"order\")\n  exclusive Boolean     @default(false)\n  meta      Json?\n\n  @@unique([itemId, sortOrder])\n  @@unique([itemId, value])\n}\n\n/// ---------- FACT-CHECK DOMAIN ----------\nmodel FactcheckJob {\n  id             String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  jobId          String   @unique\n  contributionId String\n  status         String // PENDING | PROCESSING | COMPLETED | FAILED\n  tokensUsed     Int      @default(0)\n  durationMs     Int      @default(0)\n  createdAt      DateTime @default(now())\n  updatedAt      DateTime @updatedAt\n\n  claims  FactcheckClaim[]\n  results FactcheckResult[]\n\n  @@index([status, createdAt])\n}\n\nmodel FactcheckClaim {\n  id              String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  jobId           String   @db.ObjectId\n  text            String\n  language        String?\n  topic           String?\n  falsifiable     Boolean  @default(true)\n  frames          String[] @default([])\n  rhetoricalFlags String[] @default([])\n\n  canonicalKey String       @unique\n  scope        String?\n  timeframe    String?\n  status       ReviewStatus @default(OPEN)\n\n  job             FactcheckJob     @relation(fields: [jobId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n  providerRuns    ProviderRun[]\n  evidences       Evidence[]\n  consensus       ConsensusRun?\n  verdictVersions VerdictVersion[]\n  units           ExtractedUnit[]\n  finding         Finding?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@index([jobId, createdAt])\n  @@index([status, updatedAt])\n}\n\nmodel ProviderRun {\n  id         String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  claimId    String   @db.ObjectId\n  provider   String\n  verdict    String\n  confidence Float\n  costTokens Int      @default(0)\n  latencyMs  Int      @default(0)\n  raw        Json\n  createdAt  DateTime @default(now())\n\n  claim FactcheckClaim @relation(fields: [claimId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n\n  @@index([claimId, provider])\n  @@index([createdAt])\n}\n\nmodel ConsensusRun {\n  id             String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  claimId        String   @unique @db.ObjectId\n  method         String\n  verdict        String\n  confidence     Float\n  balanceScore   Float\n  diversityIndex Float\n  providers      Json\n  createdAt      DateTime @default(now())\n\n  claim FactcheckClaim @relation(fields: [claimId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n}\n\nmodel Evidence {\n  id           String    @id @default(auto()) @map(\"_id\") @db.ObjectId\n  claimId      String    @db.ObjectId\n  url          String\n  domain       String\n  stance       Stance\n  snapshotHash String?\n  firstSeenAt  DateTime? @default(now())\n  trustScore   Int?\n\n  claim FactcheckClaim @relation(fields: [claimId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n\n  @@index([claimId, domain])\n}\n\nmodel VerdictVersion {\n  id         String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  claimId    String   @db.ObjectId\n  verdict    String\n  confidence Float\n  asOf       DateTime @default(now())\n  supersedes String?\n\n  claim FactcheckClaim @relation(fields: [claimId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n\n  @@index([claimId, asOf])\n}\n\nmodel FactcheckResult {\n  id        String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  jobId     String   @db.ObjectId\n  verdict   String\n  rawOutput Json\n  createdAt DateTime @default(now())\n\n  job FactcheckJob @relation(fields: [jobId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n\n  @@index([jobId, createdAt])\n}\n\nmodel AuditLog {\n  id         String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  entityType String\n  entityId   String\n  action     String\n  actor      String\n  at         DateTime @default(now())\n  meta       Json\n\n  @@index([entityType, at])\n}\n\n/// ---------- ERWEITERUNG: Extracted Units & Findings ----------\nmodel ExtractedUnit {\n  id String @id @default(auto()) @map(\"_id\") @db.ObjectId\n\n  // V2-Relation (optional für V1-Kompatibilität)\n  itemId String?      @db.ObjectId\n  item   ContentItem? @relation(fields: [itemId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n\n  // V1-Feld: externer/Mongo Statement-Ref (optional)\n  statementId String?\n\n  kind       UnitKind\n  text       String\n  spanStart  Int\n  spanEnd    Int\n  confidence Float\n\n  // Deduplizierung\n  canonicalKey String\n  scope        String?\n  timeframe    String?\n\n  // Verknüpfung auf Prisma-Claim\n  claimId String?         @db.ObjectId\n  claim   FactcheckClaim? @relation(fields: [claimId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n\n  interest   Interest @default(undecided)\n  triage     Triage   @default(none)\n  editorNote String?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@index([kind, canonicalKey])\n  @@index([interest, triage])\n  @@index([itemId])\n  @@index([statementId])\n}\n\nmodel Finding {\n  id String @id @default(auto()) @map(\"_id\") @db.ObjectId\n\n  // 1:1 – Finding hält den FK auf Claim (stabil & eindeutig)\n  claimId String         @unique @db.ObjectId\n  claim   FactcheckClaim @relation(fields: [claimId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n\n  summary               String\n  outcome               String // LIKELY_TRUE | LIKELY_FALSE | MIXED | UNDETERMINED\n  rationale             String\n  metrics               Json?\n  comparedJurisdictions Json?\n  lastChecked           DateTime @default(now())\n  createdAt             DateTime @default(now())\n  updatedAt             DateTime @updatedAt\n}\n\n/// ---------- ADMIN SETTINGS (Singleton) ----------\nmodel AdminSettings {\n  id         String   @id @default(\"global\") @map(\"_id\") // feste ID\n  onboarding Json?\n  csp        Json?\n  updatedAt  DateTime @updatedAt\n}\n\n/// --- SUPPORT & MANDATE -------------------------------------------------------\nmodel Supporter {\n  id          String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  email       String   @unique\n  firstName   String\n  lastName    String\n  phone       String?\n  postalCode  String?\n  city        String?\n  countryCode String?\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n\n  intents    SupportIntent[]\n  mandates   SepaMandate[]\n  newsletter NewsletterSubscription?\n}\n\nmodel SupportIntent {\n  id          String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  persona     String\n  cycle       String?\n  amountCents Int?\n  persons     Int?\n  pledgeTopic String?\n  skills      String?\n  source      String?\n  createdAt   DateTime @default(now())\n\n  supporterId String    @db.ObjectId\n  supporter   Supporter @relation(fields: [supporterId], references: [id])\n}\n\nmodel SepaMandate {\n  id            String    @id @default(auto()) @map(\"_id\") @db.ObjectId\n  creditorId    String\n  mandateRef    String    @unique\n  ibanMasked    String\n  ibanHash      String\n  bic           String?\n  consentAt     DateTime\n  ipAddress     String?\n  signatureName String\n  signatureType String\n  validFrom     DateTime\n  revokedAt     DateTime?\n\n  supporterId String    @db.ObjectId\n  supporter   Supporter @relation(fields: [supporterId], references: [id])\n}\n\nmodel NewsletterSubscription {\n  id          String    @id @default(auto()) @map(\"_id\") @db.ObjectId\n  supporterId String    @unique @db.ObjectId\n  supporter   Supporter @relation(fields: [supporterId], references: [id])\n\n  subscribed Boolean  @default(true)\n  token      String   @unique\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n}\n",
+  "inlineSchemaHash": "177d27bcd8aa6754c45cd525a70d82f93f8e015405a9b19b738d0ac5794d6c2a",
+  "copyEngine": true
+}
+config.dirname = '/'
+
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Topic\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"slug\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"locale\",\"kind\":\"enum\",\"type\":\"Locale\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"items\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"ContentItemToTopic\"},{\"name\":\"tags\",\"kind\":\"object\",\"type\":\"TopicTag\",\"relationName\":\"TopicToTopicTag\"}],\"dbName\":null},\"Tag\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"slug\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"label\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topics\",\"kind\":\"object\",\"type\":\"TopicTag\",\"relationName\":\"TagToTopicTag\"},{\"name\":\"items\",\"kind\":\"object\",\"type\":\"ItemTag\",\"relationName\":\"ItemTagToTag\"}],\"dbName\":null},\"TopicTag\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"topicId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tagId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topic\",\"kind\":\"object\",\"type\":\"Topic\",\"relationName\":\"TopicToTopicTag\"},{\"name\":\"tag\",\"kind\":\"object\",\"type\":\"Tag\",\"relationName\":\"TagToTopicTag\"}],\"dbName\":null},\"ItemTag\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"itemId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tagId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"item\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"ContentItemToItemTag\"},{\"name\":\"tag\",\"kind\":\"object\",\"type\":\"Tag\",\"relationName\":\"ItemTagToTag\"}],\"dbName\":null},\"Region\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"level\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"parentId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"parent\",\"kind\":\"object\",\"type\":\"Region\",\"relationName\":\"RegionHierarchy\"},{\"name\":\"children\",\"kind\":\"object\",\"type\":\"Region\",\"relationName\":\"RegionHierarchy\"},{\"name\":\"meta\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"itemsManual\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"ItemRegionManual\"},{\"name\":\"itemsEffective\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"ItemRegionEffective\"},{\"name\":\"ancestors\",\"kind\":\"object\",\"type\":\"RegionClosure\",\"relationName\":\"RegionAncestor\"},{\"name\":\"descendants\",\"kind\":\"object\",\"type\":\"RegionClosure\",\"relationName\":\"RegionDescendant\"}],\"dbName\":null},\"RegionClosure\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"ancestorId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"descendantId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"depth\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ancestor\",\"kind\":\"object\",\"type\":\"Region\",\"relationName\":\"RegionAncestor\"},{\"name\":\"descendant\",\"kind\":\"object\",\"type\":\"Region\",\"relationName\":\"RegionDescendant\"}],\"dbName\":null},\"ContentItem\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"kind\",\"kind\":\"enum\",\"type\":\"ContentKind\"},{\"name\":\"topicId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topic\",\"kind\":\"object\",\"type\":\"Topic\",\"relationName\":\"ContentItemToTopic\"},{\"name\":\"locale\",\"kind\":\"enum\",\"type\":\"Locale\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"text\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"richText\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sortOrder\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"order\"},{\"name\":\"units\",\"kind\":\"object\",\"type\":\"ExtractedUnit\",\"relationName\":\"ContentItemToExtractedUnit\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"PublishStatus\"},{\"name\":\"authorName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"publishAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"expireAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"regionMode\",\"kind\":\"enum\",\"type\":\"RegionMode\"},{\"name\":\"regionManualId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"regionManual\",\"kind\":\"object\",\"type\":\"Region\",\"relationName\":\"ItemRegionManual\"},{\"name\":\"regionAuto\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"regionEffectiveId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"regionEffective\",\"kind\":\"object\",\"type\":\"Region\",\"relationName\":\"ItemRegionEffective\"},{\"name\":\"validation\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"meta\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"answerOptions\",\"kind\":\"object\",\"type\":\"AnswerOption\",\"relationName\":\"AnswerOptionToContentItem\"},{\"name\":\"tags\",\"kind\":\"object\",\"type\":\"ItemTag\",\"relationName\":\"ContentItemToItemTag\"}],\"dbName\":null},\"AnswerOption\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"itemId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"item\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"AnswerOptionToContentItem\"},{\"name\":\"label\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sortOrder\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"order\"},{\"name\":\"exclusive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"meta\",\"kind\":\"scalar\",\"type\":\"Json\"}],\"dbName\":null},\"FactcheckJob\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"jobId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"contributionId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tokensUsed\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"durationMs\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"claims\",\"kind\":\"object\",\"type\":\"FactcheckClaim\",\"relationName\":\"FactcheckClaimToFactcheckJob\"},{\"name\":\"results\",\"kind\":\"object\",\"type\":\"FactcheckResult\",\"relationName\":\"FactcheckJobToFactcheckResult\"}],\"dbName\":null},\"FactcheckClaim\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"jobId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"text\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"language\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topic\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"falsifiable\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"frames\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"rhetoricalFlags\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"canonicalKey\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"scope\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"timeframe\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"ReviewStatus\"},{\"name\":\"job\",\"kind\":\"object\",\"type\":\"FactcheckJob\",\"relationName\":\"FactcheckClaimToFactcheckJob\"},{\"name\":\"providerRuns\",\"kind\":\"object\",\"type\":\"ProviderRun\",\"relationName\":\"FactcheckClaimToProviderRun\"},{\"name\":\"evidences\",\"kind\":\"object\",\"type\":\"Evidence\",\"relationName\":\"EvidenceToFactcheckClaim\"},{\"name\":\"consensus\",\"kind\":\"object\",\"type\":\"ConsensusRun\",\"relationName\":\"ConsensusRunToFactcheckClaim\"},{\"name\":\"verdictVersions\",\"kind\":\"object\",\"type\":\"VerdictVersion\",\"relationName\":\"FactcheckClaimToVerdictVersion\"},{\"name\":\"units\",\"kind\":\"object\",\"type\":\"ExtractedUnit\",\"relationName\":\"ExtractedUnitToFactcheckClaim\"},{\"name\":\"finding\",\"kind\":\"object\",\"type\":\"Finding\",\"relationName\":\"FactcheckClaimToFinding\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"ProviderRun\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"claimId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"provider\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"verdict\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"confidence\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"costTokens\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"latencyMs\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"raw\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"claim\",\"kind\":\"object\",\"type\":\"FactcheckClaim\",\"relationName\":\"FactcheckClaimToProviderRun\"}],\"dbName\":null},\"ConsensusRun\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"claimId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"method\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"verdict\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"confidence\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"balanceScore\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"diversityIndex\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"providers\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"claim\",\"kind\":\"object\",\"type\":\"FactcheckClaim\",\"relationName\":\"ConsensusRunToFactcheckClaim\"}],\"dbName\":null},\"Evidence\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"claimId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"domain\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"stance\",\"kind\":\"enum\",\"type\":\"Stance\"},{\"name\":\"snapshotHash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"firstSeenAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"trustScore\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"claim\",\"kind\":\"object\",\"type\":\"FactcheckClaim\",\"relationName\":\"EvidenceToFactcheckClaim\"}],\"dbName\":null},\"VerdictVersion\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"claimId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"verdict\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"confidence\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"asOf\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"supersedes\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"claim\",\"kind\":\"object\",\"type\":\"FactcheckClaim\",\"relationName\":\"FactcheckClaimToVerdictVersion\"}],\"dbName\":null},\"FactcheckResult\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"jobId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"verdict\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"rawOutput\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"job\",\"kind\":\"object\",\"type\":\"FactcheckJob\",\"relationName\":\"FactcheckJobToFactcheckResult\"}],\"dbName\":null},\"AuditLog\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"entityType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"entityId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"action\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"actor\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"meta\",\"kind\":\"scalar\",\"type\":\"Json\"}],\"dbName\":null},\"ExtractedUnit\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"itemId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"item\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"ContentItemToExtractedUnit\"},{\"name\":\"statementId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"kind\",\"kind\":\"enum\",\"type\":\"UnitKind\"},{\"name\":\"text\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"spanStart\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"spanEnd\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"confidence\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"canonicalKey\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"scope\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"timeframe\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"claimId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"claim\",\"kind\":\"object\",\"type\":\"FactcheckClaim\",\"relationName\":\"ExtractedUnitToFactcheckClaim\"},{\"name\":\"interest\",\"kind\":\"enum\",\"type\":\"Interest\"},{\"name\":\"triage\",\"kind\":\"enum\",\"type\":\"Triage\"},{\"name\":\"editorNote\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Finding\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"claimId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"claim\",\"kind\":\"object\",\"type\":\"FactcheckClaim\",\"relationName\":\"FactcheckClaimToFinding\"},{\"name\":\"summary\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"outcome\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"rationale\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"metrics\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"comparedJurisdictions\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"lastChecked\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"AdminSettings\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"onboarding\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"csp\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Supporter\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"firstName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"lastName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"postalCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"city\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"countryCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"intents\",\"kind\":\"object\",\"type\":\"SupportIntent\",\"relationName\":\"SupportIntentToSupporter\"},{\"name\":\"mandates\",\"kind\":\"object\",\"type\":\"SepaMandate\",\"relationName\":\"SepaMandateToSupporter\"},{\"name\":\"newsletter\",\"kind\":\"object\",\"type\":\"NewsletterSubscription\",\"relationName\":\"NewsletterSubscriptionToSupporter\"}],\"dbName\":null},\"SupportIntent\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"persona\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cycle\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"amountCents\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"persons\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"pledgeTopic\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"skills\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"source\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"supporterId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"supporter\",\"kind\":\"object\",\"type\":\"Supporter\",\"relationName\":\"SupportIntentToSupporter\"}],\"dbName\":null},\"SepaMandate\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"creditorId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"mandateRef\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ibanMasked\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ibanHash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"bic\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"consentAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ipAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"signatureName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"signatureType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"validFrom\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"revokedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"supporterId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"supporter\",\"kind\":\"object\",\"type\":\"Supporter\",\"relationName\":\"SepaMandateToSupporter\"}],\"dbName\":null},\"NewsletterSubscription\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"supporterId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"supporter\",\"kind\":\"object\",\"type\":\"Supporter\",\"relationName\":\"NewsletterSubscriptionToSupporter\"},{\"name\":\"subscribed\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
+config.engineWasm = {
+  getRuntime: async () => require('./query_engine_bg.js'),
+  getQueryEngineWasmModule: async () => {
+    const loader = (await import('#wasm-engine-loader')).default
+    const engine = (await loader).default
+    return engine
   }
 }
+config.compilerWasm = undefined
 
+config.injectableEdgeEnv = () => ({
+  parsed: {
+    CORE_MONGODB_URI: typeof globalThis !== 'undefined' && globalThis['CORE_MONGODB_URI'] || typeof process !== 'undefined' && process.env && process.env.CORE_MONGODB_URI || undefined
+  }
+})
+
+if (typeof globalThis !== 'undefined' && globalThis['DEBUG'] || typeof process !== 'undefined' && process.env && process.env.DEBUG || undefined) {
+  Debug.enable(typeof globalThis !== 'undefined' && globalThis['DEBUG'] || typeof process !== 'undefined' && process.env && process.env.DEBUG || undefined)
+}
+
+const PrismaClient = getPrismaClient(config)
 exports.PrismaClient = PrismaClient
-
 Object.assign(exports, Prisma)
+

@@ -1,13 +1,8 @@
 import { cookies } from "next/headers";
-export default function SiteHeader(){
-  const role = cookies().get("u_role")?.value;
-  return (
-    <header className="...">
-      {/* ... */}
-      <nav className="ml-auto flex gap-4">
-        {/* ... */}
-        {role==="admin" && <a href="/admin" className="underline">Admin</a>}
-      </nav>
-    </header>
-  );
+
+// Der Next-Typ mismatch in diesem Scope: hart casten
+const role = (cookies() as any)?.get?.("u_role")?.value ?? "guest";
+
+export default function SiteHeader() {
+  return <header>{role}</header>;
 }

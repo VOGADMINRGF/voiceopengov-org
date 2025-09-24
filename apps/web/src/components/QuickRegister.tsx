@@ -1,53 +1,108 @@
-import { absUrl } from "@/utils/serverBaseUrl";
+"use client";
 import { useState } from "react";
 
-export default function QuickRegister({ onSuccess }) {
-  const [name, setName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+export type QuickRegisterSuccess = {
+  id: string;
+  createdAt: string;            // kommt als ISO-String aus JSON
+  name: string | null;
+  email: string | null;
+  source: string;
+};
 
-  async function handleQuickRegister(e) {
+type QuickRegisterProps = {
+  source?: string;
+  onSuccess?: (payload: QuickRegisterSuccess) => void;
+};
+
+export default function QuickRegister({
+  source = "join_page",
+  onSuccess,
+}: QuickRegisterProps) {
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [consent, setConsent] = useState(true);
+  const [status, setStatus] = useState<"idle" | "ok" | "fail" | "rate">("idle");
+  const [msg, setMsg] = useState("");
+
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
+    setStatus("idle");
+    setMsg("");
+
+    const csrf = document.cookie
+      .split("; ")
+      .find(c => c.startsWith("csrf-token="))
+      ?.split("=")[1];
+
     try {
-      const res = await fetch(absUrl("/api/quick-register", {
+      const res = await fetch("/api/quick-register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: name }),
+        headers: {
+          "content-type": "application/json",
+          ...(csrf ? { "x-csrf-token": csrf } : {}),
+        },
+        body: JSON.stringify({ email, name, consent, source }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      onSuccess?.(data.data);
-    } catch (err) {
-      setError(err.message || "Unbekannter Fehler");
-    } finally {
-      setLoading(false);
+
+      if (res.status === 429) {
+        setStatus("rate");
+        setMsg("Zu viele Versuche. Bitte kurz warten.");
+        return;
+      }
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        setStatus("fail");
+        setMsg(j?.error ?? "Konnte nicht senden. Versuch’s später erneut.");
+        return;
+      }
+
+      const j = (await res.json().catch(() => null)) as
+        | { data: QuickRegisterSuccess }
+        | null;
+
+      setStatus("ok");
+      setMsg("Danke! Wir melden uns.");
+      setEmail("");
+      setName("");
+
+      if (j?.data) onSuccess?.(j.data);
+    } catch {
+      setStatus("fail");
+      setMsg("Netzwerkfehler.");
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleQuickRegister} className="space-y-4">
+    <form onSubmit={onSubmit} className="flex flex-col gap-2 max-w-sm">
       <input
-        type="text"
-        placeholder="Dein Name"
-        className="w-full border-2 rounded px-3 py-2"
         value={name}
-        onChange={e => setName(e.target.value)}
-        disabled={loading}
-        required
+        onChange={(e) => setName(e.currentTarget.value)}
+        placeholder="Name (optional)"
+        className="border rounded px-2 py-1"
       />
-      <button
-        type="submit"
-        className="w-full bg-[#9333ea] text-white font-semibold rounded py-2 mt-2 hover:bg-[#7c2bd0] transition"
-        disabled={loading}
-      >
-        {loading ? "Wird gespeichert..." : "Teilnehmen"}
+      <input
+        value={email}
+        onChange={(e) => setEmail(e.currentTarget.value)}
+        placeholder="Email"
+        type="email"
+        required
+        className="border rounded px-2 py-1"
+      />
+      <label className="text-sm flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={consent}
+          onChange={(e) => setConsent(e.currentTarget.checked)}
+        />
+        Ich bin einverstanden.
+      </label>
+      <button type="submit" className="border rounded px-3 py-1">
+        Register
       </button>
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-      <p className="text-xs text-gray-500 mt-1">
-        Hinweis: Ohne Registrierung wird dein Name nicht dauerhaft gespeichert und du nimmst anonym an dieser Aktion teil.
-      </p>
+
+      {msg && (
+        <p className={status === "ok" ? "text-green-600" : "text-red-600"}>{msg}</p>
+      )}
     </form>
   );
 }

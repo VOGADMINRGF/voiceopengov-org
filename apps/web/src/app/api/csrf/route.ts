@@ -4,24 +4,34 @@ import { NextRequest, NextResponse } from "next/server";
 const CSRF_COOKIE = "csrf-token";
 const CSRF_HEADER = "x-csrf-token";
 
-// Route handler runs on Node by default; no edge-only restrictions here.
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+function genToken(bytes = 32) {
+  const buf = new Uint8Array(bytes);
+  crypto.getRandomValues(buf);
+  // base64url ist kompakt & headerfreundlich
+  // 32 Bytes → 43 Zeichen base64url
+  // (16 Bytes gehen auch, 32 ist robuster)
+  // @ts-ignore
+  return Buffer.from(buf).toString("base64url");
+}
+
 export async function GET(req: NextRequest) {
+  const url = new URL(req.url);
+  const rotate = url.searchParams.get("rotate") === "1";
+
+  let token = req.cookies.get(CSRF_COOKIE)?.value || "";
+  if (!token || rotate) token = genToken(32);
+
   const res = new NextResponse(null, {
     status: 204,
     headers: { "Cache-Control": "no-store" },
   });
 
-  let token = req.cookies.get(CSRF_COOKIE)?.value;
-  if (!token) {
-    // Create one if middleware hasn’t set it yet (e.g., calling this route directly)
-    // Use Web Crypto for portability
-    const bytes = new Uint8Array(16);
-    crypto.getRandomValues(bytes);
-    token = Buffer.from(bytes).toString("base64url");
-    res.cookies.set({
-      name: CSRF_COOKIE,
-      value: token,
-      httpOnly: true,
+  if (!req.cookies.get(CSRF_COOKIE)?.value || rotate) {
+    res.cookies.set(CSRF_COOKIE, token, {
+      httpOnly: true,   // <-- httpOnly bleibt AN (Client liest Header, nicht Cookie)
       sameSite: "lax",
       secure: true,
       path: "/",
@@ -29,7 +39,11 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  // Expose the token via a response header so the client can echo it on state-changing calls.
+  // Client kann den Token aus dem Header ziehen
   res.headers.set(CSRF_HEADER, token);
   return res;
+}
+
+export async function HEAD() {
+  return new NextResponse(null, { status: 204, headers: { "Cache-Control": "no-store" } });
 }

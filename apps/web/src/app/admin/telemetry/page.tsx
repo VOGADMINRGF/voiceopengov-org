@@ -1,4 +1,4 @@
-import { absUrl } from "@/utils/serverBaseUrl";
+import { absUrl } from "@/utils/absUrl";
 import "server-only";
 
 async function getAI() {

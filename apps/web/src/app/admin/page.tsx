@@ -1,6 +1,6 @@
 import "server-only";
 import Link from "next/link";
-import { absUrl } from "@/utils/serverBaseUrl";
+import { absUrl } from "@/utils/absUrl";
 
 async function getSummary() {
   const r = await fetch(absUrl("/api/admin/analytics/summary"), { cache: "no-store" });

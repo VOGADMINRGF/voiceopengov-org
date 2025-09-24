@@ -15,7 +15,7 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
 
 /**
  * Model Topic
- * 
+ * ---------- CONTENT / TOPIC / TAG ----------
  */
 export type Topic = $Result.DefaultSelection<Prisma.$TopicPayload>
 /**
@@ -35,7 +35,7 @@ export type TopicTag = $Result.DefaultSelection<Prisma.$TopicTagPayload>
 export type ItemTag = $Result.DefaultSelection<Prisma.$ItemTagPayload>
 /**
  * Model Region
- * 
+ * ---------- REGION + CLOSURE ----------
  */
 export type Region = $Result.DefaultSelection<Prisma.$RegionPayload>
 /**
@@ -45,7 +45,7 @@ export type Region = $Result.DefaultSelection<Prisma.$RegionPayload>
 export type RegionClosure = $Result.DefaultSelection<Prisma.$RegionClosurePayload>
 /**
  * Model ContentItem
- * 
+ * ---------- CONTENT ITEMS ----------
  */
 export type ContentItem = $Result.DefaultSelection<Prisma.$ContentItemPayload>
 /**
@@ -55,7 +55,7 @@ export type ContentItem = $Result.DefaultSelection<Prisma.$ContentItemPayload>
 export type AnswerOption = $Result.DefaultSelection<Prisma.$AnswerOptionPayload>
 /**
  * Model FactcheckJob
- * 
+ * ---------- FACT-CHECK DOMAIN ----------
  */
 export type FactcheckJob = $Result.DefaultSelection<Prisma.$FactcheckJobPayload>
 /**
@@ -95,7 +95,7 @@ export type FactcheckResult = $Result.DefaultSelection<Prisma.$FactcheckResultPa
 export type AuditLog = $Result.DefaultSelection<Prisma.$AuditLogPayload>
 /**
  * Model ExtractedUnit
- * 
+ * ---------- ERWEITERUNG: Extracted Units & Findings ----------
  */
 export type ExtractedUnit = $Result.DefaultSelection<Prisma.$ExtractedUnitPayload>
 /**
@@ -105,9 +105,29 @@ export type ExtractedUnit = $Result.DefaultSelection<Prisma.$ExtractedUnitPayloa
 export type Finding = $Result.DefaultSelection<Prisma.$FindingPayload>
 /**
  * Model AdminSettings
- * 
+ * ---------- ADMIN SETTINGS (Singleton) ----------
  */
 export type AdminSettings = $Result.DefaultSelection<Prisma.$AdminSettingsPayload>
+/**
+ * Model Supporter
+ * --- SUPPORT & MANDATE -------------------------------------------------------
+ */
+export type Supporter = $Result.DefaultSelection<Prisma.$SupporterPayload>
+/**
+ * Model SupportIntent
+ * 
+ */
+export type SupportIntent = $Result.DefaultSelection<Prisma.$SupportIntentPayload>
+/**
+ * Model SepaMandate
+ * 
+ */
+export type SepaMandate = $Result.DefaultSelection<Prisma.$SepaMandatePayload>
+/**
+ * Model NewsletterSubscription
+ * 
+ */
+export type NewsletterSubscription = $Result.DefaultSelection<Prisma.$NewsletterSubscriptionPayload>
 
 /**
  * Enums
@@ -561,6 +581,46 @@ export class PrismaClient<
     * ```
     */
   get adminSettings(): Prisma.AdminSettingsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.supporter`: Exposes CRUD operations for the **Supporter** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Supporters
+    * const supporters = await prisma.supporter.findMany()
+    * ```
+    */
+  get supporter(): Prisma.SupporterDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.supportIntent`: Exposes CRUD operations for the **SupportIntent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SupportIntents
+    * const supportIntents = await prisma.supportIntent.findMany()
+    * ```
+    */
+  get supportIntent(): Prisma.SupportIntentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.sepaMandate`: Exposes CRUD operations for the **SepaMandate** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SepaMandates
+    * const sepaMandates = await prisma.sepaMandate.findMany()
+    * ```
+    */
+  get sepaMandate(): Prisma.SepaMandateDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.newsletterSubscription`: Exposes CRUD operations for the **NewsletterSubscription** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more NewsletterSubscriptions
+    * const newsletterSubscriptions = await prisma.newsletterSubscription.findMany()
+    * ```
+    */
+  get newsletterSubscription(): Prisma.NewsletterSubscriptionDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -619,8 +679,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.14.0
-   * Query Engine version: 717184b7b35ea05dfa71a3236b7af656013e1e49
+   * Prisma Client JS version: 6.16.1
+   * Query Engine version: 1c57fdcd7e44b29b9313256c76699e91c3ac3c43
    */
   export type PrismaVersion = {
     client: string
@@ -1019,7 +1079,11 @@ export namespace Prisma {
     AuditLog: 'AuditLog',
     ExtractedUnit: 'ExtractedUnit',
     Finding: 'Finding',
-    AdminSettings: 'AdminSettings'
+    AdminSettings: 'AdminSettings',
+    Supporter: 'Supporter',
+    SupportIntent: 'SupportIntent',
+    SepaMandate: 'SepaMandate',
+    NewsletterSubscription: 'NewsletterSubscription'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1038,7 +1102,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "topic" | "tag" | "topicTag" | "itemTag" | "region" | "regionClosure" | "contentItem" | "answerOption" | "factcheckJob" | "factcheckClaim" | "providerRun" | "consensusRun" | "evidence" | "verdictVersion" | "factcheckResult" | "auditLog" | "extractedUnit" | "finding" | "adminSettings"
+      modelProps: "topic" | "tag" | "topicTag" | "itemTag" | "region" | "regionClosure" | "contentItem" | "answerOption" | "factcheckJob" | "factcheckClaim" | "providerRun" | "consensusRun" | "evidence" | "verdictVersion" | "factcheckResult" | "auditLog" | "extractedUnit" | "finding" | "adminSettings" | "supporter" | "supportIntent" | "sepaMandate" | "newsletterSubscription"
       txIsolationLevel: never
     }
     model: {
@@ -2448,6 +2512,302 @@ export namespace Prisma {
           }
         }
       }
+      Supporter: {
+        payload: Prisma.$SupporterPayload<ExtArgs>
+        fields: Prisma.SupporterFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SupporterFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupporterPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SupporterFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupporterPayload>
+          }
+          findFirst: {
+            args: Prisma.SupporterFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupporterPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SupporterFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupporterPayload>
+          }
+          findMany: {
+            args: Prisma.SupporterFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupporterPayload>[]
+          }
+          create: {
+            args: Prisma.SupporterCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupporterPayload>
+          }
+          createMany: {
+            args: Prisma.SupporterCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.SupporterDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupporterPayload>
+          }
+          update: {
+            args: Prisma.SupporterUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupporterPayload>
+          }
+          deleteMany: {
+            args: Prisma.SupporterDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SupporterUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.SupporterUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupporterPayload>
+          }
+          aggregate: {
+            args: Prisma.SupporterAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSupporter>
+          }
+          groupBy: {
+            args: Prisma.SupporterGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SupporterGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.SupporterFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.SupporterAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.SupporterCountArgs<ExtArgs>
+            result: $Utils.Optional<SupporterCountAggregateOutputType> | number
+          }
+        }
+      }
+      SupportIntent: {
+        payload: Prisma.$SupportIntentPayload<ExtArgs>
+        fields: Prisma.SupportIntentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SupportIntentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportIntentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SupportIntentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportIntentPayload>
+          }
+          findFirst: {
+            args: Prisma.SupportIntentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportIntentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SupportIntentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportIntentPayload>
+          }
+          findMany: {
+            args: Prisma.SupportIntentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportIntentPayload>[]
+          }
+          create: {
+            args: Prisma.SupportIntentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportIntentPayload>
+          }
+          createMany: {
+            args: Prisma.SupportIntentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.SupportIntentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportIntentPayload>
+          }
+          update: {
+            args: Prisma.SupportIntentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportIntentPayload>
+          }
+          deleteMany: {
+            args: Prisma.SupportIntentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SupportIntentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.SupportIntentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportIntentPayload>
+          }
+          aggregate: {
+            args: Prisma.SupportIntentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSupportIntent>
+          }
+          groupBy: {
+            args: Prisma.SupportIntentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SupportIntentGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.SupportIntentFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.SupportIntentAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.SupportIntentCountArgs<ExtArgs>
+            result: $Utils.Optional<SupportIntentCountAggregateOutputType> | number
+          }
+        }
+      }
+      SepaMandate: {
+        payload: Prisma.$SepaMandatePayload<ExtArgs>
+        fields: Prisma.SepaMandateFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SepaMandateFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SepaMandatePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SepaMandateFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SepaMandatePayload>
+          }
+          findFirst: {
+            args: Prisma.SepaMandateFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SepaMandatePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SepaMandateFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SepaMandatePayload>
+          }
+          findMany: {
+            args: Prisma.SepaMandateFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SepaMandatePayload>[]
+          }
+          create: {
+            args: Prisma.SepaMandateCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SepaMandatePayload>
+          }
+          createMany: {
+            args: Prisma.SepaMandateCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.SepaMandateDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SepaMandatePayload>
+          }
+          update: {
+            args: Prisma.SepaMandateUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SepaMandatePayload>
+          }
+          deleteMany: {
+            args: Prisma.SepaMandateDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SepaMandateUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.SepaMandateUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SepaMandatePayload>
+          }
+          aggregate: {
+            args: Prisma.SepaMandateAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSepaMandate>
+          }
+          groupBy: {
+            args: Prisma.SepaMandateGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SepaMandateGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.SepaMandateFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.SepaMandateAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.SepaMandateCountArgs<ExtArgs>
+            result: $Utils.Optional<SepaMandateCountAggregateOutputType> | number
+          }
+        }
+      }
+      NewsletterSubscription: {
+        payload: Prisma.$NewsletterSubscriptionPayload<ExtArgs>
+        fields: Prisma.NewsletterSubscriptionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.NewsletterSubscriptionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.NewsletterSubscriptionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload>
+          }
+          findFirst: {
+            args: Prisma.NewsletterSubscriptionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.NewsletterSubscriptionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload>
+          }
+          findMany: {
+            args: Prisma.NewsletterSubscriptionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload>[]
+          }
+          create: {
+            args: Prisma.NewsletterSubscriptionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload>
+          }
+          createMany: {
+            args: Prisma.NewsletterSubscriptionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.NewsletterSubscriptionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload>
+          }
+          update: {
+            args: Prisma.NewsletterSubscriptionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload>
+          }
+          deleteMany: {
+            args: Prisma.NewsletterSubscriptionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.NewsletterSubscriptionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.NewsletterSubscriptionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload>
+          }
+          aggregate: {
+            args: Prisma.NewsletterSubscriptionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNewsletterSubscription>
+          }
+          groupBy: {
+            args: Prisma.NewsletterSubscriptionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NewsletterSubscriptionGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.NewsletterSubscriptionFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.NewsletterSubscriptionAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.NewsletterSubscriptionCountArgs<ExtArgs>
+            result: $Utils.Optional<NewsletterSubscriptionCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2546,6 +2906,10 @@ export namespace Prisma {
     extractedUnit?: ExtractedUnitOmit
     finding?: FindingOmit
     adminSettings?: AdminSettingsOmit
+    supporter?: SupporterOmit
+    supportIntent?: SupportIntentOmit
+    sepaMandate?: SepaMandateOmit
+    newsletterSubscription?: NewsletterSubscriptionOmit
   }
 
   /* Types for Logging */
@@ -2912,6 +3276,46 @@ export namespace Prisma {
    */
   export type FactcheckClaimCountOutputTypeCountUnitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ExtractedUnitWhereInput
+  }
+
+
+  /**
+   * Count Type SupporterCountOutputType
+   */
+
+  export type SupporterCountOutputType = {
+    intents: number
+    mandates: number
+  }
+
+  export type SupporterCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    intents?: boolean | SupporterCountOutputTypeCountIntentsArgs
+    mandates?: boolean | SupporterCountOutputTypeCountMandatesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * SupporterCountOutputType without action
+   */
+  export type SupporterCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupporterCountOutputType
+     */
+    select?: SupporterCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * SupporterCountOutputType without action
+   */
+  export type SupporterCountOutputTypeCountIntentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SupportIntentWhereInput
+  }
+
+  /**
+   * SupporterCountOutputType without action
+   */
+  export type SupporterCountOutputTypeCountMandatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SepaMandateWhereInput
   }
 
 
@@ -23031,6 +23435,4246 @@ export namespace Prisma {
 
 
   /**
+   * Model Supporter
+   */
+
+  export type AggregateSupporter = {
+    _count: SupporterCountAggregateOutputType | null
+    _min: SupporterMinAggregateOutputType | null
+    _max: SupporterMaxAggregateOutputType | null
+  }
+
+  export type SupporterMinAggregateOutputType = {
+    id: string | null
+    email: string | null
+    firstName: string | null
+    lastName: string | null
+    phone: string | null
+    postalCode: string | null
+    city: string | null
+    countryCode: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SupporterMaxAggregateOutputType = {
+    id: string | null
+    email: string | null
+    firstName: string | null
+    lastName: string | null
+    phone: string | null
+    postalCode: string | null
+    city: string | null
+    countryCode: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SupporterCountAggregateOutputType = {
+    id: number
+    email: number
+    firstName: number
+    lastName: number
+    phone: number
+    postalCode: number
+    city: number
+    countryCode: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SupporterMinAggregateInputType = {
+    id?: true
+    email?: true
+    firstName?: true
+    lastName?: true
+    phone?: true
+    postalCode?: true
+    city?: true
+    countryCode?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SupporterMaxAggregateInputType = {
+    id?: true
+    email?: true
+    firstName?: true
+    lastName?: true
+    phone?: true
+    postalCode?: true
+    city?: true
+    countryCode?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SupporterCountAggregateInputType = {
+    id?: true
+    email?: true
+    firstName?: true
+    lastName?: true
+    phone?: true
+    postalCode?: true
+    city?: true
+    countryCode?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SupporterAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Supporter to aggregate.
+     */
+    where?: SupporterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Supporters to fetch.
+     */
+    orderBy?: SupporterOrderByWithRelationInput | SupporterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SupporterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Supporters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Supporters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Supporters
+    **/
+    _count?: true | SupporterCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SupporterMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SupporterMaxAggregateInputType
+  }
+
+  export type GetSupporterAggregateType<T extends SupporterAggregateArgs> = {
+        [P in keyof T & keyof AggregateSupporter]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSupporter[P]>
+      : GetScalarType<T[P], AggregateSupporter[P]>
+  }
+
+
+
+
+  export type SupporterGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SupporterWhereInput
+    orderBy?: SupporterOrderByWithAggregationInput | SupporterOrderByWithAggregationInput[]
+    by: SupporterScalarFieldEnum[] | SupporterScalarFieldEnum
+    having?: SupporterScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SupporterCountAggregateInputType | true
+    _min?: SupporterMinAggregateInputType
+    _max?: SupporterMaxAggregateInputType
+  }
+
+  export type SupporterGroupByOutputType = {
+    id: string
+    email: string
+    firstName: string
+    lastName: string
+    phone: string | null
+    postalCode: string | null
+    city: string | null
+    countryCode: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: SupporterCountAggregateOutputType | null
+    _min: SupporterMinAggregateOutputType | null
+    _max: SupporterMaxAggregateOutputType | null
+  }
+
+  type GetSupporterGroupByPayload<T extends SupporterGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SupporterGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SupporterGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SupporterGroupByOutputType[P]>
+            : GetScalarType<T[P], SupporterGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SupporterSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    email?: boolean
+    firstName?: boolean
+    lastName?: boolean
+    phone?: boolean
+    postalCode?: boolean
+    city?: boolean
+    countryCode?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    intents?: boolean | Supporter$intentsArgs<ExtArgs>
+    mandates?: boolean | Supporter$mandatesArgs<ExtArgs>
+    newsletter?: boolean | Supporter$newsletterArgs<ExtArgs>
+    _count?: boolean | SupporterCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["supporter"]>
+
+
+
+  export type SupporterSelectScalar = {
+    id?: boolean
+    email?: boolean
+    firstName?: boolean
+    lastName?: boolean
+    phone?: boolean
+    postalCode?: boolean
+    city?: boolean
+    countryCode?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SupporterOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "firstName" | "lastName" | "phone" | "postalCode" | "city" | "countryCode" | "createdAt" | "updatedAt", ExtArgs["result"]["supporter"]>
+  export type SupporterInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    intents?: boolean | Supporter$intentsArgs<ExtArgs>
+    mandates?: boolean | Supporter$mandatesArgs<ExtArgs>
+    newsletter?: boolean | Supporter$newsletterArgs<ExtArgs>
+    _count?: boolean | SupporterCountOutputTypeDefaultArgs<ExtArgs>
+  }
+
+  export type $SupporterPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Supporter"
+    objects: {
+      intents: Prisma.$SupportIntentPayload<ExtArgs>[]
+      mandates: Prisma.$SepaMandatePayload<ExtArgs>[]
+      newsletter: Prisma.$NewsletterSubscriptionPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      email: string
+      firstName: string
+      lastName: string
+      phone: string | null
+      postalCode: string | null
+      city: string | null
+      countryCode: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["supporter"]>
+    composites: {}
+  }
+
+  type SupporterGetPayload<S extends boolean | null | undefined | SupporterDefaultArgs> = $Result.GetResult<Prisma.$SupporterPayload, S>
+
+  type SupporterCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SupporterFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SupporterCountAggregateInputType | true
+    }
+
+  export interface SupporterDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Supporter'], meta: { name: 'Supporter' } }
+    /**
+     * Find zero or one Supporter that matches the filter.
+     * @param {SupporterFindUniqueArgs} args - Arguments to find a Supporter
+     * @example
+     * // Get one Supporter
+     * const supporter = await prisma.supporter.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SupporterFindUniqueArgs>(args: SelectSubset<T, SupporterFindUniqueArgs<ExtArgs>>): Prisma__SupporterClient<$Result.GetResult<Prisma.$SupporterPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Supporter that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SupporterFindUniqueOrThrowArgs} args - Arguments to find a Supporter
+     * @example
+     * // Get one Supporter
+     * const supporter = await prisma.supporter.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SupporterFindUniqueOrThrowArgs>(args: SelectSubset<T, SupporterFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SupporterClient<$Result.GetResult<Prisma.$SupporterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Supporter that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupporterFindFirstArgs} args - Arguments to find a Supporter
+     * @example
+     * // Get one Supporter
+     * const supporter = await prisma.supporter.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SupporterFindFirstArgs>(args?: SelectSubset<T, SupporterFindFirstArgs<ExtArgs>>): Prisma__SupporterClient<$Result.GetResult<Prisma.$SupporterPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Supporter that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupporterFindFirstOrThrowArgs} args - Arguments to find a Supporter
+     * @example
+     * // Get one Supporter
+     * const supporter = await prisma.supporter.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SupporterFindFirstOrThrowArgs>(args?: SelectSubset<T, SupporterFindFirstOrThrowArgs<ExtArgs>>): Prisma__SupporterClient<$Result.GetResult<Prisma.$SupporterPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Supporters that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupporterFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Supporters
+     * const supporters = await prisma.supporter.findMany()
+     * 
+     * // Get first 10 Supporters
+     * const supporters = await prisma.supporter.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const supporterWithIdOnly = await prisma.supporter.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SupporterFindManyArgs>(args?: SelectSubset<T, SupporterFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupporterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Supporter.
+     * @param {SupporterCreateArgs} args - Arguments to create a Supporter.
+     * @example
+     * // Create one Supporter
+     * const Supporter = await prisma.supporter.create({
+     *   data: {
+     *     // ... data to create a Supporter
+     *   }
+     * })
+     * 
+     */
+    create<T extends SupporterCreateArgs>(args: SelectSubset<T, SupporterCreateArgs<ExtArgs>>): Prisma__SupporterClient<$Result.GetResult<Prisma.$SupporterPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Supporters.
+     * @param {SupporterCreateManyArgs} args - Arguments to create many Supporters.
+     * @example
+     * // Create many Supporters
+     * const supporter = await prisma.supporter.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SupporterCreateManyArgs>(args?: SelectSubset<T, SupporterCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Supporter.
+     * @param {SupporterDeleteArgs} args - Arguments to delete one Supporter.
+     * @example
+     * // Delete one Supporter
+     * const Supporter = await prisma.supporter.delete({
+     *   where: {
+     *     // ... filter to delete one Supporter
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SupporterDeleteArgs>(args: SelectSubset<T, SupporterDeleteArgs<ExtArgs>>): Prisma__SupporterClient<$Result.GetResult<Prisma.$SupporterPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Supporter.
+     * @param {SupporterUpdateArgs} args - Arguments to update one Supporter.
+     * @example
+     * // Update one Supporter
+     * const supporter = await prisma.supporter.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SupporterUpdateArgs>(args: SelectSubset<T, SupporterUpdateArgs<ExtArgs>>): Prisma__SupporterClient<$Result.GetResult<Prisma.$SupporterPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Supporters.
+     * @param {SupporterDeleteManyArgs} args - Arguments to filter Supporters to delete.
+     * @example
+     * // Delete a few Supporters
+     * const { count } = await prisma.supporter.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SupporterDeleteManyArgs>(args?: SelectSubset<T, SupporterDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Supporters.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupporterUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Supporters
+     * const supporter = await prisma.supporter.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SupporterUpdateManyArgs>(args: SelectSubset<T, SupporterUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Supporter.
+     * @param {SupporterUpsertArgs} args - Arguments to update or create a Supporter.
+     * @example
+     * // Update or create a Supporter
+     * const supporter = await prisma.supporter.upsert({
+     *   create: {
+     *     // ... data to create a Supporter
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Supporter we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SupporterUpsertArgs>(args: SelectSubset<T, SupporterUpsertArgs<ExtArgs>>): Prisma__SupporterClient<$Result.GetResult<Prisma.$SupporterPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Supporters that matches the filter.
+     * @param {SupporterFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const supporter = await prisma.supporter.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: SupporterFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a Supporter.
+     * @param {SupporterAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const supporter = await prisma.supporter.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: SupporterAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of Supporters.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupporterCountArgs} args - Arguments to filter Supporters to count.
+     * @example
+     * // Count the number of Supporters
+     * const count = await prisma.supporter.count({
+     *   where: {
+     *     // ... the filter for the Supporters we want to count
+     *   }
+     * })
+    **/
+    count<T extends SupporterCountArgs>(
+      args?: Subset<T, SupporterCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SupporterCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Supporter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupporterAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SupporterAggregateArgs>(args: Subset<T, SupporterAggregateArgs>): Prisma.PrismaPromise<GetSupporterAggregateType<T>>
+
+    /**
+     * Group by Supporter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupporterGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SupporterGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SupporterGroupByArgs['orderBy'] }
+        : { orderBy?: SupporterGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SupporterGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSupporterGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Supporter model
+   */
+  readonly fields: SupporterFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Supporter.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SupporterClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    intents<T extends Supporter$intentsArgs<ExtArgs> = {}>(args?: Subset<T, Supporter$intentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportIntentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    mandates<T extends Supporter$mandatesArgs<ExtArgs> = {}>(args?: Subset<T, Supporter$mandatesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SepaMandatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    newsletter<T extends Supporter$newsletterArgs<ExtArgs> = {}>(args?: Subset<T, Supporter$newsletterArgs<ExtArgs>>): Prisma__NewsletterSubscriptionClient<$Result.GetResult<Prisma.$NewsletterSubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Supporter model
+   */
+  interface SupporterFieldRefs {
+    readonly id: FieldRef<"Supporter", 'String'>
+    readonly email: FieldRef<"Supporter", 'String'>
+    readonly firstName: FieldRef<"Supporter", 'String'>
+    readonly lastName: FieldRef<"Supporter", 'String'>
+    readonly phone: FieldRef<"Supporter", 'String'>
+    readonly postalCode: FieldRef<"Supporter", 'String'>
+    readonly city: FieldRef<"Supporter", 'String'>
+    readonly countryCode: FieldRef<"Supporter", 'String'>
+    readonly createdAt: FieldRef<"Supporter", 'DateTime'>
+    readonly updatedAt: FieldRef<"Supporter", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Supporter findUnique
+   */
+  export type SupporterFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Supporter
+     */
+    select?: SupporterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Supporter
+     */
+    omit?: SupporterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupporterInclude<ExtArgs> | null
+    /**
+     * Filter, which Supporter to fetch.
+     */
+    where: SupporterWhereUniqueInput
+  }
+
+  /**
+   * Supporter findUniqueOrThrow
+   */
+  export type SupporterFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Supporter
+     */
+    select?: SupporterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Supporter
+     */
+    omit?: SupporterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupporterInclude<ExtArgs> | null
+    /**
+     * Filter, which Supporter to fetch.
+     */
+    where: SupporterWhereUniqueInput
+  }
+
+  /**
+   * Supporter findFirst
+   */
+  export type SupporterFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Supporter
+     */
+    select?: SupporterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Supporter
+     */
+    omit?: SupporterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupporterInclude<ExtArgs> | null
+    /**
+     * Filter, which Supporter to fetch.
+     */
+    where?: SupporterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Supporters to fetch.
+     */
+    orderBy?: SupporterOrderByWithRelationInput | SupporterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Supporters.
+     */
+    cursor?: SupporterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Supporters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Supporters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Supporters.
+     */
+    distinct?: SupporterScalarFieldEnum | SupporterScalarFieldEnum[]
+  }
+
+  /**
+   * Supporter findFirstOrThrow
+   */
+  export type SupporterFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Supporter
+     */
+    select?: SupporterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Supporter
+     */
+    omit?: SupporterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupporterInclude<ExtArgs> | null
+    /**
+     * Filter, which Supporter to fetch.
+     */
+    where?: SupporterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Supporters to fetch.
+     */
+    orderBy?: SupporterOrderByWithRelationInput | SupporterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Supporters.
+     */
+    cursor?: SupporterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Supporters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Supporters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Supporters.
+     */
+    distinct?: SupporterScalarFieldEnum | SupporterScalarFieldEnum[]
+  }
+
+  /**
+   * Supporter findMany
+   */
+  export type SupporterFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Supporter
+     */
+    select?: SupporterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Supporter
+     */
+    omit?: SupporterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupporterInclude<ExtArgs> | null
+    /**
+     * Filter, which Supporters to fetch.
+     */
+    where?: SupporterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Supporters to fetch.
+     */
+    orderBy?: SupporterOrderByWithRelationInput | SupporterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Supporters.
+     */
+    cursor?: SupporterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Supporters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Supporters.
+     */
+    skip?: number
+    distinct?: SupporterScalarFieldEnum | SupporterScalarFieldEnum[]
+  }
+
+  /**
+   * Supporter create
+   */
+  export type SupporterCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Supporter
+     */
+    select?: SupporterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Supporter
+     */
+    omit?: SupporterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupporterInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Supporter.
+     */
+    data: XOR<SupporterCreateInput, SupporterUncheckedCreateInput>
+  }
+
+  /**
+   * Supporter createMany
+   */
+  export type SupporterCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Supporters.
+     */
+    data: SupporterCreateManyInput | SupporterCreateManyInput[]
+  }
+
+  /**
+   * Supporter update
+   */
+  export type SupporterUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Supporter
+     */
+    select?: SupporterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Supporter
+     */
+    omit?: SupporterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupporterInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Supporter.
+     */
+    data: XOR<SupporterUpdateInput, SupporterUncheckedUpdateInput>
+    /**
+     * Choose, which Supporter to update.
+     */
+    where: SupporterWhereUniqueInput
+  }
+
+  /**
+   * Supporter updateMany
+   */
+  export type SupporterUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Supporters.
+     */
+    data: XOR<SupporterUpdateManyMutationInput, SupporterUncheckedUpdateManyInput>
+    /**
+     * Filter which Supporters to update
+     */
+    where?: SupporterWhereInput
+    /**
+     * Limit how many Supporters to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Supporter upsert
+   */
+  export type SupporterUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Supporter
+     */
+    select?: SupporterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Supporter
+     */
+    omit?: SupporterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupporterInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Supporter to update in case it exists.
+     */
+    where: SupporterWhereUniqueInput
+    /**
+     * In case the Supporter found by the `where` argument doesn't exist, create a new Supporter with this data.
+     */
+    create: XOR<SupporterCreateInput, SupporterUncheckedCreateInput>
+    /**
+     * In case the Supporter was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SupporterUpdateInput, SupporterUncheckedUpdateInput>
+  }
+
+  /**
+   * Supporter delete
+   */
+  export type SupporterDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Supporter
+     */
+    select?: SupporterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Supporter
+     */
+    omit?: SupporterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupporterInclude<ExtArgs> | null
+    /**
+     * Filter which Supporter to delete.
+     */
+    where: SupporterWhereUniqueInput
+  }
+
+  /**
+   * Supporter deleteMany
+   */
+  export type SupporterDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Supporters to delete
+     */
+    where?: SupporterWhereInput
+    /**
+     * Limit how many Supporters to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Supporter findRaw
+   */
+  export type SupporterFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Supporter aggregateRaw
+   */
+  export type SupporterAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Supporter.intents
+   */
+  export type Supporter$intentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportIntent
+     */
+    select?: SupportIntentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportIntent
+     */
+    omit?: SupportIntentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportIntentInclude<ExtArgs> | null
+    where?: SupportIntentWhereInput
+    orderBy?: SupportIntentOrderByWithRelationInput | SupportIntentOrderByWithRelationInput[]
+    cursor?: SupportIntentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SupportIntentScalarFieldEnum | SupportIntentScalarFieldEnum[]
+  }
+
+  /**
+   * Supporter.mandates
+   */
+  export type Supporter$mandatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SepaMandate
+     */
+    select?: SepaMandateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SepaMandate
+     */
+    omit?: SepaMandateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SepaMandateInclude<ExtArgs> | null
+    where?: SepaMandateWhereInput
+    orderBy?: SepaMandateOrderByWithRelationInput | SepaMandateOrderByWithRelationInput[]
+    cursor?: SepaMandateWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SepaMandateScalarFieldEnum | SepaMandateScalarFieldEnum[]
+  }
+
+  /**
+   * Supporter.newsletter
+   */
+  export type Supporter$newsletterArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NewsletterSubscription
+     */
+    select?: NewsletterSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NewsletterSubscription
+     */
+    omit?: NewsletterSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NewsletterSubscriptionInclude<ExtArgs> | null
+    where?: NewsletterSubscriptionWhereInput
+  }
+
+  /**
+   * Supporter without action
+   */
+  export type SupporterDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Supporter
+     */
+    select?: SupporterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Supporter
+     */
+    omit?: SupporterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupporterInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SupportIntent
+   */
+
+  export type AggregateSupportIntent = {
+    _count: SupportIntentCountAggregateOutputType | null
+    _avg: SupportIntentAvgAggregateOutputType | null
+    _sum: SupportIntentSumAggregateOutputType | null
+    _min: SupportIntentMinAggregateOutputType | null
+    _max: SupportIntentMaxAggregateOutputType | null
+  }
+
+  export type SupportIntentAvgAggregateOutputType = {
+    amountCents: number | null
+    persons: number | null
+  }
+
+  export type SupportIntentSumAggregateOutputType = {
+    amountCents: number | null
+    persons: number | null
+  }
+
+  export type SupportIntentMinAggregateOutputType = {
+    id: string | null
+    persona: string | null
+    cycle: string | null
+    amountCents: number | null
+    persons: number | null
+    pledgeTopic: string | null
+    skills: string | null
+    source: string | null
+    createdAt: Date | null
+    supporterId: string | null
+  }
+
+  export type SupportIntentMaxAggregateOutputType = {
+    id: string | null
+    persona: string | null
+    cycle: string | null
+    amountCents: number | null
+    persons: number | null
+    pledgeTopic: string | null
+    skills: string | null
+    source: string | null
+    createdAt: Date | null
+    supporterId: string | null
+  }
+
+  export type SupportIntentCountAggregateOutputType = {
+    id: number
+    persona: number
+    cycle: number
+    amountCents: number
+    persons: number
+    pledgeTopic: number
+    skills: number
+    source: number
+    createdAt: number
+    supporterId: number
+    _all: number
+  }
+
+
+  export type SupportIntentAvgAggregateInputType = {
+    amountCents?: true
+    persons?: true
+  }
+
+  export type SupportIntentSumAggregateInputType = {
+    amountCents?: true
+    persons?: true
+  }
+
+  export type SupportIntentMinAggregateInputType = {
+    id?: true
+    persona?: true
+    cycle?: true
+    amountCents?: true
+    persons?: true
+    pledgeTopic?: true
+    skills?: true
+    source?: true
+    createdAt?: true
+    supporterId?: true
+  }
+
+  export type SupportIntentMaxAggregateInputType = {
+    id?: true
+    persona?: true
+    cycle?: true
+    amountCents?: true
+    persons?: true
+    pledgeTopic?: true
+    skills?: true
+    source?: true
+    createdAt?: true
+    supporterId?: true
+  }
+
+  export type SupportIntentCountAggregateInputType = {
+    id?: true
+    persona?: true
+    cycle?: true
+    amountCents?: true
+    persons?: true
+    pledgeTopic?: true
+    skills?: true
+    source?: true
+    createdAt?: true
+    supporterId?: true
+    _all?: true
+  }
+
+  export type SupportIntentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SupportIntent to aggregate.
+     */
+    where?: SupportIntentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportIntents to fetch.
+     */
+    orderBy?: SupportIntentOrderByWithRelationInput | SupportIntentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SupportIntentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportIntents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportIntents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SupportIntents
+    **/
+    _count?: true | SupportIntentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SupportIntentAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SupportIntentSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SupportIntentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SupportIntentMaxAggregateInputType
+  }
+
+  export type GetSupportIntentAggregateType<T extends SupportIntentAggregateArgs> = {
+        [P in keyof T & keyof AggregateSupportIntent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSupportIntent[P]>
+      : GetScalarType<T[P], AggregateSupportIntent[P]>
+  }
+
+
+
+
+  export type SupportIntentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SupportIntentWhereInput
+    orderBy?: SupportIntentOrderByWithAggregationInput | SupportIntentOrderByWithAggregationInput[]
+    by: SupportIntentScalarFieldEnum[] | SupportIntentScalarFieldEnum
+    having?: SupportIntentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SupportIntentCountAggregateInputType | true
+    _avg?: SupportIntentAvgAggregateInputType
+    _sum?: SupportIntentSumAggregateInputType
+    _min?: SupportIntentMinAggregateInputType
+    _max?: SupportIntentMaxAggregateInputType
+  }
+
+  export type SupportIntentGroupByOutputType = {
+    id: string
+    persona: string
+    cycle: string | null
+    amountCents: number | null
+    persons: number | null
+    pledgeTopic: string | null
+    skills: string | null
+    source: string | null
+    createdAt: Date
+    supporterId: string
+    _count: SupportIntentCountAggregateOutputType | null
+    _avg: SupportIntentAvgAggregateOutputType | null
+    _sum: SupportIntentSumAggregateOutputType | null
+    _min: SupportIntentMinAggregateOutputType | null
+    _max: SupportIntentMaxAggregateOutputType | null
+  }
+
+  type GetSupportIntentGroupByPayload<T extends SupportIntentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SupportIntentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SupportIntentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SupportIntentGroupByOutputType[P]>
+            : GetScalarType<T[P], SupportIntentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SupportIntentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    persona?: boolean
+    cycle?: boolean
+    amountCents?: boolean
+    persons?: boolean
+    pledgeTopic?: boolean
+    skills?: boolean
+    source?: boolean
+    createdAt?: boolean
+    supporterId?: boolean
+    supporter?: boolean | SupporterDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["supportIntent"]>
+
+
+
+  export type SupportIntentSelectScalar = {
+    id?: boolean
+    persona?: boolean
+    cycle?: boolean
+    amountCents?: boolean
+    persons?: boolean
+    pledgeTopic?: boolean
+    skills?: boolean
+    source?: boolean
+    createdAt?: boolean
+    supporterId?: boolean
+  }
+
+  export type SupportIntentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "persona" | "cycle" | "amountCents" | "persons" | "pledgeTopic" | "skills" | "source" | "createdAt" | "supporterId", ExtArgs["result"]["supportIntent"]>
+  export type SupportIntentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    supporter?: boolean | SupporterDefaultArgs<ExtArgs>
+  }
+
+  export type $SupportIntentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SupportIntent"
+    objects: {
+      supporter: Prisma.$SupporterPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      persona: string
+      cycle: string | null
+      amountCents: number | null
+      persons: number | null
+      pledgeTopic: string | null
+      skills: string | null
+      source: string | null
+      createdAt: Date
+      supporterId: string
+    }, ExtArgs["result"]["supportIntent"]>
+    composites: {}
+  }
+
+  type SupportIntentGetPayload<S extends boolean | null | undefined | SupportIntentDefaultArgs> = $Result.GetResult<Prisma.$SupportIntentPayload, S>
+
+  type SupportIntentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SupportIntentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SupportIntentCountAggregateInputType | true
+    }
+
+  export interface SupportIntentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SupportIntent'], meta: { name: 'SupportIntent' } }
+    /**
+     * Find zero or one SupportIntent that matches the filter.
+     * @param {SupportIntentFindUniqueArgs} args - Arguments to find a SupportIntent
+     * @example
+     * // Get one SupportIntent
+     * const supportIntent = await prisma.supportIntent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SupportIntentFindUniqueArgs>(args: SelectSubset<T, SupportIntentFindUniqueArgs<ExtArgs>>): Prisma__SupportIntentClient<$Result.GetResult<Prisma.$SupportIntentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SupportIntent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SupportIntentFindUniqueOrThrowArgs} args - Arguments to find a SupportIntent
+     * @example
+     * // Get one SupportIntent
+     * const supportIntent = await prisma.supportIntent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SupportIntentFindUniqueOrThrowArgs>(args: SelectSubset<T, SupportIntentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SupportIntentClient<$Result.GetResult<Prisma.$SupportIntentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SupportIntent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportIntentFindFirstArgs} args - Arguments to find a SupportIntent
+     * @example
+     * // Get one SupportIntent
+     * const supportIntent = await prisma.supportIntent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SupportIntentFindFirstArgs>(args?: SelectSubset<T, SupportIntentFindFirstArgs<ExtArgs>>): Prisma__SupportIntentClient<$Result.GetResult<Prisma.$SupportIntentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SupportIntent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportIntentFindFirstOrThrowArgs} args - Arguments to find a SupportIntent
+     * @example
+     * // Get one SupportIntent
+     * const supportIntent = await prisma.supportIntent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SupportIntentFindFirstOrThrowArgs>(args?: SelectSubset<T, SupportIntentFindFirstOrThrowArgs<ExtArgs>>): Prisma__SupportIntentClient<$Result.GetResult<Prisma.$SupportIntentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SupportIntents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportIntentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SupportIntents
+     * const supportIntents = await prisma.supportIntent.findMany()
+     * 
+     * // Get first 10 SupportIntents
+     * const supportIntents = await prisma.supportIntent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const supportIntentWithIdOnly = await prisma.supportIntent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SupportIntentFindManyArgs>(args?: SelectSubset<T, SupportIntentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportIntentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SupportIntent.
+     * @param {SupportIntentCreateArgs} args - Arguments to create a SupportIntent.
+     * @example
+     * // Create one SupportIntent
+     * const SupportIntent = await prisma.supportIntent.create({
+     *   data: {
+     *     // ... data to create a SupportIntent
+     *   }
+     * })
+     * 
+     */
+    create<T extends SupportIntentCreateArgs>(args: SelectSubset<T, SupportIntentCreateArgs<ExtArgs>>): Prisma__SupportIntentClient<$Result.GetResult<Prisma.$SupportIntentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SupportIntents.
+     * @param {SupportIntentCreateManyArgs} args - Arguments to create many SupportIntents.
+     * @example
+     * // Create many SupportIntents
+     * const supportIntent = await prisma.supportIntent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SupportIntentCreateManyArgs>(args?: SelectSubset<T, SupportIntentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a SupportIntent.
+     * @param {SupportIntentDeleteArgs} args - Arguments to delete one SupportIntent.
+     * @example
+     * // Delete one SupportIntent
+     * const SupportIntent = await prisma.supportIntent.delete({
+     *   where: {
+     *     // ... filter to delete one SupportIntent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SupportIntentDeleteArgs>(args: SelectSubset<T, SupportIntentDeleteArgs<ExtArgs>>): Prisma__SupportIntentClient<$Result.GetResult<Prisma.$SupportIntentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SupportIntent.
+     * @param {SupportIntentUpdateArgs} args - Arguments to update one SupportIntent.
+     * @example
+     * // Update one SupportIntent
+     * const supportIntent = await prisma.supportIntent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SupportIntentUpdateArgs>(args: SelectSubset<T, SupportIntentUpdateArgs<ExtArgs>>): Prisma__SupportIntentClient<$Result.GetResult<Prisma.$SupportIntentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SupportIntents.
+     * @param {SupportIntentDeleteManyArgs} args - Arguments to filter SupportIntents to delete.
+     * @example
+     * // Delete a few SupportIntents
+     * const { count } = await prisma.supportIntent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SupportIntentDeleteManyArgs>(args?: SelectSubset<T, SupportIntentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SupportIntents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportIntentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SupportIntents
+     * const supportIntent = await prisma.supportIntent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SupportIntentUpdateManyArgs>(args: SelectSubset<T, SupportIntentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one SupportIntent.
+     * @param {SupportIntentUpsertArgs} args - Arguments to update or create a SupportIntent.
+     * @example
+     * // Update or create a SupportIntent
+     * const supportIntent = await prisma.supportIntent.upsert({
+     *   create: {
+     *     // ... data to create a SupportIntent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SupportIntent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SupportIntentUpsertArgs>(args: SelectSubset<T, SupportIntentUpsertArgs<ExtArgs>>): Prisma__SupportIntentClient<$Result.GetResult<Prisma.$SupportIntentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SupportIntents that matches the filter.
+     * @param {SupportIntentFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const supportIntent = await prisma.supportIntent.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: SupportIntentFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a SupportIntent.
+     * @param {SupportIntentAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const supportIntent = await prisma.supportIntent.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: SupportIntentAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of SupportIntents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportIntentCountArgs} args - Arguments to filter SupportIntents to count.
+     * @example
+     * // Count the number of SupportIntents
+     * const count = await prisma.supportIntent.count({
+     *   where: {
+     *     // ... the filter for the SupportIntents we want to count
+     *   }
+     * })
+    **/
+    count<T extends SupportIntentCountArgs>(
+      args?: Subset<T, SupportIntentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SupportIntentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SupportIntent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportIntentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SupportIntentAggregateArgs>(args: Subset<T, SupportIntentAggregateArgs>): Prisma.PrismaPromise<GetSupportIntentAggregateType<T>>
+
+    /**
+     * Group by SupportIntent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportIntentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SupportIntentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SupportIntentGroupByArgs['orderBy'] }
+        : { orderBy?: SupportIntentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SupportIntentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSupportIntentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SupportIntent model
+   */
+  readonly fields: SupportIntentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SupportIntent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SupportIntentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    supporter<T extends SupporterDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SupporterDefaultArgs<ExtArgs>>): Prisma__SupporterClient<$Result.GetResult<Prisma.$SupporterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SupportIntent model
+   */
+  interface SupportIntentFieldRefs {
+    readonly id: FieldRef<"SupportIntent", 'String'>
+    readonly persona: FieldRef<"SupportIntent", 'String'>
+    readonly cycle: FieldRef<"SupportIntent", 'String'>
+    readonly amountCents: FieldRef<"SupportIntent", 'Int'>
+    readonly persons: FieldRef<"SupportIntent", 'Int'>
+    readonly pledgeTopic: FieldRef<"SupportIntent", 'String'>
+    readonly skills: FieldRef<"SupportIntent", 'String'>
+    readonly source: FieldRef<"SupportIntent", 'String'>
+    readonly createdAt: FieldRef<"SupportIntent", 'DateTime'>
+    readonly supporterId: FieldRef<"SupportIntent", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SupportIntent findUnique
+   */
+  export type SupportIntentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportIntent
+     */
+    select?: SupportIntentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportIntent
+     */
+    omit?: SupportIntentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportIntentInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportIntent to fetch.
+     */
+    where: SupportIntentWhereUniqueInput
+  }
+
+  /**
+   * SupportIntent findUniqueOrThrow
+   */
+  export type SupportIntentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportIntent
+     */
+    select?: SupportIntentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportIntent
+     */
+    omit?: SupportIntentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportIntentInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportIntent to fetch.
+     */
+    where: SupportIntentWhereUniqueInput
+  }
+
+  /**
+   * SupportIntent findFirst
+   */
+  export type SupportIntentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportIntent
+     */
+    select?: SupportIntentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportIntent
+     */
+    omit?: SupportIntentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportIntentInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportIntent to fetch.
+     */
+    where?: SupportIntentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportIntents to fetch.
+     */
+    orderBy?: SupportIntentOrderByWithRelationInput | SupportIntentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SupportIntents.
+     */
+    cursor?: SupportIntentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportIntents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportIntents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SupportIntents.
+     */
+    distinct?: SupportIntentScalarFieldEnum | SupportIntentScalarFieldEnum[]
+  }
+
+  /**
+   * SupportIntent findFirstOrThrow
+   */
+  export type SupportIntentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportIntent
+     */
+    select?: SupportIntentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportIntent
+     */
+    omit?: SupportIntentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportIntentInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportIntent to fetch.
+     */
+    where?: SupportIntentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportIntents to fetch.
+     */
+    orderBy?: SupportIntentOrderByWithRelationInput | SupportIntentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SupportIntents.
+     */
+    cursor?: SupportIntentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportIntents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportIntents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SupportIntents.
+     */
+    distinct?: SupportIntentScalarFieldEnum | SupportIntentScalarFieldEnum[]
+  }
+
+  /**
+   * SupportIntent findMany
+   */
+  export type SupportIntentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportIntent
+     */
+    select?: SupportIntentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportIntent
+     */
+    omit?: SupportIntentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportIntentInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportIntents to fetch.
+     */
+    where?: SupportIntentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportIntents to fetch.
+     */
+    orderBy?: SupportIntentOrderByWithRelationInput | SupportIntentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SupportIntents.
+     */
+    cursor?: SupportIntentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportIntents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportIntents.
+     */
+    skip?: number
+    distinct?: SupportIntentScalarFieldEnum | SupportIntentScalarFieldEnum[]
+  }
+
+  /**
+   * SupportIntent create
+   */
+  export type SupportIntentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportIntent
+     */
+    select?: SupportIntentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportIntent
+     */
+    omit?: SupportIntentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportIntentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SupportIntent.
+     */
+    data: XOR<SupportIntentCreateInput, SupportIntentUncheckedCreateInput>
+  }
+
+  /**
+   * SupportIntent createMany
+   */
+  export type SupportIntentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SupportIntents.
+     */
+    data: SupportIntentCreateManyInput | SupportIntentCreateManyInput[]
+  }
+
+  /**
+   * SupportIntent update
+   */
+  export type SupportIntentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportIntent
+     */
+    select?: SupportIntentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportIntent
+     */
+    omit?: SupportIntentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportIntentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SupportIntent.
+     */
+    data: XOR<SupportIntentUpdateInput, SupportIntentUncheckedUpdateInput>
+    /**
+     * Choose, which SupportIntent to update.
+     */
+    where: SupportIntentWhereUniqueInput
+  }
+
+  /**
+   * SupportIntent updateMany
+   */
+  export type SupportIntentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SupportIntents.
+     */
+    data: XOR<SupportIntentUpdateManyMutationInput, SupportIntentUncheckedUpdateManyInput>
+    /**
+     * Filter which SupportIntents to update
+     */
+    where?: SupportIntentWhereInput
+    /**
+     * Limit how many SupportIntents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SupportIntent upsert
+   */
+  export type SupportIntentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportIntent
+     */
+    select?: SupportIntentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportIntent
+     */
+    omit?: SupportIntentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportIntentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SupportIntent to update in case it exists.
+     */
+    where: SupportIntentWhereUniqueInput
+    /**
+     * In case the SupportIntent found by the `where` argument doesn't exist, create a new SupportIntent with this data.
+     */
+    create: XOR<SupportIntentCreateInput, SupportIntentUncheckedCreateInput>
+    /**
+     * In case the SupportIntent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SupportIntentUpdateInput, SupportIntentUncheckedUpdateInput>
+  }
+
+  /**
+   * SupportIntent delete
+   */
+  export type SupportIntentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportIntent
+     */
+    select?: SupportIntentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportIntent
+     */
+    omit?: SupportIntentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportIntentInclude<ExtArgs> | null
+    /**
+     * Filter which SupportIntent to delete.
+     */
+    where: SupportIntentWhereUniqueInput
+  }
+
+  /**
+   * SupportIntent deleteMany
+   */
+  export type SupportIntentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SupportIntents to delete
+     */
+    where?: SupportIntentWhereInput
+    /**
+     * Limit how many SupportIntents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SupportIntent findRaw
+   */
+  export type SupportIntentFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * SupportIntent aggregateRaw
+   */
+  export type SupportIntentAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * SupportIntent without action
+   */
+  export type SupportIntentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportIntent
+     */
+    select?: SupportIntentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportIntent
+     */
+    omit?: SupportIntentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportIntentInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SepaMandate
+   */
+
+  export type AggregateSepaMandate = {
+    _count: SepaMandateCountAggregateOutputType | null
+    _min: SepaMandateMinAggregateOutputType | null
+    _max: SepaMandateMaxAggregateOutputType | null
+  }
+
+  export type SepaMandateMinAggregateOutputType = {
+    id: string | null
+    creditorId: string | null
+    mandateRef: string | null
+    ibanMasked: string | null
+    ibanHash: string | null
+    bic: string | null
+    consentAt: Date | null
+    ipAddress: string | null
+    signatureName: string | null
+    signatureType: string | null
+    validFrom: Date | null
+    revokedAt: Date | null
+    supporterId: string | null
+  }
+
+  export type SepaMandateMaxAggregateOutputType = {
+    id: string | null
+    creditorId: string | null
+    mandateRef: string | null
+    ibanMasked: string | null
+    ibanHash: string | null
+    bic: string | null
+    consentAt: Date | null
+    ipAddress: string | null
+    signatureName: string | null
+    signatureType: string | null
+    validFrom: Date | null
+    revokedAt: Date | null
+    supporterId: string | null
+  }
+
+  export type SepaMandateCountAggregateOutputType = {
+    id: number
+    creditorId: number
+    mandateRef: number
+    ibanMasked: number
+    ibanHash: number
+    bic: number
+    consentAt: number
+    ipAddress: number
+    signatureName: number
+    signatureType: number
+    validFrom: number
+    revokedAt: number
+    supporterId: number
+    _all: number
+  }
+
+
+  export type SepaMandateMinAggregateInputType = {
+    id?: true
+    creditorId?: true
+    mandateRef?: true
+    ibanMasked?: true
+    ibanHash?: true
+    bic?: true
+    consentAt?: true
+    ipAddress?: true
+    signatureName?: true
+    signatureType?: true
+    validFrom?: true
+    revokedAt?: true
+    supporterId?: true
+  }
+
+  export type SepaMandateMaxAggregateInputType = {
+    id?: true
+    creditorId?: true
+    mandateRef?: true
+    ibanMasked?: true
+    ibanHash?: true
+    bic?: true
+    consentAt?: true
+    ipAddress?: true
+    signatureName?: true
+    signatureType?: true
+    validFrom?: true
+    revokedAt?: true
+    supporterId?: true
+  }
+
+  export type SepaMandateCountAggregateInputType = {
+    id?: true
+    creditorId?: true
+    mandateRef?: true
+    ibanMasked?: true
+    ibanHash?: true
+    bic?: true
+    consentAt?: true
+    ipAddress?: true
+    signatureName?: true
+    signatureType?: true
+    validFrom?: true
+    revokedAt?: true
+    supporterId?: true
+    _all?: true
+  }
+
+  export type SepaMandateAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SepaMandate to aggregate.
+     */
+    where?: SepaMandateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SepaMandates to fetch.
+     */
+    orderBy?: SepaMandateOrderByWithRelationInput | SepaMandateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SepaMandateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SepaMandates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SepaMandates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SepaMandates
+    **/
+    _count?: true | SepaMandateCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SepaMandateMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SepaMandateMaxAggregateInputType
+  }
+
+  export type GetSepaMandateAggregateType<T extends SepaMandateAggregateArgs> = {
+        [P in keyof T & keyof AggregateSepaMandate]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSepaMandate[P]>
+      : GetScalarType<T[P], AggregateSepaMandate[P]>
+  }
+
+
+
+
+  export type SepaMandateGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SepaMandateWhereInput
+    orderBy?: SepaMandateOrderByWithAggregationInput | SepaMandateOrderByWithAggregationInput[]
+    by: SepaMandateScalarFieldEnum[] | SepaMandateScalarFieldEnum
+    having?: SepaMandateScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SepaMandateCountAggregateInputType | true
+    _min?: SepaMandateMinAggregateInputType
+    _max?: SepaMandateMaxAggregateInputType
+  }
+
+  export type SepaMandateGroupByOutputType = {
+    id: string
+    creditorId: string
+    mandateRef: string
+    ibanMasked: string
+    ibanHash: string
+    bic: string | null
+    consentAt: Date
+    ipAddress: string | null
+    signatureName: string
+    signatureType: string
+    validFrom: Date
+    revokedAt: Date | null
+    supporterId: string
+    _count: SepaMandateCountAggregateOutputType | null
+    _min: SepaMandateMinAggregateOutputType | null
+    _max: SepaMandateMaxAggregateOutputType | null
+  }
+
+  type GetSepaMandateGroupByPayload<T extends SepaMandateGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SepaMandateGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SepaMandateGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SepaMandateGroupByOutputType[P]>
+            : GetScalarType<T[P], SepaMandateGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SepaMandateSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    creditorId?: boolean
+    mandateRef?: boolean
+    ibanMasked?: boolean
+    ibanHash?: boolean
+    bic?: boolean
+    consentAt?: boolean
+    ipAddress?: boolean
+    signatureName?: boolean
+    signatureType?: boolean
+    validFrom?: boolean
+    revokedAt?: boolean
+    supporterId?: boolean
+    supporter?: boolean | SupporterDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["sepaMandate"]>
+
+
+
+  export type SepaMandateSelectScalar = {
+    id?: boolean
+    creditorId?: boolean
+    mandateRef?: boolean
+    ibanMasked?: boolean
+    ibanHash?: boolean
+    bic?: boolean
+    consentAt?: boolean
+    ipAddress?: boolean
+    signatureName?: boolean
+    signatureType?: boolean
+    validFrom?: boolean
+    revokedAt?: boolean
+    supporterId?: boolean
+  }
+
+  export type SepaMandateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creditorId" | "mandateRef" | "ibanMasked" | "ibanHash" | "bic" | "consentAt" | "ipAddress" | "signatureName" | "signatureType" | "validFrom" | "revokedAt" | "supporterId", ExtArgs["result"]["sepaMandate"]>
+  export type SepaMandateInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    supporter?: boolean | SupporterDefaultArgs<ExtArgs>
+  }
+
+  export type $SepaMandatePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SepaMandate"
+    objects: {
+      supporter: Prisma.$SupporterPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      creditorId: string
+      mandateRef: string
+      ibanMasked: string
+      ibanHash: string
+      bic: string | null
+      consentAt: Date
+      ipAddress: string | null
+      signatureName: string
+      signatureType: string
+      validFrom: Date
+      revokedAt: Date | null
+      supporterId: string
+    }, ExtArgs["result"]["sepaMandate"]>
+    composites: {}
+  }
+
+  type SepaMandateGetPayload<S extends boolean | null | undefined | SepaMandateDefaultArgs> = $Result.GetResult<Prisma.$SepaMandatePayload, S>
+
+  type SepaMandateCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SepaMandateFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SepaMandateCountAggregateInputType | true
+    }
+
+  export interface SepaMandateDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SepaMandate'], meta: { name: 'SepaMandate' } }
+    /**
+     * Find zero or one SepaMandate that matches the filter.
+     * @param {SepaMandateFindUniqueArgs} args - Arguments to find a SepaMandate
+     * @example
+     * // Get one SepaMandate
+     * const sepaMandate = await prisma.sepaMandate.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SepaMandateFindUniqueArgs>(args: SelectSubset<T, SepaMandateFindUniqueArgs<ExtArgs>>): Prisma__SepaMandateClient<$Result.GetResult<Prisma.$SepaMandatePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SepaMandate that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SepaMandateFindUniqueOrThrowArgs} args - Arguments to find a SepaMandate
+     * @example
+     * // Get one SepaMandate
+     * const sepaMandate = await prisma.sepaMandate.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SepaMandateFindUniqueOrThrowArgs>(args: SelectSubset<T, SepaMandateFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SepaMandateClient<$Result.GetResult<Prisma.$SepaMandatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SepaMandate that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SepaMandateFindFirstArgs} args - Arguments to find a SepaMandate
+     * @example
+     * // Get one SepaMandate
+     * const sepaMandate = await prisma.sepaMandate.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SepaMandateFindFirstArgs>(args?: SelectSubset<T, SepaMandateFindFirstArgs<ExtArgs>>): Prisma__SepaMandateClient<$Result.GetResult<Prisma.$SepaMandatePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SepaMandate that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SepaMandateFindFirstOrThrowArgs} args - Arguments to find a SepaMandate
+     * @example
+     * // Get one SepaMandate
+     * const sepaMandate = await prisma.sepaMandate.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SepaMandateFindFirstOrThrowArgs>(args?: SelectSubset<T, SepaMandateFindFirstOrThrowArgs<ExtArgs>>): Prisma__SepaMandateClient<$Result.GetResult<Prisma.$SepaMandatePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SepaMandates that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SepaMandateFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SepaMandates
+     * const sepaMandates = await prisma.sepaMandate.findMany()
+     * 
+     * // Get first 10 SepaMandates
+     * const sepaMandates = await prisma.sepaMandate.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const sepaMandateWithIdOnly = await prisma.sepaMandate.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SepaMandateFindManyArgs>(args?: SelectSubset<T, SepaMandateFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SepaMandatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SepaMandate.
+     * @param {SepaMandateCreateArgs} args - Arguments to create a SepaMandate.
+     * @example
+     * // Create one SepaMandate
+     * const SepaMandate = await prisma.sepaMandate.create({
+     *   data: {
+     *     // ... data to create a SepaMandate
+     *   }
+     * })
+     * 
+     */
+    create<T extends SepaMandateCreateArgs>(args: SelectSubset<T, SepaMandateCreateArgs<ExtArgs>>): Prisma__SepaMandateClient<$Result.GetResult<Prisma.$SepaMandatePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SepaMandates.
+     * @param {SepaMandateCreateManyArgs} args - Arguments to create many SepaMandates.
+     * @example
+     * // Create many SepaMandates
+     * const sepaMandate = await prisma.sepaMandate.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SepaMandateCreateManyArgs>(args?: SelectSubset<T, SepaMandateCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a SepaMandate.
+     * @param {SepaMandateDeleteArgs} args - Arguments to delete one SepaMandate.
+     * @example
+     * // Delete one SepaMandate
+     * const SepaMandate = await prisma.sepaMandate.delete({
+     *   where: {
+     *     // ... filter to delete one SepaMandate
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SepaMandateDeleteArgs>(args: SelectSubset<T, SepaMandateDeleteArgs<ExtArgs>>): Prisma__SepaMandateClient<$Result.GetResult<Prisma.$SepaMandatePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SepaMandate.
+     * @param {SepaMandateUpdateArgs} args - Arguments to update one SepaMandate.
+     * @example
+     * // Update one SepaMandate
+     * const sepaMandate = await prisma.sepaMandate.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SepaMandateUpdateArgs>(args: SelectSubset<T, SepaMandateUpdateArgs<ExtArgs>>): Prisma__SepaMandateClient<$Result.GetResult<Prisma.$SepaMandatePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SepaMandates.
+     * @param {SepaMandateDeleteManyArgs} args - Arguments to filter SepaMandates to delete.
+     * @example
+     * // Delete a few SepaMandates
+     * const { count } = await prisma.sepaMandate.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SepaMandateDeleteManyArgs>(args?: SelectSubset<T, SepaMandateDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SepaMandates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SepaMandateUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SepaMandates
+     * const sepaMandate = await prisma.sepaMandate.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SepaMandateUpdateManyArgs>(args: SelectSubset<T, SepaMandateUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one SepaMandate.
+     * @param {SepaMandateUpsertArgs} args - Arguments to update or create a SepaMandate.
+     * @example
+     * // Update or create a SepaMandate
+     * const sepaMandate = await prisma.sepaMandate.upsert({
+     *   create: {
+     *     // ... data to create a SepaMandate
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SepaMandate we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SepaMandateUpsertArgs>(args: SelectSubset<T, SepaMandateUpsertArgs<ExtArgs>>): Prisma__SepaMandateClient<$Result.GetResult<Prisma.$SepaMandatePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SepaMandates that matches the filter.
+     * @param {SepaMandateFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const sepaMandate = await prisma.sepaMandate.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: SepaMandateFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a SepaMandate.
+     * @param {SepaMandateAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const sepaMandate = await prisma.sepaMandate.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: SepaMandateAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of SepaMandates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SepaMandateCountArgs} args - Arguments to filter SepaMandates to count.
+     * @example
+     * // Count the number of SepaMandates
+     * const count = await prisma.sepaMandate.count({
+     *   where: {
+     *     // ... the filter for the SepaMandates we want to count
+     *   }
+     * })
+    **/
+    count<T extends SepaMandateCountArgs>(
+      args?: Subset<T, SepaMandateCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SepaMandateCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SepaMandate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SepaMandateAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SepaMandateAggregateArgs>(args: Subset<T, SepaMandateAggregateArgs>): Prisma.PrismaPromise<GetSepaMandateAggregateType<T>>
+
+    /**
+     * Group by SepaMandate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SepaMandateGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SepaMandateGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SepaMandateGroupByArgs['orderBy'] }
+        : { orderBy?: SepaMandateGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SepaMandateGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSepaMandateGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SepaMandate model
+   */
+  readonly fields: SepaMandateFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SepaMandate.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SepaMandateClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    supporter<T extends SupporterDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SupporterDefaultArgs<ExtArgs>>): Prisma__SupporterClient<$Result.GetResult<Prisma.$SupporterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SepaMandate model
+   */
+  interface SepaMandateFieldRefs {
+    readonly id: FieldRef<"SepaMandate", 'String'>
+    readonly creditorId: FieldRef<"SepaMandate", 'String'>
+    readonly mandateRef: FieldRef<"SepaMandate", 'String'>
+    readonly ibanMasked: FieldRef<"SepaMandate", 'String'>
+    readonly ibanHash: FieldRef<"SepaMandate", 'String'>
+    readonly bic: FieldRef<"SepaMandate", 'String'>
+    readonly consentAt: FieldRef<"SepaMandate", 'DateTime'>
+    readonly ipAddress: FieldRef<"SepaMandate", 'String'>
+    readonly signatureName: FieldRef<"SepaMandate", 'String'>
+    readonly signatureType: FieldRef<"SepaMandate", 'String'>
+    readonly validFrom: FieldRef<"SepaMandate", 'DateTime'>
+    readonly revokedAt: FieldRef<"SepaMandate", 'DateTime'>
+    readonly supporterId: FieldRef<"SepaMandate", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SepaMandate findUnique
+   */
+  export type SepaMandateFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SepaMandate
+     */
+    select?: SepaMandateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SepaMandate
+     */
+    omit?: SepaMandateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SepaMandateInclude<ExtArgs> | null
+    /**
+     * Filter, which SepaMandate to fetch.
+     */
+    where: SepaMandateWhereUniqueInput
+  }
+
+  /**
+   * SepaMandate findUniqueOrThrow
+   */
+  export type SepaMandateFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SepaMandate
+     */
+    select?: SepaMandateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SepaMandate
+     */
+    omit?: SepaMandateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SepaMandateInclude<ExtArgs> | null
+    /**
+     * Filter, which SepaMandate to fetch.
+     */
+    where: SepaMandateWhereUniqueInput
+  }
+
+  /**
+   * SepaMandate findFirst
+   */
+  export type SepaMandateFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SepaMandate
+     */
+    select?: SepaMandateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SepaMandate
+     */
+    omit?: SepaMandateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SepaMandateInclude<ExtArgs> | null
+    /**
+     * Filter, which SepaMandate to fetch.
+     */
+    where?: SepaMandateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SepaMandates to fetch.
+     */
+    orderBy?: SepaMandateOrderByWithRelationInput | SepaMandateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SepaMandates.
+     */
+    cursor?: SepaMandateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SepaMandates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SepaMandates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SepaMandates.
+     */
+    distinct?: SepaMandateScalarFieldEnum | SepaMandateScalarFieldEnum[]
+  }
+
+  /**
+   * SepaMandate findFirstOrThrow
+   */
+  export type SepaMandateFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SepaMandate
+     */
+    select?: SepaMandateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SepaMandate
+     */
+    omit?: SepaMandateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SepaMandateInclude<ExtArgs> | null
+    /**
+     * Filter, which SepaMandate to fetch.
+     */
+    where?: SepaMandateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SepaMandates to fetch.
+     */
+    orderBy?: SepaMandateOrderByWithRelationInput | SepaMandateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SepaMandates.
+     */
+    cursor?: SepaMandateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SepaMandates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SepaMandates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SepaMandates.
+     */
+    distinct?: SepaMandateScalarFieldEnum | SepaMandateScalarFieldEnum[]
+  }
+
+  /**
+   * SepaMandate findMany
+   */
+  export type SepaMandateFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SepaMandate
+     */
+    select?: SepaMandateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SepaMandate
+     */
+    omit?: SepaMandateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SepaMandateInclude<ExtArgs> | null
+    /**
+     * Filter, which SepaMandates to fetch.
+     */
+    where?: SepaMandateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SepaMandates to fetch.
+     */
+    orderBy?: SepaMandateOrderByWithRelationInput | SepaMandateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SepaMandates.
+     */
+    cursor?: SepaMandateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SepaMandates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SepaMandates.
+     */
+    skip?: number
+    distinct?: SepaMandateScalarFieldEnum | SepaMandateScalarFieldEnum[]
+  }
+
+  /**
+   * SepaMandate create
+   */
+  export type SepaMandateCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SepaMandate
+     */
+    select?: SepaMandateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SepaMandate
+     */
+    omit?: SepaMandateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SepaMandateInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SepaMandate.
+     */
+    data: XOR<SepaMandateCreateInput, SepaMandateUncheckedCreateInput>
+  }
+
+  /**
+   * SepaMandate createMany
+   */
+  export type SepaMandateCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SepaMandates.
+     */
+    data: SepaMandateCreateManyInput | SepaMandateCreateManyInput[]
+  }
+
+  /**
+   * SepaMandate update
+   */
+  export type SepaMandateUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SepaMandate
+     */
+    select?: SepaMandateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SepaMandate
+     */
+    omit?: SepaMandateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SepaMandateInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SepaMandate.
+     */
+    data: XOR<SepaMandateUpdateInput, SepaMandateUncheckedUpdateInput>
+    /**
+     * Choose, which SepaMandate to update.
+     */
+    where: SepaMandateWhereUniqueInput
+  }
+
+  /**
+   * SepaMandate updateMany
+   */
+  export type SepaMandateUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SepaMandates.
+     */
+    data: XOR<SepaMandateUpdateManyMutationInput, SepaMandateUncheckedUpdateManyInput>
+    /**
+     * Filter which SepaMandates to update
+     */
+    where?: SepaMandateWhereInput
+    /**
+     * Limit how many SepaMandates to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SepaMandate upsert
+   */
+  export type SepaMandateUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SepaMandate
+     */
+    select?: SepaMandateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SepaMandate
+     */
+    omit?: SepaMandateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SepaMandateInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SepaMandate to update in case it exists.
+     */
+    where: SepaMandateWhereUniqueInput
+    /**
+     * In case the SepaMandate found by the `where` argument doesn't exist, create a new SepaMandate with this data.
+     */
+    create: XOR<SepaMandateCreateInput, SepaMandateUncheckedCreateInput>
+    /**
+     * In case the SepaMandate was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SepaMandateUpdateInput, SepaMandateUncheckedUpdateInput>
+  }
+
+  /**
+   * SepaMandate delete
+   */
+  export type SepaMandateDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SepaMandate
+     */
+    select?: SepaMandateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SepaMandate
+     */
+    omit?: SepaMandateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SepaMandateInclude<ExtArgs> | null
+    /**
+     * Filter which SepaMandate to delete.
+     */
+    where: SepaMandateWhereUniqueInput
+  }
+
+  /**
+   * SepaMandate deleteMany
+   */
+  export type SepaMandateDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SepaMandates to delete
+     */
+    where?: SepaMandateWhereInput
+    /**
+     * Limit how many SepaMandates to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SepaMandate findRaw
+   */
+  export type SepaMandateFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * SepaMandate aggregateRaw
+   */
+  export type SepaMandateAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * SepaMandate without action
+   */
+  export type SepaMandateDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SepaMandate
+     */
+    select?: SepaMandateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SepaMandate
+     */
+    omit?: SepaMandateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SepaMandateInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model NewsletterSubscription
+   */
+
+  export type AggregateNewsletterSubscription = {
+    _count: NewsletterSubscriptionCountAggregateOutputType | null
+    _min: NewsletterSubscriptionMinAggregateOutputType | null
+    _max: NewsletterSubscriptionMaxAggregateOutputType | null
+  }
+
+  export type NewsletterSubscriptionMinAggregateOutputType = {
+    id: string | null
+    supporterId: string | null
+    subscribed: boolean | null
+    token: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type NewsletterSubscriptionMaxAggregateOutputType = {
+    id: string | null
+    supporterId: string | null
+    subscribed: boolean | null
+    token: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type NewsletterSubscriptionCountAggregateOutputType = {
+    id: number
+    supporterId: number
+    subscribed: number
+    token: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type NewsletterSubscriptionMinAggregateInputType = {
+    id?: true
+    supporterId?: true
+    subscribed?: true
+    token?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type NewsletterSubscriptionMaxAggregateInputType = {
+    id?: true
+    supporterId?: true
+    subscribed?: true
+    token?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type NewsletterSubscriptionCountAggregateInputType = {
+    id?: true
+    supporterId?: true
+    subscribed?: true
+    token?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type NewsletterSubscriptionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NewsletterSubscription to aggregate.
+     */
+    where?: NewsletterSubscriptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NewsletterSubscriptions to fetch.
+     */
+    orderBy?: NewsletterSubscriptionOrderByWithRelationInput | NewsletterSubscriptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: NewsletterSubscriptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NewsletterSubscriptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NewsletterSubscriptions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned NewsletterSubscriptions
+    **/
+    _count?: true | NewsletterSubscriptionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: NewsletterSubscriptionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: NewsletterSubscriptionMaxAggregateInputType
+  }
+
+  export type GetNewsletterSubscriptionAggregateType<T extends NewsletterSubscriptionAggregateArgs> = {
+        [P in keyof T & keyof AggregateNewsletterSubscription]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateNewsletterSubscription[P]>
+      : GetScalarType<T[P], AggregateNewsletterSubscription[P]>
+  }
+
+
+
+
+  export type NewsletterSubscriptionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NewsletterSubscriptionWhereInput
+    orderBy?: NewsletterSubscriptionOrderByWithAggregationInput | NewsletterSubscriptionOrderByWithAggregationInput[]
+    by: NewsletterSubscriptionScalarFieldEnum[] | NewsletterSubscriptionScalarFieldEnum
+    having?: NewsletterSubscriptionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: NewsletterSubscriptionCountAggregateInputType | true
+    _min?: NewsletterSubscriptionMinAggregateInputType
+    _max?: NewsletterSubscriptionMaxAggregateInputType
+  }
+
+  export type NewsletterSubscriptionGroupByOutputType = {
+    id: string
+    supporterId: string
+    subscribed: boolean
+    token: string
+    createdAt: Date
+    updatedAt: Date
+    _count: NewsletterSubscriptionCountAggregateOutputType | null
+    _min: NewsletterSubscriptionMinAggregateOutputType | null
+    _max: NewsletterSubscriptionMaxAggregateOutputType | null
+  }
+
+  type GetNewsletterSubscriptionGroupByPayload<T extends NewsletterSubscriptionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<NewsletterSubscriptionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof NewsletterSubscriptionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], NewsletterSubscriptionGroupByOutputType[P]>
+            : GetScalarType<T[P], NewsletterSubscriptionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type NewsletterSubscriptionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    supporterId?: boolean
+    subscribed?: boolean
+    token?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    supporter?: boolean | SupporterDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["newsletterSubscription"]>
+
+
+
+  export type NewsletterSubscriptionSelectScalar = {
+    id?: boolean
+    supporterId?: boolean
+    subscribed?: boolean
+    token?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type NewsletterSubscriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "supporterId" | "subscribed" | "token" | "createdAt" | "updatedAt", ExtArgs["result"]["newsletterSubscription"]>
+  export type NewsletterSubscriptionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    supporter?: boolean | SupporterDefaultArgs<ExtArgs>
+  }
+
+  export type $NewsletterSubscriptionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "NewsletterSubscription"
+    objects: {
+      supporter: Prisma.$SupporterPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      supporterId: string
+      subscribed: boolean
+      token: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["newsletterSubscription"]>
+    composites: {}
+  }
+
+  type NewsletterSubscriptionGetPayload<S extends boolean | null | undefined | NewsletterSubscriptionDefaultArgs> = $Result.GetResult<Prisma.$NewsletterSubscriptionPayload, S>
+
+  type NewsletterSubscriptionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<NewsletterSubscriptionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: NewsletterSubscriptionCountAggregateInputType | true
+    }
+
+  export interface NewsletterSubscriptionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NewsletterSubscription'], meta: { name: 'NewsletterSubscription' } }
+    /**
+     * Find zero or one NewsletterSubscription that matches the filter.
+     * @param {NewsletterSubscriptionFindUniqueArgs} args - Arguments to find a NewsletterSubscription
+     * @example
+     * // Get one NewsletterSubscription
+     * const newsletterSubscription = await prisma.newsletterSubscription.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends NewsletterSubscriptionFindUniqueArgs>(args: SelectSubset<T, NewsletterSubscriptionFindUniqueArgs<ExtArgs>>): Prisma__NewsletterSubscriptionClient<$Result.GetResult<Prisma.$NewsletterSubscriptionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one NewsletterSubscription that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {NewsletterSubscriptionFindUniqueOrThrowArgs} args - Arguments to find a NewsletterSubscription
+     * @example
+     * // Get one NewsletterSubscription
+     * const newsletterSubscription = await prisma.newsletterSubscription.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends NewsletterSubscriptionFindUniqueOrThrowArgs>(args: SelectSubset<T, NewsletterSubscriptionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NewsletterSubscriptionClient<$Result.GetResult<Prisma.$NewsletterSubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first NewsletterSubscription that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NewsletterSubscriptionFindFirstArgs} args - Arguments to find a NewsletterSubscription
+     * @example
+     * // Get one NewsletterSubscription
+     * const newsletterSubscription = await prisma.newsletterSubscription.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends NewsletterSubscriptionFindFirstArgs>(args?: SelectSubset<T, NewsletterSubscriptionFindFirstArgs<ExtArgs>>): Prisma__NewsletterSubscriptionClient<$Result.GetResult<Prisma.$NewsletterSubscriptionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first NewsletterSubscription that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NewsletterSubscriptionFindFirstOrThrowArgs} args - Arguments to find a NewsletterSubscription
+     * @example
+     * // Get one NewsletterSubscription
+     * const newsletterSubscription = await prisma.newsletterSubscription.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends NewsletterSubscriptionFindFirstOrThrowArgs>(args?: SelectSubset<T, NewsletterSubscriptionFindFirstOrThrowArgs<ExtArgs>>): Prisma__NewsletterSubscriptionClient<$Result.GetResult<Prisma.$NewsletterSubscriptionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more NewsletterSubscriptions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NewsletterSubscriptionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all NewsletterSubscriptions
+     * const newsletterSubscriptions = await prisma.newsletterSubscription.findMany()
+     * 
+     * // Get first 10 NewsletterSubscriptions
+     * const newsletterSubscriptions = await prisma.newsletterSubscription.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const newsletterSubscriptionWithIdOnly = await prisma.newsletterSubscription.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends NewsletterSubscriptionFindManyArgs>(args?: SelectSubset<T, NewsletterSubscriptionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NewsletterSubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a NewsletterSubscription.
+     * @param {NewsletterSubscriptionCreateArgs} args - Arguments to create a NewsletterSubscription.
+     * @example
+     * // Create one NewsletterSubscription
+     * const NewsletterSubscription = await prisma.newsletterSubscription.create({
+     *   data: {
+     *     // ... data to create a NewsletterSubscription
+     *   }
+     * })
+     * 
+     */
+    create<T extends NewsletterSubscriptionCreateArgs>(args: SelectSubset<T, NewsletterSubscriptionCreateArgs<ExtArgs>>): Prisma__NewsletterSubscriptionClient<$Result.GetResult<Prisma.$NewsletterSubscriptionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many NewsletterSubscriptions.
+     * @param {NewsletterSubscriptionCreateManyArgs} args - Arguments to create many NewsletterSubscriptions.
+     * @example
+     * // Create many NewsletterSubscriptions
+     * const newsletterSubscription = await prisma.newsletterSubscription.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends NewsletterSubscriptionCreateManyArgs>(args?: SelectSubset<T, NewsletterSubscriptionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a NewsletterSubscription.
+     * @param {NewsletterSubscriptionDeleteArgs} args - Arguments to delete one NewsletterSubscription.
+     * @example
+     * // Delete one NewsletterSubscription
+     * const NewsletterSubscription = await prisma.newsletterSubscription.delete({
+     *   where: {
+     *     // ... filter to delete one NewsletterSubscription
+     *   }
+     * })
+     * 
+     */
+    delete<T extends NewsletterSubscriptionDeleteArgs>(args: SelectSubset<T, NewsletterSubscriptionDeleteArgs<ExtArgs>>): Prisma__NewsletterSubscriptionClient<$Result.GetResult<Prisma.$NewsletterSubscriptionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one NewsletterSubscription.
+     * @param {NewsletterSubscriptionUpdateArgs} args - Arguments to update one NewsletterSubscription.
+     * @example
+     * // Update one NewsletterSubscription
+     * const newsletterSubscription = await prisma.newsletterSubscription.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends NewsletterSubscriptionUpdateArgs>(args: SelectSubset<T, NewsletterSubscriptionUpdateArgs<ExtArgs>>): Prisma__NewsletterSubscriptionClient<$Result.GetResult<Prisma.$NewsletterSubscriptionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more NewsletterSubscriptions.
+     * @param {NewsletterSubscriptionDeleteManyArgs} args - Arguments to filter NewsletterSubscriptions to delete.
+     * @example
+     * // Delete a few NewsletterSubscriptions
+     * const { count } = await prisma.newsletterSubscription.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends NewsletterSubscriptionDeleteManyArgs>(args?: SelectSubset<T, NewsletterSubscriptionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more NewsletterSubscriptions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NewsletterSubscriptionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many NewsletterSubscriptions
+     * const newsletterSubscription = await prisma.newsletterSubscription.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends NewsletterSubscriptionUpdateManyArgs>(args: SelectSubset<T, NewsletterSubscriptionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one NewsletterSubscription.
+     * @param {NewsletterSubscriptionUpsertArgs} args - Arguments to update or create a NewsletterSubscription.
+     * @example
+     * // Update or create a NewsletterSubscription
+     * const newsletterSubscription = await prisma.newsletterSubscription.upsert({
+     *   create: {
+     *     // ... data to create a NewsletterSubscription
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the NewsletterSubscription we want to update
+     *   }
+     * })
+     */
+    upsert<T extends NewsletterSubscriptionUpsertArgs>(args: SelectSubset<T, NewsletterSubscriptionUpsertArgs<ExtArgs>>): Prisma__NewsletterSubscriptionClient<$Result.GetResult<Prisma.$NewsletterSubscriptionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more NewsletterSubscriptions that matches the filter.
+     * @param {NewsletterSubscriptionFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const newsletterSubscription = await prisma.newsletterSubscription.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: NewsletterSubscriptionFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a NewsletterSubscription.
+     * @param {NewsletterSubscriptionAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const newsletterSubscription = await prisma.newsletterSubscription.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: NewsletterSubscriptionAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of NewsletterSubscriptions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NewsletterSubscriptionCountArgs} args - Arguments to filter NewsletterSubscriptions to count.
+     * @example
+     * // Count the number of NewsletterSubscriptions
+     * const count = await prisma.newsletterSubscription.count({
+     *   where: {
+     *     // ... the filter for the NewsletterSubscriptions we want to count
+     *   }
+     * })
+    **/
+    count<T extends NewsletterSubscriptionCountArgs>(
+      args?: Subset<T, NewsletterSubscriptionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], NewsletterSubscriptionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a NewsletterSubscription.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NewsletterSubscriptionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends NewsletterSubscriptionAggregateArgs>(args: Subset<T, NewsletterSubscriptionAggregateArgs>): Prisma.PrismaPromise<GetNewsletterSubscriptionAggregateType<T>>
+
+    /**
+     * Group by NewsletterSubscription.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NewsletterSubscriptionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends NewsletterSubscriptionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: NewsletterSubscriptionGroupByArgs['orderBy'] }
+        : { orderBy?: NewsletterSubscriptionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, NewsletterSubscriptionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNewsletterSubscriptionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the NewsletterSubscription model
+   */
+  readonly fields: NewsletterSubscriptionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for NewsletterSubscription.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__NewsletterSubscriptionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    supporter<T extends SupporterDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SupporterDefaultArgs<ExtArgs>>): Prisma__SupporterClient<$Result.GetResult<Prisma.$SupporterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the NewsletterSubscription model
+   */
+  interface NewsletterSubscriptionFieldRefs {
+    readonly id: FieldRef<"NewsletterSubscription", 'String'>
+    readonly supporterId: FieldRef<"NewsletterSubscription", 'String'>
+    readonly subscribed: FieldRef<"NewsletterSubscription", 'Boolean'>
+    readonly token: FieldRef<"NewsletterSubscription", 'String'>
+    readonly createdAt: FieldRef<"NewsletterSubscription", 'DateTime'>
+    readonly updatedAt: FieldRef<"NewsletterSubscription", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * NewsletterSubscription findUnique
+   */
+  export type NewsletterSubscriptionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NewsletterSubscription
+     */
+    select?: NewsletterSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NewsletterSubscription
+     */
+    omit?: NewsletterSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NewsletterSubscriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which NewsletterSubscription to fetch.
+     */
+    where: NewsletterSubscriptionWhereUniqueInput
+  }
+
+  /**
+   * NewsletterSubscription findUniqueOrThrow
+   */
+  export type NewsletterSubscriptionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NewsletterSubscription
+     */
+    select?: NewsletterSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NewsletterSubscription
+     */
+    omit?: NewsletterSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NewsletterSubscriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which NewsletterSubscription to fetch.
+     */
+    where: NewsletterSubscriptionWhereUniqueInput
+  }
+
+  /**
+   * NewsletterSubscription findFirst
+   */
+  export type NewsletterSubscriptionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NewsletterSubscription
+     */
+    select?: NewsletterSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NewsletterSubscription
+     */
+    omit?: NewsletterSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NewsletterSubscriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which NewsletterSubscription to fetch.
+     */
+    where?: NewsletterSubscriptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NewsletterSubscriptions to fetch.
+     */
+    orderBy?: NewsletterSubscriptionOrderByWithRelationInput | NewsletterSubscriptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NewsletterSubscriptions.
+     */
+    cursor?: NewsletterSubscriptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NewsletterSubscriptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NewsletterSubscriptions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NewsletterSubscriptions.
+     */
+    distinct?: NewsletterSubscriptionScalarFieldEnum | NewsletterSubscriptionScalarFieldEnum[]
+  }
+
+  /**
+   * NewsletterSubscription findFirstOrThrow
+   */
+  export type NewsletterSubscriptionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NewsletterSubscription
+     */
+    select?: NewsletterSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NewsletterSubscription
+     */
+    omit?: NewsletterSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NewsletterSubscriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which NewsletterSubscription to fetch.
+     */
+    where?: NewsletterSubscriptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NewsletterSubscriptions to fetch.
+     */
+    orderBy?: NewsletterSubscriptionOrderByWithRelationInput | NewsletterSubscriptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NewsletterSubscriptions.
+     */
+    cursor?: NewsletterSubscriptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NewsletterSubscriptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NewsletterSubscriptions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NewsletterSubscriptions.
+     */
+    distinct?: NewsletterSubscriptionScalarFieldEnum | NewsletterSubscriptionScalarFieldEnum[]
+  }
+
+  /**
+   * NewsletterSubscription findMany
+   */
+  export type NewsletterSubscriptionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NewsletterSubscription
+     */
+    select?: NewsletterSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NewsletterSubscription
+     */
+    omit?: NewsletterSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NewsletterSubscriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which NewsletterSubscriptions to fetch.
+     */
+    where?: NewsletterSubscriptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NewsletterSubscriptions to fetch.
+     */
+    orderBy?: NewsletterSubscriptionOrderByWithRelationInput | NewsletterSubscriptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing NewsletterSubscriptions.
+     */
+    cursor?: NewsletterSubscriptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NewsletterSubscriptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NewsletterSubscriptions.
+     */
+    skip?: number
+    distinct?: NewsletterSubscriptionScalarFieldEnum | NewsletterSubscriptionScalarFieldEnum[]
+  }
+
+  /**
+   * NewsletterSubscription create
+   */
+  export type NewsletterSubscriptionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NewsletterSubscription
+     */
+    select?: NewsletterSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NewsletterSubscription
+     */
+    omit?: NewsletterSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NewsletterSubscriptionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a NewsletterSubscription.
+     */
+    data: XOR<NewsletterSubscriptionCreateInput, NewsletterSubscriptionUncheckedCreateInput>
+  }
+
+  /**
+   * NewsletterSubscription createMany
+   */
+  export type NewsletterSubscriptionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many NewsletterSubscriptions.
+     */
+    data: NewsletterSubscriptionCreateManyInput | NewsletterSubscriptionCreateManyInput[]
+  }
+
+  /**
+   * NewsletterSubscription update
+   */
+  export type NewsletterSubscriptionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NewsletterSubscription
+     */
+    select?: NewsletterSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NewsletterSubscription
+     */
+    omit?: NewsletterSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NewsletterSubscriptionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a NewsletterSubscription.
+     */
+    data: XOR<NewsletterSubscriptionUpdateInput, NewsletterSubscriptionUncheckedUpdateInput>
+    /**
+     * Choose, which NewsletterSubscription to update.
+     */
+    where: NewsletterSubscriptionWhereUniqueInput
+  }
+
+  /**
+   * NewsletterSubscription updateMany
+   */
+  export type NewsletterSubscriptionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update NewsletterSubscriptions.
+     */
+    data: XOR<NewsletterSubscriptionUpdateManyMutationInput, NewsletterSubscriptionUncheckedUpdateManyInput>
+    /**
+     * Filter which NewsletterSubscriptions to update
+     */
+    where?: NewsletterSubscriptionWhereInput
+    /**
+     * Limit how many NewsletterSubscriptions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * NewsletterSubscription upsert
+   */
+  export type NewsletterSubscriptionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NewsletterSubscription
+     */
+    select?: NewsletterSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NewsletterSubscription
+     */
+    omit?: NewsletterSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NewsletterSubscriptionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the NewsletterSubscription to update in case it exists.
+     */
+    where: NewsletterSubscriptionWhereUniqueInput
+    /**
+     * In case the NewsletterSubscription found by the `where` argument doesn't exist, create a new NewsletterSubscription with this data.
+     */
+    create: XOR<NewsletterSubscriptionCreateInput, NewsletterSubscriptionUncheckedCreateInput>
+    /**
+     * In case the NewsletterSubscription was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<NewsletterSubscriptionUpdateInput, NewsletterSubscriptionUncheckedUpdateInput>
+  }
+
+  /**
+   * NewsletterSubscription delete
+   */
+  export type NewsletterSubscriptionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NewsletterSubscription
+     */
+    select?: NewsletterSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NewsletterSubscription
+     */
+    omit?: NewsletterSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NewsletterSubscriptionInclude<ExtArgs> | null
+    /**
+     * Filter which NewsletterSubscription to delete.
+     */
+    where: NewsletterSubscriptionWhereUniqueInput
+  }
+
+  /**
+   * NewsletterSubscription deleteMany
+   */
+  export type NewsletterSubscriptionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NewsletterSubscriptions to delete
+     */
+    where?: NewsletterSubscriptionWhereInput
+    /**
+     * Limit how many NewsletterSubscriptions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * NewsletterSubscription findRaw
+   */
+  export type NewsletterSubscriptionFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * NewsletterSubscription aggregateRaw
+   */
+  export type NewsletterSubscriptionAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * NewsletterSubscription without action
+   */
+  export type NewsletterSubscriptionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NewsletterSubscription
+     */
+    select?: NewsletterSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NewsletterSubscription
+     */
+    omit?: NewsletterSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NewsletterSubscriptionInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -23298,6 +27942,69 @@ export namespace Prisma {
   };
 
   export type AdminSettingsScalarFieldEnum = (typeof AdminSettingsScalarFieldEnum)[keyof typeof AdminSettingsScalarFieldEnum]
+
+
+  export const SupporterScalarFieldEnum: {
+    id: 'id',
+    email: 'email',
+    firstName: 'firstName',
+    lastName: 'lastName',
+    phone: 'phone',
+    postalCode: 'postalCode',
+    city: 'city',
+    countryCode: 'countryCode',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SupporterScalarFieldEnum = (typeof SupporterScalarFieldEnum)[keyof typeof SupporterScalarFieldEnum]
+
+
+  export const SupportIntentScalarFieldEnum: {
+    id: 'id',
+    persona: 'persona',
+    cycle: 'cycle',
+    amountCents: 'amountCents',
+    persons: 'persons',
+    pledgeTopic: 'pledgeTopic',
+    skills: 'skills',
+    source: 'source',
+    createdAt: 'createdAt',
+    supporterId: 'supporterId'
+  };
+
+  export type SupportIntentScalarFieldEnum = (typeof SupportIntentScalarFieldEnum)[keyof typeof SupportIntentScalarFieldEnum]
+
+
+  export const SepaMandateScalarFieldEnum: {
+    id: 'id',
+    creditorId: 'creditorId',
+    mandateRef: 'mandateRef',
+    ibanMasked: 'ibanMasked',
+    ibanHash: 'ibanHash',
+    bic: 'bic',
+    consentAt: 'consentAt',
+    ipAddress: 'ipAddress',
+    signatureName: 'signatureName',
+    signatureType: 'signatureType',
+    validFrom: 'validFrom',
+    revokedAt: 'revokedAt',
+    supporterId: 'supporterId'
+  };
+
+  export type SepaMandateScalarFieldEnum = (typeof SepaMandateScalarFieldEnum)[keyof typeof SepaMandateScalarFieldEnum]
+
+
+  export const NewsletterSubscriptionScalarFieldEnum: {
+    id: 'id',
+    supporterId: 'supporterId',
+    subscribed: 'subscribed',
+    token: 'token',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type NewsletterSubscriptionScalarFieldEnum = (typeof NewsletterSubscriptionScalarFieldEnum)[keyof typeof NewsletterSubscriptionScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -24938,6 +29645,329 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"AdminSettings"> | Date | string
   }
 
+  export type SupporterWhereInput = {
+    AND?: SupporterWhereInput | SupporterWhereInput[]
+    OR?: SupporterWhereInput[]
+    NOT?: SupporterWhereInput | SupporterWhereInput[]
+    id?: StringFilter<"Supporter"> | string
+    email?: StringFilter<"Supporter"> | string
+    firstName?: StringFilter<"Supporter"> | string
+    lastName?: StringFilter<"Supporter"> | string
+    phone?: StringNullableFilter<"Supporter"> | string | null
+    postalCode?: StringNullableFilter<"Supporter"> | string | null
+    city?: StringNullableFilter<"Supporter"> | string | null
+    countryCode?: StringNullableFilter<"Supporter"> | string | null
+    createdAt?: DateTimeFilter<"Supporter"> | Date | string
+    updatedAt?: DateTimeFilter<"Supporter"> | Date | string
+    intents?: SupportIntentListRelationFilter
+    mandates?: SepaMandateListRelationFilter
+    newsletter?: XOR<NewsletterSubscriptionNullableScalarRelationFilter, NewsletterSubscriptionWhereInput> | null
+  }
+
+  export type SupporterOrderByWithRelationInput = {
+    id?: SortOrder
+    email?: SortOrder
+    firstName?: SortOrder
+    lastName?: SortOrder
+    phone?: SortOrder
+    postalCode?: SortOrder
+    city?: SortOrder
+    countryCode?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    intents?: SupportIntentOrderByRelationAggregateInput
+    mandates?: SepaMandateOrderByRelationAggregateInput
+    newsletter?: NewsletterSubscriptionOrderByWithRelationInput
+  }
+
+  export type SupporterWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    email?: string
+    AND?: SupporterWhereInput | SupporterWhereInput[]
+    OR?: SupporterWhereInput[]
+    NOT?: SupporterWhereInput | SupporterWhereInput[]
+    firstName?: StringFilter<"Supporter"> | string
+    lastName?: StringFilter<"Supporter"> | string
+    phone?: StringNullableFilter<"Supporter"> | string | null
+    postalCode?: StringNullableFilter<"Supporter"> | string | null
+    city?: StringNullableFilter<"Supporter"> | string | null
+    countryCode?: StringNullableFilter<"Supporter"> | string | null
+    createdAt?: DateTimeFilter<"Supporter"> | Date | string
+    updatedAt?: DateTimeFilter<"Supporter"> | Date | string
+    intents?: SupportIntentListRelationFilter
+    mandates?: SepaMandateListRelationFilter
+    newsletter?: XOR<NewsletterSubscriptionNullableScalarRelationFilter, NewsletterSubscriptionWhereInput> | null
+  }, "id" | "email">
+
+  export type SupporterOrderByWithAggregationInput = {
+    id?: SortOrder
+    email?: SortOrder
+    firstName?: SortOrder
+    lastName?: SortOrder
+    phone?: SortOrder
+    postalCode?: SortOrder
+    city?: SortOrder
+    countryCode?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SupporterCountOrderByAggregateInput
+    _max?: SupporterMaxOrderByAggregateInput
+    _min?: SupporterMinOrderByAggregateInput
+  }
+
+  export type SupporterScalarWhereWithAggregatesInput = {
+    AND?: SupporterScalarWhereWithAggregatesInput | SupporterScalarWhereWithAggregatesInput[]
+    OR?: SupporterScalarWhereWithAggregatesInput[]
+    NOT?: SupporterScalarWhereWithAggregatesInput | SupporterScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Supporter"> | string
+    email?: StringWithAggregatesFilter<"Supporter"> | string
+    firstName?: StringWithAggregatesFilter<"Supporter"> | string
+    lastName?: StringWithAggregatesFilter<"Supporter"> | string
+    phone?: StringNullableWithAggregatesFilter<"Supporter"> | string | null
+    postalCode?: StringNullableWithAggregatesFilter<"Supporter"> | string | null
+    city?: StringNullableWithAggregatesFilter<"Supporter"> | string | null
+    countryCode?: StringNullableWithAggregatesFilter<"Supporter"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Supporter"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Supporter"> | Date | string
+  }
+
+  export type SupportIntentWhereInput = {
+    AND?: SupportIntentWhereInput | SupportIntentWhereInput[]
+    OR?: SupportIntentWhereInput[]
+    NOT?: SupportIntentWhereInput | SupportIntentWhereInput[]
+    id?: StringFilter<"SupportIntent"> | string
+    persona?: StringFilter<"SupportIntent"> | string
+    cycle?: StringNullableFilter<"SupportIntent"> | string | null
+    amountCents?: IntNullableFilter<"SupportIntent"> | number | null
+    persons?: IntNullableFilter<"SupportIntent"> | number | null
+    pledgeTopic?: StringNullableFilter<"SupportIntent"> | string | null
+    skills?: StringNullableFilter<"SupportIntent"> | string | null
+    source?: StringNullableFilter<"SupportIntent"> | string | null
+    createdAt?: DateTimeFilter<"SupportIntent"> | Date | string
+    supporterId?: StringFilter<"SupportIntent"> | string
+    supporter?: XOR<SupporterScalarRelationFilter, SupporterWhereInput>
+  }
+
+  export type SupportIntentOrderByWithRelationInput = {
+    id?: SortOrder
+    persona?: SortOrder
+    cycle?: SortOrder
+    amountCents?: SortOrder
+    persons?: SortOrder
+    pledgeTopic?: SortOrder
+    skills?: SortOrder
+    source?: SortOrder
+    createdAt?: SortOrder
+    supporterId?: SortOrder
+    supporter?: SupporterOrderByWithRelationInput
+  }
+
+  export type SupportIntentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: SupportIntentWhereInput | SupportIntentWhereInput[]
+    OR?: SupportIntentWhereInput[]
+    NOT?: SupportIntentWhereInput | SupportIntentWhereInput[]
+    persona?: StringFilter<"SupportIntent"> | string
+    cycle?: StringNullableFilter<"SupportIntent"> | string | null
+    amountCents?: IntNullableFilter<"SupportIntent"> | number | null
+    persons?: IntNullableFilter<"SupportIntent"> | number | null
+    pledgeTopic?: StringNullableFilter<"SupportIntent"> | string | null
+    skills?: StringNullableFilter<"SupportIntent"> | string | null
+    source?: StringNullableFilter<"SupportIntent"> | string | null
+    createdAt?: DateTimeFilter<"SupportIntent"> | Date | string
+    supporterId?: StringFilter<"SupportIntent"> | string
+    supporter?: XOR<SupporterScalarRelationFilter, SupporterWhereInput>
+  }, "id">
+
+  export type SupportIntentOrderByWithAggregationInput = {
+    id?: SortOrder
+    persona?: SortOrder
+    cycle?: SortOrder
+    amountCents?: SortOrder
+    persons?: SortOrder
+    pledgeTopic?: SortOrder
+    skills?: SortOrder
+    source?: SortOrder
+    createdAt?: SortOrder
+    supporterId?: SortOrder
+    _count?: SupportIntentCountOrderByAggregateInput
+    _avg?: SupportIntentAvgOrderByAggregateInput
+    _max?: SupportIntentMaxOrderByAggregateInput
+    _min?: SupportIntentMinOrderByAggregateInput
+    _sum?: SupportIntentSumOrderByAggregateInput
+  }
+
+  export type SupportIntentScalarWhereWithAggregatesInput = {
+    AND?: SupportIntentScalarWhereWithAggregatesInput | SupportIntentScalarWhereWithAggregatesInput[]
+    OR?: SupportIntentScalarWhereWithAggregatesInput[]
+    NOT?: SupportIntentScalarWhereWithAggregatesInput | SupportIntentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SupportIntent"> | string
+    persona?: StringWithAggregatesFilter<"SupportIntent"> | string
+    cycle?: StringNullableWithAggregatesFilter<"SupportIntent"> | string | null
+    amountCents?: IntNullableWithAggregatesFilter<"SupportIntent"> | number | null
+    persons?: IntNullableWithAggregatesFilter<"SupportIntent"> | number | null
+    pledgeTopic?: StringNullableWithAggregatesFilter<"SupportIntent"> | string | null
+    skills?: StringNullableWithAggregatesFilter<"SupportIntent"> | string | null
+    source?: StringNullableWithAggregatesFilter<"SupportIntent"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"SupportIntent"> | Date | string
+    supporterId?: StringWithAggregatesFilter<"SupportIntent"> | string
+  }
+
+  export type SepaMandateWhereInput = {
+    AND?: SepaMandateWhereInput | SepaMandateWhereInput[]
+    OR?: SepaMandateWhereInput[]
+    NOT?: SepaMandateWhereInput | SepaMandateWhereInput[]
+    id?: StringFilter<"SepaMandate"> | string
+    creditorId?: StringFilter<"SepaMandate"> | string
+    mandateRef?: StringFilter<"SepaMandate"> | string
+    ibanMasked?: StringFilter<"SepaMandate"> | string
+    ibanHash?: StringFilter<"SepaMandate"> | string
+    bic?: StringNullableFilter<"SepaMandate"> | string | null
+    consentAt?: DateTimeFilter<"SepaMandate"> | Date | string
+    ipAddress?: StringNullableFilter<"SepaMandate"> | string | null
+    signatureName?: StringFilter<"SepaMandate"> | string
+    signatureType?: StringFilter<"SepaMandate"> | string
+    validFrom?: DateTimeFilter<"SepaMandate"> | Date | string
+    revokedAt?: DateTimeNullableFilter<"SepaMandate"> | Date | string | null
+    supporterId?: StringFilter<"SepaMandate"> | string
+    supporter?: XOR<SupporterScalarRelationFilter, SupporterWhereInput>
+  }
+
+  export type SepaMandateOrderByWithRelationInput = {
+    id?: SortOrder
+    creditorId?: SortOrder
+    mandateRef?: SortOrder
+    ibanMasked?: SortOrder
+    ibanHash?: SortOrder
+    bic?: SortOrder
+    consentAt?: SortOrder
+    ipAddress?: SortOrder
+    signatureName?: SortOrder
+    signatureType?: SortOrder
+    validFrom?: SortOrder
+    revokedAt?: SortOrder
+    supporterId?: SortOrder
+    supporter?: SupporterOrderByWithRelationInput
+  }
+
+  export type SepaMandateWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    mandateRef?: string
+    AND?: SepaMandateWhereInput | SepaMandateWhereInput[]
+    OR?: SepaMandateWhereInput[]
+    NOT?: SepaMandateWhereInput | SepaMandateWhereInput[]
+    creditorId?: StringFilter<"SepaMandate"> | string
+    ibanMasked?: StringFilter<"SepaMandate"> | string
+    ibanHash?: StringFilter<"SepaMandate"> | string
+    bic?: StringNullableFilter<"SepaMandate"> | string | null
+    consentAt?: DateTimeFilter<"SepaMandate"> | Date | string
+    ipAddress?: StringNullableFilter<"SepaMandate"> | string | null
+    signatureName?: StringFilter<"SepaMandate"> | string
+    signatureType?: StringFilter<"SepaMandate"> | string
+    validFrom?: DateTimeFilter<"SepaMandate"> | Date | string
+    revokedAt?: DateTimeNullableFilter<"SepaMandate"> | Date | string | null
+    supporterId?: StringFilter<"SepaMandate"> | string
+    supporter?: XOR<SupporterScalarRelationFilter, SupporterWhereInput>
+  }, "id" | "mandateRef">
+
+  export type SepaMandateOrderByWithAggregationInput = {
+    id?: SortOrder
+    creditorId?: SortOrder
+    mandateRef?: SortOrder
+    ibanMasked?: SortOrder
+    ibanHash?: SortOrder
+    bic?: SortOrder
+    consentAt?: SortOrder
+    ipAddress?: SortOrder
+    signatureName?: SortOrder
+    signatureType?: SortOrder
+    validFrom?: SortOrder
+    revokedAt?: SortOrder
+    supporterId?: SortOrder
+    _count?: SepaMandateCountOrderByAggregateInput
+    _max?: SepaMandateMaxOrderByAggregateInput
+    _min?: SepaMandateMinOrderByAggregateInput
+  }
+
+  export type SepaMandateScalarWhereWithAggregatesInput = {
+    AND?: SepaMandateScalarWhereWithAggregatesInput | SepaMandateScalarWhereWithAggregatesInput[]
+    OR?: SepaMandateScalarWhereWithAggregatesInput[]
+    NOT?: SepaMandateScalarWhereWithAggregatesInput | SepaMandateScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SepaMandate"> | string
+    creditorId?: StringWithAggregatesFilter<"SepaMandate"> | string
+    mandateRef?: StringWithAggregatesFilter<"SepaMandate"> | string
+    ibanMasked?: StringWithAggregatesFilter<"SepaMandate"> | string
+    ibanHash?: StringWithAggregatesFilter<"SepaMandate"> | string
+    bic?: StringNullableWithAggregatesFilter<"SepaMandate"> | string | null
+    consentAt?: DateTimeWithAggregatesFilter<"SepaMandate"> | Date | string
+    ipAddress?: StringNullableWithAggregatesFilter<"SepaMandate"> | string | null
+    signatureName?: StringWithAggregatesFilter<"SepaMandate"> | string
+    signatureType?: StringWithAggregatesFilter<"SepaMandate"> | string
+    validFrom?: DateTimeWithAggregatesFilter<"SepaMandate"> | Date | string
+    revokedAt?: DateTimeNullableWithAggregatesFilter<"SepaMandate"> | Date | string | null
+    supporterId?: StringWithAggregatesFilter<"SepaMandate"> | string
+  }
+
+  export type NewsletterSubscriptionWhereInput = {
+    AND?: NewsletterSubscriptionWhereInput | NewsletterSubscriptionWhereInput[]
+    OR?: NewsletterSubscriptionWhereInput[]
+    NOT?: NewsletterSubscriptionWhereInput | NewsletterSubscriptionWhereInput[]
+    id?: StringFilter<"NewsletterSubscription"> | string
+    supporterId?: StringFilter<"NewsletterSubscription"> | string
+    subscribed?: BoolFilter<"NewsletterSubscription"> | boolean
+    token?: StringFilter<"NewsletterSubscription"> | string
+    createdAt?: DateTimeFilter<"NewsletterSubscription"> | Date | string
+    updatedAt?: DateTimeFilter<"NewsletterSubscription"> | Date | string
+    supporter?: XOR<SupporterScalarRelationFilter, SupporterWhereInput>
+  }
+
+  export type NewsletterSubscriptionOrderByWithRelationInput = {
+    id?: SortOrder
+    supporterId?: SortOrder
+    subscribed?: SortOrder
+    token?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    supporter?: SupporterOrderByWithRelationInput
+  }
+
+  export type NewsletterSubscriptionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    supporterId?: string
+    token?: string
+    AND?: NewsletterSubscriptionWhereInput | NewsletterSubscriptionWhereInput[]
+    OR?: NewsletterSubscriptionWhereInput[]
+    NOT?: NewsletterSubscriptionWhereInput | NewsletterSubscriptionWhereInput[]
+    subscribed?: BoolFilter<"NewsletterSubscription"> | boolean
+    createdAt?: DateTimeFilter<"NewsletterSubscription"> | Date | string
+    updatedAt?: DateTimeFilter<"NewsletterSubscription"> | Date | string
+    supporter?: XOR<SupporterScalarRelationFilter, SupporterWhereInput>
+  }, "id" | "supporterId" | "token">
+
+  export type NewsletterSubscriptionOrderByWithAggregationInput = {
+    id?: SortOrder
+    supporterId?: SortOrder
+    subscribed?: SortOrder
+    token?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: NewsletterSubscriptionCountOrderByAggregateInput
+    _max?: NewsletterSubscriptionMaxOrderByAggregateInput
+    _min?: NewsletterSubscriptionMinOrderByAggregateInput
+  }
+
+  export type NewsletterSubscriptionScalarWhereWithAggregatesInput = {
+    AND?: NewsletterSubscriptionScalarWhereWithAggregatesInput | NewsletterSubscriptionScalarWhereWithAggregatesInput[]
+    OR?: NewsletterSubscriptionScalarWhereWithAggregatesInput[]
+    NOT?: NewsletterSubscriptionScalarWhereWithAggregatesInput | NewsletterSubscriptionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"NewsletterSubscription"> | string
+    supporterId?: StringWithAggregatesFilter<"NewsletterSubscription"> | string
+    subscribed?: BoolWithAggregatesFilter<"NewsletterSubscription"> | boolean
+    token?: StringWithAggregatesFilter<"NewsletterSubscription"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"NewsletterSubscription"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"NewsletterSubscription"> | Date | string
+  }
+
   export type TopicCreateInput = {
     id?: string
     slug: string
@@ -26387,6 +31417,356 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type SupporterCreateInput = {
+    id?: string
+    email: string
+    firstName: string
+    lastName: string
+    phone?: string | null
+    postalCode?: string | null
+    city?: string | null
+    countryCode?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intents?: SupportIntentCreateNestedManyWithoutSupporterInput
+    mandates?: SepaMandateCreateNestedManyWithoutSupporterInput
+    newsletter?: NewsletterSubscriptionCreateNestedOneWithoutSupporterInput
+  }
+
+  export type SupporterUncheckedCreateInput = {
+    id?: string
+    email: string
+    firstName: string
+    lastName: string
+    phone?: string | null
+    postalCode?: string | null
+    city?: string | null
+    countryCode?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intents?: SupportIntentUncheckedCreateNestedManyWithoutSupporterInput
+    mandates?: SepaMandateUncheckedCreateNestedManyWithoutSupporterInput
+    newsletter?: NewsletterSubscriptionUncheckedCreateNestedOneWithoutSupporterInput
+  }
+
+  export type SupporterUpdateInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    countryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intents?: SupportIntentUpdateManyWithoutSupporterNestedInput
+    mandates?: SepaMandateUpdateManyWithoutSupporterNestedInput
+    newsletter?: NewsletterSubscriptionUpdateOneWithoutSupporterNestedInput
+  }
+
+  export type SupporterUncheckedUpdateInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    countryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intents?: SupportIntentUncheckedUpdateManyWithoutSupporterNestedInput
+    mandates?: SepaMandateUncheckedUpdateManyWithoutSupporterNestedInput
+    newsletter?: NewsletterSubscriptionUncheckedUpdateOneWithoutSupporterNestedInput
+  }
+
+  export type SupporterCreateManyInput = {
+    id?: string
+    email: string
+    firstName: string
+    lastName: string
+    phone?: string | null
+    postalCode?: string | null
+    city?: string | null
+    countryCode?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SupporterUpdateManyMutationInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    countryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupporterUncheckedUpdateManyInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    countryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupportIntentCreateInput = {
+    id?: string
+    persona: string
+    cycle?: string | null
+    amountCents?: number | null
+    persons?: number | null
+    pledgeTopic?: string | null
+    skills?: string | null
+    source?: string | null
+    createdAt?: Date | string
+    supporter: SupporterCreateNestedOneWithoutIntentsInput
+  }
+
+  export type SupportIntentUncheckedCreateInput = {
+    id?: string
+    persona: string
+    cycle?: string | null
+    amountCents?: number | null
+    persons?: number | null
+    pledgeTopic?: string | null
+    skills?: string | null
+    source?: string | null
+    createdAt?: Date | string
+    supporterId: string
+  }
+
+  export type SupportIntentUpdateInput = {
+    persona?: StringFieldUpdateOperationsInput | string
+    cycle?: NullableStringFieldUpdateOperationsInput | string | null
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    persons?: NullableIntFieldUpdateOperationsInput | number | null
+    pledgeTopic?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    supporter?: SupporterUpdateOneRequiredWithoutIntentsNestedInput
+  }
+
+  export type SupportIntentUncheckedUpdateInput = {
+    persona?: StringFieldUpdateOperationsInput | string
+    cycle?: NullableStringFieldUpdateOperationsInput | string | null
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    persons?: NullableIntFieldUpdateOperationsInput | number | null
+    pledgeTopic?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    supporterId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SupportIntentCreateManyInput = {
+    id?: string
+    persona: string
+    cycle?: string | null
+    amountCents?: number | null
+    persons?: number | null
+    pledgeTopic?: string | null
+    skills?: string | null
+    source?: string | null
+    createdAt?: Date | string
+    supporterId: string
+  }
+
+  export type SupportIntentUpdateManyMutationInput = {
+    persona?: StringFieldUpdateOperationsInput | string
+    cycle?: NullableStringFieldUpdateOperationsInput | string | null
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    persons?: NullableIntFieldUpdateOperationsInput | number | null
+    pledgeTopic?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupportIntentUncheckedUpdateManyInput = {
+    persona?: StringFieldUpdateOperationsInput | string
+    cycle?: NullableStringFieldUpdateOperationsInput | string | null
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    persons?: NullableIntFieldUpdateOperationsInput | number | null
+    pledgeTopic?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    supporterId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SepaMandateCreateInput = {
+    id?: string
+    creditorId: string
+    mandateRef: string
+    ibanMasked: string
+    ibanHash: string
+    bic?: string | null
+    consentAt: Date | string
+    ipAddress?: string | null
+    signatureName: string
+    signatureType: string
+    validFrom: Date | string
+    revokedAt?: Date | string | null
+    supporter: SupporterCreateNestedOneWithoutMandatesInput
+  }
+
+  export type SepaMandateUncheckedCreateInput = {
+    id?: string
+    creditorId: string
+    mandateRef: string
+    ibanMasked: string
+    ibanHash: string
+    bic?: string | null
+    consentAt: Date | string
+    ipAddress?: string | null
+    signatureName: string
+    signatureType: string
+    validFrom: Date | string
+    revokedAt?: Date | string | null
+    supporterId: string
+  }
+
+  export type SepaMandateUpdateInput = {
+    creditorId?: StringFieldUpdateOperationsInput | string
+    mandateRef?: StringFieldUpdateOperationsInput | string
+    ibanMasked?: StringFieldUpdateOperationsInput | string
+    ibanHash?: StringFieldUpdateOperationsInput | string
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    consentAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureName?: StringFieldUpdateOperationsInput | string
+    signatureType?: StringFieldUpdateOperationsInput | string
+    validFrom?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    supporter?: SupporterUpdateOneRequiredWithoutMandatesNestedInput
+  }
+
+  export type SepaMandateUncheckedUpdateInput = {
+    creditorId?: StringFieldUpdateOperationsInput | string
+    mandateRef?: StringFieldUpdateOperationsInput | string
+    ibanMasked?: StringFieldUpdateOperationsInput | string
+    ibanHash?: StringFieldUpdateOperationsInput | string
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    consentAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureName?: StringFieldUpdateOperationsInput | string
+    signatureType?: StringFieldUpdateOperationsInput | string
+    validFrom?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    supporterId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SepaMandateCreateManyInput = {
+    id?: string
+    creditorId: string
+    mandateRef: string
+    ibanMasked: string
+    ibanHash: string
+    bic?: string | null
+    consentAt: Date | string
+    ipAddress?: string | null
+    signatureName: string
+    signatureType: string
+    validFrom: Date | string
+    revokedAt?: Date | string | null
+    supporterId: string
+  }
+
+  export type SepaMandateUpdateManyMutationInput = {
+    creditorId?: StringFieldUpdateOperationsInput | string
+    mandateRef?: StringFieldUpdateOperationsInput | string
+    ibanMasked?: StringFieldUpdateOperationsInput | string
+    ibanHash?: StringFieldUpdateOperationsInput | string
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    consentAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureName?: StringFieldUpdateOperationsInput | string
+    signatureType?: StringFieldUpdateOperationsInput | string
+    validFrom?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SepaMandateUncheckedUpdateManyInput = {
+    creditorId?: StringFieldUpdateOperationsInput | string
+    mandateRef?: StringFieldUpdateOperationsInput | string
+    ibanMasked?: StringFieldUpdateOperationsInput | string
+    ibanHash?: StringFieldUpdateOperationsInput | string
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    consentAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureName?: StringFieldUpdateOperationsInput | string
+    signatureType?: StringFieldUpdateOperationsInput | string
+    validFrom?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    supporterId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type NewsletterSubscriptionCreateInput = {
+    id?: string
+    subscribed?: boolean
+    token: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    supporter: SupporterCreateNestedOneWithoutNewsletterInput
+  }
+
+  export type NewsletterSubscriptionUncheckedCreateInput = {
+    id?: string
+    supporterId: string
+    subscribed?: boolean
+    token: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type NewsletterSubscriptionUpdateInput = {
+    subscribed?: BoolFieldUpdateOperationsInput | boolean
+    token?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    supporter?: SupporterUpdateOneRequiredWithoutNewsletterNestedInput
+  }
+
+  export type NewsletterSubscriptionUncheckedUpdateInput = {
+    supporterId?: StringFieldUpdateOperationsInput | string
+    subscribed?: BoolFieldUpdateOperationsInput | boolean
+    token?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NewsletterSubscriptionCreateManyInput = {
+    id?: string
+    supporterId: string
+    subscribed?: boolean
+    token: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type NewsletterSubscriptionUpdateManyMutationInput = {
+    subscribed?: BoolFieldUpdateOperationsInput | boolean
+    token?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NewsletterSubscriptionUncheckedUpdateManyInput = {
+    supporterId?: StringFieldUpdateOperationsInput | string
+    subscribed?: BoolFieldUpdateOperationsInput | boolean
+    token?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -27707,6 +33087,199 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type SupportIntentListRelationFilter = {
+    every?: SupportIntentWhereInput
+    some?: SupportIntentWhereInput
+    none?: SupportIntentWhereInput
+  }
+
+  export type SepaMandateListRelationFilter = {
+    every?: SepaMandateWhereInput
+    some?: SepaMandateWhereInput
+    none?: SepaMandateWhereInput
+  }
+
+  export type NewsletterSubscriptionNullableScalarRelationFilter = {
+    is?: NewsletterSubscriptionWhereInput | null
+    isNot?: NewsletterSubscriptionWhereInput | null
+  }
+
+  export type SupportIntentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SepaMandateOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SupporterCountOrderByAggregateInput = {
+    id?: SortOrder
+    email?: SortOrder
+    firstName?: SortOrder
+    lastName?: SortOrder
+    phone?: SortOrder
+    postalCode?: SortOrder
+    city?: SortOrder
+    countryCode?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SupporterMaxOrderByAggregateInput = {
+    id?: SortOrder
+    email?: SortOrder
+    firstName?: SortOrder
+    lastName?: SortOrder
+    phone?: SortOrder
+    postalCode?: SortOrder
+    city?: SortOrder
+    countryCode?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SupporterMinOrderByAggregateInput = {
+    id?: SortOrder
+    email?: SortOrder
+    firstName?: SortOrder
+    lastName?: SortOrder
+    phone?: SortOrder
+    postalCode?: SortOrder
+    city?: SortOrder
+    countryCode?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SupporterScalarRelationFilter = {
+    is?: SupporterWhereInput
+    isNot?: SupporterWhereInput
+  }
+
+  export type SupportIntentCountOrderByAggregateInput = {
+    id?: SortOrder
+    persona?: SortOrder
+    cycle?: SortOrder
+    amountCents?: SortOrder
+    persons?: SortOrder
+    pledgeTopic?: SortOrder
+    skills?: SortOrder
+    source?: SortOrder
+    createdAt?: SortOrder
+    supporterId?: SortOrder
+  }
+
+  export type SupportIntentAvgOrderByAggregateInput = {
+    amountCents?: SortOrder
+    persons?: SortOrder
+  }
+
+  export type SupportIntentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    persona?: SortOrder
+    cycle?: SortOrder
+    amountCents?: SortOrder
+    persons?: SortOrder
+    pledgeTopic?: SortOrder
+    skills?: SortOrder
+    source?: SortOrder
+    createdAt?: SortOrder
+    supporterId?: SortOrder
+  }
+
+  export type SupportIntentMinOrderByAggregateInput = {
+    id?: SortOrder
+    persona?: SortOrder
+    cycle?: SortOrder
+    amountCents?: SortOrder
+    persons?: SortOrder
+    pledgeTopic?: SortOrder
+    skills?: SortOrder
+    source?: SortOrder
+    createdAt?: SortOrder
+    supporterId?: SortOrder
+  }
+
+  export type SupportIntentSumOrderByAggregateInput = {
+    amountCents?: SortOrder
+    persons?: SortOrder
+  }
+
+  export type SepaMandateCountOrderByAggregateInput = {
+    id?: SortOrder
+    creditorId?: SortOrder
+    mandateRef?: SortOrder
+    ibanMasked?: SortOrder
+    ibanHash?: SortOrder
+    bic?: SortOrder
+    consentAt?: SortOrder
+    ipAddress?: SortOrder
+    signatureName?: SortOrder
+    signatureType?: SortOrder
+    validFrom?: SortOrder
+    revokedAt?: SortOrder
+    supporterId?: SortOrder
+  }
+
+  export type SepaMandateMaxOrderByAggregateInput = {
+    id?: SortOrder
+    creditorId?: SortOrder
+    mandateRef?: SortOrder
+    ibanMasked?: SortOrder
+    ibanHash?: SortOrder
+    bic?: SortOrder
+    consentAt?: SortOrder
+    ipAddress?: SortOrder
+    signatureName?: SortOrder
+    signatureType?: SortOrder
+    validFrom?: SortOrder
+    revokedAt?: SortOrder
+    supporterId?: SortOrder
+  }
+
+  export type SepaMandateMinOrderByAggregateInput = {
+    id?: SortOrder
+    creditorId?: SortOrder
+    mandateRef?: SortOrder
+    ibanMasked?: SortOrder
+    ibanHash?: SortOrder
+    bic?: SortOrder
+    consentAt?: SortOrder
+    ipAddress?: SortOrder
+    signatureName?: SortOrder
+    signatureType?: SortOrder
+    validFrom?: SortOrder
+    revokedAt?: SortOrder
+    supporterId?: SortOrder
+  }
+
+  export type NewsletterSubscriptionCountOrderByAggregateInput = {
+    id?: SortOrder
+    supporterId?: SortOrder
+    subscribed?: SortOrder
+    token?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type NewsletterSubscriptionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    supporterId?: SortOrder
+    subscribed?: SortOrder
+    token?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type NewsletterSubscriptionMinOrderByAggregateInput = {
+    id?: SortOrder
+    supporterId?: SortOrder
+    subscribed?: SortOrder
+    token?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type ContentItemCreateNestedManyWithoutTopicInput = {
     create?: XOR<ContentItemCreateWithoutTopicInput, ContentItemUncheckedCreateWithoutTopicInput> | ContentItemCreateWithoutTopicInput[] | ContentItemUncheckedCreateWithoutTopicInput[]
     connectOrCreate?: ContentItemCreateOrConnectWithoutTopicInput | ContentItemCreateOrConnectWithoutTopicInput[]
@@ -28916,6 +34489,164 @@ export namespace Prisma {
     upsert?: FactcheckClaimUpsertWithoutFindingInput
     connect?: FactcheckClaimWhereUniqueInput
     update?: XOR<XOR<FactcheckClaimUpdateToOneWithWhereWithoutFindingInput, FactcheckClaimUpdateWithoutFindingInput>, FactcheckClaimUncheckedUpdateWithoutFindingInput>
+  }
+
+  export type SupportIntentCreateNestedManyWithoutSupporterInput = {
+    create?: XOR<SupportIntentCreateWithoutSupporterInput, SupportIntentUncheckedCreateWithoutSupporterInput> | SupportIntentCreateWithoutSupporterInput[] | SupportIntentUncheckedCreateWithoutSupporterInput[]
+    connectOrCreate?: SupportIntentCreateOrConnectWithoutSupporterInput | SupportIntentCreateOrConnectWithoutSupporterInput[]
+    createMany?: SupportIntentCreateManySupporterInputEnvelope
+    connect?: SupportIntentWhereUniqueInput | SupportIntentWhereUniqueInput[]
+  }
+
+  export type SepaMandateCreateNestedManyWithoutSupporterInput = {
+    create?: XOR<SepaMandateCreateWithoutSupporterInput, SepaMandateUncheckedCreateWithoutSupporterInput> | SepaMandateCreateWithoutSupporterInput[] | SepaMandateUncheckedCreateWithoutSupporterInput[]
+    connectOrCreate?: SepaMandateCreateOrConnectWithoutSupporterInput | SepaMandateCreateOrConnectWithoutSupporterInput[]
+    createMany?: SepaMandateCreateManySupporterInputEnvelope
+    connect?: SepaMandateWhereUniqueInput | SepaMandateWhereUniqueInput[]
+  }
+
+  export type NewsletterSubscriptionCreateNestedOneWithoutSupporterInput = {
+    create?: XOR<NewsletterSubscriptionCreateWithoutSupporterInput, NewsletterSubscriptionUncheckedCreateWithoutSupporterInput>
+    connectOrCreate?: NewsletterSubscriptionCreateOrConnectWithoutSupporterInput
+    connect?: NewsletterSubscriptionWhereUniqueInput
+  }
+
+  export type SupportIntentUncheckedCreateNestedManyWithoutSupporterInput = {
+    create?: XOR<SupportIntentCreateWithoutSupporterInput, SupportIntentUncheckedCreateWithoutSupporterInput> | SupportIntentCreateWithoutSupporterInput[] | SupportIntentUncheckedCreateWithoutSupporterInput[]
+    connectOrCreate?: SupportIntentCreateOrConnectWithoutSupporterInput | SupportIntentCreateOrConnectWithoutSupporterInput[]
+    createMany?: SupportIntentCreateManySupporterInputEnvelope
+    connect?: SupportIntentWhereUniqueInput | SupportIntentWhereUniqueInput[]
+  }
+
+  export type SepaMandateUncheckedCreateNestedManyWithoutSupporterInput = {
+    create?: XOR<SepaMandateCreateWithoutSupporterInput, SepaMandateUncheckedCreateWithoutSupporterInput> | SepaMandateCreateWithoutSupporterInput[] | SepaMandateUncheckedCreateWithoutSupporterInput[]
+    connectOrCreate?: SepaMandateCreateOrConnectWithoutSupporterInput | SepaMandateCreateOrConnectWithoutSupporterInput[]
+    createMany?: SepaMandateCreateManySupporterInputEnvelope
+    connect?: SepaMandateWhereUniqueInput | SepaMandateWhereUniqueInput[]
+  }
+
+  export type NewsletterSubscriptionUncheckedCreateNestedOneWithoutSupporterInput = {
+    create?: XOR<NewsletterSubscriptionCreateWithoutSupporterInput, NewsletterSubscriptionUncheckedCreateWithoutSupporterInput>
+    connectOrCreate?: NewsletterSubscriptionCreateOrConnectWithoutSupporterInput
+    connect?: NewsletterSubscriptionWhereUniqueInput
+  }
+
+  export type SupportIntentUpdateManyWithoutSupporterNestedInput = {
+    create?: XOR<SupportIntentCreateWithoutSupporterInput, SupportIntentUncheckedCreateWithoutSupporterInput> | SupportIntentCreateWithoutSupporterInput[] | SupportIntentUncheckedCreateWithoutSupporterInput[]
+    connectOrCreate?: SupportIntentCreateOrConnectWithoutSupporterInput | SupportIntentCreateOrConnectWithoutSupporterInput[]
+    upsert?: SupportIntentUpsertWithWhereUniqueWithoutSupporterInput | SupportIntentUpsertWithWhereUniqueWithoutSupporterInput[]
+    createMany?: SupportIntentCreateManySupporterInputEnvelope
+    set?: SupportIntentWhereUniqueInput | SupportIntentWhereUniqueInput[]
+    disconnect?: SupportIntentWhereUniqueInput | SupportIntentWhereUniqueInput[]
+    delete?: SupportIntentWhereUniqueInput | SupportIntentWhereUniqueInput[]
+    connect?: SupportIntentWhereUniqueInput | SupportIntentWhereUniqueInput[]
+    update?: SupportIntentUpdateWithWhereUniqueWithoutSupporterInput | SupportIntentUpdateWithWhereUniqueWithoutSupporterInput[]
+    updateMany?: SupportIntentUpdateManyWithWhereWithoutSupporterInput | SupportIntentUpdateManyWithWhereWithoutSupporterInput[]
+    deleteMany?: SupportIntentScalarWhereInput | SupportIntentScalarWhereInput[]
+  }
+
+  export type SepaMandateUpdateManyWithoutSupporterNestedInput = {
+    create?: XOR<SepaMandateCreateWithoutSupporterInput, SepaMandateUncheckedCreateWithoutSupporterInput> | SepaMandateCreateWithoutSupporterInput[] | SepaMandateUncheckedCreateWithoutSupporterInput[]
+    connectOrCreate?: SepaMandateCreateOrConnectWithoutSupporterInput | SepaMandateCreateOrConnectWithoutSupporterInput[]
+    upsert?: SepaMandateUpsertWithWhereUniqueWithoutSupporterInput | SepaMandateUpsertWithWhereUniqueWithoutSupporterInput[]
+    createMany?: SepaMandateCreateManySupporterInputEnvelope
+    set?: SepaMandateWhereUniqueInput | SepaMandateWhereUniqueInput[]
+    disconnect?: SepaMandateWhereUniqueInput | SepaMandateWhereUniqueInput[]
+    delete?: SepaMandateWhereUniqueInput | SepaMandateWhereUniqueInput[]
+    connect?: SepaMandateWhereUniqueInput | SepaMandateWhereUniqueInput[]
+    update?: SepaMandateUpdateWithWhereUniqueWithoutSupporterInput | SepaMandateUpdateWithWhereUniqueWithoutSupporterInput[]
+    updateMany?: SepaMandateUpdateManyWithWhereWithoutSupporterInput | SepaMandateUpdateManyWithWhereWithoutSupporterInput[]
+    deleteMany?: SepaMandateScalarWhereInput | SepaMandateScalarWhereInput[]
+  }
+
+  export type NewsletterSubscriptionUpdateOneWithoutSupporterNestedInput = {
+    create?: XOR<NewsletterSubscriptionCreateWithoutSupporterInput, NewsletterSubscriptionUncheckedCreateWithoutSupporterInput>
+    connectOrCreate?: NewsletterSubscriptionCreateOrConnectWithoutSupporterInput
+    upsert?: NewsletterSubscriptionUpsertWithoutSupporterInput
+    disconnect?: NewsletterSubscriptionWhereInput | boolean
+    delete?: NewsletterSubscriptionWhereInput | boolean
+    connect?: NewsletterSubscriptionWhereUniqueInput
+    update?: XOR<XOR<NewsletterSubscriptionUpdateToOneWithWhereWithoutSupporterInput, NewsletterSubscriptionUpdateWithoutSupporterInput>, NewsletterSubscriptionUncheckedUpdateWithoutSupporterInput>
+  }
+
+  export type SupportIntentUncheckedUpdateManyWithoutSupporterNestedInput = {
+    create?: XOR<SupportIntentCreateWithoutSupporterInput, SupportIntentUncheckedCreateWithoutSupporterInput> | SupportIntentCreateWithoutSupporterInput[] | SupportIntentUncheckedCreateWithoutSupporterInput[]
+    connectOrCreate?: SupportIntentCreateOrConnectWithoutSupporterInput | SupportIntentCreateOrConnectWithoutSupporterInput[]
+    upsert?: SupportIntentUpsertWithWhereUniqueWithoutSupporterInput | SupportIntentUpsertWithWhereUniqueWithoutSupporterInput[]
+    createMany?: SupportIntentCreateManySupporterInputEnvelope
+    set?: SupportIntentWhereUniqueInput | SupportIntentWhereUniqueInput[]
+    disconnect?: SupportIntentWhereUniqueInput | SupportIntentWhereUniqueInput[]
+    delete?: SupportIntentWhereUniqueInput | SupportIntentWhereUniqueInput[]
+    connect?: SupportIntentWhereUniqueInput | SupportIntentWhereUniqueInput[]
+    update?: SupportIntentUpdateWithWhereUniqueWithoutSupporterInput | SupportIntentUpdateWithWhereUniqueWithoutSupporterInput[]
+    updateMany?: SupportIntentUpdateManyWithWhereWithoutSupporterInput | SupportIntentUpdateManyWithWhereWithoutSupporterInput[]
+    deleteMany?: SupportIntentScalarWhereInput | SupportIntentScalarWhereInput[]
+  }
+
+  export type SepaMandateUncheckedUpdateManyWithoutSupporterNestedInput = {
+    create?: XOR<SepaMandateCreateWithoutSupporterInput, SepaMandateUncheckedCreateWithoutSupporterInput> | SepaMandateCreateWithoutSupporterInput[] | SepaMandateUncheckedCreateWithoutSupporterInput[]
+    connectOrCreate?: SepaMandateCreateOrConnectWithoutSupporterInput | SepaMandateCreateOrConnectWithoutSupporterInput[]
+    upsert?: SepaMandateUpsertWithWhereUniqueWithoutSupporterInput | SepaMandateUpsertWithWhereUniqueWithoutSupporterInput[]
+    createMany?: SepaMandateCreateManySupporterInputEnvelope
+    set?: SepaMandateWhereUniqueInput | SepaMandateWhereUniqueInput[]
+    disconnect?: SepaMandateWhereUniqueInput | SepaMandateWhereUniqueInput[]
+    delete?: SepaMandateWhereUniqueInput | SepaMandateWhereUniqueInput[]
+    connect?: SepaMandateWhereUniqueInput | SepaMandateWhereUniqueInput[]
+    update?: SepaMandateUpdateWithWhereUniqueWithoutSupporterInput | SepaMandateUpdateWithWhereUniqueWithoutSupporterInput[]
+    updateMany?: SepaMandateUpdateManyWithWhereWithoutSupporterInput | SepaMandateUpdateManyWithWhereWithoutSupporterInput[]
+    deleteMany?: SepaMandateScalarWhereInput | SepaMandateScalarWhereInput[]
+  }
+
+  export type NewsletterSubscriptionUncheckedUpdateOneWithoutSupporterNestedInput = {
+    create?: XOR<NewsletterSubscriptionCreateWithoutSupporterInput, NewsletterSubscriptionUncheckedCreateWithoutSupporterInput>
+    connectOrCreate?: NewsletterSubscriptionCreateOrConnectWithoutSupporterInput
+    upsert?: NewsletterSubscriptionUpsertWithoutSupporterInput
+    disconnect?: NewsletterSubscriptionWhereInput | boolean
+    delete?: NewsletterSubscriptionWhereInput | boolean
+    connect?: NewsletterSubscriptionWhereUniqueInput
+    update?: XOR<XOR<NewsletterSubscriptionUpdateToOneWithWhereWithoutSupporterInput, NewsletterSubscriptionUpdateWithoutSupporterInput>, NewsletterSubscriptionUncheckedUpdateWithoutSupporterInput>
+  }
+
+  export type SupporterCreateNestedOneWithoutIntentsInput = {
+    create?: XOR<SupporterCreateWithoutIntentsInput, SupporterUncheckedCreateWithoutIntentsInput>
+    connectOrCreate?: SupporterCreateOrConnectWithoutIntentsInput
+    connect?: SupporterWhereUniqueInput
+  }
+
+  export type SupporterUpdateOneRequiredWithoutIntentsNestedInput = {
+    create?: XOR<SupporterCreateWithoutIntentsInput, SupporterUncheckedCreateWithoutIntentsInput>
+    connectOrCreate?: SupporterCreateOrConnectWithoutIntentsInput
+    upsert?: SupporterUpsertWithoutIntentsInput
+    connect?: SupporterWhereUniqueInput
+    update?: XOR<XOR<SupporterUpdateToOneWithWhereWithoutIntentsInput, SupporterUpdateWithoutIntentsInput>, SupporterUncheckedUpdateWithoutIntentsInput>
+  }
+
+  export type SupporterCreateNestedOneWithoutMandatesInput = {
+    create?: XOR<SupporterCreateWithoutMandatesInput, SupporterUncheckedCreateWithoutMandatesInput>
+    connectOrCreate?: SupporterCreateOrConnectWithoutMandatesInput
+    connect?: SupporterWhereUniqueInput
+  }
+
+  export type SupporterUpdateOneRequiredWithoutMandatesNestedInput = {
+    create?: XOR<SupporterCreateWithoutMandatesInput, SupporterUncheckedCreateWithoutMandatesInput>
+    connectOrCreate?: SupporterCreateOrConnectWithoutMandatesInput
+    upsert?: SupporterUpsertWithoutMandatesInput
+    connect?: SupporterWhereUniqueInput
+    update?: XOR<XOR<SupporterUpdateToOneWithWhereWithoutMandatesInput, SupporterUpdateWithoutMandatesInput>, SupporterUncheckedUpdateWithoutMandatesInput>
+  }
+
+  export type SupporterCreateNestedOneWithoutNewsletterInput = {
+    create?: XOR<SupporterCreateWithoutNewsletterInput, SupporterUncheckedCreateWithoutNewsletterInput>
+    connectOrCreate?: SupporterCreateOrConnectWithoutNewsletterInput
+    connect?: SupporterWhereUniqueInput
+  }
+
+  export type SupporterUpdateOneRequiredWithoutNewsletterNestedInput = {
+    create?: XOR<SupporterCreateWithoutNewsletterInput, SupporterUncheckedCreateWithoutNewsletterInput>
+    connectOrCreate?: SupporterCreateOrConnectWithoutNewsletterInput
+    upsert?: SupporterUpsertWithoutNewsletterInput
+    connect?: SupporterWhereUniqueInput
+    update?: XOR<XOR<SupporterUpdateToOneWithWhereWithoutNewsletterInput, SupporterUpdateWithoutNewsletterInput>, SupporterUncheckedUpdateWithoutNewsletterInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -32166,6 +37897,413 @@ export namespace Prisma {
     units?: ExtractedUnitUncheckedUpdateManyWithoutClaimNestedInput
   }
 
+  export type SupportIntentCreateWithoutSupporterInput = {
+    id?: string
+    persona: string
+    cycle?: string | null
+    amountCents?: number | null
+    persons?: number | null
+    pledgeTopic?: string | null
+    skills?: string | null
+    source?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SupportIntentUncheckedCreateWithoutSupporterInput = {
+    id?: string
+    persona: string
+    cycle?: string | null
+    amountCents?: number | null
+    persons?: number | null
+    pledgeTopic?: string | null
+    skills?: string | null
+    source?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SupportIntentCreateOrConnectWithoutSupporterInput = {
+    where: SupportIntentWhereUniqueInput
+    create: XOR<SupportIntentCreateWithoutSupporterInput, SupportIntentUncheckedCreateWithoutSupporterInput>
+  }
+
+  export type SupportIntentCreateManySupporterInputEnvelope = {
+    data: SupportIntentCreateManySupporterInput | SupportIntentCreateManySupporterInput[]
+  }
+
+  export type SepaMandateCreateWithoutSupporterInput = {
+    id?: string
+    creditorId: string
+    mandateRef: string
+    ibanMasked: string
+    ibanHash: string
+    bic?: string | null
+    consentAt: Date | string
+    ipAddress?: string | null
+    signatureName: string
+    signatureType: string
+    validFrom: Date | string
+    revokedAt?: Date | string | null
+  }
+
+  export type SepaMandateUncheckedCreateWithoutSupporterInput = {
+    id?: string
+    creditorId: string
+    mandateRef: string
+    ibanMasked: string
+    ibanHash: string
+    bic?: string | null
+    consentAt: Date | string
+    ipAddress?: string | null
+    signatureName: string
+    signatureType: string
+    validFrom: Date | string
+    revokedAt?: Date | string | null
+  }
+
+  export type SepaMandateCreateOrConnectWithoutSupporterInput = {
+    where: SepaMandateWhereUniqueInput
+    create: XOR<SepaMandateCreateWithoutSupporterInput, SepaMandateUncheckedCreateWithoutSupporterInput>
+  }
+
+  export type SepaMandateCreateManySupporterInputEnvelope = {
+    data: SepaMandateCreateManySupporterInput | SepaMandateCreateManySupporterInput[]
+  }
+
+  export type NewsletterSubscriptionCreateWithoutSupporterInput = {
+    id?: string
+    subscribed?: boolean
+    token: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type NewsletterSubscriptionUncheckedCreateWithoutSupporterInput = {
+    id?: string
+    subscribed?: boolean
+    token: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type NewsletterSubscriptionCreateOrConnectWithoutSupporterInput = {
+    where: NewsletterSubscriptionWhereUniqueInput
+    create: XOR<NewsletterSubscriptionCreateWithoutSupporterInput, NewsletterSubscriptionUncheckedCreateWithoutSupporterInput>
+  }
+
+  export type SupportIntentUpsertWithWhereUniqueWithoutSupporterInput = {
+    where: SupportIntentWhereUniqueInput
+    update: XOR<SupportIntentUpdateWithoutSupporterInput, SupportIntentUncheckedUpdateWithoutSupporterInput>
+    create: XOR<SupportIntentCreateWithoutSupporterInput, SupportIntentUncheckedCreateWithoutSupporterInput>
+  }
+
+  export type SupportIntentUpdateWithWhereUniqueWithoutSupporterInput = {
+    where: SupportIntentWhereUniqueInput
+    data: XOR<SupportIntentUpdateWithoutSupporterInput, SupportIntentUncheckedUpdateWithoutSupporterInput>
+  }
+
+  export type SupportIntentUpdateManyWithWhereWithoutSupporterInput = {
+    where: SupportIntentScalarWhereInput
+    data: XOR<SupportIntentUpdateManyMutationInput, SupportIntentUncheckedUpdateManyWithoutSupporterInput>
+  }
+
+  export type SupportIntentScalarWhereInput = {
+    AND?: SupportIntentScalarWhereInput | SupportIntentScalarWhereInput[]
+    OR?: SupportIntentScalarWhereInput[]
+    NOT?: SupportIntentScalarWhereInput | SupportIntentScalarWhereInput[]
+    id?: StringFilter<"SupportIntent"> | string
+    persona?: StringFilter<"SupportIntent"> | string
+    cycle?: StringNullableFilter<"SupportIntent"> | string | null
+    amountCents?: IntNullableFilter<"SupportIntent"> | number | null
+    persons?: IntNullableFilter<"SupportIntent"> | number | null
+    pledgeTopic?: StringNullableFilter<"SupportIntent"> | string | null
+    skills?: StringNullableFilter<"SupportIntent"> | string | null
+    source?: StringNullableFilter<"SupportIntent"> | string | null
+    createdAt?: DateTimeFilter<"SupportIntent"> | Date | string
+    supporterId?: StringFilter<"SupportIntent"> | string
+  }
+
+  export type SepaMandateUpsertWithWhereUniqueWithoutSupporterInput = {
+    where: SepaMandateWhereUniqueInput
+    update: XOR<SepaMandateUpdateWithoutSupporterInput, SepaMandateUncheckedUpdateWithoutSupporterInput>
+    create: XOR<SepaMandateCreateWithoutSupporterInput, SepaMandateUncheckedCreateWithoutSupporterInput>
+  }
+
+  export type SepaMandateUpdateWithWhereUniqueWithoutSupporterInput = {
+    where: SepaMandateWhereUniqueInput
+    data: XOR<SepaMandateUpdateWithoutSupporterInput, SepaMandateUncheckedUpdateWithoutSupporterInput>
+  }
+
+  export type SepaMandateUpdateManyWithWhereWithoutSupporterInput = {
+    where: SepaMandateScalarWhereInput
+    data: XOR<SepaMandateUpdateManyMutationInput, SepaMandateUncheckedUpdateManyWithoutSupporterInput>
+  }
+
+  export type SepaMandateScalarWhereInput = {
+    AND?: SepaMandateScalarWhereInput | SepaMandateScalarWhereInput[]
+    OR?: SepaMandateScalarWhereInput[]
+    NOT?: SepaMandateScalarWhereInput | SepaMandateScalarWhereInput[]
+    id?: StringFilter<"SepaMandate"> | string
+    creditorId?: StringFilter<"SepaMandate"> | string
+    mandateRef?: StringFilter<"SepaMandate"> | string
+    ibanMasked?: StringFilter<"SepaMandate"> | string
+    ibanHash?: StringFilter<"SepaMandate"> | string
+    bic?: StringNullableFilter<"SepaMandate"> | string | null
+    consentAt?: DateTimeFilter<"SepaMandate"> | Date | string
+    ipAddress?: StringNullableFilter<"SepaMandate"> | string | null
+    signatureName?: StringFilter<"SepaMandate"> | string
+    signatureType?: StringFilter<"SepaMandate"> | string
+    validFrom?: DateTimeFilter<"SepaMandate"> | Date | string
+    revokedAt?: DateTimeNullableFilter<"SepaMandate"> | Date | string | null
+    supporterId?: StringFilter<"SepaMandate"> | string
+  }
+
+  export type NewsletterSubscriptionUpsertWithoutSupporterInput = {
+    update: XOR<NewsletterSubscriptionUpdateWithoutSupporterInput, NewsletterSubscriptionUncheckedUpdateWithoutSupporterInput>
+    create: XOR<NewsletterSubscriptionCreateWithoutSupporterInput, NewsletterSubscriptionUncheckedCreateWithoutSupporterInput>
+    where?: NewsletterSubscriptionWhereInput
+  }
+
+  export type NewsletterSubscriptionUpdateToOneWithWhereWithoutSupporterInput = {
+    where?: NewsletterSubscriptionWhereInput
+    data: XOR<NewsletterSubscriptionUpdateWithoutSupporterInput, NewsletterSubscriptionUncheckedUpdateWithoutSupporterInput>
+  }
+
+  export type NewsletterSubscriptionUpdateWithoutSupporterInput = {
+    subscribed?: BoolFieldUpdateOperationsInput | boolean
+    token?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NewsletterSubscriptionUncheckedUpdateWithoutSupporterInput = {
+    subscribed?: BoolFieldUpdateOperationsInput | boolean
+    token?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupporterCreateWithoutIntentsInput = {
+    id?: string
+    email: string
+    firstName: string
+    lastName: string
+    phone?: string | null
+    postalCode?: string | null
+    city?: string | null
+    countryCode?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    mandates?: SepaMandateCreateNestedManyWithoutSupporterInput
+    newsletter?: NewsletterSubscriptionCreateNestedOneWithoutSupporterInput
+  }
+
+  export type SupporterUncheckedCreateWithoutIntentsInput = {
+    id?: string
+    email: string
+    firstName: string
+    lastName: string
+    phone?: string | null
+    postalCode?: string | null
+    city?: string | null
+    countryCode?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    mandates?: SepaMandateUncheckedCreateNestedManyWithoutSupporterInput
+    newsletter?: NewsletterSubscriptionUncheckedCreateNestedOneWithoutSupporterInput
+  }
+
+  export type SupporterCreateOrConnectWithoutIntentsInput = {
+    where: SupporterWhereUniqueInput
+    create: XOR<SupporterCreateWithoutIntentsInput, SupporterUncheckedCreateWithoutIntentsInput>
+  }
+
+  export type SupporterUpsertWithoutIntentsInput = {
+    update: XOR<SupporterUpdateWithoutIntentsInput, SupporterUncheckedUpdateWithoutIntentsInput>
+    create: XOR<SupporterCreateWithoutIntentsInput, SupporterUncheckedCreateWithoutIntentsInput>
+    where?: SupporterWhereInput
+  }
+
+  export type SupporterUpdateToOneWithWhereWithoutIntentsInput = {
+    where?: SupporterWhereInput
+    data: XOR<SupporterUpdateWithoutIntentsInput, SupporterUncheckedUpdateWithoutIntentsInput>
+  }
+
+  export type SupporterUpdateWithoutIntentsInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    countryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mandates?: SepaMandateUpdateManyWithoutSupporterNestedInput
+    newsletter?: NewsletterSubscriptionUpdateOneWithoutSupporterNestedInput
+  }
+
+  export type SupporterUncheckedUpdateWithoutIntentsInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    countryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mandates?: SepaMandateUncheckedUpdateManyWithoutSupporterNestedInput
+    newsletter?: NewsletterSubscriptionUncheckedUpdateOneWithoutSupporterNestedInput
+  }
+
+  export type SupporterCreateWithoutMandatesInput = {
+    id?: string
+    email: string
+    firstName: string
+    lastName: string
+    phone?: string | null
+    postalCode?: string | null
+    city?: string | null
+    countryCode?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intents?: SupportIntentCreateNestedManyWithoutSupporterInput
+    newsletter?: NewsletterSubscriptionCreateNestedOneWithoutSupporterInput
+  }
+
+  export type SupporterUncheckedCreateWithoutMandatesInput = {
+    id?: string
+    email: string
+    firstName: string
+    lastName: string
+    phone?: string | null
+    postalCode?: string | null
+    city?: string | null
+    countryCode?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intents?: SupportIntentUncheckedCreateNestedManyWithoutSupporterInput
+    newsletter?: NewsletterSubscriptionUncheckedCreateNestedOneWithoutSupporterInput
+  }
+
+  export type SupporterCreateOrConnectWithoutMandatesInput = {
+    where: SupporterWhereUniqueInput
+    create: XOR<SupporterCreateWithoutMandatesInput, SupporterUncheckedCreateWithoutMandatesInput>
+  }
+
+  export type SupporterUpsertWithoutMandatesInput = {
+    update: XOR<SupporterUpdateWithoutMandatesInput, SupporterUncheckedUpdateWithoutMandatesInput>
+    create: XOR<SupporterCreateWithoutMandatesInput, SupporterUncheckedCreateWithoutMandatesInput>
+    where?: SupporterWhereInput
+  }
+
+  export type SupporterUpdateToOneWithWhereWithoutMandatesInput = {
+    where?: SupporterWhereInput
+    data: XOR<SupporterUpdateWithoutMandatesInput, SupporterUncheckedUpdateWithoutMandatesInput>
+  }
+
+  export type SupporterUpdateWithoutMandatesInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    countryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intents?: SupportIntentUpdateManyWithoutSupporterNestedInput
+    newsletter?: NewsletterSubscriptionUpdateOneWithoutSupporterNestedInput
+  }
+
+  export type SupporterUncheckedUpdateWithoutMandatesInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    countryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intents?: SupportIntentUncheckedUpdateManyWithoutSupporterNestedInput
+    newsletter?: NewsletterSubscriptionUncheckedUpdateOneWithoutSupporterNestedInput
+  }
+
+  export type SupporterCreateWithoutNewsletterInput = {
+    id?: string
+    email: string
+    firstName: string
+    lastName: string
+    phone?: string | null
+    postalCode?: string | null
+    city?: string | null
+    countryCode?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intents?: SupportIntentCreateNestedManyWithoutSupporterInput
+    mandates?: SepaMandateCreateNestedManyWithoutSupporterInput
+  }
+
+  export type SupporterUncheckedCreateWithoutNewsletterInput = {
+    id?: string
+    email: string
+    firstName: string
+    lastName: string
+    phone?: string | null
+    postalCode?: string | null
+    city?: string | null
+    countryCode?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intents?: SupportIntentUncheckedCreateNestedManyWithoutSupporterInput
+    mandates?: SepaMandateUncheckedCreateNestedManyWithoutSupporterInput
+  }
+
+  export type SupporterCreateOrConnectWithoutNewsletterInput = {
+    where: SupporterWhereUniqueInput
+    create: XOR<SupporterCreateWithoutNewsletterInput, SupporterUncheckedCreateWithoutNewsletterInput>
+  }
+
+  export type SupporterUpsertWithoutNewsletterInput = {
+    update: XOR<SupporterUpdateWithoutNewsletterInput, SupporterUncheckedUpdateWithoutNewsletterInput>
+    create: XOR<SupporterCreateWithoutNewsletterInput, SupporterUncheckedCreateWithoutNewsletterInput>
+    where?: SupporterWhereInput
+  }
+
+  export type SupporterUpdateToOneWithWhereWithoutNewsletterInput = {
+    where?: SupporterWhereInput
+    data: XOR<SupporterUpdateWithoutNewsletterInput, SupporterUncheckedUpdateWithoutNewsletterInput>
+  }
+
+  export type SupporterUpdateWithoutNewsletterInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    countryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intents?: SupportIntentUpdateManyWithoutSupporterNestedInput
+    mandates?: SepaMandateUpdateManyWithoutSupporterNestedInput
+  }
+
+  export type SupporterUncheckedUpdateWithoutNewsletterInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    countryCode?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intents?: SupportIntentUncheckedUpdateManyWithoutSupporterNestedInput
+    mandates?: SepaMandateUncheckedUpdateManyWithoutSupporterNestedInput
+  }
+
   export type ContentItemCreateManyTopicInput = {
     id?: string
     kind: $Enums.ContentKind
@@ -32978,6 +39116,108 @@ export namespace Prisma {
     editorNote?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupportIntentCreateManySupporterInput = {
+    id?: string
+    persona: string
+    cycle?: string | null
+    amountCents?: number | null
+    persons?: number | null
+    pledgeTopic?: string | null
+    skills?: string | null
+    source?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SepaMandateCreateManySupporterInput = {
+    id?: string
+    creditorId: string
+    mandateRef: string
+    ibanMasked: string
+    ibanHash: string
+    bic?: string | null
+    consentAt: Date | string
+    ipAddress?: string | null
+    signatureName: string
+    signatureType: string
+    validFrom: Date | string
+    revokedAt?: Date | string | null
+  }
+
+  export type SupportIntentUpdateWithoutSupporterInput = {
+    persona?: StringFieldUpdateOperationsInput | string
+    cycle?: NullableStringFieldUpdateOperationsInput | string | null
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    persons?: NullableIntFieldUpdateOperationsInput | number | null
+    pledgeTopic?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupportIntentUncheckedUpdateWithoutSupporterInput = {
+    persona?: StringFieldUpdateOperationsInput | string
+    cycle?: NullableStringFieldUpdateOperationsInput | string | null
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    persons?: NullableIntFieldUpdateOperationsInput | number | null
+    pledgeTopic?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupportIntentUncheckedUpdateManyWithoutSupporterInput = {
+    persona?: StringFieldUpdateOperationsInput | string
+    cycle?: NullableStringFieldUpdateOperationsInput | string | null
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    persons?: NullableIntFieldUpdateOperationsInput | number | null
+    pledgeTopic?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SepaMandateUpdateWithoutSupporterInput = {
+    creditorId?: StringFieldUpdateOperationsInput | string
+    mandateRef?: StringFieldUpdateOperationsInput | string
+    ibanMasked?: StringFieldUpdateOperationsInput | string
+    ibanHash?: StringFieldUpdateOperationsInput | string
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    consentAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureName?: StringFieldUpdateOperationsInput | string
+    signatureType?: StringFieldUpdateOperationsInput | string
+    validFrom?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SepaMandateUncheckedUpdateWithoutSupporterInput = {
+    creditorId?: StringFieldUpdateOperationsInput | string
+    mandateRef?: StringFieldUpdateOperationsInput | string
+    ibanMasked?: StringFieldUpdateOperationsInput | string
+    ibanHash?: StringFieldUpdateOperationsInput | string
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    consentAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureName?: StringFieldUpdateOperationsInput | string
+    signatureType?: StringFieldUpdateOperationsInput | string
+    validFrom?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SepaMandateUncheckedUpdateManyWithoutSupporterInput = {
+    creditorId?: StringFieldUpdateOperationsInput | string
+    mandateRef?: StringFieldUpdateOperationsInput | string
+    ibanMasked?: StringFieldUpdateOperationsInput | string
+    ibanHash?: StringFieldUpdateOperationsInput | string
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    consentAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureName?: StringFieldUpdateOperationsInput | string
+    signatureType?: StringFieldUpdateOperationsInput | string
+    validFrom?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
 

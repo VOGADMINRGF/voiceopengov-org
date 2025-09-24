@@ -1,1 +1,0 @@
-{ "name": "ui", "type": "module", "scripts": { "build": "tsc -p tsconfig.json" }, "dependencies": { "clsx": "^2.1.1" } }

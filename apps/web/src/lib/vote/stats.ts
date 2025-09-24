@@ -3,7 +3,7 @@ import { VoteModel } from "@/models/Vote";
 import { redisPublish } from "@/lib/redis"; // nur für Invalidation-Event, optional
 
 type Totals = { agree: number; neutral: number; disagree: number; total: number; pctAgree: number; pctNeutral: number; pctDisagree: number };
-type CountryRow = { country: string; agree: number; neutral: number; disagree: number; total: number; pctAgree: number; pctNeutral: number; pctDisagree: number };
+type CountryRow = { countryCode: string; agree: number; neutral: number; disagree: number; total: number; pctAgree: number; pctNeutral: number; pctDisagree: number };
 
 function pctOf(total: number, n: number) { return total ? Math.round((n / total) * 1000) / 10 : 0; }
 
