@@ -2,8 +2,10 @@
   "name": "vpm25",
   "private": true,
   "packageManager": "pnpm@10.17.1",
-  "engines": { "node": ">=20 <23" },
-  "workspaces": ["apps/landing", "apps/web"],
+  "workspaces": [
+    "apps/landing",
+    "apps/web"
+  ],
   "scripts": {
     "dev:landing": "pnpm --filter @vog/landing... dev",
     "build:landing": "pnpm --filter @vog/landing... build",
@@ -11,5 +13,10 @@
     "dev:web": "pnpm --filter @vog/web... dev",
     "build:web": "pnpm --filter @vog/web... build",
     "start:web": "pnpm --filter @vog/web... start"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.16.2",
+    "clsx": "^2.1.1",
+    "nodemailer": "^7.0.6"
   }
 }
