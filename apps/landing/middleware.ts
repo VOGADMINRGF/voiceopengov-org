@@ -1,27 +1,23 @@
-import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+const user = process.env.BASIC_AUTH_USERNAME || "";
+const pass = process.env.BASIC_AUTH_PASSWORD || "";
 
 export function middleware(req: NextRequest) {
-  const user = process.env.BASIC_AUTH_USERNAME;
-  const pass = process.env.BASIC_AUTH_PASSWORD;
-
-  // Wenn keine Credentials gesetzt sind -> kein Schutz
   if (!user || !pass) return NextResponse.next();
 
-  const header = req.headers.get("authorization");
-  if (header && header.startsWith("Basic ")) {
-    const encoded = header.split(" ")[1]!;
-    const [u, p] = atob(encoded).split(":");
-    if (u === user && p === pass) return NextResponse.next();
+  const auth = req.headers.get("authorization");
+  if (auth) {
+    const [scheme, base64] = auth.split(" ");
+    if (scheme === "Basic") {
+      const [u, p] = Buffer.from(base64, "base64").toString().split(":");
+      if (u === user && p === pass) return NextResponse.next();
+    }
   }
 
-  return new NextResponse("Authentication required", {
+  return new NextResponse("Authentication required.", {
     status: 401,
-    headers: { "WWW-Authenticate": 'Basic realm="Protected"' }
+    headers: { "WWW-Authenticate": 'Basic realm="Restricted"' },
   });
 }
-
-// Statische Assets vom Schutz ausnehmen
-export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)"],
-};
