@@ -35,12 +35,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.14.0
- * Query Engine version: 717184b7b35ea05dfa71a3236b7af656013e1e49
+ * Prisma Client JS version: 6.16.2
+ * Query Engine version: 1c57fdcd7e44b29b9313256c76699e91c3ac3c43
  */
 Prisma.prismaVersion = {
-  client: "6.14.0",
-  engine: "717184b7b35ea05dfa71a3236b7af656013e1e49"
+  client: "6.16.2",
+  engine: "1c57fdcd7e44b29b9313256c76699e91c3ac3c43"
 }
 
 Prisma.PrismaClientKnownRequestError = PrismaClientKnownRequestError;
@@ -249,11 +249,12 @@ const config = {
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null
+    "rootEnvPath": null,
+    "schemaEnvPath": "../../../../../prisma/.env"
   },
   "relativePath": "../../../../../prisma/web",
-  "clientVersion": "6.14.0",
-  "engineVersion": "717184b7b35ea05dfa71a3236b7af656013e1e49",
+  "clientVersion": "6.16.2",
+  "engineVersion": "1c57fdcd7e44b29b9313256c76699e91c3ac3c43",
   "datasourceNames": [
     "db"
   ],
@@ -277,8 +278,8 @@ const fs = require('fs')
 config.dirname = __dirname
 if (!fs.existsSync(path.join(__dirname, 'schema.prisma'))) {
   const alternativePaths = [
-    "src/db/web",
-    "db/web",
+    "apps/web/src/db/web",
+    "web/src/db/web",
   ]
   
   const alternativePath = alternativePaths.find((altPath) => {
@@ -308,7 +309,7 @@ Object.assign(exports, Prisma)
 
 // file annotations for bundling tools to include these files
 path.join(__dirname, "libquery_engine-darwin-arm64.dylib.node");
-path.join(process.cwd(), "src/db/web/libquery_engine-darwin-arm64.dylib.node")
+path.join(process.cwd(), "apps/web/src/db/web/libquery_engine-darwin-arm64.dylib.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
-path.join(process.cwd(), "src/db/web/schema.prisma")
+path.join(process.cwd(), "apps/web/src/db/web/schema.prisma")
