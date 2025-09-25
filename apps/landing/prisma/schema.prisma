@@ -1,99 +1,75 @@
-// Prisma Schema für VoiceOpenGov Landing (Dev: SQLite)
-// Prod: DATABASE_URL auf Postgres umstellen und provider anpassen
-
-
+// apps/landing/prisma/schema.prisma
 generator client {
-provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
-
 
 datasource db {
-provider = "sqlite"
-url = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-
-enum ChapterIntent {
-JOIN
-FOUND
-}
-
-
+/// Personen mit minimalen Stammdaten (DSGVO-konform – keine unnötigen Felder)
 model Supporter {
-id String @id @default(cuid())
-email String @unique
-firstName String @default("")
-lastName String @default("")
-createdAt DateTime @default(now())
+  id         String                  @id @default(uuid())
+  email      String                  @unique @db.Citext  // case-insensitive Email (Postgres citext)
+  firstName  String                  @default("")
+  lastName   String                  @default("")
+  createdAt  DateTime                @default(now())
 
+  // 1:1 – eine aktive Newsletter-Subscription pro Supporter
+  newsletter NewsletterSubscription?
+  leads      ChapterLead[]
 
-// Relations
-newsletter NewsletterSubscription?
-leads ChapterLead[]
+  @@index([createdAt])
 }
 
-
+/// Double-Opt-In Status
 model NewsletterSubscription {
-id String @id @default(cuid())
-supporterId String @unique
-supporter Supporter @relation(fields: [supporterId], references: [id])
+  supporterId  String  @unique
+  supporter    Supporter @relation(fields: [supporterId], references: [id], onDelete: Cascade)
 
+  // Einmal-Token für Bestätigung; nach erfolgreicher Bestätigung wird es auf NULL gesetzt
+  token         String?  @unique
 
-token String @unique
-subscribed Boolean @default(true)
-confirmedAt DateTime?
-unsubscribedAt DateTime?
+  subscribed    Boolean  @default(true)  // Anforderung (angefragt)
+  confirmedAt   DateTime?
+  unsubscribedAt DateTime?
 
-
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
-
+/// Leads für Chapter/City-Teams usw.
 model ChapterLead {
-id String @id @default(cuid())
-createdAt DateTime @default(now())
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
 
+  email       String   @db.Citext
+  countryCode String
+  postal      String?
+  city        String?
+  locale      String?
+  intent      String   @default("FOUND")
+  message     String?
+  processedAt DateTime?
 
-// Kontakt & Region
-email String
-countryCode String
-postal String?
-city String?
-locale String? // z.B. "de"
+  supporterId String?
+  supporter   Supporter? @relation(fields: [supporterId], references: [id], onDelete: SetNull)
 
-
-// Absicht & Nachricht
-intent ChapterIntent @default(FOUND)
-message String?
-
-
-// Status
-processedAt DateTime?
-
-
-// Relation
-supporter Supporter? @relation(fields: [supporterId], references: [id])
-supporterId String?
-
-
-@@index([email])
-@@index([countryCode, city])
+  @@index([email])
+  @@index([countryCode, city])
 }
 
-
+/// Auditing (frei für alle Landing-APIs)
 model AuditLog {
-id String @id @default(cuid())
-createdAt DateTime @default(now())
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  actor     String?
+  action    String
+  payload   Json?
+  ip        String?
+  userAgent String?
 
-
-actor String? // E-Mail oder System
-action String // z.B. "newsletter.subscribe", "contact.submit"
-payload Json?
-ip String?
-userAgent String?
-
-
-@@index([createdAt])
-@@index([action])
+  @@index([createdAt])
+  @@index([action])
 }

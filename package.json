@@ -1,5 +1,5 @@
 {
-  "name": "VoiceOpenGov",
+  "name": "vpm25",
   "private": true,
   "version": "1.0.0",
   "packageManager": "pnpm@9.6.0",
@@ -11,24 +11,30 @@
     "features"
   ],
   "scripts": {
-    "db:indexes": "tsx scripts/ensureIndexes.ts",
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --parallel",
     "build": "turbo run build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint . --max-warnings=0",
     "test:ci": "jest --coverage --coverageThreshold='{\"global\":{\"branches\":85,\"functions\":85,\"lines\":85,\"statements\":85}}'",
+
+    "db:indexes": "tsx scripts/ensureIndexes.ts",
+
     "prisma:gen:web": "dotenvx run -f apps/web/.env.local -- prisma generate --schema=prisma/web/schema.prisma",
     "prisma:migrate:web": "dotenvx run -f apps/web/.env.local -- prisma migrate dev --schema=prisma/web/schema.prisma --name init",
     "prisma:deploy:web": "dotenvx run -f apps/web/.env.local -- prisma migrate deploy --schema=prisma/web/schema.prisma",
+
     "prisma:gen:core": "dotenvx run -f apps/web/.env.local -- prisma generate --schema=prisma/core/schema.prisma",
     "prisma:push:core": "dotenvx run -f apps/web/.env.local -- prisma db push --schema=prisma/core/schema.prisma",
+
+    "prisma:gen:all": "pnpm -C apps/web run prisma:generate",
     "postinstall": "pnpm prisma:gen:all",
+
     "worker:dev": "npm --workspace @vog/worker run dev",
     "worker:build": "npm --workspace @vog/worker run build",
     "worker:start": "npm --workspace @vog/worker run start",
+
     "idx:core": "pnpm tsx apps/web/scripts/core.ensureIndexes.ts",
-    "idx:votes": "pnpm tsx apps/web/scripts/votes.ensureIndexes.ts",
-    "prisma:gen:all": "pnpm -C apps/web run prisma:gen:web"
+    "idx:votes": "pnpm tsx apps/web/scripts/votes.ensureIndexes.ts"
   },
   "devDependencies": {
     "@types/react": "^19.1.12",

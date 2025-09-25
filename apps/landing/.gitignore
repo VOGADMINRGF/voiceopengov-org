@@ -1,24 +1,89 @@
-# dependencies
-node_modules
-.pnp
-.pnp.js
+# ─── Package-Manager / Node ────────────────────────────────────────────────────
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+# wir benutzen pnpm – andere Lockfiles ausschließen
+package-lock.json
+yarn.lock
+# pnpm-Lockfile MUSS versioniert werden
+!pnpm-lock.yaml
 
-# testing
-coverage
+# ─── Turbo / Caching ───────────────────────────────────────────────────────────
+.turbo/
 
-# next.js
+# ─── Next.js / Build-Outputs ──────────────────────────────────────────────────
 .next/
+.next/cache/
 out/
+dist/
+build/
 
-# production
-build
+# ─── Tests / Reports ──────────────────────────────────────────────────────────
+coverage/
+.junit/
+test-output/
+playwright-report/
+cypress/videos/
+cypress/screenshots/
 
-# misc
+# ─── Betriebssystem / IDE ─────────────────────────────────────────────────────
 .DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+.history/
 
-# env
-.env*
+# ─── Env (Beispiele behalten) ─────────────────────────────────────────────────
+.env
+.env.*
 !.env.example
+!.env.*.example
 
-# local data
-data/*.json
+# ─── Vercel / Netlify ─────────────────────────────────────────────────────────
+.vercel/
+apps/web/.vercel/
+apps/landing/.vercel/
+.netlify/
+
+# ─── Docker (optional) ────────────────────────────────────────────────────────
+docker-data/
+*.local.yml
+
+# ─── Prisma / SQLite (Schema & Migrations committen, lokale DBs NICHT) ────────
+**/prisma/*.db
+**/prisma/*.db-journal
+**/prisma/*.sqlite
+**/prisma/*.sqlite-journal
+
+# ─── Archive & Binärartefakte (halten das Repo schlank) ───────────────────────
+*.zip
+*.tar
+*.tgz
+*.gz
+*.7z
+*.rar
+*.dmg
+*.iso
+*.exe
+*.dll
+*.so
+*.node
+
+# ─── Lokale Caches / Linter ───────────────────────────────────────────────────
+.cache/
+.eslintcache
+.stylelintcache
+
+# ─── Temp ─────────────────────────────────────────────────────────────────────
+tmp/
+temp/
+*.tmp
+
+# ─── Projekt-spezifisch ───────────────────────────────────────────────────────
+# nur Root-/data, nicht apps/*/data
+/data/*.json
