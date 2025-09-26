@@ -3,12 +3,12 @@
 "use client";
 import { useState } from "react";
 import TabNav from "@/components/TabNav";
-import StreamList from "@/features/stream/components/StreamList";
-import StatementList from "@/features/statement/components/StatementList";
-import EventList from "@/features/tv/components/EventList";
-import ReportingWidget from "@/features/politics/components/ReportingWidget"; // Optional: Für spätere Reporting/Analytics-Erweiterung
-import { useRolePermission } from "@/features/user/hooks/useRolePermission";
-import { useAuth } from "@/features/auth/hooks/useAuth";
+import StreamList from "@features/stream/components/StreamList";
+import StatementList from "@features/statement/components/StatementList";
+import EventList from "@features/tv/components/EventList";
+import ReportingWidget from "@features/politics/components/ReportingWidget"; // Optional: Für spätere Reporting/Analytics-Erweiterung
+import { useRolePermission } from "@features/user/hooks/useRolePermission";
+import { useAuth } from "@features/auth/hooks/useAuth";
 
 export default function TVDashboard() {
   const hasTV = useRolePermission(["admin", "tv", "media"]);

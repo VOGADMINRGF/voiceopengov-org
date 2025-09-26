@@ -1,7 +1,7 @@
 // 
 // apps/web/src/app/api/you/query/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { youQuery } from '@/features/ai/youClient';
+import { youQuery } from '@features/ai/youClient';
 
 export const dynamic = 'force-dynamic';
 

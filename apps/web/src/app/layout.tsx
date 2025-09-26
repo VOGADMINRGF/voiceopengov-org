@@ -1,11 +1,15 @@
 // apps/web/src/app/layout.tsx
 import "./globals.css";
 import type { ReactNode } from "react";
+import type { Metadata } from "next";
 import Header from "@ui/layout/Header";
 import Footer from "@ui/layout/Footer";
 import ClientProviders from "./providers";
+// Wenn du CSP-Nonce brauchst, kannst du headers() einkommentieren:
+// import { headers } from "next/headers";
+// import Script from "next/script";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "VoiceOpenGov",
   description:
     "VoiceOpenGov ist die Plattform für echte digitale Beteiligung. Hier können Bürger:innen abstimmen, Statements einbringen und gemeinsam Reports gestalten – unabhängig, transparent, weltweit.",
@@ -25,41 +29,23 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  // Falls du eine CSP-Nonce verwenden willst:
+  // const nonce = headers().get("x-csp-nonce") ?? undefined;
+
   return (
     <html lang="de">
       <body className="bg-white text-gray-900">
-        <ClientProviders>
+        <ClientProviders /* nonce={nonce} */>
           <Header />
           <main className="min-h-screen">{children}</main>
           <Footer />
         </ClientProviders>
+
+        {/*
+          Beispiel (auskommentiert), falls du wirklich Inline-Scripts brauchst:
+          <Script id="boot" nonce={nonce} dangerouslySetInnerHTML={{ __html: "/* minimal boot code *\/" }} />
+        */}
       </body>
     </html>
   );
 }
-
-// 
-Using the CSP nonce in your app
-
-To allow any inline <script> (e.g., a small bootstrap or Next’s runtime) you must add the nonce:
-
-// apps/web/src/app/layout.tsx
-import { headers } from "next/headers";
-import Script from "next/script";
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const nonce = headers().get("x-csp-nonce") ?? undefined;
-
-  return (
-    <html lang="en">
-      <head>
-        {/* Example nonced inline bootstrap (avoid if possible) */}
-        <Script id="boot" nonce={nonce} dangerouslySetInnerHTML={{ __html: "/* minimal boot code */" }} />
-      </head>
-      <body>{children}</body>
-    </html>
-  );
-}
-
-
-Prefer external scripts and avoid inline where you can; but when needed, ensure nonce={nonce} is present.

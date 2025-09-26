@@ -1,7 +1,7 @@
 // apps/web/src/app/context/page.tsx
 "use client";
 
-import ContextExplorer from "@/features/context/ContextExplorer";
+import ContextExplorer from "@features/context/ContextExplorer";
 
 export default function ContextPage() {
   return (

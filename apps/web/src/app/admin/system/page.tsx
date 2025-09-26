@@ -1,6 +1,6 @@
 // apps/web/src/app/admin/system/page.tsx
-import SystemMatrix from "@/features/dashboard/components/SystemMatrix";
-import StreamsPanel from "@/features/dashboard/components/StreamsPanel";
+import SystemMatrix from "@features/dashboard/components/SystemMatrix";
+import StreamsPanel from "@features/dashboard/components/StreamsPanel";
 
 export default function AdminSystemPage() {
   return (

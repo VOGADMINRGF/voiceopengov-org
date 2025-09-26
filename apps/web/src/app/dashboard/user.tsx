@@ -1,8 +1,8 @@
 // features/dashboard/pages/user.tsx
 import { useContext } from "react";
-import { UserContext } from "@/features/user/context/UserContext";
-import DashboardLayout from "../../../../../features/dashboard/components/DashboardLayout";
-import UserDashboard from "@/features/user/components/UserDashboard";
+import { UserContext } from "@features/user/context/UserContext";
+import DashboardLayout from "@features/dashboard/components/DashboardLayout";
+import UserDashboard from "@features/user/components/UserDashboard";
 
 export default function UserPage() {
   const user = useContext(UserContext); // oder dein useUser() Hook
