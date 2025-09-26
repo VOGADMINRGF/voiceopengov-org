@@ -2,10 +2,10 @@
 
 "use client";
 import TabNav from "@/components/TabNav";
-import UserAdminList from "@/features/user/components/UserAdminList";
-import EngagementStats from "@/features/ngo/components/EngagementStats";
-import StatementList from "@/features/statement/components/StatementList";
-import { useRolePermission } from "@/features/user/hooks/useRolePermission";
+import UserAdminList from "@features/user/components/UserAdminList";
+import EngagementStats from "@features/ngo/components/EngagementStats";
+import StatementList from "@features/statement/components/StatementList";
+import { useRolePermission } from "@features/user/hooks/useRolePermission";
 
 export default function CommunityDashboard() {
   const hasCommunity = useRolePermission(["admin", "community", "moderator"]);

@@ -2,8 +2,8 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import UserProfile from "@/models/UserProfile";
-import { verifyTotp } from "@/features/utils/totp"; // deine TOTP-Verify-Funktion
+import UserProfile from "@/models/pii/UserProfile";
+import { verifyTotp } from "@features/utils/totp"; // deine TOTP-Verify-Funktion
 import dbConnect from "@/src/lib/db";
 
 export default NextAuth({
