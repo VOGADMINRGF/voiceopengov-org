@@ -3,13 +3,41 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@features/*": ["../../features/*"],
-      "@context/*": ["../../core/context/*"],
-      "@ui": ["../../packages/ui/src/index.ts"],
-      "@ui/*": ["../../packages/ui/src/*"]
-    }
+      "@/*": [
+        "src/*"
+      ],
+      "@features/*": [
+        "../../features/*"
+      ],
+      "@context/*": [
+        "../../core/context/*"
+      ],
+      "@ui": [
+        "../../packages/ui/src/index.ts"
+      ],
+      "@ui/*": [
+        "../../packages/ui/src/*"
+      ]
+    },
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["next-env.d.ts", "src/**/*", "../../features/**/*", "../../core/**/*", "../../packages/ui/src/**/*"],
-  "exclude": ["node_modules", ".next", "dist", "coverage"]
+  "include": [
+    "../../core/**/*",
+    "../../features/**/*",
+    "../../packages/ui/src/**/*",
+    "next-env.d.ts",
+    "src/**/*",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next",
+    "dist",
+    "coverage"
+  ]
 }

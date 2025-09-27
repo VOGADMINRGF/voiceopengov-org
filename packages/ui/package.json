@@ -1,1 +1,9 @@
-{ "name": "ui", "type": "module", "scripts": { "build": "tsc -p tsconfig.json" }, "dependencies": { "clsx": "^2.1.1" } }
+{
+    "name": "@vog/ui",
+    "private": true,
+    "version": "1.0.0",
+    "type": "module",
+    "main": "src/index.ts",
+    "exports": { ".": "./src/index.ts" }
+  }
+  
