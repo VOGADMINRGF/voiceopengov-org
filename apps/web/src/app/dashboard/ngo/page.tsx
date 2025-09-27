@@ -2,7 +2,7 @@
 
 "use client";
 import { useState } from "react";
-import TabNav from "@components/TabNav";
+import TabNav from "@/components/TabNav";
 import ContributionList from "@features/contribution/components/ContributionList";
 import ContributionForm from "@features/contribution/components/ContributionForm"; // falls benötigt!
 import StatementList from "@features/statement/components/StatementList";
