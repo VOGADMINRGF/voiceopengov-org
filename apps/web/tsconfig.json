@@ -1,123 +1,15 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    // Ziel & Plattform
-    "target": "ES2022",
-    "lib": [
-      "ES2022",
-      "DOM"
-    ],
-    // Modulauflösung: nötig für Next + bundler-Auflösung
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    // React/Next
-    "jsx": "preserve",
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    // Strenge & Build
-    "strict": true,
-    "noEmit": true,
-    "incremental": true,
-    "skipLibCheck": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    // Pfadbasis
     "baseUrl": ".",
-    "resolveJsonModule": true,
-    // Aliases: unterstützen sowohl "@" als auch "@/..."
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "@src/*": [
-        "src/*"
-      ],
-      "@features/*": [
-        "../../features/*"
-      ],
-      "features/*": [
-        "../../features/*"
-      ],
-      "@core/*": [
-        "../../core/*"
-      ],
-      "@context/*": [
-        "../../core/context/*"
-      ],
-      "@ui": [
-        "../../packages/ui/src/index.ts"
-      ],
-      "@ui/*": [
-        "../../packages/ui/src/*"
-      ],
-      "@models/*": [
-        "src/models/*"
-      ],
-      "@lib/*": [
-        "src/lib/*"
-      ],
-      "@components/*": [
-        "src/components/*"
-      ],
-      "@constants/*": [
-        "src/constants/*"
-      ],
-      "@hooks/*": [
-        "src/hooks/*"
-      ],
-      "@types/*": [
-        "src/types/*"
-      ],
-      "@/lib/*": [
-        "src/lib/*"
-      ],
-      "@/models/*": [
-        "src/models/*"
-      ],
-      "@/components/*": [
-        "src/components/*"
-      ],
-      "@/constants/*": [
-        "src/constants/*"
-      ],
-      "@/hooks/*": [
-        "src/hooks/*"
-      ],
-      "@/types/*": [
-        "src/types/*"
-      ],
-      // Prisma/DB d.ts Stubs
-      "@/db/web": [
-        "src/db/web/index.d.ts"
-      ],
-      "@/db/core": [
-        "src/db/core/index.d.ts"
-      ]
-    },
-    // Globale Typs
-    "types": [
-      "node",
-      "react",
-      "react-dom"
-    ]
+      "@/*": ["src/*"],
+      "@features/*": ["../../features/*"],
+      "@context/*": ["../../core/context/*"],
+      "@ui": ["../../packages/ui/src/index.ts"],
+      "@ui/*": ["../../packages/ui/src/*"]
+    }
   },
-  "include": [
-    "next-env.d.ts",
-    "src/**/*",
-    "scripts/**/*",
-    ".next/types/**/*.ts",
-    "../../features/**/*",
-    "../../core/**/*",
-    "../../packages/ui/src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    ".next",
-    "dist",
-    "coverage"
-  ]
+  "include": ["next-env.d.ts", "src/**/*", "../../features/**/*", "../../core/**/*", "../../packages/ui/src/**/*"],
+  "exclude": ["node_modules", ".next", "dist", "coverage"]
 }
