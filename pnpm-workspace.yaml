@@ -1,5 +1,9 @@
 packages:
-  - apps/*
+  - "apps/*"
+  - "packages/*"
+  - "features"
+  - "core"
+  - "worker"
 
 ignoredBuiltDependencies:
   - core-js

@@ -25,13 +25,14 @@ const nextConfig: NextConfig = {
   output: "standalone",
 
   images: {
-    domains: ["localhost", "voiceopengov.org"],
+    domains: ["localhost", "app.voiceopengov.org"],
     formats: ["image/webp", "image/avif"],
   },
 
   // Next 15: außerhalb von `experimental`
   experimental: {
     typedRoutes: true,
+    externalDir: true,
   },
   outputFileTracingIncludes: promptsDir
     ? { "/api/ai/run": [`${promptsDir}/**/*`] }
@@ -39,7 +40,7 @@ const nextConfig: NextConfig = {
 
   // Wenn ihr externe Pakete im Monorepo transpilen wollt, hier eintragen.
   // (Nur aktiv, wenn die Ordner existieren)
-  transpilePackages: [
+  transpilePackages: ["@vog/ui", "@vog/features", "@vog/core",
     ...(exists("../../packages/ui") ? ["ui"] : []),
   ],
 
