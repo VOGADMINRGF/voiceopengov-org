@@ -1,5 +1,8 @@
-export { default as Button } from "./design/Button";
 export { default as Header } from "./layout/Header";
 export { default as Footer } from "./layout/Footer";
-export { badgeColor } from "./design/badgeColor";
-export * as theme from "./theme";
+export { default as Button } from "./design/Button";
+
+// KORREKT: named + default Re-Exports
+export { default as getBadgeColor, getBadgeColor as badgeColor } from "./design/badgeColor";
+export { badgeColors } from "./design/badgeColor";
+export type { BadgeTone, BadgeColor } from "./design/badgeColor";

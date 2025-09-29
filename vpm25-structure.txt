@@ -477,6 +477,7 @@
 │   │   │   │   ├── useErrorToast.ts
 │   │   │   │   ├── useFactcheckJob.ts
 │   │   │   │   ├── useRegionPreference.ts
+│   │   │   │   ├── useRouteGuardClient.ts
 │   │   │   │   └── useTranslate.ts
 │   │   │   ├── lib
 │   │   │   │   ├── .DS_Store
@@ -1089,6 +1090,29 @@
 │   ├── seed.cjs
 │   └── web
 │       └── schema.prisma
+├── scripts
+│   ├── absurlify.mjs
+│   ├── build-feature-barrels.mjs
+│   ├── e150_bootstrap_content.sh
+│   ├── e150_seed.sh
+│   ├── ensureIndexes.ts
+│   ├── hotfix_run.sh
+│   ├── kafka-consumer.js
+│   ├── kafka-producer.js
+│   ├── make-review-snapshot.mjs
+│   ├── make_review_snapshot.mjs
+│   ├── oldscripts
+│   │   ├── 2
+│   │   ├── e1500_relocate_to_web.sh
+│   │   ├── e150_apply_batch.sh
+│   │   ├── e150_apply_batch_v2.sh
+│   │   ├── e150_fix_admin_reports_contrib.sh
+│   │   ├── e150_fix_relative_fetch.sh
+│   │   └── e150_quickcheck.sh
+│   ├── optional-prisma.js
+│   ├── seed.demo.data.ts
+│   ├── tsc_hotfix_e150.mjs
+│   └── verifyEnv.ts
 ├── secrets
 │   └── mongo_keyfile
 ├── tsconfig.base.json
@@ -1098,4 +1122,4 @@
     └── factcheck
         └── worker.ts
 
-355 directories, 744 files
+357 directories, 766 files

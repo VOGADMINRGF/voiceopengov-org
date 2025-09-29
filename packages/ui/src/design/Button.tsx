@@ -110,4 +110,4 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(ButtonBas
 Button.displayName = "Button";
 
 export default Button;
-export type { ButtonProps };
+

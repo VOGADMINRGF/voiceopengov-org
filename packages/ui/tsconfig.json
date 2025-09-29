@@ -4,10 +4,13 @@
     "composite": true,
     "baseUrl": ".",
     "rootDir": "src",
-    "moduleResolution": "bundler",
     "jsx": "react-jsx",
+    "types": ["node"],
     "skipLibCheck": true,
-    "noEmit": true
+    "noEmit": true,
+
+    // WICHTIG: Base-Aliasse im Paket selbst neutralisieren (Zyklus verhindern)
+    "paths": {}
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "dist-types", "**/*.test.*", "**/__tests__/**"]
