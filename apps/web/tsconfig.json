@@ -3,28 +3,56 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@features/*": ["../../features/*"],
-      "@core/*": ["../../core/*"],
-      "@ui": ["../../packages/ui/dist/index.js"],   // ⚡ fast: auf dist zeigen
-      "@ui/*": ["../../packages/ui/dist/*"]
+      "@/*": [
+        "src/*"
+      ],
+      "@features/*": [
+        "../../features/*"
+      ],
+      "@core/*": [
+        "../../core/*"
+      ],
+      "@ui": [
+        "../../packages/ui/dist/index.js"
+      ], // ⚡ fast: auf dist zeigen
+      "@ui/*": [
+        "../../packages/ui/dist/*"
+      ]
     },
     "moduleResolution": "bundler",
     "incremental": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "jsx": "react-jsx",
-    "types": ["node"]
+    "jsx": "preserve",
+    "types": [
+      "node"
+    ],
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "references": [
-    { "path": "../../features" },
-    { "path": "../../core" },
-    { "path": "../../packages/ui" }
+    {
+      "path": "../../features"
+    },
+    {
+      "path": "../../core"
+    },
+    {
+      "path": "../../packages/ui"
+    }
   ],
   "include": [
     "next-env.d.ts",
     "src/**/*",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules", ".next", "dist", "coverage"]
+  "exclude": [
+    "node_modules",
+    ".next",
+    "dist",
+    "coverage"
+  ]
 }

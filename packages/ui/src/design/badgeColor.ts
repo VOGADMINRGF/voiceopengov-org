@@ -1,9 +1,12 @@
-// packages/ui/src/design/badgeColors.ts
-export const badgeColors = [
-    "bg-turquoise-100 text-turquoise-800",
-    "bg-coral-100 text-coral-700",
-    "bg-indigo-100 text-indigo-700",
-    "bg-yellow-100 text-yellow-700",
-    "bg-green-100 text-green-700",
-  ];
-  
+export const badgeColors = {
+  positive: "#0cb13b",
+  warning: "#e5b300",
+  negative: "#ea3c3c",
+  info: "#2396F3",
+  brand: "#00B3A6"
+};
+export type BadgeColorKey = keyof typeof badgeColors;
+export function getBadgeColor(key: BadgeColorKey) {
+  return badgeColors[key] ?? badgeColors.info;
+}
+export default badgeColors;

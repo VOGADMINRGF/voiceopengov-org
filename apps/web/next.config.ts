@@ -50,17 +50,15 @@ const nextConfig: NextConfig = {
       ...(config.resolve.alias ?? {}),
 
       // Monorepo-Aliasse (werden nur gesetzt, wenn die Ordner existieren)
-      "@core": firstExisting("../../core", "./src"),
-      "@features": firstExisting("../../features", "./src"),
-
-      // UI: bevorzugt Monorepo, sonst lokale Stubs in apps/web/src/ui
-      "@ui": firstExisting("../../packages/ui/src", "./src/ui"),
-      // gängige App-internen Kurzpfade
-      "@": R("./src"),
-      "@components": R("./src/components"),
-      "@hooks": R("./src/hooks"),
-      "@utils": R("./src/utils"),
-      "@lib": R("./src/lib"),
+     "@core": firstExisting("../../core","./src"),
+  "@features": firstExisting("../../features","./src"),
+  "@ui": firstExisting("../../packages/ui/dist","../../packages/ui/src","./src/ui"),
+  "@context": firstExisting("../../core/context","./src/context"), // 👈 NEU
+  "@": R("./src"),
+  "@components": R("./src/components"),
+  "@hooks": R("./src/hooks"),
+  "@utils": R("./src/utils"),
+  "@lib": R("./src/lib"),
     };
     return config;
   },

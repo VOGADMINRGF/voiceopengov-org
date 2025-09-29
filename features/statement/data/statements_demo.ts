@@ -1,6 +1,28 @@
 // features/statement/data/statements_demo.ts
 
-export const demoStatements = [
+
+export type VoteTriple = { agree: number; neutral: number; disagree: number };
+export type DemoStatement = {
+  id: string;
+  title: string;
+  category?: string;
+  countries?: string[];
+  regionScope?: string[];
+  countryVotes?: Record<string, VoteTriple>;
+  votes?: VoteTriple;
+  userVote?: "agree" | "neutral" | "disagree";
+  date?: string;
+  facts?: string[];
+  alternatives?: { text: string; impact?: string }[];
+  // V1-kompatibel
+  shortText?: string;
+  tags?: string[];
+  impactBar?: Array<{ label: string; value: number; color: string }>;
+  countryList?: Array<{ code: string; label: string; values: [number, number, number] }>;
+  myImpact?: string;
+};
+
+const demoStatements:DemoStatement[]  = [
     {
       id: "statement-001",
       title: "Soll Deutschland die Integration von Geflüchteten durch verpflichtende Sprachkurse fördern?",
