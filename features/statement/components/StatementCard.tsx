@@ -1,5 +1,6 @@
 // Finale Version 04.August 2025 
 "use client";
+"use client";
 import React, { useState, useMemo } from "react";
 import clsx from "clsx";
 import VoteBar from "@features/vote/components/VoteBar";
@@ -142,7 +143,10 @@ export default function StatementCard({ statement, userHash, onClick, language =
             key={tag}
             className={clsx(
               "px-3 py-1 rounded-full text-xs font-bold border",
-              badgeColors[i % badgeColors.length]
+              { 0: "border-coral text-coral",
+                1: "border-indigo-500 text-indigo-600",
+                2: "border-emerald-500 text-emerald-600",
+                3: "border-amber-500 text-amber-600" }[i % 4] || "border-neutral-300 text-neutral-600"
             )}
             aria-label={`Tag: ${tag}`}
           >
@@ -174,7 +178,7 @@ export default function StatementCard({ statement, userHash, onClick, language =
                         className="underline text-blue-700"
                       >
                         {fact.source.name}
-                      </a> ({fact.source.trustScore} %)
+                      </a> ({fact.source.trustScore} %)
                       </>
                     )}
                   </>
@@ -222,7 +226,7 @@ export default function StatementCard({ statement, userHash, onClick, language =
         <UserVoteBar statementId={statement.id} userHash={userHash} />
         <VoteButton statementId={statement.id} userHash={userHash} />
       </section>
-
+      
       {/* Alternativen */}
       {hasAlternatives && (
         <div className="mt-2">

@@ -1,4 +1,4 @@
-import { absUrl } from "@/utils/serverBaseUrl";
+
 // apps/web/src/lib/hooks/useFactcheckJob.ts
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -95,14 +95,11 @@ export function useFactcheckJob(initialJobId?: string, opts: Options = {}) {
     const ac = new AbortController();
     abortRef.current = ac;
     try {
-      const res = await fetch(
-        absUrl(`/api/factcheck/status/${encodeURIComponent(jobId)}`),
-        {
-          method: "GET",
-          cache: "no-store",
-          signal: ac.signal,
-        }
-      );
+      const res = await fetch(`/api/factcheck/status/${encodeURIComponent(jobId)}`, {
+       method: "GET",
+       cache: "no-store",
+       signal: ac.signal,
+       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
         throw new Error(j?.message || `HTTP ${res.status}`);
@@ -152,15 +149,13 @@ export function useFactcheckJob(initialJobId?: string, opts: Options = {}) {
       abortRef.current = ac;
       try {
         setState((s) => ({ ...s, loading: true, error: undefined }));
-        const res = await fetch(
-          absUrl("/api/factcheck/enqueue"),
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body),
-            signal: ac.signal,
-          }
-        );
+        const res = await fetch("/api/factcheck/enqueue", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+          signal: ac.signal,
+          });
+        
         const json = await res.json();
         if (!res.ok || !json?.jobId) {
           throw new Error(json?.message || "enqueue failed");

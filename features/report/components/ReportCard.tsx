@@ -1,10 +1,10 @@
-// Finale Version 04. August 2025 
+// Finale Version 28. September 2025 
 "use client";
 import React, { useState, useMemo } from "react";
 import CountryAccordion from "@features/vote/components/CountryAccordion";
 import VoteBar from "@features/vote/components/VoteBar";
 import MiniLineChart from "@features/report/components/MiniLineChart";
-import { getNationalFlag } from "@features/stream/utils/nationalFlag";
+import { getNationalFlag, getLanguageName } from "@features/stream/utils/nationalFlag";
 import VotingRuleBadge from "@features/vote/components/VotingRuleBadge";
 import { FiInfo, FiShare2, FiEdit3, FiFlag, FiBookmark, FiDownload, FiChevronDown, FiUser } from "react-icons/fi";
 import clsx from "clsx";
@@ -111,7 +111,6 @@ function RedaktionAccordion({ editors, lang = "de" }) {
 
 // -------- CommentsPanel (Diskussion/Forum) --------
 function CommentsPanel({ reportId }) {
-  // Optional: Placeholder für echten Kommentarbereich
   return (
     <div className="bg-neutral-100 rounded-lg px-4 py-3 text-xs text-neutral-600">
       Kommentarbereich (in Entwicklung) für Report: {reportId}
@@ -159,8 +158,8 @@ function formatRelativeTime(time) {
   const date = new Date(time);
   const diff = (Date.now() - date.getTime()) / 1000;
   if (diff < 60) return "jetzt";
-  if (diff < 3600) return `${Math.floor(diff / 60)} Min.`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} Std.`;
+  if (diff < 3600) return `${Math.floor(diff / 60)} Min.`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} Std.`;
   return date.toLocaleDateString("de-DE");
 }
 
@@ -211,7 +210,9 @@ export default function ReportCard({ report, userHash, onEdit, onShare, onVote, 
             aria-label="Sprache wählen"
           >
             {languages.map(l => (
-              <option key={l} value={l}>{l.toUpperCase()}</option>
+              <option key={l} value={l}>
+                {getLanguageName(l, language)}
+              </option>
             ))}
           </select>
         </div>
@@ -315,7 +316,7 @@ export default function ReportCard({ report, userHash, onEdit, onShare, onVote, 
         )}
         {hasAI && (
           <div className="text-xs text-gray-500 mt-1 px-7" aria-label="KI-Analyse">
-            {ai.toxicity != null && <>Toxizität: {(ai.toxicity * 100).toFixed(2)} % </>}
+            {ai.toxicity != null && <>Toxizität: {(ai.toxicity * 100).toFixed(2)} % </>}
             {ai.sentiment != null && <>Stimmung: {ai.sentiment} </>}
             {Array.isArray(ai.subjectAreas) && ai.subjectAreas.length > 0 && (
               <>Themen: {ai.subjectAreas.join(", ")}</>
@@ -393,7 +394,6 @@ export default function ReportCard({ report, userHash, onEdit, onShare, onVote, 
         {regionalVoices.length > 0 && (
           <div className="px-7 pb-4">
             <div className="font-bold text-sm mb-1">Regionale Stimmen:</div>
-            {/* <VoicesList voices={regionalVoices} /> */}
             <div className="text-xs">VoicesList-Komponente einbinden</div>
           </div>
         )}
@@ -437,6 +437,7 @@ export default function ReportCard({ report, userHash, onEdit, onShare, onVote, 
             <FiFlag />
           </button>
         </div>
+
         {/* NEWS/TRENDS (unterhalb, abschließend) */}
         <div className="px-7 pb-4">
           <NewsTrendWidget news={report.news} />

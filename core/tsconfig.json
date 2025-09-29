@@ -1,9 +1,14 @@
 {
-    "extends": "../tsconfig.base.json",
-    "compilerOptions": {
-      "baseUrl": "."
-    },
-    "include": ["**/*.ts", "**/*.tsx"],
-    "exclude": ["node_modules", "dist", "build"]
-  }
-  
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": ".",
+    "rootDir": ".",
+    "outDir": "dist-types",
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist", "dist-types", "**/*.test.*", "**/__tests__/**"]
+}

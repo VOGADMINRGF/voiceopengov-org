@@ -1,57 +1,65 @@
-// features/stream/utils/nationalFlag.ts
+// Robust für Sprache (ISO-639-1), Region/Land (ISO-3166-1), BCP-47 Locales (z. B. "de-DE").
+// Backward-compat: getNationalFlag bleibt erhalten (Named Export!).
 
-const FLAG_MAP: Record<string, string> = {
-  de: "🇩🇪", en: "🇬🇧", es: "🇪🇸", fr: "🇫🇷", pt: "🇵🇹", it: "🇮🇹", pl: "🇵🇱", ru: "🇷🇺", uk: "🇺🇦",
-  tr: "🇹🇷", nl: "🇳🇱", hi: "🇮🇳", zh: "🇨🇳", ja: "🇯🇵", ar: "🇸🇦", ro: "🇷🇴", cs: "🇨🇿", el: "🇬🇷",
-  sv: "🇸🇪", da: "🇩🇰", fi: "🇫🇮", hu: "🇭🇺", no: "🇳🇴", sk: "🇸🇰", bg: "🇧🇬", lt: "🇱🇹", et: "🇪🇪",
-  sl: "🇸🇮", lv: "🇱🇻", hr: "🇭🇷", sq: "🇦🇱", sr: "🇷🇸", ka: "🇬🇪", fa: "🇮🇷", ko: "🇰🇷",
+const COUNTRY_FLAG: Record<string, string> = {
+  DE: "🇩🇪", FR: "🇫🇷", ES: "🇪🇸", IT: "🇮🇹", PT: "🇵🇹", NL: "🇳🇱", BE: "🇧🇪",
+  PL: "🇵🇱", RO: "🇷🇴", CZ: "🇨🇿", EL: "🇬🇷", SE: "🇸🇪", DK: "🇩🇰", FI: "🇫🇮",
+  HU: "🇭🇺", NO: "🇳🇴", SK: "🇸🇰", BG: "🇧🇬", LT: "🇱🇹", EE: "🇪🇪", SI: "🇸🇮",
+  LV: "🇱🇻", HR: "🇭🇷", AL: "🇦🇱", RS: "🇷🇸", GE: "🇬🇪", IR: "🇮🇷", KR: "🇰🇷",
+  CN: "🇨🇳", JP: "🇯🇵", SA: "🇸🇦", IN: "🇮🇳", UA: "🇺🇦", AT: "🇦🇹", CH: "🇨🇭",
+  IE: "🇮🇪", GB: "🇬🇧", UK: "🇬🇧", US: "🇺🇸",
+  EU: "🇪🇺", UN: "🇺🇳"
+};
+
+const LANGUAGE_ICON: Record<string, string> = {
+  de: "🇩🇪", en: "🇬🇧", es: "🇪🇸", fr: "🇫🇷", pt: "🇵🇹", it: "🇮🇹", nl: "🇳🇱",
+  pl: "🇵🇱", ru: "🇷🇺", uk: "🇺🇦", tr: "🇹🇷", hi: "🇮🇳", zh: "🇨🇳", ja: "🇯🇵",
+  ar: "🇸🇦", ro: "🇷🇴", cs: "🇨🇿", el: "🇬🇷", sv: "🇸🇪", da: "🇩🇰", fi: "🇫🇮",
+  hu: "🇭🇺", no: "🇳🇴", sk: "🇸🇰", bg: "🇧🇬", lt: "🇱🇹", et: "🇪🇪", sl: "🇸🇮",
+  lv: "🇱🇻", hr: "🇭🇷", sq: "🇦🇱", sr: "🇷🇸", ka: "🇬🇪", fa: "🇮🇷", ko: "🇰🇷",
   eu: "🇪🇺", un: "🇺🇳"
 };
 
-export const SUPPORTED_FLAGS = [
-  { code: "de", label: FLAG_MAP.de, name: "Deutsch", country: "Deutschland" },
-  { code: "en", label: FLAG_MAP.en, name: "English", country: "United Kingdom" },
-  { code: "es", label: FLAG_MAP.es, name: "Español", country: "España" },
-  { code: "fr", label: FLAG_MAP.fr, name: "Français", country: "France" },
-  { code: "pt", label: FLAG_MAP.pt, name: "Português", country: "Portugal" },
-  { code: "it", label: FLAG_MAP.it, name: "Italiano", country: "Italia" },
-  { code: "pl", label: FLAG_MAP.pl, name: "Polski", country: "Polska" },
-  { code: "ru", label: FLAG_MAP.ru, name: "Русский", country: "Россия" },
-  { code: "uk", label: FLAG_MAP.uk, name: "Українська", country: "Україна" },
-  { code: "tr", label: FLAG_MAP.tr, name: "Türkçe", country: "Türkiye" },
-  { code: "nl", label: FLAG_MAP.nl, name: "Nederlands", country: "Nederland" },
-  { code: "hi", label: FLAG_MAP.hi, name: "हिन्दी (Hindi)", country: "भारत" },
-  { code: "zh", label: FLAG_MAP.zh, name: "中文 (Chinesisch)", country: "中国" },
-  { code: "ja", label: FLAG_MAP.ja, name: "日本語 (Japanisch)", country: "日本" },
-  { code: "ar", label: FLAG_MAP.ar, name: "العربية (Arabisch)", country: "مصر" }, // Alternativ: "Saudi-Arabien", "Ägypten"
-  { code: "ro", label: FLAG_MAP.ro, name: "Română", country: "România" },
-  { code: "cs", label: FLAG_MAP.cs, name: "Čeština", country: "Česko" },
-  { code: "el", label: FLAG_MAP.el, name: "Ελληνικά (Griechisch)", country: "Ελλάδα" },
-  { code: "sv", label: FLAG_MAP.sv, name: "Svenska", country: "Sverige" },
-  { code: "da", label: FLAG_MAP.da, name: "Dansk", country: "Danmark" },
-  { code: "fi", label: FLAG_MAP.fi, name: "Suomi", country: "Suomi" },
-  { code: "hu", label: FLAG_MAP.hu, name: "Magyar", country: "Magyarország" },
-  { code: "no", label: FLAG_MAP.no, name: "Norsk", country: "Norge" },
-  { code: "sk", label: FLAG_MAP.sk, name: "Slovenčina", country: "Slovensko" },
-  { code: "bg", label: FLAG_MAP.bg, name: "Български (Bulgarisch)", country: "България" },
-  { code: "lt", label: FLAG_MAP.lt, name: "Lietuvių", country: "Lietuva" },
-  { code: "et", label: FLAG_MAP.et, name: "Eesti", country: "Eesti" },
-  { code: "sl", label: FLAG_MAP.sl, name: "Slovenščina", country: "Slovenija" },
-  { code: "lv", label: FLAG_MAP.lv, name: "Latviešu", country: "Latvija" },
-  { code: "hr", label: FLAG_MAP.hr, name: "Hrvatski", country: "Hrvatska" },
-  { code: "sq", label: FLAG_MAP.sq, name: "Shqip (Albanisch)", country: "Shqipëri" },
-  { code: "sr", label: FLAG_MAP.sr, name: "Српски (Serbisch)", country: "Србија" },
-  { code: "ka", label: FLAG_MAP.ka, name: "ქართული (Georgisch)", country: "საქართველო" },
-  { code: "fa", label: FLAG_MAP.fa, name: "فارسی (Persisch)", country: "ایران" },
-  { code: "ko", label: FLAG_MAP.ko, name: "한국어 (Koreanisch)", country: "대한민국" }
-];
+export const SUPPORTED_FLAGS = Object.entries(LANGUAGE_ICON).map(([code, label]) => ({ code, label }));
 
-
-export function getSupportedFlags() {
-  return SUPPORTED_FLAGS;
+export function parseLocale(input: string) {
+  if (!input) return { lang: undefined as string | undefined, region: undefined as string | undefined };
+  const parts = input.replace("_", "-").split("-");
+  const lang = parts[0]?.toLowerCase();
+  const region = parts.find(p => p.length === 2 && p.toUpperCase() === p)?.toUpperCase();
+  return { lang, region };
 }
 
+export function getFlag(input: string): string {
+  if (!input) return "🏳️";
+  // Direkter Ländercode?
+  const direct = COUNTRY_FLAG[input.toUpperCase()];
+  if (direct) return direct;
+  // Locale → Region → Sprache
+  const { lang, region } = parseLocale(input);
+  if (region && COUNTRY_FLAG[region]) return COUNTRY_FLAG[region];
+  if (lang && LANGUAGE_ICON[lang]) return LANGUAGE_ICON[lang];
+  // Reiner Sprachcode?
+  const langOnly = LANGUAGE_ICON[input.toLowerCase()];
+  if (langOnly) return langOnly;
+  return "🏳️";
+}
+
+// Backward-compat: gleicher Name wie zuvor verwendet
 export function getNationalFlag(code: string) {
-  if (!code) return "🏳️";
-  return FLAG_MAP[code.toLowerCase()] || "🏳️";
+  return getFlag(code);
+}
+
+export function getLanguageName(lang: string, displayLang = "de") {
+  try {
+    const dn = new Intl.DisplayNames([displayLang], { type: "language" });
+    return dn.of(lang) || lang;
+  } catch { return lang; }
+}
+
+export function getRegionName(region: string, displayLang = "de") {
+  try {
+    const dn = new Intl.DisplayNames([displayLang], { type: "region" });
+    return dn.of(region.toUpperCase()) || region;
+  } catch { return region; }
 }

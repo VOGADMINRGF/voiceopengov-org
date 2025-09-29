@@ -7,10 +7,6 @@
 ├── .gitignore
 ├── .zap
 │   └── rules.tsv
-├── _reports
-│   ├── .DS_Store
-│   └── structure
-│       └── vpm25_structure_2025-09-04_04-46-14.txt
 ├── apps
 │   ├── .DS_Store
 │   ├── admin
@@ -466,13 +462,6 @@
 │   │   │   │       ├── wasm-worker-loader.mjs
 │   │   │   │       ├── wasm.d.ts
 │   │   │   │       └── wasm.js
-│   │   │   ├── features
-│   │   │   │   ├── contribution
-│   │   │   │   │   └── components
-│   │   │   │   ├── report
-│   │   │   │   │   └── components
-│   │   │   │   └── stream
-│   │   │   │       └── components
 │   │   │   ├── funktionen
 │   │   │   │   └── editor
 │   │   │   ├── graph
@@ -628,7 +617,6 @@
 │   │   ├── tools
 │   │   │   ├── refactor-imports.js
 │   │   │   └── vog-next-intl-setup.zip
-│   │   ├── tsconfig.base.json
 │   │   ├── tsconfig.json
 │   │   ├── tsconfig.only-fixed.json
 │   │   ├── tsconfig.step-app.json
@@ -696,6 +684,7 @@
 │   │   └── storeContribution.ts
 │   ├── observability
 │   │   └── logger.ts
+│   ├── package.json
 │   ├── prompts
 │   │   ├── _shared_constraints.md
 │   │   ├── alternatives_only.md
@@ -879,6 +868,7 @@
 │   │   └── utils
 │   │       ├── index.ts
 │   │       └── orgHelper.ts
+│   ├── package.json
 │   ├── politics
 │   │   ├── components
 │   │   │   ├── AnalyticsBox.tsx
@@ -905,6 +895,7 @@
 │   │   │   ├── ReportGridLayout.tsx
 │   │   │   ├── ReportList.tsx
 │   │   │   ├── ReportPage.tsx
+│   │   │   ├── ReportPageClient.tsx
 │   │   │   ├── ReportStatsChart.tsx
 │   │   │   ├── ReportView.tsx
 │   │   │   ├── RightSidebar.tsx
@@ -917,7 +908,8 @@
 │   │   │   ├── demoStatements.ts
 │   │   │   ├── index.ts
 │   │   │   ├── listReports.ts
-│   │   │   └── reportData.ts
+│   │   │   ├── reportData.ts
+│   │   │   └── types.ts
 │   │   ├── index.ts
 │   │   └── types
 │   │       ├── AnalyticsReportType.ts
@@ -945,12 +937,13 @@
 │   │   └── models
 │   │       └── index.ts
 │   ├── stream
+│   │   ├── .DS_Store
 │   │   ├── components
+│   │   │   ├── .DS_Store
 │   │   │   ├── StreamCard.tsx
 │   │   │   ├── StreamFilters.tsx
 │   │   │   ├── StreamForm.tsx
 │   │   │   ├── StreamList.tsx
-│   │   │   ├── StreamListPause.tsx
 │   │   │   ├── StreamModal.tsx
 │   │   │   ├── StreamViewToggle.tsx
 │   │   │   ├── VideoPlayer.tsx
@@ -979,6 +972,7 @@
 │   │   └── types
 │   │       ├── index.ts
 │   │       └── swipe.ts
+│   ├── tsconfig.json
 │   ├── tv
 │   │   └── components
 │   │       └── EventList.tsx
@@ -1031,7 +1025,6 @@
 │       │   └── index.ts
 │       ├── index.ts
 │       └── useVoteStream.ts
-├── ok:true
 ├── package.json
 ├── packages
 │   ├── .DS_Store
@@ -1067,8 +1060,8 @@
 │       │   └── types
 │       │       └── externals.d.ts
 │       ├── theme.cjs.js
-│       ├── tsconfig.json
-│       └── tsconfig.json.bak
+│       ├── tsconfig.build.json
+│       └── tsconfig.json
 ├── pnpm-lock.yaml
 ├── pnpm-workspace.yaml
 ├── prisma
@@ -1091,102 +1084,8 @@
 │   ├── seed.cjs
 │   └── web
 │       └── schema.prisma
-├── prisma.zip
-├── project-structure.txt
-├── projektstruktur.txt
-├── scripts
-│   ├── absurlify.mjs
-│   ├── build-feature-barrels.mjs
-│   ├── e150_bootstrap_content.sh
-│   ├── e150_seed.sh
-│   ├── ensureIndexes.ts
-│   ├── hotfix_run.sh
-│   ├── kafka-consumer.js
-│   ├── kafka-producer.js
-│   ├── make-review-snapshot.mjs
-│   ├── make_review_snapshot.mjs
-│   ├── oldscripts
-│   │   ├── 2
-│   │   ├── e1500_relocate_to_web.sh
-│   │   ├── e150_apply_batch.sh
-│   │   ├── e150_apply_batch_v2.sh
-│   │   ├── e150_fix_admin_reports_contrib.sh
-│   │   ├── e150_fix_relative_fetch.sh
-│   │   └── e150_quickcheck.sh
-│   ├── optional-prisma.js
-│   ├── seed.demo.data.ts
-│   ├── tsc_hotfix_e150.mjs
-│   └── verifyEnv.ts
 ├── secrets
 │   └── mongo_keyfile
-├── sollte
-├── src
-│   ├── .DS_Store
-│   ├── app
-│   │   ├── admin
-│   │   │   └── page.tsx
-│   │   ├── api
-│   │   │   ├── admin
-│   │   │   │   ├── analytics
-│   │   │   │   │   └── summary
-│   │   │   │   ├── errors
-│   │   │   │   │   └── last24
-│   │   │   │   ├── orgs
-│   │   │   │   │   └── route.ts
-│   │   │   │   └── streams
-│   │   │   │       └── route.ts
-│   │   │   ├── contributions
-│   │   │   │   └── analytics
-│   │   │   │       └── summary
-│   │   │   ├── factcheck
-│   │   │   │   ├── enqueue
-│   │   │   │   │   └── route.ts
-│   │   │   │   └── status
-│   │   │   │       └── route.ts
-│   │   │   ├── profile
-│   │   │   │   └── location
-│   │   │   │       └── route.ts
-│   │   │   ├── public
-│   │   │   │   └── streams
-│   │   │   │       └── route.ts
-│   │   │   └── reports
-│   │   │       ├── [id]
-│   │   │       │   └── route.ts
-│   │   │       └── route.ts
-│   │   ├── contributions
-│   │   │   ├── new
-│   │   │   │   └── page.tsx
-│   │   │   └── page.tsx
-│   │   ├── reports
-│   │   │   ├── [id]
-│   │   │   │   └── page.tsx
-│   │   │   └── page.tsx
-│   │   └── stream
-│   │       └── page.tsx
-│   ├── core
-│   │   ├── .DS_Store
-│   │   └── errors
-│   │       └── formatError.ts
-│   ├── features
-│   │   ├── .DS_Store
-│   │   ├── contribution
-│   │   │   ├── .DS_Store
-│   │   │   └── components
-│   │   │       ├── ContributionForm.tsx
-│   │   │       └── ContributionList.tsx
-│   │   ├── report
-│   │   │   └── components
-│   │   │       ├── ReportCard.tsx
-│   │   │       └── ReportList.tsx
-│   │   └── stream
-│   │       └── components
-│   │           ├── StreamCard.tsx
-│   │           ├── StreamFilters.tsx
-│   │           └── StreamList.tsx
-│   ├── graph
-│   │   └── syncStatementsToGraph.ts
-│   └── utils
-│       └── logger.ts
 ├── tsconfig.base.json
 ├── turbo.json
 ├── vpm25-structure.txt
@@ -1194,4 +1093,4 @@
     └── factcheck
         └── worker.ts
 
-405 directories, 790 files
+355 directories, 739 files

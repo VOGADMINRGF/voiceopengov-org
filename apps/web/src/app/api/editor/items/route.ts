@@ -1,4 +1,4 @@
-// apps/web/src/features/editor/api/items/route.ts
+//apps/web/src/app/api/editor/items/route,ts
 import { NextResponse } from "next/server";
 import { prisma } from "@core/prisma";
 import { ContentKind, PublishStatus, RegionMode } from "@prisma/client";

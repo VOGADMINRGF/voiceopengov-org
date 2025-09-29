@@ -1,4 +1,4 @@
-// apps/web/src/features/ai/youEntities.ts
+//features/utils ai/youEntities.ts
 import type { Citation } from './youClient';
 
 export type EntityExtractOptions = {

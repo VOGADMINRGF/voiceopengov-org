@@ -40,7 +40,7 @@ const nextConfig: NextConfig = {
 
   // Wenn ihr externe Pakete im Monorepo transpilen wollt, hier eintragen.
   // (Nur aktiv, wenn die Ordner existieren)
-  transpilePackages: ["@vog/ui", "@vog/features", "@vog/core",
+  transpilePackages: ["@ui", "@vog/features", "@vog/core",
     ...(exists("../../packages/ui") ? ["ui"] : []),
   ],
 

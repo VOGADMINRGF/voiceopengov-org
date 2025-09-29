@@ -1,4 +1,4 @@
-// apps/web/src/features/streams/components/StreamsPanel.tsx
+// features/dashboard/components/StreamsPanel.tsx
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";

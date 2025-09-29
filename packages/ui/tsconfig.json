@@ -1,31 +1,14 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "lib": ["ES2022", "DOM"],
-    "jsx": "react-jsx",
-    "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
-    "allowJs": false,
-    "checkJs": false,
-
-    "strict": false,
-    "noImplicitAny": false,
-    "skipLibCheck": true,
-
+    "composite": true,
     "baseUrl": ".",
-    "rootDirs": ["src", "../../"],
-    "paths": {
-      "@core/*": ["../../core/*"],
-      "@features/*": ["../../features/*"]
-    },
-
-    "declaration": true,
-    "emitDeclarationOnly": false,
-    "outDir": "dist",
-    "sourceMap": true
+    "rootDir": "src",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "skipLibCheck": true,
+    "noEmit": true
   },
-  "include": ["src", "../../core", "../../features", "src/types"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "dist-types", "**/*.test.*", "**/__tests__/**"]
 }

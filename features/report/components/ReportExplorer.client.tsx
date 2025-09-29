@@ -1,4 +1,4 @@
-// apps/web/src/features/report/components/ReportExplorer.client.tsx
+// features/report/components/ReportExplorer.client.tsx
 "use client";
 
 import { useMemo, useState } from "react";

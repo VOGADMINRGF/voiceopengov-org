@@ -1,4 +1,4 @@
-// apps/web/src/features/map/OLMap.tsx
+//features/map/OLMap.tsx
 "use client";
 
 import { useEffect, useRef } from "react";

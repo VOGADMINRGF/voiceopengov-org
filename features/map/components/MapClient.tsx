@@ -1,4 +1,4 @@
-// apps/web/src/features/map/components/MapClient.tsx
+//features/map/components/MapClient.tsx
 "use client";
 
 import { useEffect, useMemo, useState } from "react";

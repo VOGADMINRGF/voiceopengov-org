@@ -1,4 +1,4 @@
-// apps/web/src/features/ai/youClient.ts
+// features/utils/ai/youClient.ts
 import 'server-only';
 import axios, { AxiosError } from 'axios';
 import { extractEntities } from './youEntities'; // <- neu

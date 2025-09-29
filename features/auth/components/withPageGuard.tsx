@@ -1,4 +1,4 @@
-// apps/web/src/features/auth/components/withPageGuard.tsx
+//features/auth/components/withPageGuard.tsx
 "use client";
 
 import { useEffect } from "react";
