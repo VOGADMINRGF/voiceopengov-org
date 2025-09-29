@@ -1,22 +1,60 @@
-import { useUser } from "@features/user/context/UserContext";
-import { ACCESS_RULES } from "@config/accessControl";
-import { usePathname } from "next/navigation";
+// features/auth/hooks/useRouteGuard.ts
+"use client"; // darf client sein, nutzt optional window
 
-export function useRouteGuard() {
-  const { user } = useUser();
-  const pathname = usePathname();
+import { useMemo } from "react";
 
-  const rule = ACCESS_RULES.find(rule => pathname.startsWith(rule.path));
-  if (!rule) return { allowed: true }; // Kein spezielles Access-Rule → immer erlaubt
+// Rollen & User minimal typisieren
+export type Role = "guest" | "user" | "admin" | string;
+export type UserLike = { roles?: Role[] } | null | undefined;
 
-  // Gast-Check (wenn kein user)
-  if (!user && rule.allowedRoles.includes("guest")) return { allowed: true };
+export type AccessRule = {
+  /** Pfadprefix, z.B. "/admin" oder "/report" */
+  path: string;
+  /** Erlaubte Rollen – fehlt => alle dürfen */
+  allowedRoles?: Role[];
+  /** Optional: weitere Logik */
+  customCheck?: (user: UserLike) => boolean;
+};
 
-  // Rollen-Match
-  const allowed = !!user && user.roles?.some(r => rule.allowedRoles.includes(r.role));
-  
-  // Falls CustomCheck definiert
-  if (rule.customCheck && user && !rule.customCheck(user)) return { allowed: false, reason: "Custom check failed." };
+export type GuardResult =
+  | { allowed: true; reason?: undefined }
+  | { allowed: false; reason: "login_required" | "role_forbidden" | "custom_check_failed" };
 
-  return { allowed, reason: allowed ? undefined : "Zugriff verweigert." };
+export function useRouteGuard(opts?: {
+  pathname?: string;              // ← keine Abhängigkeit zu next/navigation
+  user?: UserLike;                // ← kein @features/user/context/UserContext nötig
+  rules?: AccessRule[];           // ← kein @config/accessControl nötig
+}): GuardResult {
+  const pathname =
+    opts?.pathname ??
+    (typeof window !== "undefined" ? window.location.pathname : "/");
+  const user = opts?.user ?? null;
+  const rules = opts?.rules ?? [];
+
+  const rule = useMemo(
+    () => rules.find((r) => pathname.startsWith(r.path)),
+    [rules, pathname]
+  );
+
+  // Kein spezielles Rule-Match → erlaubt
+  if (!rule) return { allowed: true };
+
+  const allowedRoles = new Set<Role>(rule.allowedRoles ?? ["guest", "user", "admin"]);
+
+  // Gast-Only: erlaubt ohne Login
+  if (!user && allowedRoles.has("guest")) return { allowed: true };
+
+  // Login nötig
+  if (!user) return { allowed: false, reason: "login_required" };
+
+  // Rollencheck
+  const hasRole = (user.roles ?? []).some((r) => allowedRoles.has(r));
+  if (!hasRole) return { allowed: false, reason: "role_forbidden" };
+
+  // Custom-Check (falls angegeben)
+  if (rule.customCheck && !rule.customCheck(user)) {
+    return { allowed: false, reason: "custom_check_failed" };
+  }
+
+  return { allowed: true };
 }
