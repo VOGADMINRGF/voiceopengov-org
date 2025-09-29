@@ -6,13 +6,10 @@
     "emitDeclarationOnly": true,
     "outDir": "dist",
     "noEmit": false,
-
-    // explizit setzen, damit TS sicher JSX versteht
     "jsx": "react-jsx",
     "baseUrl": ".",
     "rootDir": "src",
-    // auch hier Aliasse leeren, sonst self-import-Zyklus
-    "paths": {},
+    "paths": {},                  // self-alias vermeiden
     "skipLibCheck": true
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],

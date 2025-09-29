@@ -36,7 +36,6 @@ const nextConfig: NextConfig = {
   // Wichtig: das UI-Paket wird aus SOURCE transpiliert (kein dist nötig)
   // -> erhält "use client" und vermeidet Server/Client-Hook-Konflikte
   transpilePackages: [
-    "@ui",        // bevorzugter Paketname
     "@vog/ui",    // kompatibel, falls noch irgendwo verwendet
     "@vog/features",
     "@vog/core",

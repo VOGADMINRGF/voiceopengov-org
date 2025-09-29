@@ -9,14 +9,27 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
+    },
+    "./theme": {
+      "types": "./dist/theme.d.ts",
+      "import": "./dist/theme.mjs",
+      "require": "./dist/theme.js"
+    },
+    "./design/button": {
+      "types": "./dist/design/Button.d.ts",
+      "import": "./dist/design/Button.mjs",
+      "require": "./dist/design/Button.js"
     }
   },
   "files": ["dist", "src"],
   "scripts": {
-    "clean": "rm -rf dist",
+    "clean": "rimraf dist || rm -rf dist",
     "build": "pnpm run clean && tsup && tsc -p tsconfig.build.json"
   },
   "devDependencies": {
-    "tsup": "^8.0.0"
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2",
+    "@types/node": "^22.7.5",
+    "rimraf": "^5.0.5"
   }
 }
