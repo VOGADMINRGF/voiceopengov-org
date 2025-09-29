@@ -2,17 +2,28 @@
   "name": "vpm25",
   "private": true,
   "packageManager": "pnpm@10.17.1",
-  "workspaces": [
-    "apps/landing",
-    "apps/web"
-  ],
+  "workspaces": ["apps/*", "packages/*", "features", "core"],
   "scripts": {
     "dev:landing": "pnpm --filter @vog/landing... dev",
     "build:landing": "pnpm --filter @vog/landing... build",
     "start:landing": "pnpm --filter @vog/landing... start",
     "dev:web": "pnpm --filter @vog/web... dev",
     "build:web": "pnpm --filter @vog/web... build",
-    "start:web": "pnpm --filter @vog/web... start"
+    "start:web": "pnpm --filter @vog/web... start",
+    "build:ui": "pnpm --filter @ui run build",
+    "build": "pnpm run build:ui && pnpm run build:web",
+    "prisma:gen": "bash -lc 'set -e; for p in prisma/web/schema.prisma prisma/schema.prisma apps/web/prisma/schema.prisma; do if [ -f \"$p\" ]; then echo \"[prisma] using $p\"; pnpm dlx prisma generate --schema=\"$p\"; exit 0; fi; done; echo \"[prisma] no schema found\" >&2; exit 1;'"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "prisma",
+      "@prisma/engines",
+      "sharp",
+      "esbuild",
+      "msgpackr-extract",
+      "unrs-resolver"
+    ]
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
@@ -27,13 +38,13 @@
     "swr": "^2.3.6",
     "zod": "^4.1.11"
   },
-  "engines": {
-    "node": "20.x"
-  },
   "devDependencies": {
     "@types/node": "^20.19.17",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "typescript": "^5.9.2"
+  },
+  "engines": {
+    "node": "20.x"
   }
 }

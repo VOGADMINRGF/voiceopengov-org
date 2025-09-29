@@ -1,37 +1,19 @@
 {
-  "name": "@ui",
+  "name": "@vog/ui",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
     },
-    "./design/badgeColor": {
-      "types": "./dist/design/badgeColor.d.ts",
-      "import": "./dist/design/badgeColor.js",
-      "default": "./dist/design/badgeColor.js"
-    }
-  },
-  "files": ["dist"],
-  "scripts": {
-    "clean": "rimraf dist dist-types",
-    "build": "pnpm run clean && pnpm run build:js && pnpm run build:types",
-    "build:js": "tsup --config tsup.config.ts",
-    "build:types": "tsc -p tsconfig.build.json"
-  },
-  "peerDependencies": {
-    "react": "^18.2.0 || ^19.0.0",
-    "react-dom": "^18.2.0 || ^19.0.0"
-  },
-  "devDependencies": {
-    "rimraf": "^6.0.1",
-    "tsup": "^8.5.0",
-    "typescript": "^5.6.3"
+    "./design/Button": "./src/design/Button.tsx",
+    "./layout/Header": "./src/layout/Header.tsx",
+    "./layout/Footer": "./src/layout/Footer.tsx",
+    "./design/badgeColor": "./src/design/badgeColor.ts",
+    "./theme": "./src/theme.ts"
   }
 }

@@ -1,27 +1,50 @@
-"use client";
+// apps/web/src/app/layout.tsx
+import "./globals.css";
+import type { ReactNode } from "react";
+import type { Metadata } from "next";
+import { Header, Footer } from "@ui";           // ← Aggregat-Export statt Subpfade
+import ClientProviders from "./providers";
+// Wenn du CSP-Nonce brauchst, kannst du headers() einkommentieren:
+// import { headers } from "next/headers";
+// import Script from "next/script";
 
-import IntroSection from "@components/IntroSection";
-import SwipeTeaser from "@components/SwipeTeaser";
-import Link from "next/link";
-import Button from "@ui/design/Button";
+export const metadata: Metadata = {
+  title: "VoiceOpenGov",
+  description:
+    "VoiceOpenGov ist die Plattform für echte digitale Beteiligung. Hier können Bürger:innen abstimmen, Statements einbringen und gemeinsam Reports gestalten – unabhängig, transparent, weltweit.",
+  openGraph: {
+    title: "VoiceOpenGov – Digitale Beteiligung neu gedacht",
+    description:
+      "Mach mit: Abstimmen, Themen setzen, Reports lesen. Demokratie, direkt in deiner Hand.",
+    url: "https://voiceopengov.org",
+    siteName: "VoiceOpenGov",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "VoiceOpenGov",
+    description:
+      "Digitale Beteiligung neu gedacht – für Bürger:innen, NGOs, Politik und Medien.",
+  },
+};
 
-export default function Home() {
+export default function RootLayout({ children }: { children: ReactNode }) {
+  // Falls du eine CSP-Nonce verwenden willst:
+  // const nonce = headers().get("x-csp-nonce") ?? undefined;
+
   return (
-    <main className="min-h-screen">
-      <IntroSection />
-      <SwipeTeaser />
-      <section className="px-6 py-16 md:py-20 bg-gray-50">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Deine Stimme zählt – jetzt eigenes Statement erstellen</h2>
-          <p className="mt-3 text-gray-700">
-            Formuliere deinen Standpunkt in wenigen Schritten und bring dich in die Debatte ein. Andere können zustimmen, widersprechen oder Alternativen vorschlagen.
-          </p>
-          <div className="mt-6">
-            <Link href="/beitraege/neu"><Button variant="primary">Statement verfassen</Button></Link>
-          </div>
-          <p className="mt-2 text-sm text-gray-500">Du kannst später jederzeit bearbeiten oder zurückziehen.</p>
-        </div>
-      </section>
-    </main>
+    <html lang="de">
+      <body className="bg-white text-gray-900">
+        <ClientProviders /* nonce={nonce} */>
+          <Header />
+          <main className="min-h-screen">{children}</main>
+          <Footer />
+        </ClientProviders>
+
+        {/*
+          Beispiel (auskommentiert), falls du wirklich Inline-Scripts brauchst:
+          <Script id="boot" nonce={nonce} dangerouslySetInnerHTML={{ __html: "/* minimal boot code *\/" }} />
+        */}
+      </body>
+    </html>
   );
 }

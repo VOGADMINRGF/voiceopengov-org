@@ -33,17 +33,7 @@
       }
     ]
   },
-  "references": [
-    {
-      "path": "../../features"
-    },
-    {
-      "path": "../../core"
-    },
-    {
-      "path": "../../packages/ui"
-    }
-  ],
+  
   "include": [
     "next-env.d.ts",
     "src/**/*",

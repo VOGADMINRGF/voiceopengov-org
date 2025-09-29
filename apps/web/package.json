@@ -25,7 +25,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@vog/core": "workspace:*",
     "@vog/features": "workspace:*",
-    "@ui": "workspace:*",
+    "@vog/ui": "workspace:*",
     "framer-motion": "^12.23.22",
     "next": "15.3.2",
     "qrcode": "^1.5.4",

@@ -8,5 +8,13 @@
     "outDir": "dist",
     "stripInternal": true
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/index.ts",
+    "src/theme.ts",
+    "src/design/badgeColor.ts",
+    "src/design/Button.tsx",
+    "src/layout/Header.tsx",
+    "src/layout/Footer.tsx",
+    "src/types/externals.d.ts"
+  ]
 }

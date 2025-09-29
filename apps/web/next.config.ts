@@ -3,21 +3,20 @@ import fs from "node:fs";
 import path from "node:path";
 import type { NextConfig } from "next";
 
-/** Hilfsfunktionen */
+/** Pfad-Utils */
 const R = (...p: string[]) => path.resolve(__dirname, ...p);
 const exists = (...p: string[]) => fs.existsSync(R(...p));
 
-/** Alias-Resolver: nimm den ersten existierenden Pfad */
+/** Nimm den ersten existierenden Pfad (für Aliasse/Fallbacks) */
 function firstExisting(...candidates: string[]) {
   for (const c of candidates) {
     const abs = R(c);
     if (fs.existsSync(abs)) return abs;
   }
-  // Fallback: auf App-Src zeigen, damit Build nie crasht
-  return R("./src");
+  return R("./src"); // Fallback, damit Builds nicht crashen
 }
 
-/** Optional: Prompts aus dem Monorepo nur einbinden, wenn vorhanden */
+/** Optional: Prompts nur einbinden, wenn vorhanden */
 const promptsDir = exists("../../core/prompts") ? R("../../core/prompts") : null;
 
 const nextConfig: NextConfig = {
@@ -29,41 +28,52 @@ const nextConfig: NextConfig = {
     formats: ["image/webp", "image/avif"],
   },
 
-  // Next 15: außerhalb von `experimental`
   experimental: {
     typedRoutes: true,
     externalDir: true,
   },
+
+  // Wichtig: das UI-Paket wird aus SOURCE transpiliert (kein dist nötig)
+  // -> erhält "use client" und vermeidet Server/Client-Hook-Konflikte
+  transpilePackages: [
+    "@ui",        // bevorzugter Paketname
+    "@vog/ui",    // kompatibel, falls noch irgendwo verwendet
+    "@vog/features",
+    "@vog/core",
+  ],
+
   outputFileTracingIncludes: promptsDir
     ? { "/api/ai/run": [`${promptsDir}/**/*`] }
     : {},
-
-  // Wenn ihr externe Pakete im Monorepo transpilen wollt, hier eintragen.
-  // (Nur aktiv, wenn die Ordner existieren)
-  transpilePackages: ["@ui", "@vog/features", "@vog/core",
-    ...(exists("../../packages/ui") ? ["ui"] : []),
-  ],
 
   webpack(config) {
     config.resolve ??= {};
     config.resolve.alias = {
       ...(config.resolve.alias ?? {}),
 
-      // Monorepo-Aliasse (werden nur gesetzt, wenn die Ordner existieren)
-     "@core": firstExisting("../../core","./src"),
-  "@features": firstExisting("../../features","./src"),
-  "@ui": firstExisting("../../packages/ui/dist","../../packages/ui/src","./src/ui"),
-  "@context": firstExisting("../../core/context","./src/context"), // 👈 NEU
-  "@": R("./src"),
-  "@components": R("./src/components"),
-  "@hooks": R("./src/hooks"),
-  "@utils": R("./src/utils"),
-  "@lib": R("./src/lib"),
+      // Monorepo-Aliasse
+      "@core": firstExisting("../../core", "./src"),
+      "@features": firstExisting("../../features", "./src"),
+
+      // UI: **Source-first** (src bevorzugen, dist nur Fallback),
+      // zusätzlich kompatibler Alias für @vog/ui
+      "@ui": firstExisting("../../packages/ui/src", "../../packages/ui/dist", "./src/ui"),
+      "@vog/ui": firstExisting("../../packages/ui/src", "../../packages/ui/dist", "./src/ui"),
+
+      // Context (Locale etc.)
+      "@context": firstExisting("../../core/context", "./src/context"),
+
+      // App-interne Kurzpfade
+      "@": R("./src"),
+      "@components": R("./src/components"),
+      "@hooks": R("./src/hooks"),
+      "@utils": R("./src/utils"),
+      "@lib": R("./src/lib"),
     };
+
     return config;
   },
 
-  // Build robuster machen (optional; kann auf `false` bleiben, wenn ihr strikt seid)
   typescript: { ignoreBuildErrors: false },
   eslint: { ignoreDuringBuilds: true },
 };

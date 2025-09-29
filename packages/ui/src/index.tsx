@@ -10,6 +10,7 @@ export { default as Button } from "./design/Button";
 // Farben: alles re-exportieren + default-Alias anbieten
 export * from "./design/badgeColor";
 export { default as badgeColors } from "./design/badgeColor";
+export * from "./theme"; 
 
 // Layout
 export { default as Header } from "./layout/Header";

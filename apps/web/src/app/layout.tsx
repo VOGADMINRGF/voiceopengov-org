@@ -2,8 +2,7 @@
 import "./globals.css";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
-import Header from "@ui/layout/Header";
-import Footer from "@ui/layout/Footer";
+import { Header, Footer } from "@ui";           // ← Aggregat-Export statt Subpfade
 import ClientProviders from "./providers";
 // Wenn du CSP-Nonce brauchst, kannst du headers() einkommentieren:
 // import { headers } from "next/headers";

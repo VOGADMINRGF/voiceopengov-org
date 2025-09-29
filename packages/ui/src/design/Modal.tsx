@@ -1,51 +1,38 @@
-"use client";
-import { useEffect } from "react";
+import React from "react";
 import { FiX } from "react-icons/fi";
 
-interface ModalProps {
-  isOpen: boolean;
+export type ModalProps = {
+  isOpen?: boolean;               // <-- optional, default true
   title?: string;
-  onClose: () => void;
+  onClose?: () => void;
   children: React.ReactNode;
-}
+  className?: string;
+};
 
-export default function Modal({ isOpen, title, onClose, children }: ModalProps) {
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-      window.addEventListener("keydown", handleEsc);
-    } else {
-      document.body.style.overflow = "auto";
-    }
-
-    return () => {
-      window.removeEventListener("keydown", handleEsc);
-      document.body.style.overflow = "auto";
-    };
-  }, [isOpen, onClose]);
-
+export default function Modal({
+  isOpen = true,
+  title,
+  onClose,
+  children,
+  className
+}: ModalProps) {
   if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl relative overflow-hidden">
-        <header className="flex items-center justify-between p-4 border-b">
-          {title && <h3 className="text-lg font-semibold text-coral">{title}</h3>}
-          <button
-            onClick={onClose}
-            className="text-xl text-gray-500 hover:text-coral"
-            aria-label="Modal schließen"
-          >
-            <FiX />
-          </button>
-        </header>
-        <div className="p-6">{children}</div>
+    <div className="fixed inset-0 z-[1000] bg-black/40 flex items-center justify-center">
+      <div className={`bg-white rounded-2xl shadow-lg p-4 max-w-lg w-full ${className ?? ""}`}>
+        <div className="flex items-center justify-between mb-2">
+          <div className="font-bold text-lg">{title}</div>
+          {onClose && (
+            <button
+              aria-label="Modal schließen"
+              onClick={onClose}
+              className="p-2 rounded-full hover:bg-neutral-100"
+            >
+              <FiX />
+            </button>
+          )}
+        </div>
+        <div>{children}</div>
       </div>
     </div>
   );
