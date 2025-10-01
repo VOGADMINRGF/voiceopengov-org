@@ -6,13 +6,15 @@ export default defineConfig({
     theme: "src/theme.ts",
     "design/badgeColor": "src/design/badgeColor.ts",
     "design/Button": "src/design/Button.tsx",
+    "design/Badge": "src/design/Badge.tsx",
+    "design/Modal": "src/design/Modal.tsx",
     "layout/Header": "src/layout/Header.tsx",
-    "layout/Footer": "src/layout/Footer.tsx",
+    "layout/Footer": "src/layout/Footer.tsx"
   },
   outDir: "dist",
-  format: ["esm", "cjs"],          // ← CJS mitbauen
+  format: ["esm", "cjs"],
   target: "es2020",
-  dts: false,                      // .d.ts macht tsc -p tsconfig.build.json
+  dts: false,                 // .d.ts macht euer "tsc -p tsconfig.build.json"
   splitting: false,
   sourcemap: true,
   minify: true,
@@ -26,7 +28,7 @@ export default defineConfig({
     "next/navigation",
     /^next\//,
     /^@context\//,
+    /^react-icons(\/.*)?$/   // ⬅︎ react-icons (und Subpfade) NICHT bundlen
   ],
-  // ← CJS bekommt .js, ESM .mjs (passt zu require('./dist/*.js'))
-  outExtension: ({ format }) => ({ js: format === "cjs" ? ".js" : ".mjs" }),
+  outExtension: ({ format }) => ({ js: format === "cjs" ? ".js" : ".mjs" })
 });

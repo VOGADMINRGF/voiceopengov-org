@@ -4,38 +4,14 @@
 import Link from "next/link";
 
 const checkItems = [
-  {
-    label: "Stream-Kacheln sichtbar & korrekt",
-    href: "/stream",
-  },
-  {
-    label: "Unterstützen-Button im Header",
-    href: "/unterstuetzen",
-  },
-  {
-    label: "CI-Farben & Fonts greifen",
-    href: "/",
-  },
-  {
-    label: "Impressum geladen & erreichbar",
-    href: "/impressum",
-  },
-  {
-    label: "Datenschutzseite erreichbar",
-    href: "/daten",
-  },
-  {
-    label: "Satzung aufrufbar & formatiert",
-    href: "/satzung",
-  },
-  {
-    label: "Footer mit Links korrekt gerendert",
-    href: "/",
-  },
-  {
-    label: "Build & Dev starten ohne Fehler",
-    href: "#check-console",
-  },
+  { label: "Stream-Kacheln sichtbar & korrekt", href: "/stream" },
+  { label: "Unterstützen-Button im Header", href: "/unterstuetzen" },
+  { label: "CI-Farben & Fonts greifen", href: "/" },
+  { label: "Impressum geladen & erreichbar", href: "/impressum" },
+  { label: "Datenschutzseite erreichbar", href: "/daten" },
+  { label: "Satzung aufrufbar & formatiert", href: "/satzung" },
+  { label: "Footer mit Links korrekt gerendert", href: "/" },
+  { label: "Build & Dev starten ohne Fehler", href: "#check-console" }
 ];
 
 export default function AdminTestPage() {
@@ -43,8 +19,8 @@ export default function AdminTestPage() {
     <div className="max-w-2xl mx-auto py-10 px-4">
       <h1 className="text-2xl font-bold mb-6">✅ VOG Admin Checkliste</h1>
       <ul className="space-y-4">
-        {checkItems.map((item, idx) => (
-          <li key={idx} className="border rounded-lg p-4 hover:bg-gray-50">
+        {checkItems.map((item) => (
+          <li key={item.href} className="border rounded-lg p-4 hover:bg-gray-50">
             <Link href={item.href} className="text-coral font-medium">
               {item.label}
             </Link>
@@ -52,23 +28,8 @@ export default function AdminTestPage() {
         ))}
       </ul>
       <p className="mt-10 text-sm text-gray-500">
-        Hinweis: Für Punkt 8 bitte Logs in Konsole prüfen (`pnpm dev` & `pnpm build`).
+        Hinweis: Für Punkt 8 bitte Logs in Konsole prüfen (<code>pnpm dev</code> &amp; <code>pnpm build</code>).
       </p>
     </div>
-  );
-}
-
-Vorversion
-
-// apps/web/src/app/admin/page.tsx
-"use client";
-
-import AdminDashboard from "@/components/admin/AdminDashboard";
-
-export default function AdminPage() {
-  return (
-    <main className="p-6">
-      <AdminDashboard />
-    </main>
   );
 }

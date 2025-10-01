@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { locales } from "../../../i18n";
-import { Header, Footer } from "@ui";
+import { Header, Footer } from "@vog/ui";
 import { LocaleProvider } from "@/context/LocaleContext"; // <-- dein eigener Kontextprovider
 
 export default function LocaleLayout({

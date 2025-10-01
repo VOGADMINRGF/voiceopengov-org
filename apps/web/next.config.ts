@@ -33,13 +33,8 @@ const nextConfig: NextConfig = {
     externalDir: true,
   },
 
-  // Wichtig: das UI-Paket wird aus SOURCE transpiliert (kein dist nötig)
-  // -> erhält "use client" und vermeidet Server/Client-Hook-Konflikte
-  transpilePackages: [
-    "@vog/ui",    // kompatibel, falls noch irgendwo verwendet
-    "@vog/features",
-    "@vog/core",
-  ],
+  // Workspace-Pakete transpilen
+  transpilePackages: ["@vog/ui", "@vog/features", "@vog/core"],
 
   outputFileTracingIncludes: promptsDir
     ? { "/api/ai/run": [`${promptsDir}/**/*`] }
@@ -47,20 +42,28 @@ const nextConfig: NextConfig = {
 
   webpack(config) {
     config.resolve ??= {};
+
+    // UI-Ziel: bevorzugt dist, dann src, dann lokaler Fallback
+    const uiTarget = firstExisting(
+      "../../packages/ui/dist",
+      "../../packages/ui/src",
+      "./src/ui"
+    );
+
     config.resolve.alias = {
       ...(config.resolve.alias ?? {}),
 
       // Monorepo-Aliasse
       "@core": firstExisting("../../core", "./src"),
       "@features": firstExisting("../../features", "./src"),
-
-      // UI: **Source-first** (src bevorzugen, dist nur Fallback),
-      // zusätzlich kompatibler Alias für @vog/ui
-      "@ui": firstExisting("../../packages/ui/src", "../../packages/ui/dist", "./src/ui"),
-      "@vog/ui": firstExisting("../../packages/ui/src", "../../packages/ui/dist", "./src/ui"),
-
-      // Context (Locale etc.)
       "@context": firstExisting("../../core/context", "./src/context"),
+
+      // Graph-Feature (liegt in dieser App)
+      "@features/graph": firstExisting("./src/graph"),
+
+      // UI: EIN Ziel. @ui zeigt exakt auf dasselbe wie @vog/ui
+      "@vog/ui": uiTarget,
+      "@ui": uiTarget,
 
       // App-interne Kurzpfade
       "@": R("./src"),
@@ -68,6 +71,15 @@ const nextConfig: NextConfig = {
       "@hooks": R("./src/hooks"),
       "@utils": R("./src/utils"),
       "@lib": R("./src/lib"),
+      "@models": R("./src/models"),
+      "@data": R("./src/data"),
+
+      // ⭐ Explizite Bridges (lösen aktuelle "module not found"-Fehler)
+      "@core/prisma": R("./src/core/prisma"),
+      "@lib/validation/contentValidation": R("./src/lib/validation/contentValidation"),
+      "@lib/api": R("./src/lib/api"),
+      "@/prisma": R("./src/prisma"),
+      "@core/utils/errors": R("./src/utils/errors"),
     };
 
     return config;

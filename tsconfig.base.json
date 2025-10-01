@@ -1,4 +1,3 @@
-// tsconfig.base.json
 {
   "compilerOptions": {
     "target": "ES2020",
@@ -29,11 +28,16 @@
       "@data/*": ["apps/web/src/data/*"],
       "@lib/*": ["apps/web/src/lib/*"],
       "@utils/*": ["apps/web/src/utils/*"],
-      "@ui": ["packages/ui/src/index.ts"], 
-      "@ui/*": ["packages/ui/src/*"],
-      "@ui/button": ["packages/ui/src/design/Button.tsx"],
-      "@ui/theme": ["packages/ui/src/theme.ts"]
 
+      /* ✅ UI-Paket: auf DIST zeigen (Typs) – keine direkten SRC-Mappings mehr */
+      "@vog/ui": ["packages/ui/dist/index.d.ts"],
+      "@vog/ui/*": ["packages/ui/dist/*"],
+
+      /* 🔁 Kompatibilitäts-Aliasse (falls irgendwo noch @ui verwendet wird) */
+      "@ui": ["packages/ui/dist/index.d.ts"],
+      "@ui/*": ["packages/ui/dist/*"],
+      "@ui/button": ["packages/ui/dist/design/Button.d.ts"],
+      "@ui/theme": ["packages/ui/dist/theme.d.ts"]
     }
   }
 }

@@ -2,17 +2,22 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
-import SidebarNav from "@/components/admin/SidebarNavAdmin";
-import { getServerUser } from "@/lib/auth/getServerUser"; // <- dein Server-Helper
+import SidebarNav from "@features/dashboard/components/admin/SidebarNavAdmin";
+import { getServerUser } from "@/lib/auth/getServerUser";
 import { ADMIN_ALLOWED_ROLES } from "@/app/admin/config/adminConfig";
 
+type UserWithRole = { role?: string };
+
 export default async function AdminLayout({ children }: { children: ReactNode }) {
-  // 🔐 Serverseitiger Guard für den gesamten Admin-Bereich
   const user = await getServerUser();
-  const role = user?.role ?? "guest";
+
+  // TS-sicher ermitteln: hat das Objekt ein 'role'-Feld?
+  const role =
+    user && typeof user === "object" && "role" in user
+      ? (user as UserWithRole).role ?? "guest"
+      : "guest";
 
   if (!user || !ADMIN_ALLOWED_ROLES.includes(role as any)) {
-    // optional: Grund anhängen
     redirect(`/login?next=/admin&reason=admin-only`);
   }
 

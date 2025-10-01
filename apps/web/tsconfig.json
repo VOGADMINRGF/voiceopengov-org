@@ -3,46 +3,28 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "@features/*": [
-        "../../features/*"
-      ],
-      "@core/*": [
-        "../../core/*"
-      ],
-      "@ui": [
-        "../../packages/ui/dist/index.js"
-      ], // ⚡ fast: auf dist zeigen
-      "@ui/*": [
-        "../../packages/ui/dist/*"
-      ]
+      "@/*": ["src/*"],
+      "@lib/*": ["src/lib/*"],
+      "@components/*": ["src/components/*"],
+      "@models/*": ["src/models/*"],
+      "@data/*": ["src/data/*"],
+
+      "@features/*": ["../../features/*"],
+      "@features/graph": ["src/graph/index.ts"],
+      "@features/graph/*": ["src/graph/*"],
+      "@core/*": ["../../core/*"],
+
+      "@vog/ui": ["../../packages/ui/dist/index.d.ts"],
+      "@vog/ui/*": ["../../packages/ui/dist/*"]
     },
     "moduleResolution": "bundler",
     "incremental": true,
     "noEmit": true,
     "skipLibCheck": true,
     "jsx": "preserve",
-    "types": [
-      "node"
-    ],
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+    "types": ["node"],
+    "plugins": [{ "name": "next" }]
   },
-  
-  "include": [
-    "next-env.d.ts",
-    "src/**/*",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    ".next",
-    "dist",
-    "coverage"
-  ]
+  "include": ["next-env.d.ts", "src/**/*", ".next/types/**/*.ts", "next.config.*"],
+  "exclude": ["node_modules", ".next", "dist", "coverage"]
 }
