@@ -13,7 +13,7 @@ function ensureFp(): string {
     }
     return fp;
   } catch {
-    // Fallback, falls localStorage z. B. im Private Mode blockiert ist
+    // Fallback, z. B. Private Mode
     return "fp-unavailable";
   }
 }
@@ -25,7 +25,7 @@ export default function VoteButtons({
   statementId,
   initialSummary,
   onAfter,
-  lockAfterVote = true,
+  lockAfterVote = false,
 }: {
   statementId: string;
   initialSummary?: Summary;
@@ -38,16 +38,19 @@ export default function VoteButtons({
   const [summary, setSummary] = useState<Summary | undefined>(initialSummary);
 
   async function cast(value: Val) {
-    if (busy) return;
-    if (lockAfterVote && voted) return;
+    if (busy) return; // nur Parallelklicks verhindern
 
     setBusy(value);
 
-    // Optimistic Update (falls Summary vorhanden)
-    const prev = summary ? { ...summary } : undefined;
+    // Optimistic Update mit sauberem Umstimmen (−1 alte, +1 neue Auswahl)
+    const prevSummary = summary ? { ...summary } : undefined;
+    const prevVote = voted;
     if (summary) {
-      const next = { ...summary };
+      const next: Summary = { ...summary };
       next[value] += 1;
+      if (!lockAfterVote && prevVote && prevVote !== value) {
+        next[prevVote] = Math.max(0, next[prevVote] - 1);
+      }
       setSummary(next);
     }
 
@@ -65,21 +68,24 @@ export default function VoteButtons({
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j?.error || "Vote fehlgeschlagen");
 
-      // Server kann eine aktuelle Summary zurückgeben
+      // Falls der Server eine aktuelle Summary zurückgibt, diese übernehmen
       if (j?.summary && typeof j.summary === "object") {
         setSummary(j.summary as Summary);
       }
+
+      // UI-Zustand zeigen, aber weitere Votes NICHT verhindern (außer lockAfterVote=true)
       setVoted(value);
       onAfter?.(value);
     } catch (e) {
       // Rollback bei Fehler
-      if (prev) setSummary(prev);
+      if (prevSummary) setSummary(prevSummary);
       alert((e as Error).message);
     } finally {
       setBusy(null);
     }
   }
 
+  // Buttons nur sperren, solange busy – bzw. nach erstem Vote, wenn lockAfterVote=true übergeben wurde
   const disabled = !!busy || (lockAfterVote && !!voted);
 
   return (
