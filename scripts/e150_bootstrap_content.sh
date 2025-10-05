@@ -49,8 +49,8 @@ TS
 echo "✓ models/Contribution.ts"
 fi
 
-if [ ! -f "$SRC/models/Report.ts" ]; then
-cat > "$SRC/models/Report.ts" <<'TS'
+if [ ! -f "$SRC/models/core/Report.ts" ]; then
+cat > "$SRC/models/core/Report.ts" <<'TS'
 import mongoose, { Schema } from "mongoose";
 
 const ReportSchema = new Schema({
@@ -61,7 +61,7 @@ const ReportSchema = new Schema({
 
 export default mongoose.models.Report || mongoose.model("Report", ReportSchema);
 TS
-echo "✓ models/Report.ts"
+echo "✓ models/core/Report.ts"
 fi
 
 # Statement-Modell nur stubben, falls komplett fehlt
@@ -112,7 +112,7 @@ echo "✓ api/contributions/route.ts"
 cat > "$SRC/app/api/reports/route.ts" <<'TS'
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
-import Report from "@/models/Report";
+import Report from "src/models/core/Report";
 
 export const dynamic = "force-dynamic";
 

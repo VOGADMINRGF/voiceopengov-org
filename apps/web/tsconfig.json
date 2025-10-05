@@ -3,17 +3,17 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["apps/web/src/*"],
       "@lib/*": ["src/lib/*"],
       "@components/*": ["src/components/*"],
-      "@models/*": ["src/models/*"],
+      "@/models/*": ["apps/web/src/models/*"],
       "@data/*": ["src/data/*"],
 
       "@features/*": ["../../features/*"],
       "@features/graph": ["src/graph/index.ts"],
       "@features/graph/*": ["src/graph/*"],
-      "@core/*": ["../../core/*"],
-
+      "@core/*": ["core/*"],
+ 
       "@vog/ui": ["../../packages/ui/dist/index.d.ts"],
       "@vog/ui/*": ["../../packages/ui/dist/*"]
     },

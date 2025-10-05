@@ -75,8 +75,7 @@ const nextConfig: NextConfig = {
       "@data": R("./src/data"),
 
       // ⭐ Explizite Bridges (lösen aktuelle "module not found"-Fehler)
-      "@core/prisma": R("./src/core/prisma"),
-      "@lib/validation/contentValidation": R("./src/lib/validation/contentValidation"),
+            "@lib/validation/contentValidation": R("./src/lib/validation/contentValidation"),
       "@lib/api": R("./src/lib/api"),
       "@/prisma": R("./src/prisma"),
       "@core/utils/errors": R("./src/utils/errors"),

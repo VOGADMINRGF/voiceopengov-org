@@ -1,6 +1,6 @@
 import { Schema, Document } from "mongoose";
-import { coreConn } from "@/lib/db/core";
-import { modelOn } from "@/lib/db/modelOn";
+import { coreConn } from "src/lib/db/core";
+import { modelOn } from "src/lib/db/modelOn";
 
 export type SourceType =
   | "ngo"

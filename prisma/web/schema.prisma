@@ -1,26 +1,35 @@
-// prisma/web/schema.prisma
+// prisma/web/schema.prisma — v3 (v1 + v2 merged)
 
 generator client {
   provider = "prisma-client-js"
+  // Beibehaltung aus v1
   output   = "../../apps/web/src/db/web"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("WEB_POSTGRES_URL") // ggf. an deine ENV anpassen
+  // Beibehaltung aus v1; falls du WEB_DATABASE_URL nutzt, bitte ENV anpassen.
+  url      = env("WEB_POSTGRES_URL")
 }
 
 //
 // ---------- ENUMS ----------
 enum ContentKind {
+  // v1
   SWIPE
   EVENT
   SUNDAY_POLL
+  // v2 ergänzt
+  POST
+  POLL
+  QUIZ
+  INFO
 }
 
 enum PublishStatus {
   draft
-  review
+  review     // v1
+  scheduled  // v2
   published
   archived
 }
@@ -46,7 +55,7 @@ enum Locale {
 }
 
 //
-// ---------- CONTENT / TOPIC / TAG ----------
+// ---------- TAXONOMY (Topics/Tags) ----------
 model Topic {
   id          String     @id @default(cuid())
   slug        String     @unique
@@ -97,39 +106,67 @@ model ItemTag {
   @@index([tagId])
 }
 
+//
+// ---------- REGION ----------
+model Region {
+  id    String @id @default(cuid())
+  code  String @unique
+  name  String
+  level Int
+}
+
+//
+// ---------- CONTENT ----------
 model ContentItem {
   id        String      @id @default(cuid())
   kind      ContentKind
 
+  // Topic
   topicId   String
   topic     Topic       @relation(fields: [topicId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
+  // Locale
   locale    Locale      @default(de)
+
+  // Text
   title     String?
   text      String
-  richText  String?
-  sortOrder Int         @default(0) @map("order") // statt "order"
+  // v2: richText als strukturiertes JSON; (v1 hatte String?) – Migration s.u.
+  richText  Json?
 
+  // Sortierung
+  sortOrder Int         @default(0) @map("order")
+
+  // Publikations-Workflow
   status     PublishStatus @default(draft)
   authorName String?
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
+  publishAt  DateTime?
+  expireAt   DateTime?
 
-  publishAt DateTime?
-  expireAt  DateTime?
-
-  regionMode        RegionMode @default(AUTO)
-  regionManualId    String?
+  // Region
+  regionMode     RegionMode @default(AUTO)
+  // v1: freie ID; v2: echte Relation – wir unterstützen beides
+  regionManualId String?
+  regionManual   Region?    @relation(fields: [regionManualId], references: [id], onDelete: SetNull)
+  regionAuto     Json?
+  // optional: effektive Region denormalisiert (v2-Idee)
+  regionEffective Json?
+  // (Optional beibehalten aus v1 – falls du eine berechnete ID persistierst)
   regionEffectiveId String?
-  regionAuto        Json?
 
+  // Validierung/Metadaten
   validation Json?
   meta       Json?
 
+  // Relationen
   answerOptions AnswerOption[]
   tags          ItemTag[]
 
+  // Indizes
   @@index([kind, status, locale])
+  @@index([locale, status, kind]) // v2-Kombiindex
   @@index([publishAt])
   @@index([topicId])
   @@index([createdAt])
@@ -137,8 +174,11 @@ model ContentItem {
 
 model AnswerOption {
   id        String      @id @default(cuid())
+
+  // v1-kompatible Relation/Feldnamen
   itemId    String
   item      ContentItem @relation(fields: [itemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
   label     String
   value     String
   sortOrder Int         @default(0) @map("order")

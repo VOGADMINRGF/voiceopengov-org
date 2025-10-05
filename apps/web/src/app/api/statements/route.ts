@@ -2,10 +2,9 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
-import { coreCol } from "@/utils/triMongo";
-import { readSession } from "@/utils/session";
+import { coreCol } from "src/utils/triMongo";
+import { readSession } from "src/utils/session";
 
-// ENV-Flags
 const REQUIRE_LOGIN = (process.env.REQUIRE_LOGIN_FOR_STATEMENTS || "false") === "true";
 
 function clamp(n: number, min: number, max: number) { return Math.max(min, Math.min(max, n)); }
@@ -26,20 +25,29 @@ function dec(s: string): CursorPayload {
   return j as CursorPayload;
 }
 
-// GET: paginiert
+// GET: Cursor-Pagination, optional Filter (category, status, language)
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const limitParam = Number(url.searchParams.get("limit") ?? "20");
   const limit = clamp(Number.isFinite(limitParam) ? limitParam : 20, 1, 100);
   const cursor = url.searchParams.get("cursor");
 
+  const category = url.searchParams.get("category")?.trim();
+  const status = url.searchParams.get("status")?.trim();
+  const language = url.searchParams.get("language")?.trim();
+
   let query: Record<string, any> = {};
+  if (category) query.category = category;
+  if (status) query.status = status;
+  if (language) query.language = language;
+
   if (cursor) {
     try {
       const { t, id } = dec(cursor);
       const d = new Date(String(t));
       if (!Number.isNaN(d.getTime()) && ObjectId.isValid(String(id))) {
-        query = { $or: [ { createdAt: { $lt: d } }, { createdAt: d, _id: { $lt: new ObjectId(String(id)) } } ] };
+        const older = { $or: [ { createdAt: { $lt: d } }, { createdAt: d, _id: { $lt: new ObjectId(String(id)) } } ] };
+        query = Object.keys(query).length ? { $and: [query, older] } : older;
       }
     } catch { /* ignore */ }
   }
@@ -60,6 +68,7 @@ export async function GET(req: NextRequest) {
     updatedAt: d.updatedAt,
     factcheckStatus: d.factcheckStatus ?? null,
     stats: d.stats ?? { views: 0, votesAgree: 0, votesNeutral: 0, votesDisagree: 0, votesTotal: 0 },
+    location: d.location ?? null
   }));
 
   const last = docs.at(-1);
@@ -70,7 +79,7 @@ export async function GET(req: NextRequest) {
   return res;
 }
 
-// Helper: Factcheck-Jobs dynamisch an BullMQ geben (keine harte Build-Abhängigkeit)
+// Factcheck-Job best effort einstellen (BullMQ)
 async function tryEnqueueFactcheck(payload: any) {
   try {
     const { getFactcheckQueue } = await import("@core/queue/factcheckQueue");
@@ -81,7 +90,7 @@ async function tryEnqueueFactcheck(payload: any) {
   }
 }
 
-// POST: anlegen (Login optional) + optional Factcheck-Job
+// POST: anlegen (Login optional) + optional Factcheck
 export async function POST(req: NextRequest) {
   const sess = readSession();
   if (REQUIRE_LOGIN && !sess) {
@@ -92,11 +101,10 @@ export async function POST(req: NextRequest) {
   try { body = await req.json(); }
   catch { return NextResponse.json({ error: "invalid_json" }, { status: 400 }); }
 
-  // Akzeptiere sowohl `text` als auch Legacy `content`
   const rawText = body?.text ?? body?.content ?? "";
   const text  = String(rawText).trim().slice(0, 4000);
+  if (!text) return NextResponse.json({ error: "text required" }, { status: 400 });
 
-  // Titel optional: automatisch aus erster Zeile/ersten 120 Zeichen
   const providedTitle = String(body?.title ?? "").trim().slice(0, 200);
   const autoTitle = (text.split(/\n+/).find(Boolean) || "").slice(0, 120) || "Beitrag";
   const title = providedTitle || autoTitle;
@@ -106,27 +114,24 @@ export async function POST(req: NextRequest) {
   const scope = body?.scope ? String(body.scope).slice(0,120) : undefined;
   const timeframe = body?.timeframe ? String(body.timeframe).slice(0,120) : undefined;
 
-  if (!text) {
-    return NextResponse.json({ error: "text required" }, { status: 400 });
-  }
-
   const now = new Date();
   const doc = {
     title, text, category, language,
-    author: null,                 // später evtl. mit Userdaten anreichern
+    author: null,
     userId: sess?.uid ?? null,
     createdAt: now, updatedAt: now,
     factcheckStatus: "queued" as const,
     stats: { views: 0, votesAgree: 0, votesNeutral: 0, votesDisagree: 0, votesTotal: 0 },
+    location: body?.location && Array.isArray(body.location?.coordinates)
+      ? { type: "Point", coordinates: [Number(body.location.coordinates[0]), Number(body.location.coordinates[1])] as [number, number] }
+      : undefined
   };
 
   const stmts = await coreCol<any>("statements");
   const ins = await stmts.insertOne(doc);
   const id = String(ins.insertedId);
 
-  // Factcheck -> best effort, Fehler bremsen das Erstellen nicht
-  tryEnqueueFactcheck({ contributionId: id, text, language, topic: category, scope, timeframe })
-    .catch(()=>{});
+  tryEnqueueFactcheck({ contributionId: id, text, language, topic: category, scope, timeframe }).catch(()=>{});
 
   const resp = NextResponse.json({ ok: true, id }, { status: 201 });
   resp.headers.set("Location", `/api/statements/${id}`);

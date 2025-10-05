@@ -1,16 +1,17 @@
-// apps/web/scripts/core.ensureIndexes.ts
 import { existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { resolve, dirname } from "node:path";
 import { config } from "dotenv";
+import { fileURLToPath } from "node:url";
+import mongoose from "mongoose";
 
-// 1) ENV laden
+// --- ENV robust laden ---
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = dirname(__filename);
 const envCandidates = [
-  resolve(process.cwd(), ".env.local"),
-  resolve(process.cwd(), ".env"),
-  resolve(process.cwd(), "../.env.local"),
-  resolve(process.cwd(), "../.env"),
-  resolve(process.cwd(), "../../.env.local"),
-  resolve(process.cwd(), "../../.env"),
+  resolve(__dirname, "..", ".env.local"),
+  resolve(__dirname, "..", ".env"),
+  resolve(__dirname, "..", "..", ".env.local"),
+  resolve(__dirname, "..", "..", ".env"),
 ];
 for (const p of envCandidates) {
   if (existsSync(p)) { config({ path: p, override: false }); break; }
@@ -20,95 +21,70 @@ function maskUri(uri?: string) {
   if (!uri) return "(unset)";
   try {
     const u = new URL(uri);
-    const host = u.host;
     const hasCreds = Boolean(u.username || u.password);
-    return `${u.protocol}//${hasCreds ? "***@" : ""}${host}${u.pathname || "/"}`;
+    return `${u.protocol}//${hasCreds ? "***@" : ""}${u.host}${u.pathname || "/"}`;
   } catch { return "(invalid URI)"; }
 }
 
 async function main() {
-  const results: Record<string, unknown> = {};
-  const uriMasked = maskUri(process.env.CORE_MONGODB_URI);
-  const dbName = process.env.CORE_DB_NAME ?? "(default: test)";
-  console.log("CORE_MONGODB_URI:", uriMasked);
+  const uri = process.env.CORE_MONGODB_URI;
+  const dbName = process.env.CORE_DB_NAME;
+  if (!uri || !dbName) throw new Error("Missing CORE_MONGODB_URI or CORE_DB_NAME");
+
+  console.log("CORE_MONGODB_URI:", maskUri(uri));
   console.log("CORE_DB_NAME:", dbName);
 
-  // Source
-console.log("→ indexing Source …");
-const Source = (await import("../src/models/core/Source")).default;
-await Source.createIndexes();
-const srcIdx = await Source.collection.indexes();
-results["sources.createIndexes"] = "ok";
-results["sources.indexes"] = srcIdx;
+  await mongoose.connect(uri, { dbName, serverSelectionTimeoutMS: 8_000 });
 
-// Stream
-console.log("→ indexing Stream …");
-const Stream = (await import("../src/models/core/Stream")).default;
-await Stream.createIndexes();
-const streamIdx = await Stream.collection.indexes();
-results["streams.createIndexes"] = "ok";
-results["streams.indexes"] = streamIdx;
+  const results: Record<string, unknown> = {};
 
-// StreamEvent
-console.log("→ indexing StreamEvent …");
-const StreamEvent = (await import("../src/models/core/StreamEvent")).default;
-await StreamEvent.createIndexes();
-const seIdx = await StreamEvent.collection.indexes();
-results["stream_events.createIndexes"] = "ok";
-results["stream_events.indexes"] = seIdx;
+  // RELATIVE Imports (kein "@/")
+  console.log("→ indexing Source …");
+  const Source = (await import("../src/models/core/Source")).default;
+  await Source.createIndexes();
+  results["sources.indexes"] = await Source.collection.indexes();
 
-  // 3) OPTIONAL: Legacy-Collections via triMongo — nur wenn wirklich vorhanden
+  console.log("→ indexing Stream …");
+  const Stream = (await import("../src/models/core/Stream")).default;
+  await Stream.createIndexes();
+  results["streams.indexes"] = await Stream.collection.indexes();
+
+  console.log("→ indexing StreamEvent …");
+  const StreamEvent = (await import("../src/models/core/StreamEvent")).default;
+  await StreamEvent.createIndexes();
+  results["stream_events.indexes"] = await StreamEvent.collection.indexes();
+
+  // Optional: Legacy-Collections via triMongo (nur wenn vorhanden)
   try {
     const tri = await import("../src/utils/triMongo");
-    const coreCol = (tri as any).coreCol as (<T>(name: string) => Promise<any>) | undefined;
-
-    if (coreCol) {
-      const dummy = await coreCol<any>("__dummy__").catch(() => null);
-      const db = dummy?.db;
-      const listCollections = db?.listCollections?.bind(db);
-      if (typeof listCollections === "function") {
-        const colNames = await listCollections().toArray();
-        const has = (n: string) => colNames.some((c: any) => c.name === n);
-
-        if (has("statements")) {
-          console.log("→ indexing legacy 'statements' …");
-          const statements = await coreCol<any>("statements");
-          results["statements.createIndexes"] = await statements.createIndexes([
-            { key: { createdAt: -1, _id: -1 }, name: "stmts_createdAt_desc_id_desc" },
-            { key: { category: 1, createdAt: -1 }, name: "stmts_category_asc_createdAt_desc" },
-            { key: { userId: 1, createdAt: -1 }, name: "stmts_userId_asc_createdAt_desc" },
-            { key: { language: 1, createdAt: -1 }, name: "stmts_language_asc_createdAt_desc" },
-            { key: { "stats.votesTotal": -1 }, name: "stmts_stats_votesTotal_desc" },
-          ]);
-        } else {
-          results["statements.createIndexes"] = { note: "collection not found (skipped)" };
-        }
-
-        if (has("votes")) {
-          console.log("→ indexing legacy 'votes' …");
-          const votes = await coreCol<any>("votes");
-          results["votes.createIndexes"] = await votes.createIndexes([
-            { key: { statementId: 1, value: 1 }, name: "votes_statementId_value" },
-            { key: { statementId: 1, role: 1 }, name: "votes_statementId_role" },
-            { key: { createdAt: -1 }, name: "votes_createdAt_desc" },
-          ]);
-        } else {
-          results["votes.createIndexes"] = { note: "collection not found (skipped)" };
-        }
-      } else {
-        results["legacyCollections"] = { note: "db.listCollections() not available (skipped)" };
-      }
-    } else {
-      results["legacyCollections"] = { note: "triMongo.coreCol not found (skipped)" };
+    const statements = await tri.coreCol("statements").catch(() => null);
+    if (statements?.createIndexes) {
+      console.log("→ indexing legacy 'statements' …");
+      await statements.createIndexes([
+        { key: { createdAt: -1, _id: -1 }, name: "stmts_createdAt_desc_id_desc" },
+        { key: { category: 1, createdAt: -1 }, name: "stmts_category_asc_createdAt_desc" },
+        { key: { userId: 1, createdAt: -1 }, name: "stmts_userId_asc_createdAt_desc" },
+        { key: { language: 1, createdAt: -1 }, name: "stmts_language_asc_createdAt_desc" },
+        { key: { "stats.votesTotal": -1 }, name: "stmts_stats_votesTotal_desc" },
+        { key: { location: "2dsphere" as any }, name: "stmts_geo_2dsphere" },
+      ]);
+    }
+    const votes = await tri.coreCol("votes").catch(() => null);
+    if (votes?.createIndexes) {
+      console.log("→ indexing legacy 'votes' …");
+      await votes.createIndexes([
+        { key: { statementId: 1, value: 1 }, name: "votes_statementId_value" },
+        { key: { statementId: 1, role: 1 }, name: "votes_statementId_role" },
+        { key: { createdAt: -1 }, name: "votes_createdAt_desc" },
+      ]);
     }
   } catch (e) {
-    results["legacyCollections"] = { note: "triMongo import failed (skipped)", error: String(e) };
+    console.log("ℹ legacy (triMongo) skipped:", String(e));
   }
 
   console.log("✔ core indexes result:", JSON.stringify(results, null, 2));
 }
 
-main().then(() => process.exit(0)).catch((e) => {
-  console.error("index creation failed:", e);
-  process.exit(1);
-});
+main()
+  .then(async () => { try { await mongoose.disconnect(); } catch {} process.exit(0); })
+  .catch(async (e) => { console.error("index creation failed:", e); try { await mongoose.disconnect(); } catch {} process.exit(1); });

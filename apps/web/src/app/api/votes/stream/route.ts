@@ -1,4 +1,4 @@
-import { redisSubscribe, voteChannel } from "@/lib/redis";
+import { redisSubscribe, voteChannel } from "src/lib/redis";
 
 export const dynamic = "force-dynamic";
 

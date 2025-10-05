@@ -5,8 +5,25 @@ export function ok<T>(data: T, init?: ResponseInit) {
   return NextResponse.json({ ok: true, data }, init);
 }
 
-export function fail(message = "Bad Request", status = 400, extra?: any) {
-  return NextResponse.json({ ok: false, error: message, ...extra }, { status });
+// kleinem Upgrade: init als optionales 4. Arg
+export function fail(message = "Bad Request", status = 400, extra?: any, init?: ResponseInit) {
+  return NextResponse.json({ ok: false, error: message, ...extra }, { status, ...(init || {}) });
+}
+
+/** ✅ Alias für Alt-Code, der { err } importiert */
+export function err(
+  a?: number | string,
+  b?: string | number,
+  extra?: any,
+  init?: ResponseInit
+) {
+  // unterstützt beide Aufrufstile:
+  // err(500, "msg")  |  err("msg", 500)  |  err("msg")  |  err(500)
+  let status = 500;
+  let message = "Error";
+  if (typeof a === "number") { status = a; if (typeof b === "string") message = b; }
+  else if (typeof a === "string") { message = a; if (typeof b === "number") status = b; }
+  return fail(message, status, extra, init);
 }
 
 export async function json<T = any>(req: NextRequest): Promise<T> {
@@ -20,4 +37,4 @@ export function assertMethod(req: NextRequest, ...allowed: string[]) {
   }
 }
 
-export default { ok, fail, json, assertMethod };
+export default { ok, fail, err, json, assertMethod };

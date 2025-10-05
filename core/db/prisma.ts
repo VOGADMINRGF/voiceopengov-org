@@ -1,10 +1,9 @@
-import { PrismaClient } from '@prisma/client';
-
-declare global {
+// core/db/prisma.ts
+import { PrismaClient } from "@prisma/client";
+declare global { // HMR-safe
   // eslint-disable-next-line no-var
-  var prisma: PrismaClient | undefined;
+  var __prisma__: PrismaClient | undefined;
 }
-
-export const prisma = global.prisma ?? new PrismaClient();
-
-if (process.env.NODE_ENV !== 'production') global.prisma = prisma;
+const prisma = globalThis.__prisma__ ?? new PrismaClient();
+if (process.env.NODE_ENV !== "production") globalThis.__prisma__ = prisma;
+export { prisma };

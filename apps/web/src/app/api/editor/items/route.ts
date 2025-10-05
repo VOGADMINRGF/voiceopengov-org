@@ -1,6 +1,6 @@
 //apps/web/src/app/api/editor/items/route,ts
 import { NextResponse } from "next/server";
-import { prisma } from "@core/prisma";
+import { prisma } from "@core/db/prisma";
 import { ContentKind, PublishStatus, RegionMode } from "@prisma/client";
 import { validateItemDraft } from "./../server/validation/contentValidation";
 

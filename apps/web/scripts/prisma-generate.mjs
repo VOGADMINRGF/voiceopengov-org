@@ -10,13 +10,13 @@ const here = path.dirname(fileURLToPath(import.meta.url));
  * Suchreihenfolge (vom wahrscheinlichsten Pfad nach weniger wahrscheinlichen):
  * 1) <repo-root>/prisma/web/schema.prisma
  * 2) apps/web/prisma/schema.prisma
- * 3) apps/core/prisma/schema.prisma
+ * 3) apps/core/db/prisma/schema.prisma
  * 4) <repo-root>/prisma/schema.prisma
  */
 const candidates = [
   path.join(here, "..", "..", "..", "prisma", "web", "schema.prisma"),
   path.join(here, "..", "prisma", "schema.prisma"),
-  path.join(here, "..", "..", "core", "prisma", "schema.prisma"),
+  path.join(here, "..", "..", "core","db", "prisma", "schema.prisma"),
   path.join(here, "..", "..", "..", "prisma", "schema.prisma"),
 ];
 

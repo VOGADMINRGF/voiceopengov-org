@@ -1,10 +1,12 @@
 // apps/web/src/app/api/map/points/route.ts
-import { NextResponse } from "next/server";
-import { getDb } from "@/lib/db";
-
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type Source = "core" | "votes"; // ⚠️ PII absichtlich ausgeschlossen
+import { NextRequest, NextResponse } from "next/server";
+import { ObjectId } from "mongodb";
+import { coreCol, votesCol } from "src/utils/triMongo";
+
+/** --- Helpers ------------------------------------------------------------ */
 
 function parseBbox(param: string | null): [number, number, number, number] | null {
   if (!param) return null;
@@ -15,56 +17,221 @@ function parseBbox(param: string | null): [number, number, number, number] | nul
 }
 
 function bboxToPolygon([w, s, e, n]: [number, number, number, number]) {
-  // GeoJSON Polygon (anti-clockwise), 2dsphere-kompatibel
   return {
     type: "Polygon" as const,
-    coordinates: [[
-      [w, s], [e, s], [e, n], [w, n], [w, s]
-    ]]
+    coordinates: [[[w, s], [e, s], [e, n], [w, n], [w, s]]],
   };
 }
 
-export async function GET(req: Request) {
+type Summary = { agree: number; neutral: number; disagree: number; requiredMajority?: number };
+
+/** Aggregiert Votes für viele Statements in einem Rutsch (ObjectId ODER string). */
+async function batchVotesSummary(statementIdsObj: ObjectId[], statementIdsStr: string[]) {
+  const votes = await votesCol<any>("votes");
+
+  const or: any[] = [];
+  if (statementIdsObj.length) or.push({ statementId: { $in: statementIdsObj } });
+  if (statementIdsStr.length) or.push({ statementId: { $in: statementIdsStr } });
+
+  if (!or.length) return new Map<string, Summary>();
+
+  const match: any = or.length === 1 ? or[0] : { $or: or };
+  const pipeline: any[] = [
+    { $match: match },
+    {
+      $group: {
+        _id: { sid: "$statementId", v: "$value" },
+        c: { $sum: 1 },
+      },
+    },
+    {
+      $group: {
+        _id: "$_id.sid",
+        counts: {
+          $push: { k: "$_id.v", v: "$c" },
+        },
+      },
+    },
+  ];
+
+  const rows = await votes.aggregate(pipeline, { allowDiskUse: true }).toArray();
+  const map = new Map<string, Summary>();
+
+  for (const r of rows) {
+    const idKey = String(r._id);
+    const s: Summary = { agree: 0, neutral: 0, disagree: 0 };
+    for (const { k, v } of r.counts as Array<{ k: string; v: number }>) {
+      const kk = String(k).toLowerCase();
+      if (kk === "agree" || kk === "yes" || kk === "pro" || kk === "for") s.agree += v;
+      else if (kk === "disagree" || kk === "no" || kk === "contra" || kk === "against") s.disagree += v;
+      else s.neutral += v;
+    }
+    map.set(idKey, s);
+  }
+  return map;
+}
+
+/** --- Clustering (optional) --------------------------------------------- */
+
+function cellSizeDeg(zoom: number) {
+  const z = Math.max(0, Math.min(22, Math.floor(zoom)));
+  return 360 / Math.pow(2, z + 2);
+}
+type ClusterKey = string;
+function keyFor(lon: number, lat: number, size: number): ClusterKey {
+  const x = Math.floor((lon + 180) / size);
+  const y = Math.floor((lat + 90) / size);
+  return `${x}:${y}`;
+}
+
+/** --- Handler ------------------------------------------------------------ */
+
+export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
+
     const bbox = parseBbox(searchParams.get("bbox"));
     const limit = Math.min(Math.max(Number(searchParams.get("limit") || 200), 1), 1000);
-    const tags = (searchParams.get("tags") || "").split(",").map(s => s.trim()).filter(Boolean);
+    const tags = (searchParams.get("tags") || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     const status = searchParams.get("status") || undefined;
+
+    // Sprache: in der Collection heißt das Feld "language"
     const lang = searchParams.get("lang") || undefined;
-    const source = (searchParams.get("source") || "core") as Source;
 
-    // PII im öffentlichen Endpunkt bewusst nicht erlaubt
-    if (!["core", "votes"].includes(source)) {
-      return NextResponse.json({ ok: false, error: "source_not_allowed" }, { status: 403 });
-    }
+    // Regionale Filter auf regionScope
+    const region = searchParams.get("region") || undefined;
+    const regionMode = (searchParams.get("regionMode") || "contains") as "contains" | "overlaps";
 
-    const db = await getDb(source);
-    // Collection-Namen zentral: ggf. angleichen, falls bei dir anders benannt
-    const colName = source === "core" ? "statements" : "votes";
-    const col = db.collection(colName);
+    // Cluster-Option
+    const doCluster = searchParams.get("cluster") === "true";
+    const zoom = Number(searchParams.get("zoom") || 6);
 
-    const q: any = {};
-    if (bbox) {
-      // 2dsphere-freundlich: $geoWithin + $geometry (Polygon)
-      q.location = { $geoWithin: { $geometry: bboxToPolygon(bbox) } };
-    }
+    // Wenn freshVotes=true, zählen wir live aus votes (Batch-Aggregation).
+    const freshVotes = searchParams.get("freshVotes") === "true";
+
+    const stmts = await coreCol<any>("statements");
+
+    // Query auf Statements
+    const q: any = {
+      location: { $exists: true },
+      "location.type": "Point",
+    };
+    if (bbox) q.location = { $geoWithin: { $geometry: bboxToPolygon(bbox) } };
     if (tags.length) q.tags = { $in: tags };
     if (status) q.status = status;
-    if (lang) q.lang = lang;
+    if (lang) q.language = lang; // <<< Korrektur: language statt lang
+    if (region) {
+      // regionScope = [{ code: "DE-BE", ... }, ...]
+      if (regionMode === "contains") {
+        q["regionScope.code"] = region;
+      } else {
+        // overlaps: Präfix-Match (vereinfachte Hierarchie-Heuristik)
+        q["regionScope.code"] = { $regex: `^${region}` };
+      }
+    }
 
-    // Vorsichtige Projektion (nur Karten-relevante Felder)
-    const projection = { title: 1, tags: 1, status: 1, location: 1 };
+    // Projektion – nur Kartenrelevantes + ids + votes
+    const projection = {
+      title: 1,
+      category: 1,
+      tags: 1,
+      status: 1,
+      language: 1, // <<< statt lang
+      location: 1,
+      votes: 1,
+      id: 1,
+    };
 
-    const cursor = col.find(q, { projection }).limit(limit);
-    const docs = await cursor.toArray();
+    const items = await stmts.find(q, { projection }).limit(limit).toArray();
 
+    // Optional: live Votes aus votes-Collection ziehen (batch, kein N+1)
+    let liveMap: Map<string, Summary> | null = null;
+    if (freshVotes && items.length) {
+      const idsObj = items.map((s) => s?._id).filter((x): x is ObjectId => !!x);
+      const idsStr = items.map((s) => s?.id).filter((x): x is string => typeof x === "string" && x.length > 0);
+      liveMap = await batchVotesSummary(idsObj, idsStr);
+    }
+
+    // Features bauen
+    const features = items.map((s) => {
+      const keyObj = s?._id ? String(s._id) : null;
+      const keyStr = typeof s?.id === "string" ? s.id : null;
+
+      const agg: Summary =
+        (liveMap && (liveMap.get(keyObj || "") || liveMap.get(keyStr || ""))) ||
+        (s.votes ?? { agree: 0, neutral: 0, disagree: 0 });
+
+      const votes: Summary = {
+        agree: Number(agg.agree) || 0,
+        neutral: Number(agg.neutral) || 0,
+        disagree: Number(agg.disagree) || 0,
+        requiredMajority: Number(s?.votes?.requiredMajority) || 50,
+      };
+
+      return {
+        type: "Feature" as const,
+        geometry: s.location,
+        properties: {
+          id: String(s._id ?? s.id),
+          title: s.title,
+          category: s.category,
+          tags: s.tags ?? [],
+          status: s.status ?? null,
+          language: s.language ?? null, // <<< konsistent
+          votes,
+        },
+      };
+    });
+
+    // Optional: serverseitiges Clustering
+    if (doCluster) {
+      const size = cellSizeDeg(zoom);
+      const bucket = new Map<
+        ClusterKey,
+        { lon: number; lat: number; n: number; votes: { agree: number; neutral: number; disagree: number } }
+      >();
+
+      for (const f of features) {
+        const [lon, lat] = (f.geometry as any).coordinates as [number, number];
+        const k = keyFor(lon, lat, size);
+        const b =
+          bucket.get(k) || { lon: 0, lat: 0, n: 0, votes: { agree: 0, neutral: 0, disagree: 0 } };
+        b.lon += lon;
+        b.lat += lat;
+        b.n += 1;
+        b.votes.agree += f.properties.votes.agree;
+        b.votes.neutral += f.properties.votes.neutral;
+        b.votes.disagree += f.properties.votes.disagree;
+        bucket.set(k, b);
+      }
+
+      const clusters = Array.from(bucket.values()).map((b) => ({
+        type: "Feature" as const,
+        geometry: { type: "Point" as const, coordinates: [b.lon / b.n, b.lat / b.n] },
+        properties: { cluster: true, count: b.n, votes: b.votes },
+      }));
+
+      return NextResponse.json({
+        type: "FeatureCollection",
+        features: clusters,
+        count: clusters.length,
+        clustered: true,
+        zoom,
+        freshVotes,
+        query: { region, regionMode },
+      });
+    }
+
+    // Kein Clustering: rohe Punkte zurückgeben
     return NextResponse.json({
-      ok: true,
-      count: docs.length,
-      points: docs,
-      source,
-      col: colName,
+      type: "FeatureCollection",
+      features,
+      count: features.length,
+      freshVotes,
+      query: { region, regionMode },
     });
   } catch (e: any) {
     return NextResponse.json({ ok: false, error: e?.message || "err" }, { status: 500 });
