@@ -1,25 +1,14 @@
-// prisma/web/schema.prisma — v3 (v1 + v2 merged)
-
+// prisma/web/schema.prisma
 generator client {
   provider = "prisma-client-js"
-  // Beibehaltung aus v1
-  output   = "../../apps/web/src/db/web"
 }
 
 datasource db {
   provider = "postgresql"
-  // Beibehaltung aus v1; falls du WEB_DATABASE_URL nutzt, bitte ENV anpassen.
-  url      = env("WEB_POSTGRES_URL")
+  url      = env("WEB_DATABASE_URL")
 }
 
-//
-// ---------- ENUMS ----------
 enum ContentKind {
-  // v1
-  SWIPE
-  EVENT
-  SUNDAY_POLL
-  // v2 ergänzt
   POST
   POLL
   QUIZ
@@ -28,8 +17,7 @@ enum ContentKind {
 
 enum PublishStatus {
   draft
-  review     // v1
-  scheduled  // v2
+  scheduled
   published
   archived
 }
@@ -39,75 +27,15 @@ enum RegionMode {
   MANUAL
 }
 
-enum Locale {
-  de
-  en
-  fr
-  it
-  es
-  pl
-  uk
-  ru
-  tr
-  hi
-  zh
-  ar
-}
-
-//
-// ---------- TAXONOMY (Topics/Tags) ----------
 model Topic {
-  id          String     @id @default(cuid())
-  slug        String     @unique
-  title       String
-  description String?
-  locale      Locale     @default(de)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-
-  items ContentItem[]
-  tags  TopicTag[]
-
-  @@index([locale])
-  @@index([createdAt])
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  items     ContentItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model Tag {
-  id     String  @id @default(cuid())
-  slug   String  @unique
-  label  String
-  topics TopicTag[]
-  items  ItemTag[]
-}
-
-model TopicTag {
-  id      String @id @default(cuid())
-  topicId String
-  tagId   String
-
-  topic Topic @relation(fields: [topicId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  tag   Tag   @relation(fields: [tagId],   references: [id], onDelete: Restrict, onUpdate: Cascade)
-
-  @@unique([topicId, tagId])
-  @@index([topicId])
-  @@index([tagId])
-}
-
-model ItemTag {
-  id     String @id @default(cuid())
-  itemId String
-  tagId  String
-
-  item ContentItem @relation(fields: [itemId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  tag  Tag         @relation(fields: [tagId],  references: [id], onDelete: Restrict, onUpdate: Cascade)
-
-  @@unique([itemId, tagId])
-  @@index([itemId])
-  @@index([tagId])
-}
-
-//
-// ---------- REGION ----------
 model Region {
   id    String @id @default(cuid())
   code  String @unique
@@ -115,76 +43,41 @@ model Region {
   level Int
 }
 
-//
-// ---------- CONTENT ----------
 model ContentItem {
-  id        String      @id @default(cuid())
-  kind      ContentKind
+  id             String        @id @default(cuid())
+  kind           ContentKind
+  text           String
+  title          String?
+  richText       Json?
+  authorName     String?
+  locale         String        @default("de")
+  status         PublishStatus @default(draft)
+  publishAt      DateTime?
+  expireAt       DateTime?
 
-  // Topic
-  topicId   String
-  topic     Topic       @relation(fields: [topicId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-
-  // Locale
-  locale    Locale      @default(de)
-
-  // Text
-  title     String?
-  text      String
-  // v2: richText als strukturiertes JSON; (v1 hatte String?) – Migration s.u.
-  richText  Json?
-
-  // Sortierung
-  sortOrder Int         @default(0) @map("order")
-
-  // Publikations-Workflow
-  status     PublishStatus @default(draft)
-  authorName String?
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
-  publishAt  DateTime?
-  expireAt   DateTime?
-
-  // Region
-  regionMode     RegionMode @default(AUTO)
-  // v1: freie ID; v2: echte Relation – wir unterstützen beides
+  regionMode     RegionMode    @default(AUTO)
   regionManualId String?
-  regionManual   Region?    @relation(fields: [regionManualId], references: [id], onDelete: SetNull)
+  regionManual   Region?       @relation(fields: [regionManualId], references: [id])
   regionAuto     Json?
-  // optional: effektive Region denormalisiert (v2-Idee)
+
+  topicId        String
+  topic          Topic         @relation(fields: [topicId], references: [id])
+
+  answerOptions  AnswerOption[]
   regionEffective Json?
-  // (Optional beibehalten aus v1 – falls du eine berechnete ID persistierst)
-  regionEffectiveId String?
 
-  // Validierung/Metadaten
-  validation Json?
-  meta       Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  // Relationen
-  answerOptions AnswerOption[]
-  tags          ItemTag[]
-
-  // Indizes
-  @@index([kind, status, locale])
-  @@index([locale, status, kind]) // v2-Kombiindex
-  @@index([publishAt])
-  @@index([topicId])
-  @@index([createdAt])
+  @@index([locale, status, kind])
 }
 
 model AnswerOption {
-  id        String      @id @default(cuid())
-
-  // v1-kompatible Relation/Feldnamen
-  itemId    String
-  item      ContentItem @relation(fields: [itemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  label     String
-  value     String
-  sortOrder Int         @default(0) @map("order")
-  exclusive Boolean     @default(false)
-  meta      Json?
-
-  @@unique([itemId, sortOrder])
-  @@unique([itemId, value])
+  id            String      @id @default(cuid())
+  label         String
+  value         String
+  exclusive     Boolean     @default(false)
+  order         Int         @default(0)
+  contentItem   ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  contentItemId String
 }
