@@ -1,5 +1,5 @@
 
-import { Organization } from "../models/Organization";
+import Organization from "../models/Organization";
 
 export function isOrgPremium(org: Organization): boolean {
   return org.premium && org.verified;

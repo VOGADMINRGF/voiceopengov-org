@@ -15,7 +15,7 @@ const candidates = [
 for (const p of candidates) if (existsSync(p)) { config({ path: p, override: false }); break; }
 
 async function run() {
-  const { piiCol } = await import("@core/triMongo");
+  const { piiCol } = await import("@core/db/triMongo");
   const col = await piiCol<any>("tokens");
 
   // Einzel-Token-Lookup & Cleanup

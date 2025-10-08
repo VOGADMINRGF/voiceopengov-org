@@ -1,5 +1,3 @@
-\
-#!/usr/bin/env node
 import fg from "fast-glob";
 import fs from "node:fs/promises";
 import path from "node:path";

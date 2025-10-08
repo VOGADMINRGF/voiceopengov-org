@@ -1,13 +1,17 @@
-\
 #!/usr/bin/env node
 import fs from "node:fs/promises";
+import { existsSync } from "node:fs";
+import ts from "typescript";
 import path from "node:path";
 
 const WRITE = process.env.REPERATUR_WRITE === "1";
 const report = [];
 
-async function loadJson(p){
-  try { return JSON.parse(await fs.readFile(p,"utf-8")); } catch { return null; }
+function readJsonc(p){
+  if (!existsSync(p)) return null;
+  const res = ts.readConfigFile(p, ts.sys.readFile);
+  if (res.error) return null;
+  return res.config || null;
 }
 
 async function saveJson(p, obj){
@@ -15,24 +19,24 @@ async function saveJson(p, obj){
   await fs.writeFile(p, txt, "utf-8");
 }
 
-const baseFiles = ["tsconfig.base.json","tsconfig.json"];
-let base = null, baseFile = null;
-for (const f of baseFiles){
-  const j = await loadJson(f);
-  if (j){ base = j; baseFile = f; break; }
-}
+const candidates = ["tsconfig.base.json","tsconfig.json"];
+let baseFile = candidates.find(f => existsSync(f)) || null;
+let base = baseFile ? readJsonc(baseFile) : null;
+
 if (!base){
-  console.log("[15-paths-tsconfig] No base tsconfig found.");
+  console.log("[15-paths-tsconfig] No base tsconfig found (or unreadable).");
   process.exit(0);
 }
 
-const paths = base.compilerOptions?.paths || {};
+base.compilerOptions = base.compilerOptions || {};
+const paths = base.compilerOptions.paths || {};
 let changed = false;
 
-function ensurePath(alias, target){
-  if (!paths[alias]){
-    paths[alias] = Array.isArray(target) ? target : [target];
-    report.push(`ADD paths: ${alias} -> ${JSON.stringify(paths[alias])}`);
+function ensurePath(alias, targets){
+  const arr = Array.isArray(targets) ? targets : [targets];
+  if (!paths[alias]) {
+    paths[alias] = arr;
+    report.push(`ADD paths: ${alias} -> ${JSON.stringify(arr)}`);
     changed = true;
   }
 }
@@ -42,8 +46,7 @@ ensurePath("@db-core", ["packages/db-core/src"]);
 ensurePath("@features/*", ["features/*"]);
 ensurePath("@ui/*", ["packages/ui/src/*"]);
 
-if (WRITE){
-  base.compilerOptions = base.compilerOptions || {};
+if (WRITE && changed){
   base.compilerOptions.paths = paths;
   await saveJson(baseFile, base);
 }

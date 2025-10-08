@@ -13,7 +13,15 @@ node tools/reperatur/14-mongoose-indexes.mjs
 node tools/reperatur/15-paths-tsconfig.mjs
 
 echo "== ESLint --fix (optional) =="
-pnpm -w exec eslint . --ext .ts,.tsx --fix || true
+if pnpm -w exec eslint -v >/dev/null 2>&1; then
+  pnpm -w exec eslint . --ext .ts,.tsx --fix || true
+else
+  echo "ESLint not installed — skipping"
+fi
 
 echo "== Typecheck =="
-pnpm -w exec tsc --noEmit -b || true
+if pnpm -w exec tsc -b >/dev/null 2>&1; then
+  pnpm -w exec tsc -b || true
+else
+  pnpm -w exec tsc --noEmit || true
+fi

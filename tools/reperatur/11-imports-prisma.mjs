@@ -1,5 +1,3 @@
-\
-#!/usr/bin/env node
 import fg from "fast-glob";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -10,7 +8,11 @@ const cfg = JSON.parse(await fs.readFile("tools/reperatur/config.json","utf-8"))
 const mapping = cfg.dbClientMapping || {};
 const report = [];
 
-const project = new Project({ tsConfigFilePath: "tsconfig.json", skipAddingFilesFromTsConfig: true });
+import { existsSync } from "node:fs";
+const __tscfg = ["tsconfig.base.json","tsconfig.json"].find(f=>existsSync(f));
+const project = __tscfg
+  ? new Project({ tsConfigFilePath: __tscfg, skipAddingFilesFromTsConfig: true })
+  : new Project({ skipAddingFilesFromTsConfig: true });
 const files = await fg(["**/*.{ts,tsx}","!**/node_modules/**","!**/dist/**","!**/build/**"]);
 files.forEach(f => project.addSourceFileAtPath(f));
 
