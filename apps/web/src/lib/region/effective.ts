@@ -1,10 +1,18 @@
 // apps/web/src/lib/region/effective.ts
-import { cookies } from "next/headers";
+export const runtime = "nodejs";
+
+import { getCookie } from "@/lib/http/typedCookies";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prismaWeb } from "@/lib/dbWeb";
+import { prisma } from "@db-web";
 
-export type RegionLevel = "country" | "state" | "county" | "city" | "nuts" | "custom";
+export type RegionLevel =
+  | "country"
+  | "state"
+  | "county"
+  | "city"
+  | "nuts"
+  | "custom";
 
 export interface RegionDTO {
   id: string;
@@ -21,14 +29,26 @@ export interface EffectiveRegionResult {
   userId?: string | null;
 }
 
+/** Liest den Wert des u_region-Cookies asynchron (z. B. DE-BE-BERLIN). */
+export async function readRegionCookie(): Promise<string | undefined> {
+  const raw = await getCookie("u_region");
+  return typeof raw === "string" ? raw : (raw as any)?.value;
+}
+
+/**
+ * Liefert die effektiv aktive Region:
+ * 1. falls User eingeloggt → Profil.Region
+ * 2. sonst Cookie
+ * 3. sonst Fallback (keine Region)
+ */
 export async function getEffectiveRegion(): Promise<EffectiveRegionResult> {
-  // 1) Profil (NextAuth optional, still & freundlich)
+  // 1) Versuch: über Profil (NextAuth optional)
   try {
     const session = await getServerSession(authOptions);
     const userId = session?.user?.id ?? null;
 
     if (userId) {
-      const prof = await prismaWeb.userProfile.findUnique({
+      const prof = await prisma.userProfile.findUnique({
         where: { userId },
         include: { region: true },
       });
@@ -45,37 +65,50 @@ export async function getEffectiveRegion(): Promise<EffectiveRegionResult> {
           userId,
         };
       }
-      // fällt durch zu Cookie
-      return { region: await fromCookie(), source: (await hasCookie()) ? "cookie" : "none", userId };
+
+      // kein Profil-Regionseintrag → Cookie prüfen
+      const c = await readRegionCookie();
+      if (c) {
+        const region = await prisma.region.findUnique({ where: { code: c } });
+        if (region) {
+          return {
+            region: {
+              id: region.id,
+              code: region.code,
+              name: region.name,
+              level: region.level as RegionLevel,
+            },
+            source: "cookie",
+            userId,
+          };
+        }
+      }
+
+      // kein Cookie → none
+      return { region: null, source: "none", userId };
     }
   } catch {
-    // NextAuth nicht verkabelt → still und freundlich ignorieren
+    // NextAuth evtl. nicht aktiviert → still ignorieren
   }
 
-  // 2) Cookie (auch ohne Login)
-  const r = await fromCookie();
-  if (r) return { region: r, source: "cookie", userId: null };
+  // 2) Nur Cookie (auch ohne Login)
+  const cookieVal = await readRegionCookie();
+  if (cookieVal) {
+    const region = await prisma.region.findUnique({ where: { code: cookieVal } });
+    if (region) {
+      return {
+        region: {
+          id: region.id,
+          code: region.code,
+          name: region.name,
+          level: region.level as RegionLevel,
+        },
+        source: "cookie",
+        userId: null,
+      };
+    }
+  }
 
-  // 3) Nichts gesetzt
+  // 3) Kein Profil & kein Cookie → none
   return { region: null, source: "none", userId: null };
-}
-
-async function hasCookie() {
-  const c = cookies().get("u_region");
-  return !!c?.value;
-}
-
-async function fromCookie(): Promise<RegionDTO | null> {
-  const c = cookies().get("u_region");
-  if (!c?.value) return null;
-
-  const region = await prismaWeb.region.findUnique({ where: { code: c.value } });
-  if (!region) return null;
-
-  return {
-    id: region.id,
-    code: region.code,
-    name: region.name,
-    level: region.level as RegionLevel,
-  };
 }

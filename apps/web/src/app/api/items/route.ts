@@ -1,67 +1,29 @@
-// apps/web/src/app/api/items/route.ts
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { ContentKind, PublishStatus } from "@prisma/client";
+import { prisma, PublishStatus, ContentKind } from "@db-web";
 
-export async function GET(req: Request) {
+export async function POST(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const kind = searchParams.get("kind") as ContentKind | null;
-    const locale = (searchParams.get("locale") as any) || undefined;
-    const regionCode = searchParams.get("region") || undefined;
-    const active = searchParams.get("active") === "true";
-    const latest = searchParams.get("latest") === "true";
-    const take = Math.min(parseInt(searchParams.get("take") || "50", 10), 200);
+    const body = await req.json();
 
-    const now = new Date();
-
-    const where: any = {
-      status: PublishStatus.published,
-      OR: [{ publishAt: null }, { publishAt: { lte: now } }],
-      AND: [{ OR: [{ expireAt: null }, { expireAt: { gt: now } }] }],
+    const data: any = {
+      kind: body.kind as ContentKind,
+      text: String(body.text ?? ""),
+      status: PublishStatus.draft
     };
-    if (kind) where.kind = kind;
-    if (locale) where.locale = locale;
 
-    // Region-Filter: wenn regionCode gesetzt, matchen wir effective Region-Hierarchie einfach (pragmatisch)
-    // Vereinfachung: match per Region.code = regionCode (exakte Ebene). Hier kann später Hierarchie-Matching ergänzt werden.
-    if (regionCode) {
-      // Join via regionEffective -> Region.code
-      const regions = await prisma.region.findMany({ where: { code: regionCode } });
-      if (regions.length) where.regionEffectiveId = regions[0].id;
+    if (typeof body.topicId === "string" && body.topicId) {
+      data.topic = { connect: { id: body.topicId } }; // relation-safe
     }
 
-    const items = await prisma.contentItem.findMany({
-      where,
-      include: {
-        answerOptions: { orderBy: { order: "asc" } },
-        regionEffective: true,
-        topic: { select: { id: true, slug: true, title: true } },
-      },
-      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
-      take,
+    const created = await prisma.contentItem.create({
+      data,
+      include: { answerOptions: true, topic: true }
     });
 
-    // latest=true → pro Topic / Kind nur das jüngste
-    if (latest) {
-      const seen = new Set<string>();
-      const filtered: typeof items = [];
-      for (const it of items) {
-        const key = `${it.topicId}:${it.kind}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          filtered.push(it);
-        }
-      }
-      return NextResponse.json(filtered);
-    }
-
-    return NextResponse.json(items);
+    return NextResponse.json({ ok: true, item: created });
   } catch (e: any) {
-    console.error(e);
-    return new NextResponse(JSON.stringify({ error: "Failed to fetch items" }), {
-      status: 500,
-      headers: { "content-type": "application/json" },
-    });
+    return NextResponse.json({ ok: false, error: e?.message ?? "Create failed" }, { status: 500 });
   }
 }

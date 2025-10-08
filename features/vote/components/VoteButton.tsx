@@ -1,3 +1,4 @@
+// features/vote/components/VoteButton.tsx
 "use client";
 import { useState } from "react";
 
@@ -6,47 +7,46 @@ type Summary = { agree: number; neutral: number; disagree: number };
 
 function ensureFp(): string {
   try {
+    const uuid = typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2);
     let fp = localStorage.getItem("vog_fp");
-    if (!fp) {
-      fp = crypto.randomUUID();
-      localStorage.setItem("vog_fp", fp);
-    }
+    if (!fp) { fp = uuid; localStorage.setItem("vog_fp", fp); }
     return fp;
-  } catch {
-    // Fallback, z. B. Private Mode
-    return "fp-unavailable";
-  }
+  } catch { return "fp-unavailable"; }
 }
 
 const baseBtn =
   "px-3 py-1 rounded text-sm border transition disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-1";
 
-export default function VoteButtons({
+type Props = {
+  statementId: string;
+  initialSummary?: Summary;
+  onAfter?: (value: Val) => void;
+  lockAfterVote?: boolean;
+  userHash?: string;
+};
+
+function VoteButton({
   statementId,
   initialSummary,
   onAfter,
   lockAfterVote = false,
-}: {
-  statementId: string;
-  initialSummary?: Summary;
-  onAfter?: (value: Val) => void;
-  /** true = weiterer Vote in der Session gesperrt */
-  lockAfterVote?: boolean;
-}) {
+  userHash,
+}: Props) {
   const [busy, setBusy] = useState<Val | null>(null);
   const [voted, setVoted] = useState<Val | null>(null);
   const [summary, setSummary] = useState<Summary | undefined>(initialSummary);
 
   async function cast(value: Val) {
-    if (busy) return; // nur Parallelklicks verhindern
-
+    if (busy) return;
     setBusy(value);
 
-    // Optimistic Update mit sauberem Umstimmen (−1 alte, +1 neue Auswahl)
     const prevSummary = summary ? { ...summary } : undefined;
     const prevVote = voted;
+
     if (summary) {
-      const next: Summary = { ...summary };
+      const next = { ...summary };
       next[value] += 1;
       if (!lockAfterVote && prevVote && prevVote !== value) {
         next[prevVote] = Math.max(0, next[prevVote] - 1);
@@ -56,36 +56,37 @@ export default function VoteButtons({
 
     try {
       const fp = ensureFp();
+      const headers: Record<string, string> = { "Content-Type": "application/json", "x-fp": fp };
+      if (userHash) headers["x-user-hash"] = userHash;
+
       const r = await fetch("/api/votes/cast", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-fp": fp,
-        },
+        headers,
         body: JSON.stringify({ statementId, value }),
       });
-
       const j = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(j?.error || "Vote fehlgeschlagen");
+      if (!r.ok || !j?.ok) throw new Error(j?.error || "Vote fehlgeschlagen");
 
-      // Falls der Server eine aktuelle Summary zurückgibt, diese übernehmen
-      if (j?.summary && typeof j.summary === "object") {
-        setSummary(j.summary as Summary);
+      // SERVER-KONTRAKT: { ok, data: { agree, neutral, disagree }, meta: {...} }
+      if (j?.data && typeof j.data === "object") {
+        const s = j.data as Partial<Summary>;
+        setSummary({
+          agree: Number(s.agree ?? 0),
+          neutral: Number(s.neutral ?? 0),
+          disagree: Number(s.disagree ?? 0),
+        });
       }
 
-      // UI-Zustand zeigen, aber weitere Votes NICHT verhindern (außer lockAfterVote=true)
       setVoted(value);
       onAfter?.(value);
-    } catch (e) {
-      // Rollback bei Fehler
+    } catch (e: any) {
       if (prevSummary) setSummary(prevSummary);
-      alert((e as Error).message);
+      alert(e?.message || "Fehler");
     } finally {
       setBusy(null);
     }
   }
 
-  // Buttons nur sperren, solange busy – bzw. nach erstem Vote, wenn lockAfterVote=true übergeben wurde
   const disabled = !!busy || (lockAfterVote && !!voted);
 
   return (
@@ -126,12 +127,7 @@ export default function VoteButtons({
       {voted && (
         <span className="text-sm text-gray-600">
           Danke für deine Stimme{summary ? "!" : "."}
-          {summary && (
-            <>
-              {" "}
-              Aktuelle Stimmen: 👍 {summary.agree} | 🤔 {summary.neutral} | 👎 {summary.disagree}
-            </>
-          )}
+          {summary && <> Aktuelle Stimmen: 👍 {summary.agree} | 🤔 {summary.neutral} | 👎 {summary.disagree}</>}
         </span>
       )}
 
@@ -143,3 +139,6 @@ export default function VoteButtons({
     </div>
   );
 }
+
+export default VoteButton;
+export { VoteButton };

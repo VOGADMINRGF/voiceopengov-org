@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@lib/prisma";
+import { prisma } from "@db-web";
 
 export async function GET() {
   const tags = await prisma.tag.findMany({ orderBy: { slug: "asc" } });

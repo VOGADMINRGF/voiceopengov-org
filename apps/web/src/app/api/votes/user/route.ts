@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { Types } from "mongoose";
 import { getServerUser } from "@/lib/auth/getServerUser";
-import { VoteModel } from "@/models/Vote";
+import { VoteModel } from "@/models/votes/Vote";
 import crypto from "crypto";
 
 export const dynamic = "force-dynamic";

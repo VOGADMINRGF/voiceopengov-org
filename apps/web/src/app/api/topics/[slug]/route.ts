@@ -1,7 +1,8 @@
 // apps/web/src/app/api/topics/[slug]/route.ts
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { PublishStatus } from "@prisma/client";
+import { prisma, PublishStatus } from "@db-web";
 
 type Params = { params: { slug: string } };
 
@@ -15,14 +16,12 @@ export async function GET(_req: Request, { params }: Params) {
         items: {
           where: {
             status: PublishStatus.published,
-            // Falls ihr nur SWIPE anzeigen wollt, einkommentieren:
-            // kind: "SWIPE",
             OR: [{ publishAt: null }, { publishAt: { lte: now } }],
             AND: [{ OR: [{ expireAt: null }, { expireAt: { gt: now } }] }],
           },
-          orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+          orderBy: [{ publishAt: "desc" }, { createdAt: "desc" }],
           include: {
-            answerOptions: { orderBy: { order: "asc" } },
+            answerOptions: { orderBy: { sortOrder: "asc" } },
             regionEffective: true,
           },
         },
@@ -34,8 +33,10 @@ export async function GET(_req: Request, { params }: Params) {
     }
 
     return NextResponse.json({ topic, asOf: now.toISOString() });
-  } catch (err) {
-    console.error(`GET /api/topics/${params.slug} error:`, err);
-    return NextResponse.json({ error: "INTERNAL_SERVER_ERROR" }, { status: 500 });
+  } catch (err: any) {
+    return NextResponse.json(
+      { error: err?.message ?? "Failed to load topic" },
+      { status: 500 }
+    );
   }
 }

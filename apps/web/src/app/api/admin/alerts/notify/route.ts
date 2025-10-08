@@ -1,7 +1,7 @@
 export const runtime = "nodejs";
 import "server-only";
 import { NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 import { sendAlertMail } from "@/utils/email";
 
 const TOKEN = process.env.INTERNAL_HEALTH_TOKEN || "";

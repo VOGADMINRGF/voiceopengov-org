@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
-import { getCol } from "@/utils/mongoClient";
-import { piiCol } from "@/utils/triMongo";
+import { getCol } from "@core/db/triMongo";
+import { piiCol } from "@core/db/triMongo";
 
 export async function GET(req: NextRequest) {
   const url = req.nextUrl;

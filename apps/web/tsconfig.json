@@ -3,21 +3,16 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["apps/web/src/*"],
-      "@lib/*": ["src/lib/*"],
-      "@components/*": ["src/components/*"],
-      "@/models/*": ["apps/web/src/models/*"],
-      "@data/*": ["src/data/*"],
-
+      "@core/triMongo": ["../../core/db/triMongo.ts"],
+      "@/*": ["src/*"],
       "@features/*": ["../../features/*"],
-      "@features/graph": ["src/graph/index.ts"],
-      "@features/graph/*": ["src/graph/*"],
-      "@core/*": ["core/*"],
- 
+      "@core/*": ["../../core/*"],
+      "@db-web": ["../../packages/db-web/src/client.ts"],
+      "@db-web/*": ["../../packages/db-web/src/*"],
       "@vog/ui": ["../../packages/ui/dist/index.d.ts"],
       "@vog/ui/*": ["../../packages/ui/dist/*"]
     },
-    "moduleResolution": "bundler",
+    "moduleResolution": "Bundler",
     "incremental": true,
     "noEmit": true,
     "skipLibCheck": true,
@@ -25,6 +20,14 @@
     "types": ["node"],
     "plugins": [{ "name": "next" }]
   },
-  "include": ["next-env.d.ts", "src/**/*", ".next/types/**/*.ts", "next.config.*"],
+  "include": [
+    "next-env.d.ts",
+    "src/**/*",
+    "types/**/*.d.ts",
+    "../../features/**/*",
+    "../../core/**/*",
+    "../../packages/ui/dist/**/*.d.ts",
+    "next.config.*"
+  ],
   "exclude": ["node_modules", ".next", "dist", "coverage"]
 }

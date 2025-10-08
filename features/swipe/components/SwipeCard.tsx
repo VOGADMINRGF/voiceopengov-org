@@ -1,46 +1,86 @@
-//Finale Version 04. August 2025
+// apps/web/src/components/SwipeCard.tsx
 "use client";
+
 import React, { useState, useMemo } from "react";
 import ImpactIndicator from "./ImpactIndicator";
 import VoteBar from "@features/vote/components/VoteBar";
 import CountryAccordion from "@features/vote/components/CountryAccordion";
-import { badgeColors } from "@ui/design/badgeColor";
+import { badgeColors } from "@/ui/design/badgeColor";
 import clsx from "clsx";
 
 const TYPE_CONFIG = {
   community: { label: "Community", color: "bg-turquoise-100 text-turquoise-800" },
   ki: { label: "KI", color: "bg-violet-100 text-violet-700" },
-  redaktion: { label: "Redaktion", color: "bg-coral-100 text-coral-700" }
-};
+  redaktion: { label: "Redaktion", color: "bg-coral-100 text-coral-700" },
+} as const;
 
-const VOTE_MAP = [
+type VoteVal = "agree" | "neutral" | "disagree";
+
+const VOTE_MAP: { value: VoteVal; icon: string; label: string; color: string }[] = [
   { value: "agree", icon: "👍", label: "Zustimmen", color: "border-turquoise-500 text-turquoise-600" },
   { value: "neutral", icon: "🤔", label: "Neutral", color: "border-violet-500 text-violet-700" },
-  { value: "disagree", icon: "👎", label: "Ablehnen", color: "border-coral-500 text-coral-600" }
+  { value: "disagree", icon: "👎", label: "Ablehnen", color: "border-coral-500 text-coral-600" },
 ];
 
-export default function SwipeCard({ statement, userHash, onVote, userCountry = "Deutschland", language = "de" }) {
+type Alt = { text: string; type: keyof typeof TYPE_CONFIG | string };
+type Statement = {
+  title?: string;
+  statement?: string;
+  plainStatement?: string;
+  translations?: Record<string, { title?: string }>;
+  regionScope?: unknown[];
+  tags?: string[];
+  category?: string;
+  votes?: Record<string, number>;
+  impactLogic?: unknown[];
+  alternatives?: Alt[];
+  accessibilityStatus?: string;
+  barrierescore?: number;
+  aiAnnotations?: {
+    toxicity?: number | null;
+    sentiment?: string | null;
+    subjectAreas?: string[];
+  };
+};
+
+type Props = {
+  statement: Statement | null | undefined;
+  userHash?: string;
+  onVote?: (vote: VoteVal) => void;
+  userCountry?: string;
+  language?: string;
+};
+
+export default function SwipeCard({
+  statement,
+  userHash,
+  onVote,
+  userCountry = "Deutschland",
+  language = "de",
+}: Props) {
   if (!statement) return null;
 
-  // Übersetzung und barrierefreie Grundlogik
-  const translated = useMemo(() => statement.translations?.[language] ?? {}, [statement, language]);
-  const plainStatement = statement.plainStatement || statement.statement;
+  const translated = useMemo(
+    () => statement.translations?.[language] ?? {},
+    [statement, language]
+  );
+
+  const plainStatement = statement.plainStatement || statement.statement || "";
   const regionScope = statement.regionScope || [];
   const barrierescore = statement.barrierescore;
   const accessibilityStatus = statement.accessibilityStatus;
   const ai = statement.aiAnnotations || {};
-  const hasAI = ai && (
-    ai.toxicity != null ||
-    ai.sentiment != null ||
-    (Array.isArray(ai.subjectAreas) && ai.subjectAreas.length > 0)
-  );
+  const hasAI =
+    ai &&
+    (ai.toxicity != null ||
+      ai.sentiment != null ||
+      (Array.isArray(ai.subjectAreas) && ai.subjectAreas.length > 0));
 
-  // State
-  const [mainVote, setMainVote] = useState("");
+  const [mainVote, setMainVote] = useState<VoteVal | "">("");
   const [showAlt, setShowAlt] = useState(false);
-  const [altVotes, setAltVotes] = useState<Record<number, string>>({});
+  const [altVotes, setAltVotes] = useState<Record<number, VoteVal | "">>({});
 
-  function handleVote(type: string) {
+  function handleVote(type: VoteVal) {
     setMainVote(type);
     onVote?.(type);
     if ((type === "neutral" || type === "disagree") && statement.alternatives?.length) {
@@ -48,7 +88,7 @@ export default function SwipeCard({ statement, userHash, onVote, userCountry = "
     }
   }
 
-  function handleAltVote(idx: number, val: string) {
+  function handleAltVote(idx: number, val: VoteVal) {
     setAltVotes((old) => ({ ...old, [idx]: old[idx] === val ? "" : val }));
   }
 
@@ -57,10 +97,12 @@ export default function SwipeCard({ statement, userHash, onVote, userCountry = "
       {/* Header: Tags & Kategorie */}
       <div className="flex gap-2 mb-2 flex-wrap">
         {statement.tags?.map((t, i) => (
-          <span key={t} className={clsx(
-            "px-3 py-1 rounded-full text-xs font-bold border",
-            badgeColors[i % badgeColors.length]
-          )}>{t}</span>
+          <span
+            key={`${t}-${i}`}
+            className={clsx("px-3 py-1 rounded-full text-xs font-bold border", badgeColors[i % badgeColors.length])}
+          >
+            {t}
+          </span>
         ))}
         {statement.category && (
           <span className="px-3 py-1 rounded-full bg-gray-200 text-gray-700 text-xs font-semibold">
@@ -68,33 +110,29 @@ export default function SwipeCard({ statement, userHash, onVote, userCountry = "
           </span>
         )}
       </div>
+
       {/* Farbverlauf-Titel */}
-      <h2 className="text-3xl font-bold mb-1 leading-snug"
+      <h2
+        className="text-3xl font-bold mb-1 leading-snug"
         style={{
           background: "linear-gradient(90deg, #2396F3 10%, #00B3A6 60%, #FF6F61 100%)",
           WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent"
-        }}>
+          WebkitTextFillColor: "transparent",
+        }}
+      >
         {translated.title || statement.title}
       </h2>
-      {plainStatement !== statement.statement && (
+
+      {plainStatement && plainStatement !== statement.statement && (
         <div className="italic text-xs text-gray-500 mb-2">{plainStatement}</div>
       )}
-      {/* Länder-Kontext */}
-      <CountryAccordion countries={report.analytics.geoDistribution} userCountry="DE" /> 
-      <CountryAccordion regionScope={regionScope} userCountry="DE" />      {/* Kontext */}
-      {statement.context && (
-        <div className="mb-3">
-          <button
-            className="underline text-indigo-600 text-sm"
-            onClick={() => alert(statement.context)}
-          >
-            Mehr Kontext
-          </button>
-        </div>
-      )}
+
+      {/* Länder-/Region-Kontext (report.* entfernt, nur regionScope) */}
+      <CountryAccordion regionScope={regionScope} userCountry={userCountry} />
+
       {/* VoteBar */}
       <VoteBar votes={statement.votes || {}} />
+
       {/* Impact-Indicators */}
       {Array.isArray(statement.impactLogic) && statement.impactLogic.length > 0 && (
         <div className="mb-3 flex flex-wrap gap-2">
@@ -103,6 +141,7 @@ export default function SwipeCard({ statement, userHash, onVote, userCountry = "
           ))}
         </div>
       )}
+
       {/* Abstimmungs-Buttons */}
       <div className="flex gap-6 mb-6 mt-3 justify-center items-center">
         {VOTE_MAP.map((btn) => (
@@ -120,18 +159,21 @@ export default function SwipeCard({ statement, userHash, onVote, userCountry = "
           </button>
         ))}
       </div>
-      {/* Alternativen (Eventualziele) */}
-      {showAlt && statement.alternatives?.length > 0 && (
+
+      {/* Alternativen */}
+      {showAlt && statement.alternatives?.length ? (
         <div className="mb-3">
           <b className="block mb-2">Eventualziele & Alternativen:</b>
           <div className="flex flex-col gap-2">
             {statement.alternatives.map((alt, idx) => (
-              <div key={alt.text} className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-2">
-                <span className={clsx(
-                  "px-2 py-1 rounded-full text-xs font-semibold",
-                  TYPE_CONFIG[alt.type as keyof typeof TYPE_CONFIG]?.color || "bg-gray-100"
-                )}>
-                  {TYPE_CONFIG[alt.type as keyof typeof TYPE_CONFIG]?.label || alt.type}
+              <div key={`${alt.text}-${idx}`} className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-2">
+                <span
+                  className={clsx(
+                    "px-2 py-1 rounded-full text-xs font-semibold",
+                    TYPE_CONFIG[(alt.type as keyof typeof TYPE_CONFIG) || "community"]?.color || "bg-gray-100"
+                  )}
+                >
+                  {TYPE_CONFIG[(alt.type as keyof typeof TYPE_CONFIG) || "community"]?.label || alt.type}
                 </span>
                 <span className="flex-1">{alt.text}</span>
                 <span className="flex gap-1">
@@ -153,49 +195,35 @@ export default function SwipeCard({ statement, userHash, onVote, userCountry = "
             ))}
           </div>
         </div>
-      )}
+      ) : null}
 
-      {/* Accessibility / Barrierefreiheits-Score */}
+      {/* Accessibility */}
       {(accessibilityStatus || typeof barrierescore === "number") && (
         <div className="flex gap-2 items-center text-xs mb-1" aria-label="Barrierefreiheit">
-          {accessibilityStatus && (
-            <span className="rounded bg-green-50 text-green-700 px-2 py-1 font-bold">
-              Accessibility: {accessibilityStatus}
-            </span>
-          )}
-          {typeof barrierescore === "number" && (
-            <span>
-              Barrierefreiheits-Score: {barrierescore}/100
-            </span>
-          )}
+          {accessibilityStatus && <span className="rounded bg-green-50 text-green-700 px-2 py-1 font-bold">Accessibility: {accessibilityStatus}</span>}
+          {typeof barrierescore === "number" && <span>Barrierefreiheits-Score: {barrierescore}/100</span>}
         </div>
       )}
 
       {/* KI-Analyse */}
       {hasAI && (
         <div className="text-xs text-gray-500 mt-1" aria-label="KI-Analyse">
-          {ai.toxicity != null && <>Toxizität: {(ai.toxicity * 100).toFixed(2)} % </>}
+          {ai.toxicity != null && <>Toxizität: {(ai.toxicity * 100).toFixed(2)} % </>}
           {ai.sentiment != null && <>Stimmung: {ai.sentiment} </>}
-          {Array.isArray(ai.subjectAreas) && ai.subjectAreas.length > 0 && (
-            <>Themen: {ai.subjectAreas.join(", ")}</>
-          )}
+          {Array.isArray(ai.subjectAreas) && ai.subjectAreas.length > 0 && <>Themen: {ai.subjectAreas.join(", ")}</>}
         </div>
       )}
 
-      {/* Mitglieder-Block */}
+      {/* Hinweis / CTA */}
       <input className="rounded-xl w-full bg-gray-100 mt-3 px-3 py-2 text-gray-400" value="Nur für Mitglieder" disabled />
-      <div className="text-xs text-gray-500 mt-1 mb-2">
-        Nur als registriertes Mitglied kannst du Alternativen einreichen.
-      </div>
-      {/* Auswertung/CTA */}
+      <div className="text-xs text-gray-500 mt-1 mb-2">Nur als registriertes Mitglied kannst du Alternativen einreichen.</div>
       <div className="bg-violet-50 p-3 mt-2 rounded-xl text-violet-700 text-sm font-semibold">
         <span className="mr-2">📈 Live-Auswertung (Trends, Argumente, Pro/Contra):</span>
-        <a href="/mitglied" className="underline font-bold">Jetzt als Mitglied freischalten</a>
+        <a href="/mitglied" className="underline font-bold">
+          Jetzt als Mitglied freischalten
+        </a>
       </div>
-      {/* Hinweis */}
-      <div className="text-xs text-gray-400 mt-2 text-center">
-        Beiträge & Alternativen werden durch Community, Redaktion & KI validiert.
-      </div>
+      <div className="text-xs text-gray-400 mt-2 text-center">Beiträge & Alternativen werden durch Community, Redaktion & KI validiert.</div>
     </div>
   );
 }

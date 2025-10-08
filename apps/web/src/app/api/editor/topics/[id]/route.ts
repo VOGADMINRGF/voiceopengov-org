@@ -1,7 +1,7 @@
 // apps/web/src/app/api/editor/topics/[id]/route.ts
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@lib/db";
+import { prisma } from "@db-web";
 import { requireEditorAuth } from "../../_utils/auth";
 
 interface Params { params: { id: string } }

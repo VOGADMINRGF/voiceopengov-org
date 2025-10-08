@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("WEB_POSTGRES_URL") // ggf. an deine ENV anpassen
+  url      = env("WEB_POSTGRES_URL") // ggf. ENV anpassen
 }
 
 //
@@ -43,6 +43,21 @@ enum Locale {
   hi
   zh
   ar
+}
+
+//
+// ---------- REGION ----------
+model Region {
+  id    String @id @default(cuid())
+  code  String @unique
+  name  String
+  level Int
+
+  // Back-Relations zu ContentItem (klar benannte Relationen!)
+  manualItems    ContentItem[] @relation("ContentItemRegionManual")
+  effectiveItems ContentItem[] @relation("ContentItemRegionEffective")
+
+  @@index([code])
 }
 
 //
@@ -123,6 +138,10 @@ model ContentItem {
   regionEffectiveId String?
   regionAuto        Json?
 
+  // --- KORREKTE, BENANNTE RELATIONEN ZU Region ---
+  regionManual    Region? @relation("ContentItemRegionManual", fields: [regionManualId], references: [id])
+  regionEffective Region? @relation("ContentItemRegionEffective", fields: [regionEffectiveId], references: [id])
+
   validation Json?
   meta       Json?
 
@@ -133,6 +152,8 @@ model ContentItem {
   @@index([publishAt])
   @@index([topicId])
   @@index([createdAt])
+  @@index([regionManualId])
+  @@index([regionEffectiveId])
 }
 
 model AnswerOption {

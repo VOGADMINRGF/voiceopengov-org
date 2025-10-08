@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { coreCol } from "@/utils/triMongo";
+import { coreCol } from "@core/db/triMongo";
 import { ObjectId } from "mongodb";
 import { isOrgType } from "@/models/org";
 

@@ -1,40 +1,32 @@
+// features/statement/components/StatementList.tsx
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, ChangeEvent } from "react";
 import StatementForm from "./StatementForm";
-import { utils, writeFile, read } from "xlsx"; // npm i xlsx
+import { utils, writeFile, read } from "xlsx";
+
+type StatementRow = {
+  category: string; region: string; statement: string;
+  alternative?: string; analysis?: { topics?: { name: string }[] };
+};
 
 export default function StatementList() {
-  const [statements, setStatements] = useState([]);
+  const [statements, setStatements] = useState<StatementRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(null);
+  const [editing, setEditing] = useState<Partial<StatementRow> | null>(null);
 
   useEffect(() => {
     fetch("/api/statements")
       .then(res => res.json())
-      .then(data => setStatements(data))
+      .then((data: StatementRow[]) => setStatements(data))
       .finally(() => setLoading(false));
   }, []);
 
-  const handleFormSubmit = (data) => {
-    fetch("/api/statements", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
-      .then(res => res.json())
-      .then(newStmt => {
-        setStatements(prev => [newStmt, ...prev]);
-        setEditing(null);
-      });
-  };
-
-  // EXPORT
   function exportStatementsToXLSX() {
     const data = statements.map(s => ({
       Kategorie: s.category,
       Region: s.region,
       Statement: s.statement,
-      Alternative: s.alternative || "",
+      Alternative: s.alternative ?? "",
       ...(s.analysis && { GPT_Themen: s.analysis.topics?.map(t => t.name).join(", ") })
     }));
     const wb = utils.book_new();
@@ -43,7 +35,6 @@ export default function StatementList() {
     writeFile(wb, "statements_export.xlsx");
   }
 
-  // TEMPLATE
   function downloadTemplate() {
     const data = [
       { Kategorie: "Umwelt & Klima", Region: "National", Statement: "Hier ein Beispielstatement", Alternative: "" },
@@ -54,16 +45,16 @@ export default function StatementList() {
     writeFile(wb, "statement_template.xlsx");
   }
 
-  // IMPORT
-  function handleImport(e) {
+  function handleImport(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (evt) => {
-      const wb = read(evt.target.result, { type: "binary" });
+      const buf = evt.target?.result;
+      if (!buf) return;
+      const wb = read(buf, { type: "binary" });
       const ws = wb.Sheets[wb.SheetNames[0]];
-      const data = utils.sheet_to_json(ws);
-      // Für echten Import per API:
+      const data = utils.sheet_to_json<{ Kategorie: string; Region: string; Statement: string; Alternative?: string }>(ws);
       Promise.all(
         data.map(row =>
           fetch("/api/statements", {
@@ -78,14 +69,12 @@ export default function StatementList() {
           })
         )
       ).then(() => {
-        // Refetch data
-        fetch("/api/statements")
-          .then(res => res.json())
-          .then(setStatements);
+        fetch("/api/statements").then(res => res.json()).then((d: StatementRow[]) => setStatements(d));
       });
     };
     reader.readAsBinaryString(file);
   }
+
 
   if (loading) return <div>Lädt ...</div>;
 

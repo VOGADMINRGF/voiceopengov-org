@@ -1,15 +1,20 @@
-import { absUrl } from "@/utils/serverBaseUrl";
-// src/utils/useTranslation.ts
-import { useLang } from "@/context/LanguageContext";
+// apps/web/src/utils/useTranslation.ts
+"use client";
 
-export async function translateText(text: string): Promise<string> {
-  const lang = useLang().lang;
+import { useMemo } from "react";
 
-  const res = await fetch(absUrl("/api/translate", {
-    method: "POST",
-    body: JSON.stringify({ text, to: lang }),
-  });
+type Dict = Record<string, string>;
+const dictionaries: Record<string, Dict> = {
+  de: {},
+  en: {},
+};
 
-  const data = await res.json();
-  return data.result || text;
+export function useTranslation(lang: string = "de") {
+  const dict = useMemo(() => dictionaries[lang] ?? {}, [lang]);
+
+  function t(key: string, fallback?: string) {
+    return dict[key] ?? fallback ?? key;
+  }
+
+  return { t, lang };
 }

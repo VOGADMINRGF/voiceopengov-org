@@ -1,7 +1,7 @@
 // apps/web/src/app/api/unit/[id]/interest/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@/prisma";
+import { prisma } from "@db-web";
 import { shouldWatchlist } from "@/core/factcheck/triage";
 import { formatError } from "@core/errors/formatError";
 import { logger } from "@core/observability/logger";

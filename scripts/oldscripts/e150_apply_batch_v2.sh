@@ -26,13 +26,13 @@ write() {
 # ---------- Helpers ----------
 read -r -d '' R_GET_DB <<'TS'
 import { NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 TS
 
 # ---------- /api/admin/analytics/summary ----------
 read -r -d '' CONTENT <<'TS'
 import { NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export async function GET() {
   const db = await getDb();
@@ -50,7 +50,7 @@ write "$SRC_BASE/app/api/admin/analytics/summary/route.ts" "$CONTENT"
 # ---------- /api/admin/errors/last24 ----------
 read -r -d '' CONTENT <<'TS'
 import { NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export async function GET() {
   const db = await getDb();
@@ -68,7 +68,7 @@ write "$SRC_BASE/app/api/admin/errors/last24/route.ts" "$CONTENT"
 # ---------- /api/admin/users/detail (list + single via ?id=) ----------
 read -r -d '' CONTENT <<'TS'
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export async function GET(req: NextRequest) {
   const db = await getDb();
@@ -119,7 +119,7 @@ write "$SRC_BASE/app/api/health/system-matrix/route.ts" "$CONTENT"
 # ---------- Contributions: list/create ----------
 read -r -d '' CONTENT <<'TS'
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export async function GET() {
   const db = await getDb();
@@ -142,7 +142,7 @@ write "$SRC_BASE/app/api/contributions/route.ts" "$CONTENT"
 # ---------- Contributions Analytics ----------
 read -r -d '' CONTENT <<'TS'
 import { NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export async function GET() {
   const db = await getDb();
@@ -164,7 +164,7 @@ write "$SRC_BASE/app/api/contributions/analytics/summary/route.ts" "$CONTENT"
 # ---------- Reports (list/create + [id]) ----------
 read -r -d '' CONTENT <<'TS'
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export async function GET() {
   const db = await getDb();
@@ -186,7 +186,7 @@ write "$SRC_BASE/app/api/reports/route.ts" "$CONTENT"
 
 read -r -d '' CONTENT <<'TS'
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const db = await getDb();
@@ -210,7 +210,7 @@ write "$SRC_BASE/app/api/reports/[id]/route.ts" "$CONTENT"
 # ---------- Streams (public + admin) ----------
 read -r -d '' CONTENT <<'TS'
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export async function GET() {
   const db = await getDb();
@@ -222,7 +222,7 @@ write "$SRC_BASE/app/api/public/streams/route.ts" "$CONTENT"
 
 read -r -d '' CONTENT <<'TS'
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export async function GET() {
   const db = await getDb();

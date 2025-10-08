@@ -56,7 +56,7 @@ async function main() {
 
   // Optional: Legacy-Collections via triMongo (nur wenn vorhanden)
   try {
-    const tri = await import("../src/utils/triMongo");
+    const tri = await import("../../core/db/triMongo");
     const statements = await tri.coreCol("statements").catch(() => null);
     if (statements?.createIndexes) {
       console.log("→ indexing legacy 'statements' …");

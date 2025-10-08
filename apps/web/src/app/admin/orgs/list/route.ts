@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { coreCol } from "@/utils/triMongo";
+import { coreCol } from "@core/db/triMongo";
 
 export async function GET() {
   const col = await coreCol<any>("orgs");

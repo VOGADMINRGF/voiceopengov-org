@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@core/db/prisma";
+import { prisma } from "@db-web";
 
 export async function GET(_: Request, { params }: { params: { contributionId: string } }) {
   const { contributionId } = params;

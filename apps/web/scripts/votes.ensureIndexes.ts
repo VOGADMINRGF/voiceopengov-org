@@ -18,7 +18,7 @@ for (const p of candidates) {
 
 async function run() {
   // triMongo NACH dem env-load importieren (RELATIVER Pfad, kein "@/")
-  const { votesCol } = await import("../src/utils/triMongo");
+  const { votesCol } = await import("@core/triMongo");
   const col = await votesCol("votes");
 
   // --- UNIQUE ---

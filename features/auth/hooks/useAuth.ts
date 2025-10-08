@@ -1,10 +1,11 @@
+// features/auth/hooks/useAuth.ts
 import { useState } from "react";
-import { IUserProfile } from "../models/UserProfile";
+import type { UserType as IUserProfileDTO } from "../../user/types/UserType";
 
 type LoginParams = { email: string; password: string };
 
 export function useAuth() {
-  const [user, setUser] = useState<IUserProfile | null>(null);
+  const [user, setUser] = useState<IUserProfileDTO | null>(null);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<null | { message: string }>(null);
 
@@ -17,10 +18,14 @@ export function useAuth() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      if (!res.ok) throw new Error((await res.json()).error || "Login fehlgeschlagen");
-      setUser(await res.json());
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error || "Login fehlgeschlagen");
+      }
+      const dto: IUserProfileDTO = await res.json();
+      setUser(dto);
     } catch (e: any) {
-      setError({ message: e.message || "Unbekannter Fehler" });
+      setError({ message: e?.message || "Unbekannter Fehler" });
     } finally {
       setLoading(false);
     }

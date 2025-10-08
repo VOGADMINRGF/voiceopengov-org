@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { ResetSetSchema } from "@/utils/authSchemas";
 import { consumeToken } from "@/utils/tokens";
-import { getCol } from "@/utils/mongoClient";
+import { getCol } from "@core/db/triMongo";
 
 export const runtime = "nodejs";
 

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { piiCol } from "@/utils/triMongo";
+import { piiCol } from "@core/db/triMongo";
 import { hashPassword } from "@/utils/password";
 import { rateLimit } from "@/utils/rateLimit";
 import crypto from "crypto";

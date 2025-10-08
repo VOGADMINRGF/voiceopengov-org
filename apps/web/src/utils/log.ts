@@ -1,4 +1,4 @@
-import { coreCol } from "@/utils/triMongo";
+import { coreCol } from "@core/db/triMongo";
 
 export async function logError(msg: string, ctx?: any) {
   // Mongo (persist)

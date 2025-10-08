@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerUser } from "@/lib/auth/getServerUser";
-import { mongo } from "@/lib/db/mongoose";
+import { mongo } from "@/db/mongoose";
 import mongoose from "mongoose";
 
 // Beispiel: sammle Kernressourcen; erweitere bei Bedarf

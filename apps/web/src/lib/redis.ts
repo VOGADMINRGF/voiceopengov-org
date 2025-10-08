@@ -1,21 +1,16 @@
 // apps/web/src/lib/redis.ts
-/**
- * Redis Hybrid Helper (Upstash HTTP + node-redis TCP)
- * - Node Runtime only (kein Edge)
- * - Lazy connect, globale Singletons
- * - Dedizierte Publisher/Subscriber-Verbindungen bei TCP
- * - In Serverless nur Publish/Point-ops; Subscribe NUR in dauerhaften Prozessen (Worker)
- */
 import type { RedisClientType } from "redis";
 
 export const VOTE_CH_PREFIX = "votes";
 export const voteChannel = (statementId: string) => `${VOTE_CH_PREFIX}:${statementId}`;
 
-const isUpstash = !!process.env.UPSTASH_REDIS_REST_URL;
+const isUpstash = !!process.env.UPSTASH_REDIS_REST_URL && !!process.env.UPSTASH_REDIS_REST_TOKEN;
 
 // ---------- Upstash (HTTP) ----------
-let upstashClient: import("@upstash/redis").Redis | null = null;
-async function getUpstash(): Promise<import("@upstash/redis").Redis> {
+type UpstashRedis = import("@upstash/redis").Redis;
+let upstashClient: UpstashRedis | null = null;
+
+async function getUpstash(): Promise<UpstashRedis> {
   if (!upstashClient) {
     const { Redis } = await import("@upstash/redis");
     upstashClient = new Redis({
@@ -73,47 +68,41 @@ async function getNodeSubscriber(): Promise<RedisClientType> {
 }
 
 // ---------- Public API ----------
-export async function redisPing(): Promise<"PONG" | "OK"> {
+export async function redisPing(): Promise<string> {
   if (isUpstash) {
     const up = await getUpstash();
-    // @upstash/redis -> "PONG"
-    return (await up.ping()) as any;
+    // Upstash gibt i.d.R. "PONG" zurück
+    return up.ping();
   }
   const cli = await getNodeClient();
-  return cli.ping();
+  return cli.ping(); // Promise<string>
 }
 
 export async function redisPublish(channel: string, message: string): Promise<number> {
   if (isUpstash) {
     const up = await getUpstash();
-    return up.publish(channel, message);
+    return up.publish(channel, message); // number
   }
   const pub = await getNodePublisher();
-  return pub.publish(channel, message);
+  return pub.publish(channel, message); // number
 }
 
-/**
- * Subscribe nur in dauerhaften Umgebungen (Worker, Node runtime),
- * NICHT in Serverless (Vercel Functions).
- * Rückgabe: Unsubscribe-Funktion.
- */
 export async function redisSubscribe(
   channel: string,
   onMessage: (msg: string) => void
 ): Promise<() => Promise<void>> {
   if (isUpstash) {
-    throw new Error("HTTP/Upstash Subscribe hier bewusst nicht implementiert. Verwende Worker/WebSockets.");
+    throw new Error("Upstash(HTTP) Subscribe ist hier nicht implementiert. Nutze Worker/WebSockets.");
   }
   const sub = await getNodeSubscriber();
   await sub.subscribe(channel, (payload) => onMessage(String(payload)));
   return async () => {
-    try { await sub.unsubscribe(channel); } catch { /* noop */ }
+    try { await sub.unsubscribe(channel); } catch {}
   };
 }
 
-// Optional: Call an langlebigen Prozessen (Worker) verwenden.
 export async function redisCloseAll(): Promise<void> {
-  if (isUpstash) return; // Upstash HTTP hat keine offenen Sockets
+  if (isUpstash) return;
   const closes: Promise<any>[] = [];
   if (global.__redisSub?.isOpen) closes.push(global.__redisSub.quit());
   if (global.__redisPub?.isOpen) closes.push(global.__redisPub.quit());

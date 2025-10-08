@@ -27,8 +27,8 @@ export async function deleteItem(id: string) {
 export async function publishItem(id: string) {
   return asJson<{ ok: true }>(await http(`/api/editor/items/${id}/publish`, { method: "POST" }));
 }
-export async function reorderAnswerOptions(orders: Array<{ id: string; order: number }>) {
-  return asJson<{ ok: true }>(await http(`/api/editor/items/reorder`, { method: "PATCH", json: { orders } }));
+export async function reorderAnswerOptions(sortOrders: Array<{ id: string; sortOrder: number }>) {
+  return asJson<{ ok: true }>(await http(`/api/editor/items/reorder`, { method: "PATCH", json: { sortOrders } }));
 }
 export async function searchRegions(q = "") {
   return asJson<Region[]>(await http(`/api/editor/regions?q=${encodeURIComponent(q)}`));

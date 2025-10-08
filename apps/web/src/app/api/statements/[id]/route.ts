@@ -1,6 +1,6 @@
 export const runtime = "nodejs";
 import { NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 import { ObjectId } from "mongodb";
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {

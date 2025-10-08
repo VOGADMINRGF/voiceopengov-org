@@ -1,6 +1,6 @@
 // Kompat-Wrapper für ältere Importe wie  "@/utils/mongo/votes"
 import type { Collection } from "mongodb";
-import { votesCol } from "@src/utils/triMongo";
+import { votesCol } from "@core/triMongo";
 
 // Falls irgendwo getVotesDb().collection("…") benutzt wird:
 export async function getVotesDb() {

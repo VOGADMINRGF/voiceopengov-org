@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { coreCol, votesCol, piiCol } from "@/utils/triMongo";
+import { coreCol, votesCol, piiCol } from "@core/db/triMongo";
 
 export async function GET() {
   const out:any = { ok:true, services: [] as any[] };

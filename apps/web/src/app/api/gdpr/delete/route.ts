@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { mongo } from "@/lib/db/mongoose";
+import { mongo } from "@/db/mongoose";
 import { getServerUser } from "@/lib/auth/getServerUser";
 
 export async function POST() {

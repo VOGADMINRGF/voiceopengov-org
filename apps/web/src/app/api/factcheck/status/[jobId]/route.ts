@@ -1,6 +1,6 @@
 // apps/web/src/app/api/factcheck/status/[jobId]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@core/db/prisma";
+import { prisma } from "@db-web";
 import { z, ZodError } from "zod";
 import { formatError } from "@core/errors/formatError";
 import { logger } from "@core/observability/logger";

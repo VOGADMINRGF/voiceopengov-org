@@ -1,38 +1,65 @@
-//apps/web/src/models/core/Event.ts
+// apps/web/src/models/core/Event.ts
+import { mongoose, mongo } from "@core/mongoose";
 
-import mongoose, { Schema, Document } from "mongoose";
-import { coreConn } from "src/lib/db/core";
-
-export interface EventDoc extends Document {
+/** Plain-Datenform (kein Document-Mix, damit die Typen klar bleiben) */
+export interface EventDoc {
   title: string;
   description?: string;
   startAt: Date;
   endAt?: Date;
   tags?: string[];
   organizationId?: string;
+  /** GeoJSON Point (lng, lat) */
   location?: { type: "Point"; coordinates: [number, number] };
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-const conn = coreConn();
+const EventSchema = new mongoose.Schema<EventDoc>(
+  {
+    title: { type: String, required: true, trim: true, maxlength: 200 },
+    description: { type: String, trim: true, maxlength: 4000 },
 
-const EventSchema = new Schema<EventDoc>({
-  title: { type: String, required: true, trim: true, maxlength: 200 },
-  description: { type: String, trim: true, maxlength: 4000 },
-  startAt: { type: Date, required: true, index: true },
-  endAt: { type: Date },
-  tags: [String],
-  organizationId: { type: String, index: true },
-  location: {
-    type: { type: String, enum: ["Point"] },
-    coordinates: { type: [Number], validate: (v: number[]) => v.length === 2 }
+    startAt: { type: Date, required: true, index: true },
+    endAt: { type: Date },
+
+    tags: { type: [String], default: undefined },
+    organizationId: { type: String, index: true },
+
+    // GeoJSON (optional)
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: undefined // optionales Feld
+      },
+      coordinates: {
+        type: [Number],
+        validate: {
+          validator: (v: number[]) => Array.isArray(v) && v.length === 2,
+          message: "coordinates must be [lng, lat]"
+        },
+        default: undefined // optional
+      }
+    }
   },
-  createdAt: { type: Date, default: Date.now, index: true },
-  updatedAt: { type: Date, default: Date.now }
-});
+  {
+    timestamps: true, // createdAt/updatedAt automatisch
+    minimize: true,
+    versionKey: false
+  }
+);
 
-EventSchema.index({ "location": "2dsphere" });
+// Indizes
+EventSchema.index({ location: "2dsphere" });
+EventSchema.index({ organizationId: 1, startAt: -1 });
 
-export default (conn.models.Event as mongoose.Model<EventDoc>) ||
-  conn.model<EventDoc>("Event", EventSchema);
+// Optional: JSON-Output hübscher
+EventSchema.set("toJSON", { versionKey: false, virtuals: true });
+
+/** Idempotentes Model (nutzt bestehende Connection, baut sie bei Bedarf auf) */
+export async function EventModel(): Promise<mongoose.Model<EventDoc>> {
+  await mongo(); // stellt sicher, dass verbunden ist
+  const existing = mongoose.models.Event as mongoose.Model<EventDoc> | undefined;
+  return existing ?? mongoose.model<EventDoc>("Event", EventSchema);
+}

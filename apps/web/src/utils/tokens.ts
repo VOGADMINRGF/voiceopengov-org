@@ -1,7 +1,7 @@
 // apps/web/src/utils/tokens.ts
 import "server-only";
 import crypto from "crypto";
-import { getCol } from "@/utils/mongoClient";
+import { getCol } from "@core/db/triMongo";
 
 type TokenType = "verify" | "reset";
 

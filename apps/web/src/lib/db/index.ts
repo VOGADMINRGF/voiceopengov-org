@@ -1,6 +1,6 @@
 // apps/web/src/lib/db/index.ts
 import { MongoClient } from "mongodb";
-export { coreCol, votesCol, piiCol, pingAll } from "src/utils/triMongo";
+export { coreCol, votesCol, piiCol, pingAll } from "@core/triMongo";
 
 declare global {
   // eslint-disable-next-line no-var

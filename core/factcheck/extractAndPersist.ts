@@ -1,5 +1,5 @@
 // core/factcheck/extractAndPersist.ts
-import { prisma } from "@/prisma";
+import { prisma } from "@db-core";
 import { extractUnits } from "./classify";
 import { canonicalKey, normalizeText } from "./canonical";
 import { shouldWatchlist } from "./triage";

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { ResetRequestSchema } from "@/utils/authSchemas";
-import { getCol } from "@/utils/mongoClient";
+import { getCol } from "@core/db/triMongo";
 import { rateLimit } from "@/utils/rateLimit";
 import { createToken } from "@/utils/tokens";
 import { sendMail, resetEmailLink } from "@/utils/email";

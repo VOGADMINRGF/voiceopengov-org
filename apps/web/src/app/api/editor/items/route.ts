@@ -1,7 +1,7 @@
 //apps/web/src/app/api/editor/items/route,ts
 import { NextResponse } from "next/server";
-import { prisma } from "@core/db/prisma";
-import { ContentKind, PublishStatus, RegionMode } from "@prisma/client";
+import { prisma } from "@db-web";
+import { ContentKind, PublishStatus, RegionMode } from "@db-web";
 import { validateItemDraft } from "./../server/validation/contentValidation";
 
 /**
@@ -25,7 +25,7 @@ export async function GET(req: Request) {
     const items = await prisma.contentItem.findMany({
       where,
       include: {
-        answerOptions: { orderBy: { order: "asc" } },
+        answerOptions: { orderBy: { sortOrder: "asc" } },
         regionEffective: true,
         regionManual: true,
         topic: { select: { id: true, slug: true, title: true } },

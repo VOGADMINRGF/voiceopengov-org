@@ -1,13 +1,28 @@
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+// apps/web/src/components/SetBuilder.tsx
+"use client";
 
-export default function SetBuilder({ selected, onChange }) {
-  function handleDragEnd(result) {
+import { DragDropContext, Droppable, Draggable, type DropResult } from "react-beautiful-dnd";
+
+type SetItem = {
+  _id: string;
+  title?: string;
+  topic?: string;
+};
+
+type Props = {
+  selected: SetItem[];
+  onChange: (next: SetItem[]) => void;
+};
+
+export default function SetBuilder({ selected, onChange }: Props) {
+  function handleDragEnd(result: DropResult) {
     if (!result.destination) return;
     const items = Array.from(selected);
     const [reordered] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reordered);
     onChange(items);
   }
+
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <Droppable droppableId="setList">

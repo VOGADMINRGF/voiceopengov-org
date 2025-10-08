@@ -1,14 +1,51 @@
+// apps/web/src/app/api/auth/me/route.ts
 import { NextResponse } from "next/server";
 import { readSession } from "@/utils/session";
-import { getCol } from "@/utils/mongoClient";
+import { ObjectId } from "mongodb";
+import { piiCol /* ggf. coreCol */ } from "@core/db/triMongo";
 
 export const runtime = "nodejs";
 
+type UserDoc = {
+  _id: ObjectId;
+  email?: string | null;
+  name?: string | null;
+  roles?: string[];
+};
+
 export async function GET() {
-  const sess = readSession();
-  if (!sess) return NextResponse.json({ user: null });
-  const users = await getCol("users");
-  const doc = await users.findOne({ _id: (await import("mongodb")).ObjectId.createFromHexString(sess.uid) }, { projection: { passwordHash: 0 } });
-  if (!doc) return NextResponse.json({ user: null });
-  return NextResponse.json({ user: { id: String(doc._id), email: doc.email, name: doc.name, roles: doc.roles ?? ["user"] } });
+  const noStore = { headers: { "Cache-Control": "no-store" } };
+
+  try {
+    const sess = readSession();
+    // Falls keine Session → wie bei dir: { user: null } (HTTP 200)
+    if (!sess?.uid || !/^[0-9a-fA-F]{24}$/.test(sess.uid)) {
+      return NextResponse.json({ user: null }, noStore);
+    }
+
+    // Wenn deine Users in "core" liegen, nimm coreCol<UserDoc>("users")
+    const users = await piiCol<UserDoc>("users");
+
+    const doc = await users.findOne(
+      { _id: new ObjectId(sess.uid) },
+      { projection: { passwordHash: 0 } }
+    );
+
+    if (!doc) return NextResponse.json({ user: null }, noStore);
+
+    return NextResponse.json(
+      {
+        user: {
+          id: String(doc._id),
+          email: doc.email ?? null,
+          name: doc.name ?? null,
+          roles: Array.isArray(doc.roles) ? doc.roles : ["user"],
+        },
+      },
+      noStore
+    );
+  } catch (err) {
+    console.error("[/api/auth/me] error:", err);
+    return NextResponse.json({ error: "internal_error" }, { status: 500, ...noStore });
+  }
 }

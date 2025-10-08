@@ -12,8 +12,6 @@
 │   ├── admin
 │   ├── jest.config.ts
 │   ├── landing
-│   │   ├── .DS_Store
-│   │   ├── .env
 │   │   ├── .env.example
 │   │   ├── .eslintrc.cjs
 │   │   ├── .gitignore
@@ -27,14 +25,10 @@
 │   │   ├── package.json
 │   │   ├── postcss.config.js
 │   │   ├── prisma
-│   │   │   ├── .DS_Store
-│   │   │   ├── dev.db
-│   │   │   ├── migrations
-│   │   │   │   ├── .DS_Store
-│   │   │   │   ├── 20250918193847_init
-│   │   │   │   │   └── migration.sql
-│   │   │   │   └── migration_lock.toml
-│   │   │   └── schema.prisma
+│   │   │   └── migrations
+│   │   │       ├── 20250918193847_init
+│   │   │       │   └── migration.sql
+│   │   │       └── migration_lock.toml
 │   │   ├── public
 │   │   │   └── media
 │   │   │       ├── intro.jpg
@@ -129,13 +123,12 @@
 │   │   │       ├── locale.ts
 │   │   │       └── typedHref.ts
 │   │   ├── tailwind.config.ts
-│   │   └── tsconfig.json
+│   │   ├── tsconfig.json
+│   │   └── tsconfig.tsbuildinfo
 │   ├── mobile
 │   ├── web
 │   │   ├── .DS_Store
-│   │   ├── .env.atlas
-│   │   ├── .env.example
-│   │   ├── .env.local
+│   │   ├── .eslintrc.cjs
 │   │   ├── .gitignore
 │   │   ├── Dockerfile
 │   │   ├── README.md
@@ -145,7 +138,6 @@
 │   │   ├── package.json
 │   │   ├── postcss.config.mjs
 │   │   ├── public
-│   │   │   ├── .DS_Store
 │   │   │   ├── dummy
 │   │   │   │   ├── dummy1.jpg
 │   │   │   │   ├── dummy10.jpg
@@ -168,7 +160,6 @@
 │   │   │   │   └── WertderStimme_DE.mp4
 │   │   │   └── window.svg
 │   │   ├── scripts
-│   │   │   ├── .DS_Store
 │   │   │   ├── check_incomplete_files.ts
 │   │   │   ├── core.ensureIndexes.ts
 │   │   │   ├── data
@@ -190,6 +181,7 @@
 │   │   │   ├── mongo.ensure-geo-index.ts
 │   │   │   ├── pii.ensureIndexes.ts
 │   │   │   ├── ping.all.dbs.ts
+│   │   │   ├── prisma-generate-all.mjs
 │   │   │   ├── r2.smoke.ts
 │   │   │   ├── seed.map.points.ts
 │   │   │   ├── tokens.ensureIndexes.ts
@@ -229,6 +221,8 @@
 │   │   │   │   │   ├── csrf
 │   │   │   │   │   ├── editor
 │   │   │   │   │   ├── errors
+│   │   │   │   │   ├── events
+│   │   │   │   │   ├── export
 │   │   │   │   │   ├── factcheck
 │   │   │   │   │   ├── finding
 │   │   │   │   │   ├── gdpr
@@ -249,7 +243,7 @@
 │   │   │   │   │   ├── uploads
 │   │   │   │   │   ├── user-demographics
 │   │   │   │   │   ├── users
-│   │   │   │   │   ├── vote
+│   │   │   │   │   ├── votes
 │   │   │   │   │   └── you
 │   │   │   │   ├── auth
 │   │   │   │   │   ├── 2fa-setup
@@ -270,7 +264,6 @@
 │   │   │   │   │   ├── new
 │   │   │   │   │   └── page.tsx
 │   │   │   │   ├── dashboard
-│   │   │   │   │   ├── .DS_Store
 │   │   │   │   │   ├── StreamDashboard.tsx
 │   │   │   │   │   ├── admin
 │   │   │   │   │   ├── api
@@ -316,6 +309,7 @@
 │   │   │   │   ├── login
 │   │   │   │   │   └── page.tsx
 │   │   │   │   ├── map
+│   │   │   │   │   ├── MapePageClient.tsx
 │   │   │   │   │   └── page.tsx
 │   │   │   │   ├── messages
 │   │   │   │   │   ├── ar.json
@@ -385,7 +379,6 @@
 │   │   │   │   └── verify
 │   │   │   │       └── page.tsx
 │   │   │   ├── components
-│   │   │   │   ├── .DS_Store
 │   │   │   │   ├── FAQTabs.tsx
 │   │   │   │   ├── Headline.tsx
 │   │   │   │   ├── IntroSection.tsx
@@ -415,6 +408,7 @@
 │   │   │   │   │   └── RegionConsent.tsx
 │   │   │   │   └── theme
 │   │   │   │       └── ThemeProvider.tsx
+│   │   │   ├── components.zip
 │   │   │   ├── config
 │   │   │   │   ├── accessControl.ts
 │   │   │   │   ├── apiRoutes.ts
@@ -422,8 +416,10 @@
 │   │   │   ├── constants
 │   │   │   │   ├── languages.ts
 │   │   │   │   └── roles.ts
+│   │   │   ├── core
+│   │   │   │   └── factcheck
+│   │   │   │       └── triage.ts
 │   │   │   ├── db
-│   │   │   │   ├── .DS_Store
 │   │   │   │   ├── core
 │   │   │   │   │   ├── client.d.ts
 │   │   │   │   │   ├── client.js
@@ -437,11 +433,11 @@
 │   │   │   │   │   ├── libquery_engine-darwin-arm64.dylib.node
 │   │   │   │   │   ├── package.json
 │   │   │   │   │   ├── runtime
-│   │   │   │   │   ├── schema.prisma
 │   │   │   │   │   ├── wasm-edge-light-loader.mjs
 │   │   │   │   │   ├── wasm-worker-loader.mjs
 │   │   │   │   │   ├── wasm.d.ts
 │   │   │   │   │   └── wasm.js
+│   │   │   │   ├── mongoose.ts
 │   │   │   │   └── web
 │   │   │   │       ├── client.d.ts
 │   │   │   │       ├── client.js
@@ -480,13 +476,14 @@
 │   │   │   │   ├── useRouteGuardClient.ts
 │   │   │   │   └── useTranslate.ts
 │   │   │   ├── lib
-│   │   │   │   ├── .DS_Store
 │   │   │   │   ├── access
 │   │   │   │   │   ├── acl.ts
 │   │   │   │   │   └── permissions.ts
+│   │   │   │   ├── api.ts
 │   │   │   │   ├── audit.ts
 │   │   │   │   ├── auth
-│   │   │   │   │   └── getServerUser.ts
+│   │   │   │   │   ├── getServerUser.ts
+│   │   │   │   │   └── index.ts
 │   │   │   │   ├── ci.ts
 │   │   │   │   ├── contribution
 │   │   │   │   │   ├── analyze
@@ -502,8 +499,6 @@
 │   │   │   │   │   ├── core.ts
 │   │   │   │   │   ├── index.ts
 │   │   │   │   │   ├── modelOn.ts
-│   │   │   │   │   ├── mongo.ts
-│   │   │   │   │   ├── mongoose.ts
 │   │   │   │   │   ├── pii.ts
 │   │   │   │   │   └── votes.ts
 │   │   │   │   ├── db.ts
@@ -511,13 +506,15 @@
 │   │   │   │   ├── dbWeb.ts
 │   │   │   │   ├── errors
 │   │   │   │   │   └── formatError.ts
+│   │   │   │   ├── http
+│   │   │   │   │   └── typedCookies.ts
 │   │   │   │   ├── logging
 │   │   │   │   │   └── pino.ts
-│   │   │   │   ├── mongo.ts
 │   │   │   │   ├── neo4j.ts
 │   │   │   │   ├── pii
 │   │   │   │   │   └── QuickSignup.ts
 │   │   │   │   ├── press.ts
+│   │   │   │   ├── prisma.ts
 │   │   │   │   ├── redis.ts
 │   │   │   │   ├── region
 │   │   │   │   │   └── effective.ts
@@ -527,6 +524,8 @@
 │   │   │   │   │   └── csrf.ts
 │   │   │   │   ├── services
 │   │   │   │   │   └── stream
+│   │   │   │   ├── validation
+│   │   │   │   │   └── contentValidation.ts
 │   │   │   │   ├── vote
 │   │   │   │   │   └── stats.ts
 │   │   │   │   └── worker.ts
@@ -534,16 +533,21 @@
 │   │   │   │   └── editorAuth.ts
 │   │   │   ├── middleware.ts
 │   │   │   ├── models
+│   │   │   │   ├── Contribution.ts
 │   │   │   │   ├── ErrorLog.ts
 │   │   │   │   ├── core
 │   │   │   │   │   ├── Contribution.ts
 │   │   │   │   │   ├── ErrorLog.ts
+│   │   │   │   │   ├── Event.ts
 │   │   │   │   │   ├── MediaItem.ts
 │   │   │   │   │   ├── Report.ts
 │   │   │   │   │   ├── Source.ts
+│   │   │   │   │   ├── Statement.ts
 │   │   │   │   │   ├── Stream.ts
 │   │   │   │   │   ├── StreamEvent.ts
 │   │   │   │   │   └── VotingRule.ts
+│   │   │   │   ├── game
+│   │   │   │   │   └── UserGameStats.ts
 │   │   │   │   ├── org.ts
 │   │   │   │   ├── pii
 │   │   │   │   │   ├── UserDemographics.ts
@@ -555,6 +559,7 @@
 │   │   │   ├── pages
 │   │   │   │   └── api
 │   │   │   │       └── auth
+│   │   │   ├── prisma.ts
 │   │   │   ├── server
 │   │   │   │   ├── handlers
 │   │   │   │   │   └── contributions
@@ -567,6 +572,7 @@
 │   │   │   │   └── dashboard.css
 │   │   │   ├── types
 │   │   │   │   ├── contribution.ts
+│   │   │   │   ├── env.d.ts
 │   │   │   │   ├── optional-mods.d.ts
 │   │   │   │   └── shims.step.d.ts
 │   │   │   └── utils
@@ -579,6 +585,7 @@
 │   │   │       ├── email.ts
 │   │   │       ├── env.server.ts
 │   │   │       ├── env.shared.ts
+│   │   │       ├── errors.ts
 │   │   │       ├── geo
 │   │   │       │   └── normalize.ts
 │   │   │       ├── gptTranslator.ts
@@ -590,8 +597,6 @@
 │   │   │       ├── memgraphClient.ts
 │   │   │       ├── mongo
 │   │   │       │   └── votes.ts
-│   │   │       ├── mongoClient.ts
-│   │   │       ├── mongoClient.ts.bak.20250831183211
 │   │   │       ├── mongoPing.ts
 │   │   │       ├── neo4jClient.ts
 │   │   │       ├── normalizeStatus.ts
@@ -606,7 +611,6 @@
 │   │   │       ├── session.ts
 │   │   │       ├── tokens.ts
 │   │   │       ├── translationCache.ts
-│   │   │       ├── triMongo.ts
 │   │   │       ├── useTranslation.ts
 │   │   │       └── validation.ts
 │   │   ├── tailwind.config.js
@@ -616,14 +620,15 @@
 │   │   │   │   └── admin.spec.ts
 │   │   │   └── vote.stats.test.ts
 │   │   ├── tools
-│   │   │   ├── refactor-imports.js
-│   │   │   └── vog-next-intl-setup.zip
+│   │   │   └── refactor-imports.js
 │   │   ├── tsconfig.json
 │   │   ├── tsconfig.only-fixed.json
 │   │   ├── tsconfig.step-app.json
+│   │   ├── tsconfig.tsbuildinfo
 │   │   ├── tsconfig.tsc-min.json
 │   │   ├── tsconfig.typecheck.json
 │   │   └── types
+│   │       ├── sanitize-html.d.ts
 │   │       └── shims.d.ts
 │   └── worker
 │       ├── package.json
@@ -640,7 +645,6 @@
 │       │   └── testJob.ts
 │       └── tsconfig.json
 ├── core
-│   ├── .DS_Store
 │   ├── ari
 │   │   └── ariClient.ts
 │   ├── auth
@@ -650,7 +654,8 @@
 │   ├── context
 │   │   └── LocaleContext.tsx
 │   ├── db
-│   │   └── prisma.ts
+│   │   ├── mongoose.ts
+│   │   └── triMongo.ts
 │   ├── errors
 │   │   └── formatError.ts
 │   ├── factcheck
@@ -670,7 +675,6 @@
 │   │   │   ├── claude.provider.ts
 │   │   │   └── mistral.provider.ts
 │   │   ├── splitter.ts
-│   │   ├── triage.ts
 │   │   ├── trust.ts
 │   │   ├── types.ts
 │   │   └── version.ts
@@ -704,7 +708,9 @@
 │   ├── schemas
 │   │   └── editor.ts
 │   ├── tsconfig.json
+│   ├── tsconfig.tsbuildinfo
 │   ├── utils
+│   │   ├── errors.ts
 │   │   ├── hash.ts
 │   │   ├── jsonRepair.ts
 │   │   └── validation
@@ -716,7 +722,6 @@
 ├── features
 │   ├── .DS_Store
 │   ├── ai
-│   │   ├── .DS_Store
 │   │   ├── health.ts
 │   │   ├── orchestrator.ts
 │   │   ├── providers
@@ -756,7 +761,6 @@
 │   ├── context
 │   │   └── ContextExplorer.tsx
 │   ├── contribution
-│   │   ├── .DS_Store
 │   │   ├── README.md
 │   │   ├── SmartContribution.tsx
 │   │   ├── components
@@ -793,9 +797,7 @@
 │   │       ├── retry.ts
 │   │       └── textSim.ts
 │   ├── dashboard
-│   │   ├── .DS_Store
 │   │   ├── components
-│   │   │   ├── .DS_Store
 │   │   │   ├── AnalyticsPanel.tsx
 │   │   │   ├── ApiDashboard.tsx
 │   │   │   ├── DashboardLayout.tsx
@@ -805,10 +807,11 @@
 │   │   │   ├── SystemMatrix.tsx
 │   │   │   ├── UsageKIPanel.tsx
 │   │   │   ├── admin
-│   │   │   │   ├── SidebarNavAdmin.ts
 │   │   │   │   └── SidebarNavAdmin.tsx
 │   │   │   └── index.ts
 │   │   └── index.ts
+│   ├── dist-types
+│   │   └── tsconfig.tsbuildinfo
 │   ├── editor
 │   │   ├── api
 │   │   │   ├── ItemClient.ts
@@ -836,9 +839,17 @@
 │   │       └── index.ts
 │   ├── factcheck
 │   │   ├── components
+│   │   │   ├── EvidenceList.tsx
+│   │   │   ├── FactCheckBadge.tsx
+│   │   │   ├── JurisdictionToggle.tsx
+│   │   │   ├── SourceBadge.tsx
 │   │   │   ├── UnitList.tsx
 │   │   │   └── index.ts
-│   │   └── index.ts
+│   │   ├── index.ts
+│   │   ├── trust
+│   │   │   ├── registry.ts
+│   │   │   └── score.ts
+│   │   └── types.ts
 │   ├── index.ts
 │   ├── map
 │   │   ├── OLMap.tsx
@@ -847,14 +858,12 @@
 │   │   │   └── index.ts
 │   │   └── index.ts
 │   ├── moderation
-│   │   ├── .DS_Store
 │   │   └── models
 │   │       └── ModAction.ts
 │   ├── ngo
 │   │   └── components
 │   │       └── EngagementStats.tsx
 │   ├── organization
-│   │   ├── .DS_Store
 │   │   ├── REDAME.md
 │   │   ├── components
 │   │   │   ├── OrgDashboard.tsx
@@ -917,6 +926,8 @@
 │   │       ├── PublicReportType.ts
 │   │       ├── Report.ts
 │   │       └── index.ts
+│   ├── routing
+│   │   └── linkResolver.ts
 │   ├── statement
 │   │   ├── .DS_Store
 │   │   ├── api.ts
@@ -938,9 +949,7 @@
 │   │   └── models
 │   │       └── index.ts
 │   ├── stream
-│   │   ├── .DS_Store
 │   │   ├── components
-│   │   │   ├── .DS_Store
 │   │   │   ├── StreamCard.tsx
 │   │   │   ├── StreamFilters.tsx
 │   │   │   ├── StreamForm.tsx
@@ -950,14 +959,15 @@
 │   │   │   ├── VideoPlayer.tsx
 │   │   │   └── index.ts
 │   │   ├── data
+│   │   │   ├── compat.ts
 │   │   │   ├── index.ts
 │   │   │   └── streamData.ts
 │   │   ├── index.ts
 │   │   └── utils
 │   │       ├── index.ts
 │   │       └── nationalFlag.ts
+│   ├── stream.zip
 │   ├── swipe
-│   │   ├── .DS_Store
 │   │   ├── components
 │   │   │   ├── AlternativeCard.tsx
 │   │   │   ├── ImpactIndicator.tsx
@@ -978,7 +988,6 @@
 │   │   └── components
 │   │       └── EventList.tsx
 │   ├── user
-│   │   ├── .DS_Store
 │   │   ├── README.md
 │   │   ├── __tests__
 │   │   │   └── onboarding.test.ts
@@ -986,6 +995,7 @@
 │   │   │   ├── LogoutButton.tsx
 │   │   │   ├── UserAdminList.tsx
 │   │   │   ├── UserDashboard.tsx
+│   │   │   ├── UserHydrator.tsx
 │   │   │   └── index.ts
 │   │   ├── context
 │   │   │   ├── UserContext.tsx
@@ -1028,18 +1038,81 @@
 │       └── index.ts
 ├── package.json
 ├── packages
-│   ├── .DS_Store
 │   ├── analytics
 │   ├── api
 │   │   └── projects
 │   │       └── [id].ts
 │   ├── config
 │   ├── db-core
+│   │   ├── package.json
 │   │   └── src
-│   │       └── client.ts
+│   │       ├── client.ts
+│   │       ├── generated
+│   │       │   ├── client.d.ts
+│   │       │   ├── client.js
+│   │       │   ├── default.d.ts
+│   │       │   ├── default.js
+│   │       │   ├── edge.d.ts
+│   │       │   ├── edge.js
+│   │       │   ├── index-browser.js
+│   │       │   ├── index.d.ts
+│   │       │   ├── index.js
+│   │       │   ├── libquery_engine-darwin-arm64.dylib.node
+│   │       │   ├── package.json
+│   │       │   ├── query_engine_bg.js
+│   │       │   ├── query_engine_bg.wasm
+│   │       │   ├── runtime
+│   │       │   │   ├── edge-esm.js
+│   │       │   │   ├── edge.js
+│   │       │   │   ├── index-browser.d.ts
+│   │       │   │   ├── index-browser.js
+│   │       │   │   ├── library.d.ts
+│   │       │   │   ├── library.js
+│   │       │   │   ├── react-native.js
+│   │       │   │   ├── wasm-compiler-edge.js
+│   │       │   │   └── wasm-engine-edge.js
+│   │       │   ├── schema.prisma
+│   │       │   ├── wasm-edge-light-loader.mjs
+│   │       │   ├── wasm-worker-loader.mjs
+│   │       │   ├── wasm.d.ts
+│   │       │   └── wasm.js
+│   │       └── index.ts
+│   ├── db-web
+│   │   ├── package.json
+│   │   └── src
+│   │       ├── client.ts
+│   │       ├── generated
+│   │       │   ├── client.d.ts
+│   │       │   ├── client.js
+│   │       │   ├── default.d.ts
+│   │       │   ├── default.js
+│   │       │   ├── edge.d.ts
+│   │       │   ├── edge.js
+│   │       │   ├── index-browser.js
+│   │       │   ├── index.d.ts
+│   │       │   ├── index.js
+│   │       │   ├── libquery_engine-darwin-arm64.dylib.node
+│   │       │   ├── package.json
+│   │       │   ├── query_engine_bg.js
+│   │       │   ├── query_engine_bg.wasm
+│   │       │   ├── runtime
+│   │       │   │   ├── edge-esm.js
+│   │       │   │   ├── edge.js
+│   │       │   │   ├── index-browser.d.ts
+│   │       │   │   ├── index-browser.js
+│   │       │   │   ├── library.d.ts
+│   │       │   │   ├── library.js
+│   │       │   │   ├── react-native.js
+│   │       │   │   ├── wasm-compiler-edge.js
+│   │       │   │   └── wasm-engine-edge.js
+│   │       │   ├── schema.prisma
+│   │       │   ├── wasm-edge-light-loader.mjs
+│   │       │   ├── wasm-worker-loader.mjs
+│   │       │   ├── wasm.d.ts
+│   │       │   └── wasm.js
+│   │       └── index.ts
 │   ├── package.json
 │   └── ui
-│       ├── .DS_Store
 │       ├── package.json
 │       ├── src
 │       │   ├── .DS_Store
@@ -1067,12 +1140,11 @@
 │       ├── tsconfig.build.json
 │       ├── tsconfig.build.tsbuildinfo
 │       ├── tsconfig.json
+│       ├── tsconfig.tsbuildinfo
 │       └── tsup.config.ts
 ├── pnpm-lock.yaml
 ├── pnpm-workspace.yaml
 ├── prisma
-│   ├── .DS_Store
-│   ├── .env
 │   ├── core
 │   │   └── schema.prisma
 │   ├── migrations
@@ -1093,6 +1165,10 @@
 ├── scripts
 │   ├── absurlify.mjs
 │   ├── build-feature-barrels.mjs
+│   ├── codemods
+│   │   ├── cookies-headers.ts
+│   │   ├── prisma-order-to-sortOrder.ts
+│   │   └── prisma-order-to-sortOrder.v2.ts
 │   ├── e150_bootstrap_content.sh
 │   ├── e150_seed.sh
 │   ├── ensureIndexes.ts
@@ -1122,4 +1198,4 @@
     └── factcheck
         └── worker.ts
 
-357 directories, 766 files
+374 directories, 825 files

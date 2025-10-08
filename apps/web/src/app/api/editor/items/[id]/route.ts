@@ -1,50 +1,38 @@
 // apps/web/src/app/api/editor/items/[id]/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { ContentKind, PublishStatus, RegionMode } from "@prisma/client";
-import { validateItemDraft } from "@lib/validation/contentValidation";
+// Secure: /api/editor/items/[id]
+export const runtime = "nodejs";
+
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import sanitizeHtml from "sanitize-html";
+import { prisma, ContentKind, PublishStatus, RegionMode, type Prisma } from "@db-web";
+import { validateItemDraft } from "@lib/validation/contentValidation";
 import { hasPermission, PERMISSIONS, type Role } from "@core/auth/rbac";
 import { formatError } from "@core/errors/formatError";
 import { logger } from "@core/observability/logger";
 
 type Params = { params: { id: string } };
 
-// --- GET /api/editor/items/[id] ---
-export async function GET(req: NextRequest, { params }: Params) {
-  try {
-    const role = (req.cookies.get("u_role")?.value as Role) ?? "guest";
-    if (!hasPermission(role, PERMISSIONS.EDITOR_ITEM_READ)) {
-      const fe = formatError("FORBIDDEN", "Permission denied", { role });
-      logger.warn({ fe }, "ITEM_GET_FORBIDDEN");
-      return NextResponse.json(fe, { status: 403 });
-    }
-
-    const item = await prisma.contentItem.findUnique({
-      where: { id: params.id },
-      include: {
-        answerOptions: { orderBy: { order: "asc" } },
-        regionEffective: true,
-        regionManual: true,
-        topic: { select: { id: true, slug: true, title: true } },
-      },
-    });
-
-    if (!item) {
-      const fe = formatError("NOT_FOUND", "Item not found", { id: params.id });
-      logger.warn({ fe }, "ITEM_GET_NOTFOUND");
-      return NextResponse.json(fe, { status: 404 });
-    }
-
-    return NextResponse.json({ ok: true, item }, { status: 200 });
-  } catch (e: any) {
-    const fe = formatError("INTERNAL_ERROR", "Unexpected failure", e?.message ?? e);
-    logger.error({ fe, e }, "ITEM_GET_FAIL");
-    return NextResponse.json(fe, { status: 500 });
-  }
+// ---------- Helpers ----------
+function enumGuard<E extends Record<string, string | number>>(
+  e: E,
+  v: unknown
+): E[keyof E] | null {
+  return (Object.values(e) as Array<E[keyof E]>).includes(v as any) ? (v as any) : null;
 }
 
-// --- PATCH /api/editor/items/[id] ---
+function toDate(v: unknown): Date | null {
+  if (v == null) return null;
+  const d = new Date(String(v));
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function toIntOr(v: unknown, fallback: number): number {
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.trunc(n) : fallback;
+}
+
+// ---------- PATCH ----------
 export async function PATCH(req: NextRequest, { params }: Params) {
   try {
     const role = (req.cookies.get("u_role")?.value as Role) ?? "guest";
@@ -54,7 +42,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       return NextResponse.json(fe, { status: 403 });
     }
 
-    const body = await req.json();
+    const body = (await req.json().catch(() => ({}))) as Record<string, any>;
 
     const current = await prisma.contentItem.findUnique({
       where: { id: params.id },
@@ -66,102 +54,85 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       return NextResponse.json(fe, { status: 404 });
     }
 
-    // Eingaben mergen (Fallback auf current)
-    const kind = (body.kind as ContentKind) ?? current.kind;
-    const text = (typeof body.text === "string" ? body.text : current.text) as string;
-    const topicId = (body.topicId as string) ?? current.topicId;
-    const locale = body.locale ?? current.locale;
-    const regionMode = (body.regionMode as RegionMode) ?? current.regionMode;
-    const regionManualId = body.regionManualId ?? current.regionManualId;
-    const publishAt = body.publishAt ? new Date(body.publishAt) : current.publishAt;
-    const expireAt = body.expireAt ? new Date(body.expireAt) : current.expireAt;
-    const title = body.title ?? current.title;
-    const richText =
+    const nextKind = enumGuard(ContentKind, body.kind) ?? current.kind;
+    const nextStatus = enumGuard(PublishStatus, body.status) ?? current.status;
+    const nextRegionMode = enumGuard(RegionMode, body.regionMode) ?? current.regionMode;
+
+    const publishAt = toDate(body.publishAt) ?? current.publishAt;
+    const expireAt = toDate(body.expireAt) ?? current.expireAt;
+
+    const cleanText = typeof body.text === "string" ? body.text : current.text;
+    const cleanRichText =
       body.richText !== undefined ? sanitizeHtml(String(body.richText)) : current.richText;
-    const authorName = body.authorName ?? current.authorName;
-    const status = (body.status as PublishStatus) ?? current.status;
 
-    const answerOptions = (body.answerOptions ?? null) as
-      | Array<{ id?: string; label: string; value: string; exclusive?: boolean; order?: number }>
-      | null;
+    const answerOptions = Array.isArray(body.answerOptions) ? body.answerOptions : null;
 
-    // Validierung
     const validation = await validateItemDraft({
-      kind,
-      text,
-      topicId,
-      regionMode,
-      regionManualId,
+      kind: nextKind,
+      text: cleanText,
+      topicId: body.topicId ?? current.topicId,
+      regionMode: nextRegionMode,
+      regionManualId: body.regionManualId ?? current.regionManualId,
       publishAt,
       expireAt,
-      locale,
+      locale: body.locale ?? current.locale,
       answerOptions: answerOptions ?? current.answerOptions,
     });
 
-    // Atomar: ContentItem-Update + Options-Änderungen
-    const result = await prisma.$transaction(async (tx) => {
-      // 1) Item updaten
+    const updated = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.contentItem.update({
         where: { id: params.id },
         data: {
-          kind,
-          text,
-          topicId,
-          locale,
-          regionMode,
-          regionManualId,
-          publishAt: publishAt ?? undefined,
-          expireAt: expireAt ?? undefined,
-          title,
-          richText,
-          authorName,
-          status,
+          kind: nextKind,
+          text: cleanText,
+          topicId: body.topicId ?? current.topicId,
+          locale: body.locale ?? current.locale,
+          regionMode: nextRegionMode,
+          regionManualId: body.regionManualId ?? current.regionManualId,
+          publishAt,
+          expireAt,
+          title: body.title ?? current.title,
+          richText: cleanRichText,
+          authorName: body.authorName ?? current.authorName,
+          status: nextStatus,
           validation,
-          regionAuto: validation.regionAuto ?? undefined,
+          regionAuto: validation?.regionAuto ?? undefined,
         },
       });
 
-      // 2) AnswerOptions upserten (nur wenn übergeben)
       if (answerOptions) {
-        const existing = current.answerOptions;
-        const keepIds = new Set(answerOptions.filter((o) => o.id).map((o) => o.id as string));
-        const toDelete = existing.filter((e) => !keepIds.has(e.id)).map((e) => e.id);
+        type Opt = { id?: string; label?: string; value?: string; exclusive?: boolean; order?: number };
+        const keepIds = new Set(
+          answerOptions.map((o: Opt) => (o?.id ? String(o.id) : null)).filter(Boolean) as string[]
+        );
+
+        const toDelete = current.answerOptions.filter((e) => !keepIds.has(e.id)).map((e) => e.id);
         if (toDelete.length) {
           await tx.answerOption.deleteMany({ where: { id: { in: toDelete } } });
         }
 
         for (let idx = 0; idx < answerOptions.length; idx++) {
-          const o = answerOptions[idx];
-          const order = Number.isFinite(o.order) ? (o.order as number) : idx;
+          const o = (answerOptions[idx] ?? {}) as Opt;
+          const order = toIntOr(o.order, idx);
+          const payload = {
+            label: String(o.label ?? ""),
+            value: String(o.value ?? ""),
+            exclusive: !!o.exclusive,
+            order,
+          };
+
           if (o.id) {
-            await tx.answerOption.update({
-              where: { id: o.id },
-              data: {
-                label: o.label,
-                value: o.value,
-                exclusive: !!o.exclusive,
-                order,
-              },
-            });
+            await tx.answerOption.update({ where: { id: String(o.id) }, data: payload });
           } else {
-            await tx.answerOption.create({
-              data: {
-                itemId: params.id,
-                label: o.label,
-                value: o.value,
-                exclusive: !!o.exclusive,
-                order,
-              },
-            });
+            await tx.answerOption.create({ data: { itemId: params.id, ...payload } });
           }
         }
       }
 
-      // 3) Rückgabe laden
       return tx.contentItem.findUnique({
         where: { id: params.id },
         include: {
-          answerOptions: { orderBy: { order: "asc" } },
+          answerOptions: { orderBy: { sortOrder: "asc" } },
           regionEffective: true,
           regionManual: true,
           topic: { select: { id: true, slug: true, title: true } },
@@ -169,15 +140,19 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       });
     });
 
-    return NextResponse.json({ ok: true, item: result }, { status: 200 });
-  } catch (e: any) {
-    const fe = formatError("INTERNAL_ERROR", "Update failed", e?.message ?? e);
+    return NextResponse.json({ ok: true, item: updated }, { status: 200 });
+  } catch (e: unknown) {
+    const fe = formatError(
+      "INTERNAL_ERROR",
+      "Update failed",
+      e instanceof Error ? e.message : String(e)
+    );
     logger.error({ fe, e }, "ITEM_PATCH_FAIL");
     return NextResponse.json(fe, { status: 500 });
   }
 }
 
-// --- DELETE /api/editor/items/[id] ---
+// ---------- DELETE ----------
 export async function DELETE(req: NextRequest, { params }: Params) {
   try {
     const role = (req.cookies.get("u_role")?.value as Role) ?? "guest";
@@ -187,11 +162,17 @@ export async function DELETE(req: NextRequest, { params }: Params) {
       return NextResponse.json(fe, { status: 403 });
     }
 
-    await prisma.contentItem.delete({ where: { id: params.id } });
+    // Optional: Wenn kein ON DELETE CASCADE:
+    // await prisma.answerOption.deleteMany({ where: { itemId: params.id } });
 
+    await prisma.contentItem.delete({ where: { id: params.id } });
     return NextResponse.json({ ok: true }, { status: 200 });
-  } catch (e: any) {
-    const fe = formatError("INTERNAL_ERROR", "Delete failed", e?.message ?? e);
+  } catch (e: unknown) {
+    const fe = formatError(
+      "INTERNAL_ERROR",
+      "Delete failed",
+      e instanceof Error ? e.message : String(e)
+    );
     logger.error({ fe, e }, "ITEM_DELETE_FAIL");
     return NextResponse.json(fe, { status: 500 });
   }

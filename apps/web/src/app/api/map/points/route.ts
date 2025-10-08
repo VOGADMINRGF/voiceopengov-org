@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
-import { coreCol, votesCol } from "src/utils/triMongo";
+import { coreCol, votesCol } from "@core/triMongo";
 
 /** --- Helpers ------------------------------------------------------------ */
 

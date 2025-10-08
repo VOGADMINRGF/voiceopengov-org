@@ -3,12 +3,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
-import {
-  ObjectId,
-  type Filter,
-  type FindOptions,
-} from "mongodb";
-import { coreCol, votesCol } from "src/utils/triMongo";
+import { ObjectId, type Filter, type FindOptions } from "mongodb";
+import { coreCol, votesCol } from "@core/triMongo";
 
 type SummaryKey = "agree" | "neutral" | "disagree";
 type Summary = Record<SummaryKey, number>;
@@ -32,51 +28,40 @@ function normChoice(raw: unknown): SummaryKey {
   if (v === "disagree" || v === "no" || v === "contra" || v === "against") return "disagree";
   return "neutral";
 }
-
+function emptySummary(): Summary { return { agree: 0, neutral: 0, disagree: 0 }; }
+function coerceSummary(v: any): Summary {
+  return {
+    agree: Number.isFinite(v?.agree) ? v.agree : 0,
+    neutral: Number.isFinite(v?.neutral) ? v.neutral : 0,
+    disagree: Number.isFinite(v?.disagree) ? v.disagree : 0,
+  };
+}
 function computeResult(rule: VotingRule, s: Summary): "passed" | "not_passed" | null {
   const total = s.agree + s.neutral + s.disagree;
   if (total === 0) return null;
   if (rule.minQuorum && total < rule.minQuorum) return "not_passed";
-
   if (rule.type === "two-thirds") {
     const needed = Math.ceil((2 * total) / 3);
     return s.agree >= needed ? "passed" : "not_passed";
   }
-  // simple-majority & weighted → Mehrheit der (ggf. gewichteten) Stimmen
   return s.agree > s.disagree ? "passed" : "not_passed";
-}
-
-function emptySummary(): Summary {
-  return { agree: 0, neutral: 0, disagree: 0 };
-}
-
-function coerceSummary(v: any): Summary {
-  return {
-    agree: typeof v?.agree === "number" && Number.isFinite(v.agree) ? v.agree : 0,
-    neutral: typeof v?.neutral === "number" && Number.isFinite(v.neutral) ? v.neutral : 0,
-    disagree: typeof v?.disagree === "number" && Number.isFinite(v.disagree) ? v.disagree : 0,
-  };
 }
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const statementIdParam = url.searchParams.get("statementId");
   const fresh = url.searchParams.get("fresh") === "true";
-
   if (!statementIdParam) {
-    return NextResponse.json({ error: "Missing statementId." }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Missing statementId" }, { status: 400 });
   }
-  // Ab hier typ-sicher als string behandeln
-  const statementIdStr: string = statementIdParam;
+  const statementIdStr = statementIdParam;
+  const isObjId = ObjectId.isValid(statementIdStr);
 
-  // Collections
   const stmtsRef = await coreCol<any>("statements");
   const votesRef = await votesCol<VoteDoc>("votes");
 
-  // Statement laden: erst via _id:ObjectId, dann via id:string
-  const isObjId = ObjectId.isValid(statementIdStr);
+  // Statement (für votingRule + ggf. Cache)
   let statement: any = null;
-
   if (isObjId) {
     statement = await stmtsRef.findOne(
       { _id: new ObjectId(statementIdStr) },
@@ -90,36 +75,24 @@ export async function GET(req: NextRequest) {
     );
   }
   if (!statement) {
-    return NextResponse.json({ error: "Statement not found." }, { status: 404 });
+    return NextResponse.json({ ok: false, error: "Statement not found" }, { status: 404 });
   }
 
   const votingRule: VotingRule = statement.votingRule || { type: "simple-majority" };
 
-  // Live-Zusammenfassung aus votes-Collection (für fresh/weighted/Inkonsistenzen)
-  async function summaryFromVotes(): Promise<{ summary: Summary; total: number; source: "live" }> {
-    // Filter OHNE nulls → ts(2322) vermeiden
+  async function summaryFromVotes(): Promise<{ summary: Summary; total: number }> {
     let match: Filter<VoteDoc>;
     if (isObjId) {
-      match = {
-        $or: [
-          { statementId: new ObjectId(statementIdStr) },
-          { statementId: statementIdStr },
-        ],
-      };
+      match = { $or: [{ statementId: new ObjectId(statementIdStr) }, { statementId: statementIdStr }] };
     } else {
       match = { statementId: statementIdStr };
     }
-
-    // Projection typ-sicher; Options klar typisiert → ts(2769) vermeiden
-    const projection = { vote: 1 as const, choice: 1 as const, role: 1 as const };
-    const options: FindOptions<VoteDoc> = { projection };
-
+    const options: FindOptions<VoteDoc> = { projection: { vote: 1, choice: 1, role: 1 } };
     const cursor = votesRef.find(match, options).batchSize(1000);
 
     const weighted = votingRule.type === "weighted";
     const weightMap = (votingRule as any).weightMap || {};
-
-    let summary = emptySummary();
+    let s = emptySummary();
     let total = 0;
 
     for await (const doc of cursor) {
@@ -128,20 +101,18 @@ export async function GET(req: NextRequest) {
         const role = doc?.role ?? "Bürger";
         const wRaw = (weightMap as Record<string, unknown>)[role];
         const w = typeof wRaw === "number" && Number.isFinite(wRaw) ? wRaw : 1;
-        summary[key] += w;
+        s[key] += w;
         total += w;
       } else {
-        summary[key] += 1;
+        s[key] += 1;
         total += 1;
       }
     }
-
-    return { summary, total, source: "live" };
+    return { summary: s, total };
   }
 
-  // Schnellpfad: cached Summary aus Statement-Dokument
-  const cachedVotes = coerceSummary(statement.votes);
-  const cachedTotal = cachedVotes.agree + cachedVotes.neutral + cachedVotes.disagree;
+  const cached = coerceSummary(statement.votes);
+  const cachedTotal = cached.agree + cached.neutral + cached.disagree;
   const stats = {
     views: Number(statement?.stats?.views) || 0,
     votesAgree: Number(statement?.stats?.votesAgree) || 0,
@@ -150,29 +121,25 @@ export async function GET(req: NextRequest) {
     votesTotal: Number(statement?.stats?.votesTotal) || cachedTotal,
   };
 
-  let summary: Summary;
+  const mustLive = fresh || votingRule.type === "weighted" || (cachedTotal === 0 && stats.votesTotal > 0);
+
+  let data: Summary;
   let total: number;
   let source: "cached" | "live" = "cached";
-
-  const mustLive =
-    fresh ||
-    votingRule.type === "weighted" ||
-    (cachedTotal === 0 && stats.votesTotal > 0);
-
   if (mustLive) {
     const live = await summaryFromVotes();
-    summary = live.summary;
+    data = live.summary;
     total = live.total;
-    source = live.source;
+    source = "live";
   } else {
-    summary = cachedVotes;
+    data = cached;
     total = cachedTotal;
   }
 
-  const result = computeResult(votingRule, summary);
+  const result = computeResult(votingRule, data);
 
   return NextResponse.json(
-    { summary, total, votingRule, result, stats, source },
+    { ok: true, data, meta: { total, votingRule, result, stats, source } },
     { status: 200 }
   );
 }

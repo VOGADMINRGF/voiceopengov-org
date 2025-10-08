@@ -1,7 +1,7 @@
 // apps/web/src/app/api/finding/upsert/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@/prisma";
+import { prisma } from "@db-web";
 import { formatError } from "@core/errors/formatError";
 import { hasPermission, PERMISSIONS } from "@core/auth/rbac";
 import { mapOutcomeToStatus } from "@/core/factcheck/triage";

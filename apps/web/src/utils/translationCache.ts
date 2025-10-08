@@ -1,17 +1,23 @@
-// src/utils/translationCache.ts
-const memoryCache: Record<string, string> = {};
+// apps/web/src/utils/translationCache.ts
+// Synchroner In-Memory-Cache (dev/edge-safe). Keine Promises nötig.
 
-function createKey(text: string, to: string) {
-  return `${text}_${to}`.toLowerCase();
+type Key = string;
+
+function makeKey(text: string, lang: string): Key {
+  // normalize: lower-case, collapse whitespace
+  const t = text.trim().toLowerCase().replace(/\s+/g, " ");
+  const l = lang.trim().toLowerCase();
+  return `${l}::${t}`;
 }
 
-export const cacheTranslation = {
-  get: async (text: string, to: string) => {
-    const key = createKey(text, to);
-    return memoryCache[key];
+export const translationCache = {
+  _m: new Map<Key, string>(),
+
+  get(text: string, lang: string): string | undefined {
+    return this._m.get(makeKey(text, lang));
   },
-  set: async (text: string, to: string, translated: string) => {
-    const key = createKey(text, to);
-    memoryCache[key] = translated;
+
+  set(text: string, lang: string, translated: string): void {
+    this._m.set(makeKey(text, lang), translated);
   },
 };

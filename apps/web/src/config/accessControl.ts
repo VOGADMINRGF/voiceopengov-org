@@ -1,30 +1,30 @@
 // apps/web/src/config/accessControl.ts
 
-export type UserRole = "guest" | "user" | "moderator" | "admin" | "ngo" | "politics" | "legitimized" | "premium" | string;
+export type Role =
+  | "guest"
+  | "user"
+  | "legitimized"
+  | "admin"
+  | "moderator"
+  | "ngo"
+  | "politics";
 
-interface RouteAccessRule {
-  path: string; // z. B. "/report", "/stream"
-  label?: string; // für Sidebar/Navigation (optional)
-  allowedRoles: UserRole[]; // Liste der erlaubten Rollen
-  customCheck?: (user: any) => boolean; // Optional: Extra-Checker (z. B. "legitimized" UND "premium" etc.)
+export interface AccessRule {
+  path: string;
+  allowedRoles: Role[];
 }
 
-// Hier alle Seiten + Rechte
-export const ACCESS_RULES: RouteAccessRule[] = [
-  {
-    path: "/report",
-    label: "Report",
-    allowedRoles: ["user", "admin", "legitimized", "moderator"],
-  },
-  {
-    path: "/stream",
-    label: "Live & Replay",
-    allowedRoles: ["user", "legitimized", "admin", "moderator", "ngo", "politics],
-  },
-  {
-    path: "/dashboard",
-    label: "Dashboard",
-    allowedRoles: ["admin", "user", "legitimized", "moderator", "ngo", "politics"],
-  },
-  // ... beliebig viele weitere Seiten!
-];
+export interface AccessControlConfig {
+  rules: AccessRule[];
+  defaultRole?: Role;
+}
+
+export const accessControl: AccessControlConfig = {
+  rules: [
+    { path: "/admin", allowedRoles: ["admin", "moderator"] },
+    { path: "/account", allowedRoles: ["user", "legitimized", "admin", "moderator", "ngo", "politics"] },
+    { path: "/ngo", allowedRoles: ["ngo", "admin", "moderator"] },
+    { path: "/politics", allowedRoles: ["politics", "admin", "moderator"] },
+  ],
+  defaultRole: "guest",
+};

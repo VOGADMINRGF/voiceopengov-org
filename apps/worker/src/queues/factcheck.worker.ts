@@ -2,7 +2,7 @@
 
 import { Worker, QueueEvents, Job } from "bullmq";
 import IORedis from "ioredis";
-import { prisma } from "@core/db/prisma";
+import { prisma } from "@db-core";
 import { logger } from "@core/observability/logger";
 import { splitIntoClaims } from "@core/factcheck/claimDecompose";
 import { detectFrames, detectRhetoric, isFalsifiable } from "@core/factcheck/narrative";

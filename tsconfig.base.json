@@ -14,7 +14,10 @@
     "isolatedModules": true,
     "baseUrl": ".",
     "paths": {
+      "@db-web": ["packages/db-web/src/client.ts"],
+      "@db-core": ["packages/db-core/src/client.ts"],
       "core/*": ["core/*"],
+      "core/mongoose":["core/db/mongoose.ts"],
       "features/*": ["features/*"],
       "@core/*": ["core/*"],
       "@features/*": ["features/*"],

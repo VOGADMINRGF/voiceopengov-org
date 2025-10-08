@@ -8,7 +8,7 @@
   },
   "scripts": {
     "prisma:generate": "node ./scripts/prisma-generate.mjs",
-    "build": "pnpm --filter @vog/ui run build && pnpm run prisma:generate && next build",
+    "build": "next build",
     "dev": "pnpm --filter @vog/ui run build && next dev",
     "start": "next start -p 3000",
     "lint": "next lint",

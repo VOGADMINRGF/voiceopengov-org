@@ -1,7 +1,7 @@
 // apps/web/src/app/api/editor/statements/route.ts
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@lib/db";
+import { prisma } from "@db-web";
 import { requireEditorAuth } from "../_utils/auth";
 
 const StatementCreate = z.object({

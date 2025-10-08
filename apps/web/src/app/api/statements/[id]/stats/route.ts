@@ -1,7 +1,7 @@
 
 import "server-only";
 import { NextResponse } from "next/server";
-import { coreCol } from "@/utils/triMongo";
+import { coreCol } from "@core/db/triMongo";
 
 export async function GET(_: Request, { params }: { params: { id: string }}) {
   const col = await coreCol<any>("statements");

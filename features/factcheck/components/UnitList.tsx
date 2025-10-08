@@ -1,8 +1,15 @@
 // features/factcheck/components/UnitList.tsx
 import React from "react";
-import type { ExtractedUnit } from "@prisma/client";
 
-export function UnitList({ units }: { units: (ExtractedUnit & { claim?: { id: string; status: string }})[] }) {
+export type UnitListItem = {
+  id: string;
+  kind: string;
+  text: string;
+  confidence: number;
+  claim?: { id: string; status: string };
+};
+
+export function UnitList({ units }: { units: UnitListItem[] }) {
   return (
     <div className="space-y-3">
       {units.map((u) => (

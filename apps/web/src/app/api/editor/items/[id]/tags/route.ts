@@ -1,28 +1,40 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@lib/prisma";
+export const runtime = "nodejs";
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@db-web";
+import { hasPermission, PERMISSIONS, type Role } from "@core/auth/rbac";
+import { formatError } from "@core/errors/formatError";
+
+type Params = { params: { id: string } };
+
+export async function POST(req: NextRequest, { params }: Params) {
   try {
-    const body = await req.json();
-    const tagIds = Array.isArray(body.tagIds) ? body.tagIds as string[] : [];
-    const exists = await prisma.contentItem.findUnique({ where: { id: params.id } });
-    if (!exists) return NextResponse.json({ error: "Item not found" }, { status: 404 });
+    const role = (req.cookies.get("u_role")?.value as Role) ?? "guest";
+    if (!hasPermission(role, PERMISSIONS.EDITOR_ITEM_WRITE)) {
+      return NextResponse.json(formatError("FORBIDDEN", "Permission denied", { role }), { status: 403 });
+    }
 
-    // hard-replace
+    const body = await req.json();
+    const tagIds = Array.isArray(body.tagIds) ? (body.tagIds as string[]) : [];
+
+    const exists = await prisma.contentItem.findUnique({ where: { id: params.id } });
+    if (!exists) return NextResponse.json(formatError("NOT_FOUND", "Item not found"), { status: 404 });
+
     await prisma.itemTag.deleteMany({ where: { itemId: params.id } });
-    if (tagIds.length) {
+    if (tagIds.length > 0) {
       await prisma.itemTag.createMany({
-        data: tagIds.map(tid => ({ itemId: params.id, tagId: tid })),
+        data: tagIds.map((tagId) => ({ itemId: params.id, tagId })),
         skipDuplicates: true,
       });
     }
+
     const withTags = await prisma.contentItem.findUnique({
       where: { id: params.id },
       include: { tags: { include: { tag: true } } },
     });
-    return NextResponse.json(withTags);
-  } catch (e) {
-    console.error(e);
-    return NextResponse.json({ error: "Update tags failed" }, { status: 500 });
+
+    return NextResponse.json({ ok: true, item: withTags });
+  } catch (e: any) {
+    return NextResponse.json(formatError("INTERNAL_ERROR", "Tag update failed", e?.message ?? e), { status: 500 });
   }
 }

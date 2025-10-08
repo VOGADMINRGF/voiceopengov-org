@@ -1,18 +1,89 @@
 // apps/web/src/app/api/admin/settings/save/route.ts
 export const runtime = "nodejs";
-import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { getDb } from "@/utils/mongoClient";
 
-function isAdmin() { return cookies().get("u_role")?.value === "admin"; }
-type Patch = Partial<{ requireLocation:boolean; requireEmailVerified:boolean; require2FAForReports:boolean }>;
+import "server-only";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { getDb } from "@core/db/triMongo";
+import { formatError } from "@core/errors/formatError";
+import { logger } from "@core/observability/logger";
+// Hinweis: Wenn du bereits ein RBAC-Permission-Setup nutzt, kannst du die Cookie-Admin-Logik unten
+// leicht auf hasPermission(...) umstellen.
 
-export async function POST(req: Request) {
-  if (!isAdmin()) return NextResponse.json({ error:"unauthorized" }, { status:401 });
-  const patch: Patch = await req.json().catch(()=> ({}));
-  const db = await getDb(); const col = db.collection("settings");
-  const current = (await col.findOne({ _id:"global" }))?.onboardingFlags ?? {};
-  const next = { ...current, ...patch };
-  await col.updateOne({ _id:"global" }, { $set:{ onboardingFlags: next } }, { upsert:true });
-  return NextResponse.json({ ok:true, settings: next });
+type OnboardingFlags = {
+  requireLocation?: boolean;
+  requireEmailVerified?: boolean;
+  require2FAForReports?: boolean;
+};
+
+type SettingsDoc = {
+  _id: string; // z.B. "global"
+  onboardingFlags?: OnboardingFlags;
+  updatedAt?: Date;
+};
+
+const BodySchema = z
+  .object({
+    requireLocation: z.coerce.boolean().optional(),
+    requireEmailVerified: z.coerce.boolean().optional(),
+    require2FAForReports: z.coerce.boolean().optional(),
+  })
+  .strict();
+
+/** Liest die Rolle aus dem Cookie. Integrierbar mit RBAC, falls vorhanden. */
+function getRole(req: NextRequest): string {
+  return req.cookies.get("u_role")?.value ?? "guest";
+}
+
+export async function POST(req: NextRequest) {
+  const startedAt = Date.now();
+  try {
+    // --- AuthZ (konservativ: Admin-Cookie). RBAC-Hook hier möglich.
+    const role = getRole(req);
+    if (role !== "admin") {
+      const fe = formatError("FORBIDDEN", "Permission denied", { role });
+      logger.warn({ fe }, "ADMIN_SETTINGS_SAVE_FORBIDDEN");
+      return NextResponse.json(fe, { status: 403 });
+    }
+
+    // --- Body validieren & koerzieren
+    const json = await req.json().catch(() => ({}));
+    const parsed = BodySchema.safeParse(json);
+    if (!parsed.success) {
+      const fe = formatError("BAD_REQUEST", "Invalid body", {
+        issues: parsed.error.flatten(),
+      });
+      logger.info({ fe }, "ADMIN_SETTINGS_SAVE_BAD_REQUEST");
+      return NextResponse.json(fe, { status: 400 });
+    }
+    const patch: OnboardingFlags = parsed.data;
+
+    // --- DB: settings-Collection mit String-_id
+    const db = await getDb();
+    const col = db.collection<SettingsDoc>("settings");
+
+    const current = await col.findOne({ _id: "global" });
+    const nextFlags: OnboardingFlags = { ...(current?.onboardingFlags ?? {}), ...patch };
+
+    await col.updateOne(
+      { _id: "global" },
+      { $set: { onboardingFlags: nextFlags, updatedAt: new Date() } },
+      { upsert: true }
+    );
+
+    logger.info(
+      {
+        msg: "Admin settings saved",
+        keys: Object.keys(patch),
+        latencyMs: Date.now() - startedAt,
+      },
+      "ADMIN_SETTINGS_SAVE_OK"
+    );
+
+    return NextResponse.json({ ok: true, settings: nextFlags });
+  } catch (err: any) {
+    const fe = formatError("INTERNAL", err?.message ?? "SAVE_FAILED");
+    logger.error({ fe, err }, "ADMIN_SETTINGS_SAVE_ERROR");
+    return NextResponse.json(fe, { status: 500 });
+  }
 }

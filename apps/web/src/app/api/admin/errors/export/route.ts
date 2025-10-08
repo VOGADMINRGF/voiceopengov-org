@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { coreCol } from "@/utils/triMongo";
+import { coreCol } from "@core/db/triMongo";
 
 export async function GET(req: NextRequest) {
   const lvl = (new URL(req.url).searchParams.get("lvl") || "").toLowerCase();

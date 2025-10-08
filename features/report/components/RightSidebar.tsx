@@ -1,19 +1,65 @@
-export default function RightSidebar() {
+// features/report/components/RightSidebar.tsx
+"use client";
+
+import React from "react";
+import clsx from "clsx";
+
+export type NewsItem = {
+  id: string;
+  title: string;
+  url?: string;
+  source?: string;
+  at?: string | Date;
+};
+
+type Props = {
+  news?: NewsItem[];
+  className?: string;
+};
+
+export default function RightSidebar({ news = [], className }: Props) {
   return (
-    <aside className="flex flex-col gap-8 pl-4 sticky top-8 text-sm max-w-[16rem]">
-      <div>
-        <h4 className="font-bold text-neutral-700 mb-2">Aktuelle News & Trends</h4>
-        <ul>
-          <li>Migration: EU will Asylverfahren beschleunigen</li>
-          <li>UN-Bericht: Integration wirkt sich positiv aus</li>
-        </ul>
-      </div>
-      <div>
-        <h4 className="font-bold text-neutral-700 mb-2">Community-Trends</h4>
-        <div className="flex flex-wrap gap-2 mt-1">
-          <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-semibold shadow transition select-none">#Integration</span>
-          <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-semibold shadow transition select-none">#Asylverfahren</span>
+    <aside
+      className={clsx(
+        "bg-white border border-neutral-200 rounded-2xl shadow p-4 sm:p-5",
+        "flex flex-col gap-4",
+        className
+      )}
+      aria-label="Neuigkeiten & Hinweise"
+    >
+      <h3 className="font-bold text-neutral-800 text-lg">Neuigkeiten</h3>
+
+      {news.length === 0 && (
+        <div className="text-sm text-neutral-500">
+          Keine aktuellen Meldungen.
         </div>
+      )}
+
+      <ul className="space-y-3">
+        {news.map((n) => (
+          <li key={n.id} className="text-sm">
+            {n.url ? (
+              <a
+                href={n.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-indigo-700"
+              >
+                {n.title}
+              </a>
+            ) : (
+              <span className="text-neutral-800">{n.title}</span>
+            )}
+            <div className="text-[11px] text-neutral-500">
+              {n.source ? `${n.source} ` : ""}
+              {n.at ? `• ${new Date(n.at).toLocaleDateString()}` : ""}
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-2 text-[12px] text-neutral-500">
+        Kuratiert für dich – basierend auf deinen Themen.
       </div>
     </aside>
   );

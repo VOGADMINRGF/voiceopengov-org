@@ -2,7 +2,7 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
-import { coreCol } from "src/utils/triMongo";
+import { coreCol } from "@core/triMongo";
 import { readSession } from "src/utils/session";
 
 const REQUIRE_LOGIN = (process.env.REQUIRE_LOGIN_FOR_STATEMENTS || "false") === "true";

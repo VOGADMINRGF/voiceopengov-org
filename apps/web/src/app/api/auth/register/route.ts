@@ -2,8 +2,8 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
-import { getCol } from "@/utils/mongoClient";
-import { piiCol } from "@/utils/triMongo";
+import { getCol } from "@core/db/triMongo";
+import { piiCol } from "@core/db/triMongo";
 import { sendMail } from "@/utils/mailer";
 
 // gleiche Policy wie im Client

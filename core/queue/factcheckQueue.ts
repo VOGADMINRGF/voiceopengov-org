@@ -3,7 +3,7 @@ import { Queue, QueueEvents, Worker as BullmqWorker, Job } from "bullmq";
 import type { JobsOptions } from "bullmq";           // <= type-only (fix für ts1484)
 import IORedis, { Redis } from "ioredis";
 import { ObjectId } from "mongodb";
-import { coreCol } from "../db/mongo";
+import { coreCol } from "@core/db/triMongo";
 
 export const FACTCHECK_QUEUE = "factcheck";
 const REDIS_URL = process.env.REDIS_URL || "redis://127.0.0.1:6379";

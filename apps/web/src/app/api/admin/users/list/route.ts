@@ -1,7 +1,7 @@
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
-import { getCol } from "@/utils/mongoClient";
+import { getCol } from "@core/db/triMongo";
 
 function isAdmin(req: NextRequest) {
   const role = req.cookies.get("u_role")?.value || "guest";

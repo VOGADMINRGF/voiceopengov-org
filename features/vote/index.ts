@@ -1,4 +1,6 @@
 export * from "./components";
 export * from "./hooks";
-export { default as UseVoteStream } from "./hooks/useVoteStream";
-export * from "./hooks/useVoteStream";
+
+// Falls der Hook sowohl Default als auch Named exportiert wird:
+export { default as useVoteStream } from "./hooks/useVoteStream";
+export { useVoteStream } from "./hooks/useVoteStream"; // falls im File auch named export existiert

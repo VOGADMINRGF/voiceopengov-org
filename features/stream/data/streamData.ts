@@ -1,402 +1,304 @@
-export interface StreamEntry {
-  id: string;
-  title: string;
-  status: 'live' | 'replay' | 'planned';
-  date: string;
-  images: string[];
-  trailer?: string;
-  viewer: number; 
-  supporter: number;
-  language: string;
-  tags: string[];
-  statements: number;
-  bookmarked: boolean;
-  inviteSent: boolean;
-  streamUrl: string;
-  postUrl: string;
+// features/stream/data/streamData.ts
+// E150 V2 – robust + validiert + migration helpers
+
+import { z } from "zod";
+
+/* ─────────── IDs & Enums ─────────── */
+
+export type Id<Kind extends string> = string & { __brand: Kind };
+
+/** ULID bevorzugt (URL/zeitfreundlich); Fallback auf randomUUID / Random */
+export async function generateId(): Promise<Id<"stream">> {
+  try {
+    const { ulid } = await import("ulid");
+    return ulid() as Id<"stream">;
+  } catch {
+    const rnd =
+      (globalThis as any)?.crypto?.randomUUID?.() ??
+      (await import("node:crypto")).randomUUID();
+    return rnd as Id<"stream">;
+  }
 }
 
-export const streamData: StreamEntry[] = [
-  {
-    id: "81d858ca-13a9-4500-a4a8-639f754a8b72",
-    title: "Klima im Fokus – London",
-    slug: "klima-london",
-    status: "Live",
-    region: "London",
-    topic: "Klima",
-    language: "en",
-    viewers: 1077,
-    images: ["/dummy/dummy5.jpg", "/dummy/dummy3.jpg"],
-    description: "Diskussion zu klima-Themen in London, mit Expert:innen und Bürger:innen im Austausch.",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 102,
-    statements: { agreed: 1, rejected: 3, unanswered: 1 },
-    bookmarked: true,
-    inviteSent: true,
-    date: "2025-06-01T18:00:00Z",
-    tags: ["Umwelt", "Europa"],
-    visibility: "public"
-  },
-  {
-    id: "e24f5abc-7e3a-4359-be96-dfc2f35e56f3",
-    title: "Bildung im Fokus – Delhi",
-    slug: "bildung-delhi",
-    status: "Live",
-    region: "Delhi",
-    topic: "Bildung",
-    language: "en",
-    viewers: 1098,
-    images: ["/dummy/dummy8.jpg", "/dummy/dummy3.jpg", "/dummy/dummy9.jpg","/dummy/dummy4.jpg"],
-    description: "Diskussion zu bildung-Themen in Delhi, mit Expert:innen und Bürger:innen im Austausch.",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 137,
-    statements: { agreed: 3, rejected: 2, unanswered: 1 },
-    bookmarked: false,
-    inviteSent: true,
-    date: "2025-05-28T14:00:00Z",
-    tags: ["Bildung", "Asien"],
-    visibility: "public"
-  },
-  {
-    id: "3d5e4204-a8ca-4ba0-9b0a-2a3495082a63",
-    title: "Klima im Fokus – NRW",
-    slug: "klima-nrw",
-    status: "Geplant",
-    region: "NRW",
-    topic: "Klima",
-    language: "de",
-    viewers: 1017,
-    image: "/dummy/dummy9.jpg",
-    description: "Diskussion zu klima-Themen in NRW, mit Expert:innen und Bürger:innen im Austausch.",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 45,
-    statements: { agreed: 5, rejected: 2, unanswered: 1 },
-    bookmarked: true,
-    inviteSent: false,
-    date: "2025-06-05T19:30:00Z",
-    tags: ["Umwelt", "Deutschland"],
-    visibility: "public"
-  },
-  {
-    id: "e605d3a4-0c89-4747-907b-9583736bc805",
-    title: "Demokratie im Fokus – Île-de-France",
-    slug: "demokratie-Île-de-france",
-    status: "Live",
-    region: "Île-de-France",
-    topic: "Demokratie",
-    language: "fr",
-    viewers: 465,
-    image: "/dummy/dummy11.jpg",
-    description: "Diskussion zu demokratie-Themen in Île-de-France, mit Expert:innen und Bürger:innen im Austausch.",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 209,
-    statements: { agreed: 5, rejected: 1, unanswered: 1 },
-    bookmarked: true,
-    inviteSent: true,
-    date: "2025-06-02T17:00:00Z",
-    tags: ["Politik", "Europa"],
-    visibility: "public"
-  },
-  {
-    id: "f8aa3cbe-7598-44d6-9f66-6d4bf88f009b",
-    title: "Digitalisierung im Fokus – Berlin",
-    slug: "digitalisierung-berlin",
-    status: "Geplant",
-    region: "Berlin",
-    topic: "Digitalisierung",
-    language: "de",
-    viewers: 1055,
-    image: "/dummy/dummy3.jpg",
-    description: "Diskussion zu digitalisierung-Themen in Berlin, mit Expert:innen und Bürger:innen im Austausch.",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 13,
-    statements: { agreed: 0, rejected: 0, unanswered: 0 },
-    bookmarked: true,
-    inviteSent: true,
-    date: "2025-06-10T16:00:00Z",
-    tags: ["Digitalisierung", "Deutschland"],
-    visibility: "public"
-  },
-  {
-    id: "a4512dc7-f987-47d5-8bff-bfe3ae8be3a0",
-    title: "Digitalisierung im Fokus – São Paulo",
-    slug: "digitalisierung-sao-paulo",
-    status: "Replay",
-    region: "São Paulo",
-    topic: "Digitalisierung",
-    language: "pt",
-    viewers: 842,
-    image: "/dummy/dummy12.jpg",
-    description: "Diskussion zu digitalisierung-Themen in São Paulo, mit Expert:innen und Bürger:innen im Austausch.",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 67,
-    statements: { agreed: 3, rejected: 2, unanswered: 0 },
-    bookmarked: false,
-    inviteSent: true,
-    date: "2025-05-25T21:00:00Z",
-    tags: ["Digitalisierung", "Südamerika"],
-    visibility: "public"
-  },
-  {
-    id: "b234cdef-1234-4abc-8def-1234567890ab",
-    title: "Energiewende im Fokus – München",
-    slug: "energiewende-muenchen",
-    status: "Live",
-    region: "München",
-    topic: "Energiewende",
-    language: "de",
-    viewers: 1322,
-    image: "/dummy/dummy7.jpg",
-    description: "Wie gelingt München der Umstieg auf erneuerbare Energien? Experten, Politik und Bürger diskutieren.",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 88,
-    statements: { agreed: 2, rejected: 1, unanswered: 2 },
-    bookmarked: false,
-    inviteSent: true,
-    date: "2025-06-02T20:00:00Z",
-    tags: ["Energie", "Deutschland"],
-    visibility: "public"
-  },
-  {
-    id: "c345def1-2345-4bcd-9ef0-2345678901bc",
-    title: "Verkehrswende – Amsterdam",
-    slug: "verkehr-amsterdam",
-    status: "Geplant",
-    region: "Amsterdam",
-    topic: "Verkehr",
-    language: "nl",
-    viewers: 900,
-    image: "/dummy/dummy8.jpg",
-    description: "Nachhaltige Mobilität in Amsterdam: Bürger:innen und Stadtverwaltung im Dialog.",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 54,
-    statements: { agreed: 1, rejected: 1, unanswered: 3 },
-    bookmarked: false,
-    inviteSent: false,
-    date: "2025-06-12T13:00:00Z",
-    tags: ["Mobilität", "Europa"],
-    visibility: "public"
-  },
-  {
-    id: "d456ef12-3456-4cde-0f12-3456789012cd",
-    title: "Klima im Fokus – Kapstadt",
-    slug: "klima-kapstadt",
-    status: "Replay",
-    region: "Kapstadt",
-    topic: "Klima",
-    language: "en",
-    viewers: 721,
-    image: "/dummy/dummy10.jpg",
-    description: "Kapstadt kämpft gegen Wasserknappheit. Wie hilft Klimaanpassung?",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 76,
-    statements: { agreed: 1, rejected: 2, unanswered: 2 },
-    bookmarked: true,
-    inviteSent: true,
-    date: "2025-05-20T17:30:00Z",
-    tags: ["Umwelt", "Afrika"],
-    visibility: "public"
-  },
-  {
-    id: "e567f123-4567-4def-1f23-4567890123de",
-    title: "Klimaneutralität – Paris",
-    slug: "klimaneutralitaet-paris",
-    status: "Geplant",
-    region: "Paris",
-    topic: "Klimaneutralität",
-    language: "fr",
-    viewers: 1120,
-    image: "/dummy/dummy5.jpg",
-    description: "Frankreichs Hauptstadt diskutiert Maßnahmen für das Ziel der Klimaneutralität.",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 95,
-    statements: { agreed: 2, rejected: 2, unanswered: 1 },
-    bookmarked: true,
-    inviteSent: true,
-    date: "2025-06-15T19:00:00Z",
-    tags: ["Umwelt", "Europa"],
-    visibility: "public"
-  },
-  {
-    id: "f6780123-5678-4ef0-2f34-5678901234ef",
-    title: "Digitalisierung – New York",
-    slug: "digitalisierung-new-york",
-    status: "Live",
-    region: "New York",
-    topic: "Digitalisierung",
-    language: "en",
-    viewers: 2001,
-    image: "/dummy/dummy3.jpg",
-    description: "Wie verändert Digitalisierung die Arbeitswelt in New York?",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 210,
-    statements: { agreed: 4, rejected: 1, unanswered: 0 },
-    bookmarked: false,
-    inviteSent: false,
-    date: "2025-06-02T15:00:00Z",
-    tags: ["Digitalisierung", "Nordamerika"],
-    visibility: "public"
-  },
-  {
-    id: "g7891234-6789-4f01-3f45-6789012345f0",
-    title: "Klimaanpassung – Madrid",
-    slug: "klimaanpassung-madrid",
-    status: "Replay",
-    region: "Madrid",
-    topic: "Klimaanpassung",
-    language: "es",
-    viewers: 856,
-    image: "/dummy/dummy2.jpg",
-    description: "Wie schützt sich Madrid vor den Folgen des Klimawandels?",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 66,
-    statements: { agreed: 2, rejected: 1, unanswered: 2 },
-    bookmarked: false,
-    inviteSent: true,
-    date: "2025-05-27T18:00:00Z",
-    tags: ["Umwelt", "Europa"],
-    visibility: "public"
-  },
-  {
-    id: "h8902345-7890-4f12-4f56-7890123456a1",
-    title: "Bildung – Nairobi",
-    slug: "bildung-nairobi",
-    status: "Geplant",
-    region: "Nairobi",
-    topic: "Bildung",
-    language: "en",
-    viewers: 540,
-    image: "/dummy/dummy6.jpg",
-    description: "Innovative Bildungsprojekte in Kenia: Chancen und Herausforderungen.",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 28,
-    statements: { agreed: 1, rejected: 1, unanswered: 3 },
-    bookmarked: false,
-    inviteSent: false,
-    date: "2025-06-09T10:00:00Z",
-    tags: ["Bildung", "Afrika"],
-    visibility: "public"
-  },
-  {
-    id: "i9013456-8901-4f23-5f67-8901234567b2",
-    title: "Verkehr – Zürich",
-    slug: "verkehr-zuerich",
-    status: "Live",
-    region: "Zürich",
-    topic: "Verkehr",
-    language: "de",
-    viewers: 678,
-    image: "/dummy/dummy8.jpg",
-    description: "Nachhaltige Verkehrskonzepte für die Schweiz.",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 49,
-    statements: { agreed: 2, rejected: 0, unanswered: 3 },
-    bookmarked: true,
-    inviteSent: false,
-    date: "2025-06-02T14:30:00Z",
-    tags: ["Mobilität", "Europa"],
-    visibility: "public"
-  },
-  {
-    id: "j0124567-9012-4f34-6f78-9012345678c3",
-    title: "Demokratie – Wien",
-    slug: "demokratie-wien",
-    status: "Replay",
-    region: "Wien",
-    topic: "Demokratie",
-    language: "de",
-    viewers: 812,
-    image: "/dummy/dummy11.jpg",
-    description: "Demokratie und Bürgerbeteiligung in Österreich.",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 34,
-    statements: { agreed: 2, rejected: 2, unanswered: 1 },
-    bookmarked: false,
-    inviteSent: true,
-    date: "2025-05-30T19:00:00Z",
-    tags: ["Politik", "Europa"],
-    visibility: "public"
-  },
-  {
-    id: "k1235678-0123-4f45-7f89-0123456789d4",
-    title: "Energiewende – Frankfurt",
-    slug: "energiewende-frankfurt",
-    status: "Geplant",
-    region: "Frankfurt",
-    topic: "Energiewende",
-    language: "de",
-    viewers: 998,
-    image: "/dummy/dummy2.jpg",
-    description: "Frankfurts Weg zur klimaneutralen Metropole.",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 80,
-    statements: { agreed: 3, rejected: 1, unanswered: 1 },
-    bookmarked: true,
-    inviteSent: false,
-    date: "2025-06-14T18:30:00Z",
-    tags: ["Energie", "Deutschland"],
-    visibility: "public"
-  },
-  {
-    id: "l2346789-1234-4f56-8f90-1234567890e5",
-    title: "Digitalisierung – Seoul",
-    slug: "digitalisierung-seoul",
-    status: "Live",
-    region: "Seoul",
-    topic: "Digitalisierung",
-    language: "ko",
-    viewers: 1200,
-    image: "/dummy/dummy4.jpg",
-    description: "Wie prägt Digitalisierung die südkoreanische Gesellschaft?",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 110,
-    statements: { agreed: 3, rejected: 0, unanswered: 2 },
-    bookmarked: false,
-    inviteSent: true,
-    date: "2025-06-02T12:00:00Z",
-    tags: ["Digitalisierung", "Asien"],
-    visibility: "public"
-  },
-  {
-    id: "m3457890-2345-4f67-9fa1-2345678901f6",
-    title: "Klima – Vancouver",
-    slug: "klima-vancouver",
-    status: "Replay",
-    region: "Vancouver",
-    topic: "Klima",
-    language: "en",
-    viewers: 700,
-    image: "/dummy/dummy5.jpg",
-    description: "Kanadas Städte im Klimawandel: Herausforderungen und Lösungen.",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 60,
-    statements: { agreed: 2, rejected: 1, unanswered: 2 },
-    bookmarked: false,
-    inviteSent: false,
-    date: "2025-05-29T17:00:00Z",
-    tags: ["Umwelt", "Nordamerika"],
-    visibility: "public"
-  },
-  {
-    id: "n4568901-3456-4f78-afb2-3456789012g7",
-    title: "Bildung – München",
-    slug: "bildung-muenchen",
-    status: "Geplant",
-    region: "München",
-    topic: "Bildung",
-    language: "de",
-    viewers: 850,
-    image: "/dummy/dummy6.jpg",
-    description: "Innovative Bildungskonzepte in München.",
-    trailerUrl: "/dummy/trailer-1.mp4",
-    supporter: 47,
-    statements: { agreed: 1, rejected: 1, unanswered: 3 },
-    bookmarked: true,
-    inviteSent: false,
-    date: "2025-06-11T15:00:00Z",
-    tags: ["Bildung", "Deutschland"],
-    visibility: "public"
-  }
-];
+export const StreamStatus = ["live", "replay", "planned"] as const;
+export type StreamStatus = (typeof StreamStatus)[number];
 
-export default streamData;
+export const Visibility = ["public", "unlisted", "private"] as const;
+export type Visibility = (typeof Visibility)[number];
+
+export const StreamPlatform = ["youtube", "twitch", "vimeo", "livepeer", "custom"] as const;
+export type StreamPlatform = (typeof StreamPlatform)[number];
+
+export type StatementCounts = { agreed: number; rejected: number; unanswered: number };
+
+/* ─────────── Haupttyp ─────────── */
+
+export type StreamEntry = {
+  id: Id<"stream">;
+  version: 2;
+
+  slug: string;
+  title: string;
+  description?: string;
+  status: StreamStatus;
+
+  schedule: { startAt: string; endAt?: string; timezone?: string };
+
+  visibility: Visibility;
+  access?: {
+    loginRequired?: boolean;
+    memberOnly?: boolean;
+    geo?: string[]; // ISO-3166-1 alpha-2
+    minAge?: number;
+  };
+
+  locale: string; // BCP-47
+  region: { code: string; name: string };
+  topic: { key: string; label: string };
+
+  media: {
+    images: string[];
+    trailerUrl?: string;
+    streamUrl?: string;
+    postUrl?: string;
+    platform?: StreamPlatform;
+    platformId?: string;
+  };
+
+  stats: {
+    viewers: number;
+    supporter: number;
+    bookmarks?: number;
+  };
+
+  engagement: {
+    statements: StatementCounts;
+    bookmarked: boolean;
+    inviteSent: boolean;
+  };
+
+  tags: string[];
+  seo?: { summary?: string; keywords?: string[] };
+  i18n?: Record<string, { title?: string; description?: string; tags?: string[] }>;
+  moderation?: { locked?: boolean; flagged?: boolean; reason?: string };
+
+  createdAt: string;
+  updatedAt?: string;
+};
+
+/* ─────────── Zod-Schema ─────────── */
+
+export const StatementCountsSchema = z.object({
+  agreed: z.number().int().min(0),
+  rejected: z.number().int().min(0),
+  unanswered: z.number().int().min(0),
+});
+
+export const StreamEntrySchema = z.object({
+  id: z.string().min(10),
+  version: z.literal(2),
+  slug: z.string().min(1),
+  title: z.string().min(1),
+  description: z.string().optional(),
+  status: z.enum(StreamStatus),
+  schedule: z.object({
+    startAt: z.string().datetime(),
+    endAt: z.string().datetime().optional(),
+    timezone: z.string().optional(),
+  }),
+  visibility: z.enum(Visibility),
+  access: z
+    .object({
+      loginRequired: z.boolean().optional(),
+      memberOnly: z.boolean().optional(),
+      geo: z.array(z.string().length(2)).optional(),
+      minAge: z.number().int().min(0).optional(),
+    })
+    .optional(),
+  locale: z.string().min(2),
+  region: z.object({ code: z.string().min(2), name: z.string().min(1) }),
+  topic: z.object({ key: z.string().min(1), label: z.string().min(1) }),
+  media: z.object({
+    images: z.array(z.string().min(1)),
+    trailerUrl: z.string().url().optional(),
+    streamUrl: z.string().url().optional(),
+    postUrl: z.string().url().optional(),
+    platform: z.enum(StreamPlatform).optional(),
+    platformId: z.string().optional(),
+  }),
+  stats: z.object({
+    viewers: z.number().int().min(0),
+    supporter: z.number().int().min(0),
+    bookmarks: z.number().int().min(0).optional(),
+  }),
+  engagement: z.object({
+    statements: StatementCountsSchema,
+    bookmarked: z.boolean(),
+    inviteSent: z.boolean(),
+  }),
+  tags: z.array(z.string()).default([]),
+  seo: z
+    .object({
+      summary: z.string().optional(),
+      keywords: z.array(z.string()).optional(),
+    })
+    .optional(),
+  // explizit mit Key-Typ (kosmetisch; identisch zum impliziten string-Key)
+  i18n: z
+    .record(
+      z.string(),
+      z.object({
+        title: z.string().optional(),
+        description: z.string().optional(),
+        tags: z.array(z.string()).optional(),
+      })
+    )
+    .optional(),
+  moderation: z
+    .object({
+      locked: z.boolean().optional(),
+      flagged: z.boolean().optional(),
+      reason: z.string().optional(),
+    })
+    .optional(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime().optional(),
+});
+
+export type StreamEntryValidated = z.infer<typeof StreamEntrySchema>;
+
+/* ─────────── Helpers & Migration ─────────── */
+
+export function normalizeStatus(s: unknown): StreamStatus {
+  const x = String(s ?? "").trim().toLowerCase();
+  if (x.startsWith("live")) return "live";
+  if (["replay", "aufzeichnung", "recording"].includes(x)) return "replay";
+  if (["planned", "geplant", "upcoming"].includes(x)) return "planned";
+  return "planned";
+}
+
+export function toImages(v: unknown): string[] {
+  if (!v) return [];
+  if (Array.isArray(v)) return v.filter(Boolean);
+  return [String(v)];
+}
+
+export function ensureIso(date: unknown): string {
+  try {
+    const d = new Date(String(date));
+    if (isNaN(d.getTime())) throw new Error("invalid date");
+    return d.toISOString();
+  } catch {
+    return new Date().toISOString();
+  }
+}
+
+// V1 (dein altes Shape – nur Felder, die wir brauchen)
+export type StreamEntryV1 = {
+  id: string;
+  title: string;
+  slug?: string;
+  status: string; // "Live" | "Replay" | "Geplant" | …
+  region?: string;
+  topic?: string;
+  language: string;
+  viewers?: number;
+  images?: string[];
+  image?: string; // Single image fallback
+  description?: string;
+  trailerUrl?: string;
+  supporter?: number;
+  statements?: { agreed: number; rejected: number; unanswered: number };
+  bookmarked: boolean;
+  inviteSent: boolean;
+  date: string; // ISO
+  tags?: string[];
+  visibility?: string; // "public"…
+  streamUrl?: string;
+  postUrl?: string;
+};
+
+function inferRegion(codeOrName?: string): { code: string; name: string } {
+  if (!codeOrName) return { code: "UNK", name: "Unknown" };
+  return { code: codeOrName.length <= 5 ? codeOrName : "UNK", name: codeOrName };
+}
+
+function inferTopic(label?: string): { key: string; label: string } {
+  const key = (label ?? "misc").toLowerCase().replace(/\s+/g, "-");
+  return { key, label: label ?? "Misc" };
+}
+
+/**
+ * Migration V1 → V2 (sync):
+ * Beibehaltung synchroner Signatur, damit bestehende Call-Sites nicht brechen.
+ * ID-Fallback nutzt Web Crypto, sonst einfache Random-ID (nur als Fallback).
+ */
+export function migrateFromV1(v1: StreamEntryV1): StreamEntry {
+  const statements = v1.statements ?? { agreed: 0, rejected: 0, unanswered: 0 };
+  const visibility = (v1.visibility ?? "public").toLowerCase() as Visibility;
+
+  const g: any = globalThis as any;
+  const fallbackId =
+    g?.crypto?.randomUUID?.() ??
+    ("id-" + Math.random().toString(36).slice(2));
+
+  return {
+    id: ((v1.id as Id<"stream">) ?? (fallbackId as Id<"stream">)),
+    version: 2,
+    slug:
+      v1.slug ??
+      v1.title
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9\-]/g, ""),
+    title: v1.title,
+    description: v1.description,
+    status: normalizeStatus(v1.status),
+
+    schedule: { startAt: ensureIso(v1.date) },
+
+    visibility: (Visibility as readonly string[]).includes(visibility)
+      ? (visibility as Visibility)
+      : "public",
+    access: undefined,
+
+    locale: v1.language || "en",
+    region: inferRegion(v1.region),
+    topic: inferTopic(v1.topic),
+
+    media: {
+      images: v1.images?.length ? v1.images : toImages(v1.image),
+      trailerUrl: v1.trailerUrl,
+      streamUrl: v1.streamUrl,
+      postUrl: v1.postUrl,
+    },
+
+    stats: {
+      viewers: v1.viewers ?? 0,
+      supporter: v1.supporter ?? 0,
+    },
+
+    engagement: {
+      statements,
+      bookmarked: !!v1.bookmarked,
+      inviteSent: !!v1.inviteSent,
+    },
+
+    tags: v1.tags ?? [],
+
+    seo: v1.description ? { summary: v1.description.slice(0, 180) } : undefined,
+    i18n: undefined,
+    moderation: undefined,
+
+    createdAt: ensureIso(v1.date),
+    updatedAt: undefined,
+  };
+}
+
+/* ─────────── Daten-Export ─────────── */
+
+// Wenn du bereits V1-Daten hast, hier importieren und migrieren:
+// import { streamData as streamDataV1 } from "./streamData.v1";
+// export const streamData: StreamEntry[] = streamDataV1.map(migrateFromV1);
+
+export const streamData: StreamEntry[] = [];

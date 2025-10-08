@@ -1,3 +1,6 @@
+// features/contribution/types/ContributionType.ts
+// Persistente Domänen-Typen einer Contribution (DB/Transport)
+
 import { FactBoxEntry } from "./FactBoxEntry";
 import { GamificationStats } from "./GamificationStats";
 import { ModAction } from "../../common/types/ModAction";
@@ -5,35 +8,62 @@ import { QRCodeEntry } from "./QRCodeEntry";
 import { FeedReference } from "./FeedReference";
 import { PoliticalArea } from "./PoliticalArea";
 
-export type ContributionStatus = 'offen' | 'geschlossen' | 'review' | 'archiviert';
+export type ContributionStatus = "offen" | "geschlossen" | "review" | "archiviert";
 
 export interface Contribution {
   _id?: string;
-  authorIds: string[];                   // Haupt- & Co-Autoren (User-IDs)
+
+  // Autorenschaft
+  authorIds: string[]; // Haupt- & Co-Autoren (User-IDs)
+  roles: { [userId: string]: "autor" | "coautor" | "redaktion" | "kurator" | "gast" };
+
+  // Inhalte
   title: string;
   summary?: string;
   content: string;
   topicTags: string[];
+
+  // Kontext
   region: PoliticalArea;
   language: string;
+
+  // Medien
   media?: {
     image?: string;
     video?: string;
     externalLink?: string;
   };
+
+  // Meta
   createdAt?: string;
   updatedAt?: string;
   status: ContributionStatus;
-  roles: { [userId: string]: 'autor' | 'coautor' | 'redaktion' | 'kurator' | 'gast' };
+  version?: number;
+
+  // Beziehungen
   relatedContributionIds?: string[];
+  parentContributionId?: string;
+  organizationId?: string;
+
+  // Externe Quelle
   externalSource?: {
     name: string;
     url: string;
-    reviewStatus: 'geprüft' | 'unbestätigt' | 'umstritten' | 'fehlt';
+    reviewStatus: "geprüft" | "unbestätigt" | "umstritten" | "fehlt";
     tendency?: string;
   };
+
+  // Zusatzinfos
   factsBox?: FactBoxEntry[];
-  reportId?: string;
+  qrCodes?: QRCodeEntry[];
+  feedReferences?: FeedReference[];
+
+  // Moderation / Gamification
+  modLog?: ModAction[];
+  gamificationStats?: GamificationStats;
+
+  // Interaktion
+  commentsEnabled?: boolean;
   engagementStats: {
     votes: number;
     swipes: number;
@@ -42,19 +72,16 @@ export interface Contribution {
     shares: number;
     trending: boolean;
   };
-  gamificationStats?: GamificationStats;
-  modLog?: ModAction[];
-  feedReferences?: FeedReference[];
-  isInfoOnly?: boolean;
-  parentContributionId?: string;
-  commentsEnabled?: boolean;
-  politicalTendency?: string;                 // KI-/Redaktions-Tendenz
-  qrCodes?: QRCodeEntry[];
+
+  // Analyse / Statistik
   demographicStats?: { [key: string]: number };
   statementIds?: string[];
-  organizationId?: string;
+  politicalTendency?: string; // KI-/Redaktions-Tendenz
+
+  // Lifecycle
   archived?: boolean;
   deleted?: boolean;
-  version?: number;
+
+  // Flags
+  isInfoOnly?: boolean;
 }
- 

@@ -2,7 +2,7 @@ export const runtime = "nodejs";
 import "server-only";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 async function isAdmin() {
   const c = await cookies();

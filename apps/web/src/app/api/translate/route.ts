@@ -1,45 +1,95 @@
 // apps/web/src/app/api/translate/route.ts
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
-import { cacheTranslation } from "@/utils/translationCache";
-import { translateWithGPT } from "@/utils/gptTranslator";
+import { fetchGptTranslation } from "@/utils/gptTranslator";
+import { analyzeContribution } from "@/lib/contribution/analyzeContribution";
+import { extractStatementsFromText } from "@/lib/contribution/extractStatements";
+import { translateAndCache } from "@/lib/contribution/translateAndCache";
+import { storeContribution } from "@/lib/contribution/storeContribution";
+import type { ContributionAnalysisRequest } from "@/types/contribution";
 
-export async function POST(req: NextRequest) {
-  const { text, to } = await req.json();
-  if (!text || !to) {
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
-  }
+type TranslateBody = { pipeline?: "translate"; text: string; to: string };
+type ContributionBody = {
+  pipeline?: "contribution";
+  text: string;
+  region?: string | null;
+  userId?: string | null;
+  locales?: string[];
+};
+type Body = TranslateBody | ContributionBody;
 
-  const cached = await cacheTranslation.get(text, to);
-  if (cached) {
-    return NextResponse.json({ result: cached });
-  }
-
-  const translated = await translateWithGPT(text, to);
-  await cacheTranslation.set(text, to, translated);
-
-  return NextResponse.json({ result: translated });
+function isContributionBody(b: Partial<Body>): b is ContributionBody {
+  return (
+    b?.pipeline === "contribution" ||
+    "userId" in (b as any) ||
+    "region" in (b as any) ||
+    Array.isArray((b as any)?.locales)
+  );
 }
 
+export async function POST(req: NextRequest) {
+  try {
+    const body = (await req.json()) as Partial<Body>;
 
-import { analyzeContribution } from "@lib/contribution/analyzeContribution";
-import { extractStatements } from "@lib/contribution/extractStatements";
-import { translateAndCache } from "@lib/contribution/translateAndCache";
-import { storeContribution } from "@lib/contribution/storeContribution";
+    // A) Nur Übersetzen
+    if (!isContributionBody(body)) {
+      const text = String((body as any)?.text ?? "");
+      const to = String((body as any)?.to ?? "").trim().toLowerCase();
+      if (!text || !to) {
+        return NextResponse.json({ ok: false, error: "Missing 'text' or 'to'." }, { status: 400 });
+      }
+      const translated = await fetchGptTranslation(text, to);
+      return NextResponse.json({ ok: true, mode: "translate", result: translated });
+    }
 
-export async function POST(req: Request) {
-  const { text, region, userId } = await req.json();
+    // B) Contribution-Pipeline
+    const text = String(body.text ?? "");
+    if (!text) return NextResponse.json({ ok: false, error: "Missing 'text'." }, { status: 400 });
 
-  const analysis = await analyzeContribution(text);
-  const statements = await extractStatements(analysis);
-  const translations = await translateAndCache(statements, ["de", "en"]);
+    const region = body.region ?? null;
+    const userId = body.userId ?? null;
+    const locales = Array.isArray(body.locales) && body.locales.length ? body.locales : ["de", "en"];
 
-  const saved = await storeContribution({
-    originalText: text,
-    statements,
-    translations,
-    region,
-    userId,
-  });
+    // 1) Analyse
+    const analysisReq: ContributionAnalysisRequest = {
+      text,
+      region: region ?? undefined,
+    };
+    const analysis = await analyzeContribution(analysisReq);
 
-  return Response.json({ success: true, saved });
+    // 2) Statements aus Originaltext (Objekte)
+    const statementObjs = extractStatementsFromText(text, {
+      max: Number(process.env.EXTRACT_MAX_STATEMENTS ?? 8),
+      minChars: Number(process.env.EXTRACT_MIN_CHARS ?? 12),
+    });
+
+    // Strings für Funktionen, die string[] erwarten
+    const statements = statementObjs.map((s) => s.text);
+
+    // 3) Übersetzungen — deine Signatur: (texts: string[], locales: string[])
+    const translations = await translateAndCache(statements, locales);
+
+    // 4) Persistenz — Signatur erwartet string statt undefined/null
+    const saved = await storeContribution({
+      originalText: text,
+      statements,           // string[]
+      translations,
+      region: region ?? "", // erzwinge string
+      userId: userId ?? "", // erzwinge string
+    });
+
+    return NextResponse.json({
+      ok: true,
+      mode: "contribution",
+      saved,
+      analysis,
+      statements: statementObjs, // gib gern die reicheren Objekte zurück
+      translations,
+    });
+  } catch (err: any) {
+    console.error("POST /api/translate failed:", err?.message || err);
+    return NextResponse.json({ ok: false, error: "internal_error" }, { status: 500 });
+  }
 }

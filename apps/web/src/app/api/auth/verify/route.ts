@@ -1,7 +1,7 @@
 // apps/web/src/app/api/auth/verify/route.ts
 import "server-only";
 import { NextResponse } from "next/server";
-import { getCol } from "@/utils/mongoClient";
+import { getCol } from "@core/db/triMongo";
 import { ObjectId } from "mongodb";
 
 export async function POST(req: Request) {

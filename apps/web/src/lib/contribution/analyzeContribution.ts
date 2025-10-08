@@ -1,74 +1,170 @@
-// apps/web/src/lib/contribution/analyzeAndTranslate.ts
-import { analyzeContribution } from "@/lib/contribution/analyzeContribution";
-import { extractStatementsFromText } from "@/lib/contribution/extractStatements";
-import { translateAndCache } from "@/lib/contribution/translateAndCache";
-import type { AnalyzedStatement, TopicScore } from "@/types/contribution";
-import type { ContributionAnalysisRequest } from "@/types/contribution";
+// apps/web/src/lib/contribution/analyzeContribution.ts
+// V1-kompatibler Analyzer (Heuristik-first, optional KI-Boost-Hooks)
+// Nutzt die "leichte" Analyse-Typdatei aus "@/types/contribution"
 
-export type AnalyzeAndTranslateOutput = {
-  region: string | null;
-  topics: TopicScore[];
-  statements: AnalyzedStatement[];
-  suggestions: string[];
-  translations?: Record<string, string[]>; // pro Sprache: Liste in der Reihenfolge von statements
-  saved?: { id: string } | null;
+import type {
+  ContributionAnalysisRequest,
+  ContributionAnalysisResponse,
+  TopicScore,
+  AnalyzedStatement,
+  Polarity,
+  StatementType,
+} from "@/types/contribution";
+
+/** Optionale Boost-Hooks (z. B. Orchestrator/LLM) */
+type BoostHooks = {
+  aiTopics?: (text: string) => Promise<TopicScore[]>;                 // 0..1 confidence
+  aiRegion?: (body: ContributionAnalysisRequest) => Promise<string | null>;
+  aiSuggestions?: (text: string) => Promise<string[]>;
 };
 
-function dedupeStatements(items: AnalyzedStatement[], cap = 10) {
-  const seen = new Set<string>(); const out: AnalyzedStatement[] = [];
+let BOOST_HOOKS: BoostHooks | null = null;
+
+/** Von außen aktivierbar, ohne Call-Sites anzupassen */
+export function enableAnalyzeContributionBoost(hooks: BoostHooks) {
+  BOOST_HOOKS = hooks;
+}
+
+/** ---------- Heuristik-Bausteine ---------- **/
+
+function inferRegion(body: ContributionAnalysisRequest): string | null {
+  if (body.region) return body.region;
+  if (body.userProfile?.region) return body.userProfile.region;
+
+  const t = body.text.toLowerCase();
+  if (/\bdeutschland\b|\bberlin\b|\bde\b/.test(t)) return "DE";
+  if (/\bfrance\b|\bparis\b|\bfr\b/.test(t)) return "FR";
+  if (/\bitalia\b|\broma\b|\bit\b/.test(t)) return "IT";
+  if (/\bespaña\b|\bmadrid\b|\bes\b/.test(t)) return "ES";
+  if (/\bpolska\b|\bwarszawa\b|\bpl\b/.test(t)) return "PL";
+  return null;
+}
+
+const TOPIC_KEYWORDS: Record<string, string[]> = {
+  "Demokratie & Wahlen": ["wahl", "abstimmung", "bürger", "direkte demokratie", "petition"],
+  Bildung: ["schule", "bildung", "universität", "lehrer", "studium"],
+  Gesundheit: ["klinik", "gesundheit", "krankenhaus", "pflege", "arzt", "kasse"],
+  "Mobilität & Verkehr": ["bahn", "bus", "verkehr", "auto", "fahrrad", "öpnv", "tickets"],
+  "Sicherheit & Justiz": ["polizei", "kriminalität", "gericht", "justiz", "sicherheit"],
+  "Energie & Klima": ["energie", "co2", "klima", "strom", "heizung", "wärmepumpe", "wind"],
+  "Wirtschaft & Arbeit": ["wirtschaft", "arbeit", "gehalt", "unternehmen", "mittelstand"],
+  "Digitales & Verwaltung": ["digital", "verwaltung", "online", "formular", "it", "internet"],
+  "Soziales & Wohnen": ["miete", "wohnung", "sozial", "kita", "familie", "rente"],
+};
+
+function scoreTopicsHeuristic(text: string, cap = 5): TopicScore[] {
+  const lower = text.toLowerCase();
+  const raw: Array<{ name: string; hits: number }> = [];
+
+  for (const [name, kws] of Object.entries(TOPIC_KEYWORDS)) {
+    let hits = 0;
+    for (const kw of kws) {
+      const re = new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "g");
+      hits += (lower.match(re)?.length ?? 0);
+    }
+    if (hits > 0) raw.push({ name, hits });
+  }
+
+  const max = raw.reduce((m, x) => Math.max(m, x.hits), 0) || 1;
+
+  return raw
+    .map(({ name, hits }) => ({
+      name,
+      confidence: Number((hits / max).toFixed(4)), // 0..1
+    }))
+    .sort((a, b) => b.confidence - a.confidence)
+    .slice(0, cap);
+}
+
+function makeSuggestionsHeuristic(text: string): string[] {
+  const s: string[] = [];
+  const t = text.trim();
+  const len = t.length;
+
+  if (len < 80) s.push("Bitte gib mehr Kontext: Wer ist betroffen, welches Ziel, warum jetzt?");
+  if (len > 1500) s.push("Der Text ist lang. Erstelle eine kurze Zusammenfassung (3–5 Sätze).");
+  if (!/[.!?]$/.test(t)) s.push("Schließe mit einem klaren Satz und Punkt.");
+  if (!/\b(https?:\/\/|www\.)/.test(t) && /quelle|beleg|nachweis/i.test(t))
+    s.push("Füge ggf. eine Quelle/URL als Nachweis hinzu.");
+  return s;
+}
+
+/** Merge: Heuristik + AI (max confidence, Dedupe per name) */
+function mergeTopics(a: TopicScore[], b: TopicScore[], cap = 5): TopicScore[] {
+  const map = new Map<string, TopicScore>();
+  const put = (x: TopicScore) => {
+    const key = x.name.toLowerCase();
+    const prev = map.get(key);
+    if (!prev) map.set(key, x);
+    else map.set(key, { name: x.name, confidence: Math.max(prev.confidence, x.confidence) });
+  };
+  a.forEach(put);
+  b.forEach(put);
+
+  const arr = [...map.values()];
+  const max = arr.reduce((m, x) => Math.max(m, x.confidence), 0) || 1;
+  return arr
+    .map((x) => ({ ...x, confidence: Number((x.confidence / max).toFixed(4)) }))
+    .sort((x, y) => y.confidence - x.confidence)
+    .slice(0, cap);
+}
+
+function dedupeStrings(items: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
   for (const s of items) {
-    const k = s.text.trim().toLowerCase();
-    if (!k || seen.has(k)) continue;
-    seen.add(k); out.push(s);
-    if (out.length >= cap) break;
+    const k = s.trim();
+    if (!k) continue;
+    const key = k.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(k);
   }
   return out;
 }
 
-/** end-to-end helper für routes, workers, tests */
-export async function analyzeAndTranslate(
-  body: ContributionAnalysisRequest & {
-    translateTo?: string[];
-    fromLang?: string | null;
-    extractMax?: number;
-    extractMinChars?: number;
-    translateConcurrency?: number;
-    skipNoop?: boolean;
+/** Platzhalter: Statements erzeugen wir hier NICHT (macht extractStatementsFromText) */
+function emptyStatements(): AnalyzedStatement[] {
+  return [];
+}
+
+/** ---------- Hauptfunktion ---------- **/
+export async function analyzeContribution(
+  body: ContributionAnalysisRequest
+): Promise<ContributionAnalysisResponse> {
+  const text = String(body?.text ?? "").trim();
+
+  // Heuristik
+  const regionH = inferRegion(body);
+  const topicsH = scoreTopicsHeuristic(text);
+  const suggestionsH = makeSuggestionsHeuristic(text);
+
+  // Optional: AI-Boost
+  let region = regionH;
+  let topics = topicsH;
+  let suggestions = suggestionsH;
+
+  if (BOOST_HOOKS) {
+    const [aiRegion, aiTopics, aiSug] = await Promise.all([
+      BOOST_HOOKS.aiRegion ? BOOST_HOOKS.aiRegion(body).catch(() => null) : Promise.resolve(null),
+      BOOST_HOOKS.aiTopics ? BOOST_HOOKS.aiTopics(text).catch(() => []) : Promise.resolve([]),
+      BOOST_HOOKS.aiSuggestions ? BOOST_HOOKS.aiSuggestions(text).catch(() => []) : Promise.resolve([]),
+    ]);
+
+    if (aiRegion) region = aiRegion;
+    if (aiTopics?.length) topics = mergeTopics(topicsH, aiTopics, 5);
+    if (aiSug?.length) suggestions = dedupeStrings([...suggestionsH, ...aiSug]);
   }
-): Promise<AnalyzeAndTranslateOutput> {
-  // 1) Analyse (GPT-Boost + Heuristik-Merge)
-  const base = await analyzeContribution(body);
 
-  // 2) zusätzliche Sätze aus Originaltext ziehen
-  const extra = extractStatementsFromText(body.text, {
-    max: body.extractMax ?? Number(process.env.EXTRACT_MAX_STATEMENTS ?? 8),
-    minChars: body.extractMinChars ?? Number(process.env.EXTRACT_MIN_CHARS ?? 12),
-  });
-
-  // 3) zusammenführen & deckeln
-  const statements = dedupeStatements([...(base.statements ?? []), ...extra], 10);
-
-  // 4) Übersetzen (optional)
-  let translations: Record<string, string[]> | undefined;
-  const langs = body.translateTo && body.translateTo.length ? body.translateTo : [];
-  if (langs.length) {
-    translations = await translateAndCache(
-      statements.map(s => s.text),
-      langs,
-      {
-        from: body.fromLang ?? null,
-        skipNoop: true,
-        concurrency: body.translateConcurrency ?? Number(process.env.TRANSLATE_CONCURRENCY ?? 6),
-      }
-    );
-  }
+  // V1-Fluss: Statements leer; Extraktion passiert in analyzeAndTranslate via extractStatementsFromText
+  const statements: AnalyzedStatement[] = emptyStatements();
 
   return {
-    region: base.region ?? null,
-    topics: base.topics,
+    region: region ?? null,
+    topics,
     statements,
-    suggestions: base.suggestions,
-    translations,
-    saved: (base as any).saved ?? null,
+    suggestions,
+    isNewContext: true, // Heuristik: bei späterer Persistenz/Cache-Erkennung auf false setzen
+    saved: null,
   };
 }

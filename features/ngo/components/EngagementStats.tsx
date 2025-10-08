@@ -11,19 +11,19 @@ export interface EngagementPoint {
 
 export interface Segment {
   label: string;
-  value: number;     // absolute Anzahl
+  value: number; // absolute Anzahl
 }
 
 export interface EngagementStatsProps {
   periodLabel?: string; // z. B. "letzte 30 Tage"
   totals: {
     members: number;
-    contributions: number;   // Beiträge/Statements/Votes summiert oder spezifisch – dein Modell
+    contributions: number; // Beiträge/Statements/Votes summiert oder spezifisch – dein Modell
     activeThisMonth: number;
   };
   kpis?: Array<{ label: string; value: number; deltaPct?: number }>;
-  timeseries?: EngagementPoint[];  // für Sparkline
-  segments?: Segment[];            // Top-Segmente (z. B. NGOs, Regionen, Themen)
+  timeseries?: EngagementPoint[]; // für Sparkline
+  segments?: Segment[]; // Top-Segmente (z. B. NGOs, Regionen, Themen)
 }
 
 /** Zahl hübsch formatiert */
@@ -40,9 +40,9 @@ function pf(p?: number) {
 
 /** Primitive Sparkline (inline SVG, ohne extra Lib) */
 function Sparkline({ data, height = 36 }: { data: EngagementPoint[]; height?: number }) {
-  const path = useMemo(() => {
-    if (!data || data.length < 2) return "";
-    const xs = data.map((d, i) => i);
+  const path = useMemo<null | { d: string; w: number; h: number }>(() => {
+    if (!data || data.length < 2) return null;
+    const xs = data.map((_, i) => i);
     const ys = data.map((d) => d.v);
     const minY = Math.min(...ys);
     const maxY = Math.max(...ys);
@@ -52,13 +52,11 @@ function Sparkline({ data, height = 36 }: { data: EngagementPoint[]; height?: nu
     const scaleX = (i: number) => (i / (data.length - 1)) * (w - 4) + 2;
     const scaleY = (v: number) => h - 2 - ((v - minY) / spanY) * (h - 4);
     let d = `M ${scaleX(xs[0])} ${scaleY(ys[0])}`;
-    for (let i = 1; i < data.length; i++) {
-      d += ` L ${scaleX(xs[i])} ${scaleY(ys[i])}`;
-    }
+    for (let i = 1; i < data.length; i++) d += ` L ${scaleX(xs[i])} ${scaleY(ys[i])}`;
     return { d, w, h };
   }, [data, height]);
 
-  if (!data || data.length < 2) {
+  if (!path) {
     return <div className="h-9 text-xs text-gray-400">keine Zeitreihe</div>;
   }
 

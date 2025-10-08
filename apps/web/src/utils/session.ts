@@ -1,13 +1,24 @@
 // apps/web/src/utils/session.ts
+export const runtime = "nodejs";
 import "server-only";
-import { cookies } from "next/headers";
-import crypto from "crypto";
 
-const COOKIE_NAME = "session";
+import { cookies } from "next/headers";
+import { getCookie } from "@/lib/http/typedCookies";
+import crypto from "node:crypto";
+
+const COOKIE_NAME = "session_token";
 const TTL_DAYS = Number(process.env.SESSION_TTL_DAYS ?? 7);
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) throw new Error("JWT_SECRET missing");
 
+export type SessionPayload = {
+  uid: string;
+  roles?: string[];
+  iat: number; // ms epoch
+  exp: number; // ms epoch
+};
+
+// ---------- intern: JWT (HS256) ----------
 function b64url(input: Buffer | string) {
   const b = Buffer.isBuffer(input) ? input : Buffer.from(input);
   return b.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
@@ -18,18 +29,18 @@ function sign(payload: Record<string, any>) {
   const h = b64url(JSON.stringify(header));
   const p = b64url(JSON.stringify(payload));
   const data = `${h}.${p}`;
-  const sig = crypto.createHmac("sha256", JWT_SECRET).update(data).digest();
+  const sig = crypto.createHmac("sha256", JWT_SECRET!).update(data).digest();
   return `${data}.${b64url(sig)}`;
 }
 
-function verify(token: string): any | null {
+function verify(token: string): SessionPayload | null {
   const [h, p, s] = token.split(".");
   if (!h || !p || !s) return null;
   const data = `${h}.${p}`;
-  const expected = b64url(crypto.createHmac("sha256", JWT_SECRET).update(data).digest());
+  const expected = b64url(crypto.createHmac("sha256", JWT_SECRET!).update(data).digest());
   if (expected !== s) return null;
   try {
-    const obj = JSON.parse(Buffer.from(p, "base64").toString("utf8"));
+    const obj = JSON.parse(Buffer.from(p, "base64").toString("utf8")) as SessionPayload;
     if (obj.exp && Date.now() >= obj.exp) return null;
     return obj;
   } catch {
@@ -37,12 +48,23 @@ function verify(token: string): any | null {
   }
 }
 
-export type SessionPayload = { uid: string; roles?: string[]; iat: number; exp: number };
+// ---------- Helpers ----------
+function toVal(v: unknown): string | undefined {
+  return typeof v === "string" ? v : (v as any)?.value;
+}
 
+// ---------- API ----------
+/** Nur Token lesen (ohne Decode) – via async Cookie-Helper. */
+export async function getSessionToken(): Promise<string | undefined> {
+  return toVal(await getCookie(COOKIE_NAME));
+}
+
+/** Session erzeugen, signieren und HttpOnly-Cookie setzen. */
 export function createSession(uid: string, roles: string[] = []) {
   const now = Date.now();
   const exp = now + TTL_DAYS * 24 * 60 * 60 * 1000;
   const token = sign({ uid, roles, iat: now, exp });
+
   cookies().set({
     name: COOKIE_NAME,
     value: token,
@@ -52,15 +74,18 @@ export function createSession(uid: string, roles: string[] = []) {
     secure: process.env.NODE_ENV === "production",
     maxAge: Math.floor((exp - now) / 1000),
   });
+
   return token;
 }
 
-export function readSession(): SessionPayload | null {
-  const t = cookies().get(COOKIE_NAME)?.value;
+/** Session-Payload lesen & verifizieren. */
+export async function readSession(): Promise<SessionPayload | null> {
+  const t = await getSessionToken();
   if (!t) return null;
   return verify(t);
 }
 
+/** Session-Cookie löschen. */
 export function clearSession() {
   cookies().set({
     name: COOKIE_NAME,
@@ -71,4 +96,9 @@ export function clearSession() {
     secure: process.env.NODE_ENV === "production",
     maxAge: 0,
   });
+}
+
+/** Optional: externes Verify für bereits vorliegende Tokens. */
+export function verifySessionToken(token: string): SessionPayload | null {
+  return verify(token);
 }

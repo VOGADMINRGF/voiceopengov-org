@@ -1,20 +1,24 @@
-// api/votes/user.ts (Next.js API Route)
+// apps/web/src/app/api/votes/user/route.ts
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-import dbConnect from "@/utils/dbConnect";
-import Vote from "@/models/Vote";
+import { NextRequest, NextResponse } from "next/server";
+import { votesCol } from "@core/triMongo";
 
-export default async function handler(req, res) {
-  await dbConnect();
-
-  const { statementId, userHash } = req.query;
-  if (!statementId || !userHash) {
-    return res.status(400).json({ error: "Missing parameters." });
+export async function GET(req: NextRequest) {
+  const url = new URL(req.url);
+  const statementId = (url.searchParams.get("statementId") || "").trim();
+  if (!statementId) {
+    return NextResponse.json({ ok: false, error: "Missing 'statementId'." }, { status: 400 });
   }
+  const votes = await votesCol("votes");
+  const agg = await votes.aggregate([
+    { $match: { statementId } },
+    { $group: { _id: "$value", n: { $sum: 1 } } },
+  ]).toArray();
 
-  try {
-    const vote = await Vote.findOne({ statementId, userHash });
-    return res.status(200).json({ vote: vote ? vote.vote : null });
-  } catch (err) {
-    return res.status(500).json({ error: "Database error.", details: err.message });
-  }
+  const counts: Record<string, number> = { agree: 0, neutral: 0, disagree: 0 };
+  for (const g of agg) counts[g._id] = g.n;
+
+  return NextResponse.json({ ok: true, data: { statementId, counts } });
 }

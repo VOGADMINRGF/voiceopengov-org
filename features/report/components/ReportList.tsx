@@ -89,7 +89,7 @@ export default function ReportList({ initial, query = "", tag = "" }: Props) {
         <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((r) => (
             <li key={r.id}>
-              <ReportCard report={r} />
+              <ReportCard report={r as any} />
             </li>
           ))}
         </ul>

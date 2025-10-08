@@ -1,0 +1,10 @@
+{
+  "name": "@vog/db-web",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/client.ts",
+  "exports": {
+    ".": "./src/client.ts"
+  }
+}

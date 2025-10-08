@@ -1,8 +1,16 @@
 // apps/web/src/server/validation/contentValidation.ts
-import { prisma } from "@/lib/prisma";
-import { ContentKind, RegionMode } from "@prisma/client";
+export const runtime = "nodejs";
 
-type AnswerOpt = { id?: string; label: string; value: string; exclusive?: boolean; order?: number };
+import { prisma, ContentKind, RegionMode } from "@db-web";
+// Falls du sanitize-html brauchst und keine Typen hast, lieber VM/Guards verwenden oder eine ambient d.ts anlegen (siehe unten).
+
+type AnswerOpt = {
+  id?: string;
+  label: string;
+  value: string;
+  exclusive?: boolean;
+  order?: number;
+};
 
 export type ValidationResult = {
   errors: string[];
@@ -11,94 +19,105 @@ export type ValidationResult = {
   regionAuto?: { candidates: Array<{ regionId: string; score: number }>; decidedRegionId?: string };
 };
 
+// ---------- kleine, lokale Helper ----------
+function isEnumValue<E extends Record<string, string | number>>(e: E, v: unknown): v is E[keyof E] {
+  return Object.values(e).includes(v as any);
+}
+
+function toIntOr(v: unknown, fallback: number): number {
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.trunc(n) : fallback;
+}
+
+function toDate(v: unknown): Date | null {
+  const d = new Date(String(v));
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+// ------------------------------------------
+
 export async function validateItemDraft(input: {
   kind: ContentKind;
   text: string;
-  topicId: string;
-  regionMode: RegionMode;
+  locale?: string | null;
+  regionMode?: RegionMode | null;
   regionManualId?: string | null;
+  answerOptions?: AnswerOpt[];
   publishAt?: string | Date | null;
   expireAt?: string | Date | null;
-  locale?: string;
-  answerOptions?: AnswerOpt[];
-}): Promise<ValidationResult> {
+}) {
   const errors: string[] = [];
   const warnings: string[] = [];
   const checks: Record<string, boolean> = {};
 
-  // Required
-  checks.hasText = !!input.text && input.text.trim().length >= 8;
-  if (!checks.hasText) errors.push("Text zu kurz (min. 8 Zeichen).");
+  // kind
+  if (!isEnumValue(ContentKind, input.kind)) {
+    errors.push("Invalid ContentKind");
+  }
 
-  const topic = await prisma.topic.findUnique({ where: { id: input.topicId } });
-  checks.topicExists = !!topic;
-  if (!checks.topicExists) errors.push("Topic nicht gefunden.");
+  // text
+  if (!input.text || !input.text.trim()) {
+    errors.push("Text is required");
+  }
 
-  // Kind-specific
-  if (input.kind === "EVENT" || input.kind === "SUNDAY_POLL") {
-    const opts = input.answerOptions ?? [];
-    checks.hasOptions = opts.length >= 2;
-    if (!checks.hasOptions) errors.push("Mindestens 2 Antwortoptionen erforderlich.");
+  // region mode
+  const regionMode = input.regionMode ?? RegionMode.auto;
+  if (!isEnumValue(RegionMode, regionMode)) {
+    errors.push("Invalid RegionMode");
+  }
 
-    if (input.kind === "EVENT") {
-      const hasExclusive = opts.some(o => o.exclusive === true);
-      checks.hasExclusive = hasExclusive;
-      if (!hasExclusive) errors.push("Mindestens eine exklusive Option für EVENT erforderlich.");
+  // dates
+  const publishAt = input.publishAt ? toDate(input.publishAt) : null;
+  const expireAt = input.expireAt ? toDate(input.expireAt) : null;
+  if (publishAt && expireAt && publishAt > expireAt) {
+    errors.push("publishAt must be <= expireAt");
+  }
+
+  // answer options (optional simple checks)
+  const opts = input.answerOptions ?? [];
+  const seenOrders = new Set<number>();
+  for (const o of opts) {
+    if (!o.label?.trim()) warnings.push("Answer option without label");
+    if (!o.value?.trim()) warnings.push("Answer option without value");
+    if (o.order != null) {
+      const ord = toIntOr(o.order, -1);
+      if (ord < 0) warnings.push("Answer option order should be >= 0");
+      if (seenOrders.has(ord)) warnings.push("Duplicate answer option order");
+      seenOrders.add(ord);
     }
   }
 
-  // Schedule
-  if (input.publishAt && input.expireAt) {
-    const p = new Date(input.publishAt);
-    const e = new Date(input.expireAt);
-    checks.scheduleOrder = e.getTime() > p.getTime();
-    if (!checks.scheduleOrder) errors.push("expireAt muss nach publishAt liegen.");
-  }
-
-  // Region
-  let regionAuto: ValidationResult["regionAuto"] | undefined = undefined;
-  if (input.regionMode === "MANUAL") {
-    checks.hasManualRegion = !!input.regionManualId;
-    if (!checks.hasManualRegion) errors.push("regionManualId fehlt (RegionMode=MANUAL).");
-    else {
-      const reg = await prisma.region.findUnique({ where: { id: input.regionManualId! } });
-      checks.manualRegionExists = !!reg;
-      if (!checks.manualRegionExists) errors.push("regionManualId ungültig.");
+  // region auto suggest (simple heuristic)
+  const regionAuto: ValidationResult["regionAuto"] = { candidates: [] };
+  if (regionMode === RegionMode.auto) {
+    const code = guessRegionCode(input.text);
+    if (code) {
+      const regionId = await regionIdByCode(code);
+      regionAuto.candidates.push({ regionId, score: 0.9 });
+      regionAuto.decidedRegionId = regionId;
     }
-  } else {
-    regionAuto = await inferRegionFromText(input.text);
-    checks.hasAutoCandidates = Array.isArray(regionAuto?.candidates) && regionAuto.candidates.length > 0;
-    if (!checks.hasAutoCandidates) warnings.push("Keine Region-Kandidaten gefunden (AUTO).");
-    const top = regionAuto?.candidates?.[0];
-    if (top && top.score >= 0.75) regionAuto!.decidedRegionId = top.regionId;
   }
 
-  return { errors, warnings, checks, regionAuto };
-}
+  checks.valid =
+    errors.length === 0 &&
+    isEnumValue(ContentKind, input.kind) &&
+    isEnumValue(RegionMode, regionMode);
 
-// Sehr pragmatische Heuristik (kann später durch NER/Geo-Resolver ersetzt werden)
-async function inferRegionFromText(text: string) {
-  const t = text.toLowerCase();
-  const candidates: Array<{ regionId: string; score: number }> = [];
+  return { errors, warnings, checks, regionAuto } as ValidationResult;
 
-  if (/\bdeutschland\b|\bbund\b/.test(t)) candidates.push({ regionId: await regionIdByCode("DE"), score: 0.9 });
-  if (/\bberlin\b/.test(t))               candidates.push({ regionId: await regionIdByCode("DE-BE"), score: 0.88 });
-  if (/\bbayern\b/.test(t))               candidates.push({ regionId: await regionIdByCode("DE-BY"), score: 0.86 });
-  if (/\beu\b|\beuropäische union\b/.test(t)) candidates.push({ regionId: await regionIdByCode("EU"), score: 0.8 });
+  // ----- helpers -----
+  function guessRegionCode(text: string): string | null {
+    const t = text.toUpperCase();
+    if (/\bEU\b/.test(t)) return "EU";
+    if (/\bDE\b/.test(t)) return "DE";
+    if (/\bWORLD\b/.test(t)) return "WORLD";
+    return null;
+  }
 
-  if (candidates.length === 0) candidates.push({ regionId: await regionIdByCode("WORLD"), score: 0.5 });
-
-  // Score-Absteigend
-  candidates.sort((a, b) => b.score - a.score);
-  return { candidates };
-}
-
-async function regionIdByCode(code: string) {
-  const known = await prisma.region.findFirst({ where: { code } });
-  if (known) return known.id;
-  const level = code === "WORLD" ? 0 : code === "EU" ? 1 : code.startsWith("DE-") ? 3 : code === "DE" ? 2 : 0;
-  const created = await prisma.region.create({
-    data: { code, name: code, level },
-  });
-  return created.id;
+  async function regionIdByCode(code: string) {
+    const known = await prisma.region.findFirst({ where: { code } });
+    if (known) return known.id;
+    const level = code === "WORLD" ? 0 : code === "EU" ? 1 : code.startsWith("DE-") ? 3 : code === "DE" ? 2 : 0;
+    const created = await prisma.region.create({ data: { code, name: code, level } });
+    return created.id;
+  }
 }

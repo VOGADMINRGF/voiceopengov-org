@@ -1,7 +1,7 @@
 import "server-only";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import { getCol } from "@/utils/mongoClient";
+import { getCol } from "@core/db/triMongo";
 import { verifyPassword } from "@/utils/password";
 import { rateLimit } from "@/utils/rateLimit";
 

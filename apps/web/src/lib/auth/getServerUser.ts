@@ -1,23 +1,44 @@
-import { cookies, headers } from "next/headers";
-import { jwtVerify } from "jose";
+// apps/web/src/lib/auth/getServerUser.ts
+export const runtime = "nodejs";
 
-type User = { id: string; verified?: boolean };
+import { getCookie, getHeader } from "@/lib/http/typedCookies";
+import { jwtVerify, JWTPayload } from "jose";
 
-export async function getServerUser(): Promise<User | null> {
-  // 1) JWT aus Cookie
-  const token = cookies().get("auth_token")?.value;
-  const secret = process.env.JWT_SECRET;
-  if (token && secret) {
-    try {
-      const { payload } = await jwtVerify(token, new TextEncoder().encode(secret));
-      const id = String(payload.sub || payload.id);
-      return { id, verified: Boolean(payload.verified) };
-    } catch {}
-  }
-  // 2) Dev-Fallback über Header (nur nicht-Prod)
+export type ServerUser = { id: string; verified?: boolean };
+
+/** Helper: Cookie/Header-Helper können string ODER { value } liefern. */
+function toVal(v: unknown): string | undefined {
+  if (!v) return undefined;
+  return typeof v === "string" ? v : (v as any)?.value;
+}
+
+export async function getServerUser(): Promise<ServerUser | null> {
+  // --- Dev-Fallback via Header (nur nicht-Prod) ---
   if (process.env.NODE_ENV !== "production") {
-    const h = headers().get("x-dev-user-id");
-    if (h) return { id: h, verified: headers().get("x-dev-verified") === "true" };
+    const devId = toVal(await getHeader("x-dev-user-id"));
+    if (devId) {
+      const devVerified = toVal(await getHeader("x-dev-verified")) === "true";
+      return { id: devId, verified: devVerified };
+    }
   }
-  return null;
+
+  // --- JWT aus Cookie lesen ---
+  const token = toVal(await getCookie("auth_token"));
+  if (!token) return null;
+
+  const secret = process.env.JWT_SECRET;
+  if (!secret) return null;
+
+  try {
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(secret));
+    // id aus sub bevorzugen, sonst fallback auf id
+    const id = String((payload as JWTPayload & { id?: string }).sub ?? (payload as any).id ?? "");
+    if (!id) return null;
+
+    const verified = Boolean((payload as any).verified);
+    return { id, verified };
+  } catch {
+    // ungültig/abgelaufen o.ä.
+    return null;
+  }
 }

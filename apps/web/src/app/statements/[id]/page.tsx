@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 import "server-only";
 import { notFound } from "next/navigation";
 import { ObjectId } from "mongodb";
-import { coreCol } from "@/utils/triMongo";                 // ⬅️ triMongo statt getCoreCol
+import { coreCol } from "@core/db/triMongo";                 // ⬅️ triMongo statt getCoreCol
 import StatementDetailClient from "@features/statement/components/StatementDetailClient";
 
 type Stats = { votesTotal: number; votesAgree: number; votesNeutral: number; votesDisagree: number };

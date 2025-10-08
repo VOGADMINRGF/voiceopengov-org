@@ -1,5 +1,5 @@
 import { Schema, Document } from "mongoose";
-import { coreConn } from "src/lib/db/core";
+import { coreConn } from "@core/triMongo";
 import { modelOn } from "src/lib/db/modelOn";
 
 export type SourceType =

@@ -16,7 +16,7 @@ TS
 # ---------- API: REPORTS ----------
 CONTENT='
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export async function GET() {
   const db = await getDb();
@@ -38,7 +38,7 @@ write "src/app/api/reports/route.ts" "$CONTENT"
 
 CONTENT='
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const db = await getDb();
@@ -141,7 +141,7 @@ write "src/app/reports/[id]/page.tsx" "$CONTENT"
 # ---------- API: STREAMS ----------
 CONTENT='
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export async function GET() {
   const db = await getDb();
@@ -171,7 +171,7 @@ write "src/app/api/admin/streams/route.ts" "$CONTENT"
 
 CONTENT='
 import { NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export const runtime = "edge";
 
@@ -358,7 +358,7 @@ write "src/app/contributions/page.tsx" "$CONTENT"
 
 CONTENT='
 import { NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export async function GET() {
   const db = await getDb();
@@ -380,7 +380,7 @@ write "src/app/api/contributions/analytics/summary/route.ts" "$CONTENT"
 # ---------- Fact-Check Queue (enqueue + status + worker) ----------
 CONTENT='
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export async function POST(req: NextRequest) {
   const db = await getDb();
@@ -395,7 +395,7 @@ write "src/app/api/factcheck/enqueue/route.ts" "$CONTENT"
 
 CONTENT='
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export async function GET(req: NextRequest) {
   const db = await getDb();
@@ -456,7 +456,7 @@ write "worker/factcheck/worker.ts" "$CONTENT"
 
 # ---------- Graph: Sync to Arango ----------
 CONTENT='
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 import { aql } from "@/graph/arangoRepo";
 
 /** Sync statements & reports to Arango (nodes + simple edges). */
@@ -550,7 +550,7 @@ write "src/app/admin/page.tsx" "$CONTENT"
 
 CONTENT='
 import { NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export async function GET() {
   const db = await getDb();
@@ -563,7 +563,7 @@ write "src/app/api/admin/errors/last24/route.ts" "$CONTENT"
 
 CONTENT='
 import { NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export async function GET() {
   const db = await getDb();
@@ -579,7 +579,7 @@ write "src/app/api/admin/analytics/summary/route.ts" "$CONTENT"
 # ---------- Admin: Orgs CRUD (minimal) ----------
 CONTENT='
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 import { can } from "@/config/accessControl";
 
 function roleFrom(req: NextRequest) {
@@ -610,7 +610,7 @@ write "src/app/api/admin/orgs/route.ts" "$CONTENT"
 # ---------- Profile: Location Save (für Onboarding-Seite) ----------
 CONTENT='
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/utils/mongoClient";
+import { getDb } from "@core/db/triMongo";
 
 export async function POST(req: NextRequest) {
   const db = await getDb();

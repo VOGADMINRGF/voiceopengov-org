@@ -1,6 +1,6 @@
 import "server-only";
 import { NextResponse } from "next/server";
-import { votesCol } from "@/utils/triMongo";
+import { votesCol } from "@core/db/triMongo";
 
 export async function GET(_: Request, { params }: { params: { id: string }}) {
   const statementId = params.id;

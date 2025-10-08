@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCol } from "@/utils/mongoClient";
+import { getCol } from "@core/db/triMongo";
 import { ObjectId } from "mongodb";
 
 export async function POST(req: NextRequest) {

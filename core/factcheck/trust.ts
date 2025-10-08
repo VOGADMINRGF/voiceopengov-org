@@ -1,4 +1,4 @@
-import { prisma } from "@core/db/prisma";
+import { prisma } from "@db-core";
 
 export async function getDomain(url: string): Promise<string> {
   try {

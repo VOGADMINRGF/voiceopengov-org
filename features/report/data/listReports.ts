@@ -1,6 +1,6 @@
 // features/report/data/listReports.ts
 import "server-only";
-import { prisma } from "@core/db/prisma"; // ✅ statt "@/lib/prisma"
+import { prisma } from "@db-core";
 
 export type ListReportsOptions = {
   forUserId?: string;

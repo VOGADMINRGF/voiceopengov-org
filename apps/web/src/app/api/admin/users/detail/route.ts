@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCol } from "@/utils/mongoClient";
-import { coreCol } from "@/utils/triMongo";
+import { getCol } from "@core/db/triMongo";
+import { coreCol } from "@core/db/triMongo";
 import { ObjectId } from "mongodb";
 
 export async function GET(req: NextRequest) {

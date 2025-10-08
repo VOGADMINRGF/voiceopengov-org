@@ -1,5 +1,5 @@
 import "server-only";
-import { coreCol } from "@/utils/triMongo";
+import { coreCol } from "@core/db/triMongo";
 
 /** Mongo-basierter Rate-Limiter (pro key/window) mit TTL-Index in CORE */
 export async function rateLimit(key: string, max: number, windowMs: number) {

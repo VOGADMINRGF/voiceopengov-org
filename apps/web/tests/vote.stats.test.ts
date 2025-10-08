@@ -1,7 +1,7 @@
 import { getVoteStats } from "@/lib/vote/stats";
 import { VoteModel } from "@/models/Vote";
 import mongoose from "mongoose";
-import { mongo } from "@/lib/db/mongoose";
+import { mongo } from "@core/mongoose";
 
 describe("vote stats", () => {
   beforeAll(async () => {

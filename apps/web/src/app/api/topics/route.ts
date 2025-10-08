@@ -19,9 +19,9 @@ export async function GET(req: Request) {
             OR: [{ publishAt: null }, { publishAt: { lte: now } }],
             AND: [{ OR: [{ expireAt: null }, { expireAt: { gt: now } }] }],
           },
-          orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+          orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
           include: {
-            answerOptions: { orderBy: { order: "asc" } },
+            answerOptions: { orderBy: { sortOrder: "asc" } },
             regionEffective: true,
           },
         },

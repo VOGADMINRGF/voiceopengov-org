@@ -38,8 +38,8 @@ export async function publishItem(id: string): Promise<{ ok: true }> {
   return asJson<{ ok: true }>(await http(`/api/editor/items/${encodeURIComponent(id)}/publish`, { method: "POST" }));
 }
 
-export async function reorderAnswerOptions(orders: Array<{ id: string; order: number }>): Promise<{ ok: true }> {
-  return asJson<{ ok: true }>(await http(`/api/editor/items/reorder`, { method: "PATCH", json: { orders } }));
+export async function reorderAnswerOptions(sortOrder: Array<{ id: string; sortOrder: number }>): Promise<{ ok: true }> {
+  return asJson<{ ok: true }>(await http(`/api/editor/items/reorder`, { method: "PATCH", json: { sortOrder } }));
 }
 
 export async function searchRegions(q = ""): Promise<Region[]> {

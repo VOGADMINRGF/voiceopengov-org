@@ -1,5 +1,6 @@
+// apps/web/src/models/core/Statement.ts
 import mongoose, { Schema, Document } from "mongoose";
-import { coreConn } from "src/lib/db/core";
+import { coreConn } from "@core/triMongo";
 
 export interface VotesSummary {
   agree: number;
@@ -31,10 +32,10 @@ export interface FactcheckError {
 
 export interface FactcheckMeta {
   jobId?: string;
-  provider?: string;       // z.B. "openai:gpt-4o-mini"
+  provider?: string; // z.B. "openai:gpt-4o-mini"
   startedAt?: Date;
   finishedAt?: Date;
-  progress?: number;       // 0..100
+  progress?: number; // 0..100
   error?: FactcheckError;
   result?: FactcheckResult;
 }
@@ -76,9 +77,9 @@ export interface StatementDoc extends Document {
   relatedStatements?: string[];
   relatedReports?: string[];
 
-  visibility?: string;   // public / private
-  status?: string;       // active / archived / draft
-  importance?: string;   // low/medium/high
+  visibility?: string; // public / private
+  status?: string; // active / archived / draft
+  importance?: string; // low/medium/high
 
   votes: VotesSummary;
   userId?: string | null;
@@ -106,16 +107,20 @@ const StatementSchema = new Schema<StatementDoc>({
   regionScope: [Schema.Types.Mixed],
 
   source: { name: String, url: String, trustScore: Number },
-  impactLogic: [{
-    type: { type: String, trim: true },
-    description: { einfach: String, eloquent: String }
-  }],
-  alternatives: [{
-    text: String,
-    type: String,
-    impact: String,
-    votes: { agree: Number, neutral: Number, disagree: Number }
-  }],
+  impactLogic: [
+    {
+      type: { type: String, trim: true },
+      description: { einfach: String, eloquent: String },
+    },
+  ],
+  alternatives: [
+    {
+      text: String,
+      type: String,
+      impact: String,
+      votes: { agree: Number, neutral: Number, disagree: Number },
+    },
+  ],
   arguments: { pro: [String], contra: [String] },
   summary: { einfach: String, eloquent: String },
   recommendation: { einfach: String, eloquent: String },
@@ -123,7 +128,7 @@ const StatementSchema = new Schema<StatementDoc>({
 
   location: {
     type: { type: String, enum: ["Point"] },
-    coordinates: { type: [Number], validate: (v: number[]) => v.length === 2 }
+    coordinates: { type: [Number], validate: (v: number[]) => v.length === 2 },
   },
 
   aiAnnotations: { toxicity: Number, sentiment: String, subjectAreas: [String] },
@@ -140,7 +145,7 @@ const StatementSchema = new Schema<StatementDoc>({
     agree: { type: Number, default: 0 },
     neutral: { type: Number, default: 0 },
     disagree: { type: Number, default: 0 },
-    requiredMajority: { type: Number, default: 50 }
+    requiredMajority: { type: Number, default: 50 },
   },
 
   userId: { type: String, default: null },
@@ -153,7 +158,7 @@ const StatementSchema = new Schema<StatementDoc>({
   // ---- Neu: Factcheck vollständige Struktur ----
   factcheck: {
     jobId: { type: String },
-    provider: { type: String },   // z.B. "openai:gpt-4o-mini"
+    provider: { type: String }, // z.B. "openai:gpt-4o-mini"
     startedAt: { type: Date },
     finishedAt: { type: Date },
     progress: { type: Number, min: 0, max: 100, default: 0 },
@@ -164,23 +169,59 @@ const StatementSchema = new Schema<StatementDoc>({
     result: {
       verdict: { type: String, enum: ["true", "false", "uncertain"] },
       confidence: { type: Number },
-      claims: [{
-        text: { type: String },
-        verdict: { type: String, enum: ["true", "false", "uncertain"] },
-        evidence: [{ title: String, url: String, snippet: String }]
-      }],
-      summary: { type: String }
-    }
-  }
+      claims: [
+        {
+          text: { type: String },
+          verdict: { type: String, enum: ["true", "false", "uncertain"] },
+          evidence: [{ title: String, url: String, snippet: String }],
+        },
+      ],
+      summary: { type: String },
+    },
+  },
 });
 
-// Indizes
-StatementSchema.index({ category: 1, createdAt: -1 });
-StatementSchema.index({ language: 1, createdAt: -1 });
-StatementSchema.index({ status: 1, publishedAt: -1 });
-StatementSchema.index({ factcheckStatus: 1, "factcheck.startedAt": -1 });
-StatementSchema.index({ "factcheck.provider": 1, createdAt: -1 });
-StatementSchema.index({ location: "2dsphere" });
+/* ─────────────────────────────────────────────────────────────
+ * Indexe (V2) — benannt, partiell wo sinnvoll, ohne Duplikate
+ * ───────────────────────────────────────────────────────────── */
+
+// Bestehende hilfreiche Indexe behalten:
+StatementSchema.index({ category: 1, createdAt: -1 }, { name: "statement_category_createdAt" });
+StatementSchema.index({ language: 1, createdAt: -1 }, { name: "statement_language_createdAt" });
+StatementSchema.index({ factcheckStatus: 1, "factcheck.startedAt": -1 }, { name: "statement_factcheckStatus_startedAt" });
+StatementSchema.index({ "factcheck.provider": 1, createdAt: -1 }, { name: "statement_factcheckProvider_createdAt" });
+StatementSchema.index({ location: "2dsphere" }, { name: "statement_location_2dsphere" });
+
+// 🔁 ERSETZT den alten unbenannten { status: 1, publishedAt: -1 }-Index:
+StatementSchema.index(
+  { status: 1, publishedAt: -1 },
+  {
+    name: "statement_status_publishedAt",
+    partialFilterExpression: { publishedAt: { $exists: true } },
+  }
+);
+
+// Einzelfelder für schnelle Filter
+StatementSchema.index({ category: 1 }, { name: "statement_category_1" });
+StatementSchema.index({ status: 1 }, { name: "statement_status_1" });
+
+// Nur veröffentlichte Dokumente (spart Platz, Sortierung über Index möglich)
+StatementSchema.index(
+  { publishedAt: -1 },
+  {
+    name: "statement_publishedAt_desc",
+    partialFilterExpression: { publishedAt: { $exists: true } },
+  }
+);
+
+// Häufig: Filter (category,status) + Sort (publishedAt desc)
+StatementSchema.index(
+  { category: 1, status: 1, publishedAt: -1 },
+  {
+    name: "statement_cat_status_publishedAt",
+    partialFilterExpression: { publishedAt: { $exists: true } },
+  }
+);
 
 export default (conn.models.Statement as mongoose.Model<StatementDoc>) ||
   conn.model<StatementDoc>("Statement", StatementSchema);
