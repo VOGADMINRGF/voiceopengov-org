@@ -23,7 +23,10 @@ export default function ContributionForm() {
     // Upload zu /api/contributions/upload
     const formData = new FormData();
     formData.append("file", selected);
-    const res = await fetch("/api/contributions/upload", { method: "POST", body: formData });
+    const res = await fetch("/api/contributions/upload", {
+      method: "POST",
+      body: formData,
+    });
     const data = await res.json();
     if (data.url) setUploadUrl(data.url);
   }
@@ -62,7 +65,11 @@ export default function ContributionForm() {
       });
       if (!res.ok) throw new Error("Fehler beim Absenden");
       // Optional: Weiterleitung, Reset etc.
-      setContent(""); setTitle(""); setFile(null); setUploadUrl(null); setAnalysis(null);
+      setContent("");
+      setTitle("");
+      setFile(null);
+      setUploadUrl(null);
+      setAnalysis(null);
     } catch (e: any) {
       setError(e.message);
     }
@@ -70,12 +77,15 @@ export default function ContributionForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-xl max-w-2xl mx-auto mt-10 space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white p-8 rounded-2xl shadow-xl max-w-2xl mx-auto mt-10 space-y-4"
+    >
       <h2 className="text-2xl font-bold">Neuen Beitrag verfassen</h2>
       <input
         className="w-full p-2 border rounded"
         value={title}
-        onChange={e => setTitle(e.target.value)}
+        onChange={(e) => setTitle(e.target.value)}
         placeholder="Titel (optional, max. 100 Zeichen)"
         maxLength={100}
       />
@@ -83,7 +93,7 @@ export default function ContributionForm() {
         className="w-full p-2 border rounded"
         rows={5}
         value={content}
-        onChange={e => setContent(e.target.value)}
+        onChange={(e) => setContent(e.target.value)}
         placeholder="Dein Beitrag, Frage, Vorschlag oder Anliegen …"
         required
       />
@@ -95,7 +105,11 @@ export default function ContributionForm() {
           className="mb-2"
           onChange={handleFileUpload}
         />
-        {uploadUrl && <div className="text-xs text-green-600">Datei erfolgreich hochgeladen!</div>}
+        {uploadUrl && (
+          <div className="text-xs text-green-600">
+            Datei erfolgreich hochgeladen!
+          </div>
+        )}
       </div>
       <div className="flex gap-2">
         <button
@@ -103,18 +117,24 @@ export default function ContributionForm() {
           className="bg-indigo-600 text-white px-4 py-2 rounded"
           onClick={handleAnalyze}
           disabled={!content || loading}
-        >GPT/ARI Analyse</button>
+        >
+          GPT/ARI Analyse
+        </button>
         <button
           type="submit"
           className="bg-turquoise text-white px-4 py-2 rounded"
           disabled={loading}
-        >Beitrag absenden</button>
+        >
+          Beitrag absenden
+        </button>
       </div>
       {error && <div className="text-red-600">{error}</div>}
       {analysis && (
         <div className="bg-gray-50 p-4 mt-2 rounded border text-sm">
-          <b>Themen:</b> {analysis.topics?.map((t: any) => t.name).join(", ")}<br />
-          <b>Empfohlene Statements:</b> {analysis.suggestedStatements?.map((s: any) => s.text).join(" | ")}
+          <b>Themen:</b> {analysis.topics?.map((t: any) => t.name).join(", ")}
+          <br />
+          <b>Empfohlene Statements:</b>{" "}
+          {analysis.suggestedStatements?.map((s: any) => s.text).join(" | ")}
         </div>
       )}
     </form>

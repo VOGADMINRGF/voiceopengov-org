@@ -1,7 +1,6 @@
+import { BodySchema } from "@/lib/validation/body";
 // apps/web/src/app/api/admin/settings/save/route.ts
 export const runtime = "nodejs";
-
-import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getDb } from "@core/db/triMongo";
@@ -21,14 +20,6 @@ type SettingsDoc = {
   onboardingFlags?: OnboardingFlags;
   updatedAt?: Date;
 };
-
-const BodySchema = z
-  .object({
-    requireLocation: z.coerce.boolean().optional(),
-    requireEmailVerified: z.coerce.boolean().optional(),
-    require2FAForReports: z.coerce.boolean().optional(),
-  })
-  .strict();
 
 /** Liest die Rolle aus dem Cookie. Integrierbar mit RBAC, falls vorhanden. */
 function getRole(req: NextRequest): string {
@@ -51,7 +42,7 @@ export async function POST(req: NextRequest) {
     const parsed = BodySchema.safeParse(json);
     if (!parsed.success) {
       const fe = formatError("BAD_REQUEST", "Invalid body", {
-        issues: parsed.error.flatten(),
+        issues: (parsed as any).error?.flatten?.(),
       });
       logger.info({ fe }, "ADMIN_SETTINGS_SAVE_BAD_REQUEST");
       return NextResponse.json(fe, { status: 400 });
@@ -60,15 +51,18 @@ export async function POST(req: NextRequest) {
 
     // --- DB: settings-Collection mit String-_id
     const db = await getDb();
-    const col = db.collection<SettingsDoc>("settings");
+    const col = db.collection("settings") as any;
 
     const current = await col.findOne({ _id: "global" });
-    const nextFlags: OnboardingFlags = { ...(current?.onboardingFlags ?? {}), ...patch };
+    const nextFlags: OnboardingFlags = {
+      ...(current?.onboardingFlags ?? {}),
+      ...patch,
+    };
 
     await col.updateOne(
       { _id: "global" },
       { $set: { onboardingFlags: nextFlags, updatedAt: new Date() } },
-      { upsert: true }
+      { upsert: true },
     );
 
     logger.info(
@@ -77,7 +71,7 @@ export async function POST(req: NextRequest) {
         keys: Object.keys(patch),
         latencyMs: Date.now() - startedAt,
       },
-      "ADMIN_SETTINGS_SAVE_OK"
+      "ADMIN_SETTINGS_SAVE_OK",
     );
 
     return NextResponse.json({ ok: true, settings: nextFlags });

@@ -18,7 +18,7 @@ export default function PasswordField({ label, ...rest }: Props) {
       <button
         type="button"
         aria-label={show ? "Passwort verbergen" : "Passwort anzeigen"}
-        onClick={() => setShow(s => !s)}
+        onClick={() => setShow((s) => !s)}
         className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-black"
       >
         {show ? "🙈" : "👁️"}

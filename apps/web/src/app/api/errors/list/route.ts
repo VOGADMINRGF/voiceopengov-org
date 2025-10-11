@@ -8,9 +8,15 @@ export const revalidate = 0;
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("q") || "").trim();
-  const status = (searchParams.get("status") || "all") as "all" | "open" | "resolved";
+  const status = (searchParams.get("status") || "all") as
+    | "all"
+    | "open"
+    | "resolved";
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-  const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get("pageSize") || "20", 10)));
+  const pageSize = Math.min(
+    100,
+    Math.max(1, parseInt(searchParams.get("pageSize") || "20", 10)),
+  );
 
   const filter: any = {};
   if (status === "open") filter.resolved = false;
@@ -21,10 +27,14 @@ export async function GET(req: NextRequest) {
   }
 
   const total = await ErrorLogModel.countDocuments(filter);
-  const itemsRaw = await ErrorLogModel.find(
-    filter,
-    { traceId: 1, code: 1, path: 1, status: 1, resolved: 1, timestamp: 1 }
-  )
+  const itemsRaw = await ErrorLogModel.find(filter, {
+    traceId: 1,
+    code: 1,
+    path: 1,
+    status: 1,
+    resolved: 1,
+    timestamp: 1,
+  })
     .sort({ timestamp: -1 })
     .skip((page - 1) * pageSize)
     .limit(pageSize)

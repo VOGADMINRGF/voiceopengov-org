@@ -16,22 +16,23 @@ export async function POST(req: NextRequest) {
     const saved = await ContributionModel.create({
       ...body,
       createdAt: new Date(),
-      status: "confirmed"
+      status: "confirmed",
     });
 
-    return new Response(JSON.stringify({ success: true, id: saved._id }), { status: 200 });
-
+    return new Response(JSON.stringify({ success: true, id: saved._id }), {
+      status: 200,
+    });
   } catch (error: any) {
     const formattedError = formatError({
       message: "Speichern fehlgeschlagen",
       code: "SAVE_ERROR",
-      cause: error.message || error
+      cause: error.message || error,
     });
 
     await ErrorLogModel.create({
-      ...formattedError,
+      ...(typeof formattedError==="object" && formattedError ? formattedError : { formattedError }),
       path: "/api/contribution/save",
-      payload: req.body
+      payload: req.body,
     });
 
     return new Response(JSON.stringify(formattedError), { status: 500 });

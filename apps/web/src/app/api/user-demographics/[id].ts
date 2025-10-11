@@ -1,40 +1,48 @@
-import dbConnect from "@/utils/dbConnect";
-import UserDemographics from "@/models/UserDemographics";
+// apps/web/src/app/api/user-demographics/[id].ts
+import dbConnect from "@/lib/db";
+import UserDemographics from "@/models/pii/UserDemographics";
 
-export default async function handler(req, res) {
+export default async function handler(req: any, res: any) {
   await dbConnect();
-
-  const { id } = req.query; // id = userId (Ref zu UserProfile)
-
+  const { id } = req.query; // userId
   if (!id) return res.status(400).json({ error: "Missing user ID." });
 
   try {
     switch (req.method) {
-      case "GET":
-        // Hole Demographics-Datensatz zu userId
+      case "GET": {
         const demographics = await UserDemographics.findOne({ userId: id });
-        if (!demographics) return res.status(404).json({ error: "No demographic data found for this user." });
+        if (!demographics)
+          return res
+            .status(404)
+            .json({ error: "No demographic data found for this user." });
         return res.status(200).json({ demographics });
+      }
 
-      case "PATCH":
+      case "PATCH": {
         const data = req.body;
-        // Optional: Validierung/Consent prüfen!
         const updated = await UserDemographics.findOneAndUpdate(
           { userId: id },
           data,
-          { new: true, upsert: true } // Lege an, falls noch nicht existiert!
+          { new: true, upsert: true },
         );
         return res.status(200).json({ demographics: updated });
+      }
 
-      case "DELETE":
+      case "DELETE": {
         await UserDemographics.deleteOne({ userId: id });
         return res.status(204).end();
+      }
 
-      default:
+      default: {
         res.setHeader("Allow", ["GET", "PATCH", "DELETE"]);
-        return res.status(405).json({ error: `Method ${req.method} not allowed.` });
+        return res
+          .status(405)
+          .json({ error: `Method ${req.method} not allowed.` });
+      }
     }
-  } catch (err) {
-    return res.status(500).json({ error: "Database error.", details: err.message });
+  } catch (err: any) {
+    return res
+      .status(500)
+      .json({ error: "Database error.", details: err.message });
   }
 }

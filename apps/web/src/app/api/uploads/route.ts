@@ -7,5 +7,8 @@ export async function POST(req: NextRequest) {
   const fd = await req.formData();
   const files = fd.getAll("files") as File[];
   // -> hier zu S3/GCS o.ä. speichern (lokales fs ist in serverless nicht tragfähig)
-  return NextResponse.json({ ok: true, files: files.map(f => ({ name: f.name, size: f.size, type: f.type })) });
+  return NextResponse.json({
+    ok: true,
+    files: files.map((f) => ({ name: f.name, size: f.size, type: f.type })),
+  });
 }

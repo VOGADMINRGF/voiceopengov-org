@@ -1,6 +1,4 @@
 export const runtime = "nodejs";
-
-import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import crypto from "node:crypto";
@@ -9,7 +7,6 @@ import { rateLimit } from "src/utils/rateLimit";
 import UserGameStats from "src/models/game/UserGameStats";
 
 type Val = "agree" | "neutral" | "disagree";
-const VALID: Record<Val, 1> = { agree: 1, neutral: 1, disagree: 1 };
 
 /** Region aus Edge/CDN-Headern */
 function parseRegion(h: Headers) {
@@ -19,7 +16,9 @@ function parseRegion(h: Headers) {
 
 /** Erste IP aus XFF o.ä. ziehen */
 function getClientIp(req: NextRequest): string {
-  const fwd = (req.headers.get("x-forwarded-for") || (req as any).ip || "") as string;
+  const fwd = (req.headers.get("x-forwarded-for") ||
+    (req as any).ip ||
+    "") as string;
   return fwd.split(",")[0].trim();
 }
 
@@ -48,10 +47,10 @@ function stableHash(input: string | null): string | null {
 }
 
 async function summaryOf(statementId: ObjectId) {
-  const stmts = await coreCol<any>("statements");
+  const stmts = await coreCol("statements");
   const s = await stmts.findOne(
     { _id: statementId },
-    { projection: { votes: 1, stats: 1 } }
+    { projection: { votes: 1, stats: 1 } },
   );
 
   const votes = {
@@ -102,7 +101,8 @@ export async function POST(req: NextRequest) {
   const statementId = new ObjectId(statementIdStr);
 
   // Identität: userId → (fp + ipSubnet) → fp → 400
-  const userId = req.cookies.get("u_id")?.value || req.headers.get("x-user-id") || null;
+  const userId =
+    req.cookies.get("u_id")?.value || req.headers.get("x-user-id") || null;
   const fp = (req.headers.get("x-fp") || "").slice(0, 200) || null;
   const ip = getClientIp(req);
   const subnet = ipSubnet(ip);
@@ -124,8 +124,8 @@ export async function POST(req: NextRequest) {
   const now = new Date();
 
   // Collections
-  const votesColRef = await votesCol<any>("votes");
-  const stmtsColRef = await coreCol<any>("statements");
+  const votesColRef = await votesCol("votes");
+  const stmtsColRef = await coreCol("statements");
 
   // Bisherige Stimme lesen
   const existing = await votesColRef.findOne(key, { projection: { value: 1 } });
@@ -152,7 +152,7 @@ export async function POST(req: NextRequest) {
       },
       $setOnInsert: { createdAt: now },
     },
-    { upsert: true }
+    { upsert: true },
   );
 
   // Zähler-Inkremente vorbereiten
@@ -170,13 +170,19 @@ export async function POST(req: NextRequest) {
     inc[`votes.${existing.value as Val}`] = -1;
     inc[`votes.${value}`] = (inc[`votes.${value}`] ?? 0) + 1;
 
-    if (existing.value === "agree") inc["stats.votesAgree"] = (inc["stats.votesAgree"] ?? 0) - 1;
-    if (existing.value === "neutral") inc["stats.votesNeutral"] = (inc["stats.votesNeutral"] ?? 0) - 1;
-    if (existing.value === "disagree") inc["stats.votesDisagree"] = (inc["stats.votesDisagree"] ?? 0) - 1;
+    if (existing.value === "agree")
+      inc["stats.votesAgree"] = (inc["stats.votesAgree"] ?? 0) - 1;
+    if (existing.value === "neutral")
+      inc["stats.votesNeutral"] = (inc["stats.votesNeutral"] ?? 0) - 1;
+    if (existing.value === "disagree")
+      inc["stats.votesDisagree"] = (inc["stats.votesDisagree"] ?? 0) - 1;
 
-    if (value === "agree") inc["stats.votesAgree"] = (inc["stats.votesAgree"] ?? 0) + 1;
-    if (value === "neutral") inc["stats.votesNeutral"] = (inc["stats.votesNeutral"] ?? 0) + 1;
-    if (value === "disagree") inc["stats.votesDisagree"] = (inc["stats.votesDisagree"] ?? 0) + 1;
+    if (value === "agree")
+      inc["stats.votesAgree"] = (inc["stats.votesAgree"] ?? 0) + 1;
+    if (value === "neutral")
+      inc["stats.votesNeutral"] = (inc["stats.votesNeutral"] ?? 0) + 1;
+    if (value === "disagree")
+      inc["stats.votesDisagree"] = (inc["stats.votesDisagree"] ?? 0) + 1;
   } else {
     // gleiche Stimme & touch=true → keine Counter-Änderung
   }
@@ -196,7 +202,8 @@ export async function POST(req: NextRequest) {
         const userKey = String(userId);
         // deterministische Event-ID, falls kein x-request-id vorhanden
         const eventId =
-          hdrRequestId || `vote:${statementId.toHexString()}:${userKey}:${value}`;
+          hdrRequestId ||
+          `vote:${statementId.toHexString()}:${userKey}:${value}`;
 
         await UserGameStats.awardXp(userKey, isFirst ? 2 : 1, {
           badgeCode: isFirst ? "FIRST_VOTE" : undefined,

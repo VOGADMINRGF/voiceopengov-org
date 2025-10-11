@@ -24,7 +24,7 @@ export type ContributionAnalyzeResult = {
 };
 
 export async function analyzeContribution(
-  input: ContributionAnalyzeInput
+  input: ContributionAnalyzeInput,
 ): Promise<ContributionAnalyzeResult> {
   // TODO: echte Analyse-Logik integrieren (LLM, NER, Topic-Model, etc.)
   const fallbackLang = "de";

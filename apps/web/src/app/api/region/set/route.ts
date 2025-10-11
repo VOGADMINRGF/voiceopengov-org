@@ -1,19 +1,15 @@
+import { BodySchema } from "@/lib/validation/body";
 // apps/web/src/app/api/region/set/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { z } from "zod";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prismaWeb } from "@/lib/dbWeb";
+import { prisma } from "@/lib/dbWeb";
 import { revalidatePath } from "next/cache";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-const BodySchema = z.object({
-  code: z.string().min(2).max(32), // z.B. "DE", "DE11", "BERLIN-MITTE", ...
-  persist: z.boolean().optional().default(false),
-});
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,9 +17,12 @@ export async function POST(req: NextRequest) {
     const { code, persist } = BodySchema.parse(body);
 
     // 1) Prüfe Region
-    const region = await prismaWeb.region.findUnique({ where: { code } });
+    const region = await prisma.region.findUnique({ where: { code } });
     if (!region) {
-      return NextResponse.json({ error: "unknown_region_code" }, { status: 404 });
+      return NextResponse.json(
+        { error: "unknown_region_code" },
+        { status: 404 },
+      );
     }
 
     // 2) Cookie setzen (180 Tage)
@@ -42,7 +41,7 @@ export async function POST(req: NextRequest) {
         const session = await getServerSession(authOptions);
         const userId = session?.user?.id;
         if (userId) {
-          await prismaWeb.userProfile.update({
+          await prisma.userProfile.update({
             where: { userId },
             data: { regionId: region.id },
           });
@@ -62,12 +61,20 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       ok: true,
-      region: { id: region.id, code: region.code, name: region.name, level: region.level },
+      region: {
+        id: region.id,
+        code: region.code,
+        name: region.name,
+        level: region.level,
+      },
       persisted: !!persist,
     });
   } catch (err: any) {
     if (err?.name === "ZodError") {
-      return NextResponse.json({ error: "invalid_body", issues: err.issues }, { status: 400 });
+      return NextResponse.json(
+        { error: "invalid_body", issues: err.issues },
+        { status: 400 },
+      );
     }
     console.error("[api/region/set]", err);
     return NextResponse.json({ error: "internal_error" }, { status: 500 });

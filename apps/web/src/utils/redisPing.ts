@@ -1,6 +1,6 @@
 // apps/web/src/utils/redisPing.ts
 export async function redisPing(): Promise<"ok" | "skipped" | string> {
-  const restUrl = process.env.UPSTASH_REDIS_REST_URL?.replace(/\/+$/,"");
+  const restUrl = process.env.UPSTASH_REDIS_REST_URL?.replace(/\/+$/, "");
   const restToken = process.env.UPSTASH_REDIS_REST_TOKEN;
   const socketUrl = process.env.REDIS_URL;
 
@@ -13,7 +13,7 @@ export async function redisPing(): Promise<"ok" | "skipped" | string> {
         cache: "no-store",
       });
       return r.ok ? "ok" : `HTTP ${r.status}`;
-    } catch (e:any) {
+    } catch (e: any) {
       return e?.message ?? "fetch failed";
     }
   }
@@ -37,7 +37,7 @@ export async function redisPing(): Promise<"ok" | "skipped" | string> {
       const pong = await redis.ping();
       redis.disconnect();
       return pong === "PONG" ? "ok" : `pong:${String(pong)}`;
-    } catch (e:any) {
+    } catch (e: any) {
       return e?.message ?? "connect failed";
     }
   }

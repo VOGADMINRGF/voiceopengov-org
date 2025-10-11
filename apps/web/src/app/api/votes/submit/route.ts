@@ -1,18 +1,17 @@
 // apps/web/src/app/api/votes/submit/route.ts
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import crypto from "node:crypto";
 import { coreCol, votesCol } from "@core/db/triMongo";
 
 type Val = "agree" | "neutral" | "disagree";
-const VALID: Record<Val, 1> = { agree: 1, neutral: 1, disagree: 1 };
 
 function getClientIp(req: NextRequest): string {
-  const fwd = (req.headers.get("x-forwarded-for") || (req as any).ip || "") as string;
+  const fwd = (req.headers.get("x-forwarded-for") ||
+    (req as any).ip ||
+    "") as string;
   return fwd.split(",")[0].trim();
 }
 function ipSubnet(ip: string | null): string | null {
@@ -42,7 +41,10 @@ export async function POST(req: NextRequest) {
     const v = String(body?.value ?? "").toLowerCase() as Val;
 
     if (!ObjectId.isValid(statementIdStr)) {
-      return NextResponse.json({ error: "invalid_statementId" }, { status: 400 });
+      return NextResponse.json(
+        { error: "invalid_statementId" },
+        { status: 400 },
+      );
     }
     if (!(v in VALID)) {
       return NextResponse.json({ error: "invalid_vote" }, { status: 400 });
@@ -51,18 +53,25 @@ export async function POST(req: NextRequest) {
     const statementId = new ObjectId(statementIdStr);
 
     // Ident keys: userId > (fp+subnet) > fp
-    const userId = req.cookies.get("u_id")?.value || req.headers.get("x-user-id") || null;
+    const userId =
+      req.cookies.get("u_id")?.value || req.headers.get("x-user-id") || null;
     const fp = (req.headers.get("x-fp") || "").slice(0, 200) || null;
     const subnetHash = stableHash(ipSubnet(getClientIp(req)));
 
     const key: Record<string, any> = { statementId };
     if (userId) key.userId = String(userId);
-    else if (fp && subnetHash) { key.fp = fp; key.ipSubnet = subnetHash; }
-    else if (fp) key.fp = fp;
-    else return NextResponse.json({ error: "missing_identifier" }, { status: 400 });
+    else if (fp && subnetHash) {
+      key.fp = fp;
+      key.ipSubnet = subnetHash;
+    } else if (fp) key.fp = fp;
+    else
+      return NextResponse.json(
+        { error: "missing_identifier" },
+        { status: 400 },
+      );
 
-    const votes = await votesCol<any>("votes");
-    const stmts = await coreCol<any>("statements");
+    const votes = await votesCol("votes");
+    const stmts = await coreCol("statements");
 
     const existing = await votes.findOne(key, { projection: { value: 1 } });
 
@@ -81,7 +90,7 @@ export async function POST(req: NextRequest) {
         },
         $setOnInsert: { createdAt: now },
       },
-      { upsert: true }
+      { upsert: true },
     );
 
     // Counters am Statement anpassen
@@ -96,13 +105,19 @@ export async function POST(req: NextRequest) {
       inc[`votes.${existing.value as Val}`] = -1;
       inc[`votes.${v}`] = (inc[`votes.${v}`] ?? 0) + 1;
 
-      if (existing.value === "agree") inc["stats.votesAgree"] = (inc["stats.votesAgree"] ?? 0) - 1;
-      if (existing.value === "neutral") inc["stats.votesNeutral"] = (inc["stats.votesNeutral"] ?? 0) - 1;
-      if (existing.value === "disagree") inc["stats.votesDisagree"] = (inc["stats.votesDisagree"] ?? 0) - 1;
+      if (existing.value === "agree")
+        inc["stats.votesAgree"] = (inc["stats.votesAgree"] ?? 0) - 1;
+      if (existing.value === "neutral")
+        inc["stats.votesNeutral"] = (inc["stats.votesNeutral"] ?? 0) - 1;
+      if (existing.value === "disagree")
+        inc["stats.votesDisagree"] = (inc["stats.votesDisagree"] ?? 0) - 1;
 
-      if (v === "agree") inc["stats.votesAgree"] = (inc["stats.votesAgree"] ?? 0) + 1;
-      if (v === "neutral") inc["stats.votesNeutral"] = (inc["stats.votesNeutral"] ?? 0) + 1;
-      if (v === "disagree") inc["stats.votesDisagree"] = (inc["stats.votesDisagree"] ?? 0) + 1;
+      if (v === "agree")
+        inc["stats.votesAgree"] = (inc["stats.votesAgree"] ?? 0) + 1;
+      if (v === "neutral")
+        inc["stats.votesNeutral"] = (inc["stats.votesNeutral"] ?? 0) + 1;
+      if (v === "disagree")
+        inc["stats.votesDisagree"] = (inc["stats.votesDisagree"] ?? 0) + 1;
     }
     if (Object.keys(inc).length) {
       await stmts.updateOne({ _id: statementId }, { $inc: inc });
@@ -114,4 +129,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "failed" }, { status: 500 });
   }
 }
- 

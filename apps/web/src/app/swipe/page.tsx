@@ -1,14 +1,12 @@
-// apps/web/src/app/swipe/page.tsx
 "use client";
-
+import React from "react";
 import SwipeDeck from "@features/swipe/components/SwipeDeck";
 
-export default function SwipePage() {
+export default function Page() {
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="flex flex-col items-center mt-8">
-        <SwipeDeck />
-      </div>
-    </div>
+    <main style={{ padding: 16 }}>
+      <h1>Swipe</h1>
+      <SwipeDeck userHash={"anon"} />
+    </main>
   );
 }

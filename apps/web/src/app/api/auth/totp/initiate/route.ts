@@ -18,13 +18,22 @@ export async function POST(_req: NextRequest) {
   try {
     const uid = await readCookie("u_id");
     if (!uid || !ObjectId.isValid(uid)) {
-      return NextResponse.json({ ok: false, error: "UNAUTHORIZED" }, { status: 401 });
+      return NextResponse.json(
+        { ok: false, error: "UNAUTHORIZED" },
+        { status: 401 },
+      );
     }
 
-    const Users = await coreCol<any>("users");
-    const user = await Users.findOne({ _id: new ObjectId(uid) }, { projection: { email: 1 } });
+    const Users = await coreCol("users");
+    const user = await Users.findOne(
+      { _id: new ObjectId(uid) },
+      { projection: { email: 1 } },
+    );
     if (!user?.email) {
-      return NextResponse.json({ ok: false, error: "NOT_FOUND" }, { status: 404 });
+      return NextResponse.json(
+        { ok: false, error: "NOT_FOUND" },
+        { status: 404 },
+      );
     }
 
     const secret = authenticator.generateSecret();
@@ -34,17 +43,20 @@ export async function POST(_req: NextRequest) {
 
     await Users.updateOne(
       { _id: new ObjectId(uid) },
-      { $set: { "verification.twoFA.temp": secret, updatedAt: new Date() } }
+      { $set: { "verification.twoFA.temp": secret, updatedAt: new Date() } },
     );
 
     return NextResponse.json({
       ok: true,
-      otpauth,   // für QR
-      secret,    // optional falls Client QR generiert
+      otpauth, // für QR
+      secret, // optional falls Client QR generiert
       issuer: "VoiceOpenGov",
       label: `${publicHost()}:${user.email}`,
     });
   } catch (e: any) {
-    return NextResponse.json({ ok: false, error: e?.message ?? "TOTP_INIT_FAILED" }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: e?.message ?? "TOTP_INIT_FAILED" },
+      { status: 500 },
+    );
   }
 }

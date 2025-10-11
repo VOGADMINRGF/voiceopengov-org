@@ -13,7 +13,11 @@ export function filterNav(userOrRole: { role?: Role } | Role): NavItem[] {
 
   const items: NavItem[] = [
     { label: "Home", href: "/" },
-    { label: "Dashboard", href: "/dashboard", roles: ["user", "org", "redaktion", "admin"] },
+    {
+      label: "Dashboard",
+      href: "/dashboard",
+      roles: ["user", "org", "redaktion", "admin"],
+    },
     { label: "Admin", href: "/admin", roles: ["admin"] },
   ];
 

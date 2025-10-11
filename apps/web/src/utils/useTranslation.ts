@@ -4,10 +4,6 @@
 import { useMemo } from "react";
 
 type Dict = Record<string, string>;
-const dictionaries: Record<string, Dict> = {
-  de: {},
-  en: {},
-};
 
 export function useTranslation(lang: string = "de") {
   const dict = useMemo(() => dictionaries[lang] ?? {}, [lang]);

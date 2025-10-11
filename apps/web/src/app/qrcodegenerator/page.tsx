@@ -1,15 +1,12 @@
-// apps/web/src/app/qrcodegenerator/page.tsx
 "use client";
+import React from "react";
 import QRCodeGenerator from "@/components/QRCodeGenerator";
 
-export default function QRCodeGeneratorPage() {
-  // Beispiel: Aktueller User (Demo), in echt über Auth holen!
-  const demoUserId = "65d4c2f2a1b5e21ffb3fa222"; // <- Ersetze durch echten Wert
-
+export default function Page() {
   return (
-    <main className="min-h-screen flex flex-col justify-center items-center bg-gray-50">
-      <QRCodeGenerator userId={demoUserId} />
+    <main style={{ padding: 16 }}>
+      <h1>QR Code Generator</h1>
+      <QRCodeGenerator />
     </main>
   );
 }
-

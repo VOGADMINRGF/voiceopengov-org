@@ -5,8 +5,8 @@ import { votesCol } from "@core/triMongo";
 // Falls irgendwo getVotesDb().collection("…") benutzt wird:
 export async function getVotesDb() {
   return {
-    collection<T = any>(name: string): Promise<Collection<T>> {
-      return votesCol<T>(name);
+    collection<T = any>(name: string) {
+      return votesCol(name) as any;
     },
   };
 }

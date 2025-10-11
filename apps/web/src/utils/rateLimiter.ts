@@ -1,12 +1,19 @@
 // apps/web/src/utils/rateLimiter.ts
 import { createClient } from "redis";
 
-type RLResult = { ok: boolean; remaining: number; resetSec: number; retryAfterSec?: number };
+type RLResult = {
+  ok: boolean;
+  remaining: number;
+  resetSec: number;
+  retryAfterSec?: number;
+};
 
 let redis: ReturnType<typeof createClient> | null = null;
 if (process.env.REDIS_URL) {
   redis = createClient({ url: process.env.REDIS_URL });
-  redis.connect().catch(() => { redis = null; });
+  redis.connect().catch(() => {
+    redis = null;
+  });
 }
 
 // Fixed-Window: key = rl:{bucket}:{ip}
@@ -14,7 +21,7 @@ export async function rateLimit(
   ip: string,
   bucket: string,
   limitPerWindow: number,
-  windowSec: number
+  windowSec: number,
 ): Promise<RLResult> {
   const now = Math.floor(Date.now() / 1000);
   const resetSec = now + windowSec;
@@ -26,7 +33,12 @@ export async function rateLimit(
     const remaining = Math.max(0, limitPerWindow - c);
     if (c > limitPerWindow) {
       const ttl = await redis.ttl(key);
-      return { ok: false, remaining: 0, resetSec: now + (ttl > 0 ? ttl : windowSec), retryAfterSec: ttl };
+      return {
+        ok: false,
+        remaining: 0,
+        resetSec: now + (ttl > 0 ? ttl : windowSec),
+        retryAfterSec: ttl,
+      };
     }
     return { ok: true, remaining, resetSec };
   }

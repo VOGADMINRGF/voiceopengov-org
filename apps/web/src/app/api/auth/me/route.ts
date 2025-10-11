@@ -19,16 +19,16 @@ export async function GET() {
   try {
     const sess = readSession();
     // Falls keine Session → wie bei dir: { user: null } (HTTP 200)
-    if (!sess?.uid || !/^[0-9a-fA-F]{24}$/.test(sess.uid)) {
+    if (!(sess as any)?.uid || !/^[0-9a-fA-F]{24}$/.test((sess as any)?.uid)) {
       return NextResponse.json({ user: null }, noStore);
     }
 
-    // Wenn deine Users in "core" liegen, nimm coreCol<UserDoc>("users")
-    const users = await piiCol<UserDoc>("users");
+    // Wenn deine Users in "core" liegen, nimm coreCol("users")
+    const users = await piiCol("users");
 
     const doc = await users.findOne(
-      { _id: new ObjectId(sess.uid) },
-      { projection: { passwordHash: 0 } }
+      { _id: new ObjectId((sess as any)?.uid) },
+      { projection: { passwordHash: 0 } },
     );
 
     if (!doc) return NextResponse.json({ user: null }, noStore);
@@ -42,10 +42,13 @@ export async function GET() {
           roles: Array.isArray(doc.roles) ? doc.roles : ["user"],
         },
       },
-      noStore
+      noStore,
     );
   } catch (err) {
     console.error("[/api/auth/me] error:", err);
-    return NextResponse.json({ error: "internal_error" }, { status: 500, ...noStore });
+    return NextResponse.json(
+      { error: "internal_error" },
+      { status: 500, ...noStore },
+    );
   }
 }

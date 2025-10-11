@@ -13,12 +13,19 @@ function hmacUserHash(userId: string) {
 
 export async function GET(req: Request) {
   const user = await getServerUser();
-  if (!user) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+  if (!user)
+    return NextResponse.json(
+      { ok: false, error: "unauthorized" },
+      { status: 401 },
+    );
 
   const { searchParams } = new URL(req.url);
   const statementId = searchParams.get("statementId") || "";
   if (!Types.ObjectId.isValid(statementId)) {
-    return NextResponse.json({ ok: false, error: "invalid_statementId" }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "invalid_statementId" },
+      { status: 400 },
+    );
   }
 
   const Vote = await VoteModel();

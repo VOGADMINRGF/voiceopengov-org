@@ -10,9 +10,17 @@ type SummaryKey = "agree" | "neutral" | "disagree";
 type Summary = Record<SummaryKey, number>;
 
 type VotingRule =
-  | { type: "simple-majority"; minQuorum?: number; weightMap?: Record<string, number> }
-  | { type: "two-thirds";      minQuorum?: number; weightMap?: Record<string, number> }
-  | { type: "weighted";        minQuorum?: number; weightMap: Record<string, number> };
+  | {
+      type: "simple-majority";
+      minQuorum?: number;
+      weightMap?: Record<string, number>;
+    }
+  | {
+      type: "two-thirds";
+      minQuorum?: number;
+      weightMap?: Record<string, number>;
+    }
+  | { type: "weighted"; minQuorum?: number; weightMap: Record<string, number> };
 
 type VoteDoc = {
   _id?: ObjectId;
@@ -24,11 +32,15 @@ type VoteDoc = {
 
 function normChoice(raw: unknown): SummaryKey {
   const v = String(raw ?? "").toLowerCase();
-  if (v === "agree" || v === "yes" || v === "pro" || v === "for") return "agree";
-  if (v === "disagree" || v === "no" || v === "contra" || v === "against") return "disagree";
+  if (v === "agree" || v === "yes" || v === "pro" || v === "for")
+    return "agree";
+  if (v === "disagree" || v === "no" || v === "contra" || v === "against")
+    return "disagree";
   return "neutral";
 }
-function emptySummary(): Summary { return { agree: 0, neutral: 0, disagree: 0 }; }
+function emptySummary(): Summary {
+  return { agree: 0, neutral: 0, disagree: 0 };
+}
 function coerceSummary(v: any): Summary {
   return {
     agree: Number.isFinite(v?.agree) ? v.agree : 0,
@@ -36,7 +48,10 @@ function coerceSummary(v: any): Summary {
     disagree: Number.isFinite(v?.disagree) ? v.disagree : 0,
   };
 }
-function computeResult(rule: VotingRule, s: Summary): "passed" | "not_passed" | null {
+function computeResult(
+  rule: VotingRule,
+  s: Summary,
+): "passed" | "not_passed" | null {
   const total = s.agree + s.neutral + s.disagree;
   if (total === 0) return null;
   if (rule.minQuorum && total < rule.minQuorum) return "not_passed";
@@ -52,42 +67,60 @@ export async function GET(req: NextRequest) {
   const statementIdParam = url.searchParams.get("statementId");
   const fresh = url.searchParams.get("fresh") === "true";
   if (!statementIdParam) {
-    return NextResponse.json({ ok: false, error: "Missing statementId" }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "Missing statementId" },
+      { status: 400 },
+    );
   }
   const statementIdStr = statementIdParam;
   const isObjId = ObjectId.isValid(statementIdStr);
 
-  const stmtsRef = await coreCol<any>("statements");
-  const votesRef = await votesCol<VoteDoc>("votes");
+  const stmtsRef = await coreCol("statements");
+  const votesRef = await votesCol("votes");
 
   // Statement (für votingRule + ggf. Cache)
   let statement: any = null;
   if (isObjId) {
     statement = await stmtsRef.findOne(
       { _id: new ObjectId(statementIdStr) },
-      { projection: { votes: 1, stats: 1, votingRule: 1, id: 1 } }
+      { projection: { votes: 1, stats: 1, votingRule: 1, id: 1 } },
     );
   }
   if (!statement) {
     statement = await stmtsRef.findOne(
       { id: statementIdStr },
-      { projection: { votes: 1, stats: 1, votingRule: 1, id: 1 } }
+      { projection: { votes: 1, stats: 1, votingRule: 1, id: 1 } },
     );
   }
   if (!statement) {
-    return NextResponse.json({ ok: false, error: "Statement not found" }, { status: 404 });
+    return NextResponse.json(
+      { ok: false, error: "Statement not found" },
+      { status: 404 },
+    );
   }
 
-  const votingRule: VotingRule = statement.votingRule || { type: "simple-majority" };
+  const votingRule: VotingRule = statement.votingRule || {
+    type: "simple-majority",
+  };
 
-  async function summaryFromVotes(): Promise<{ summary: Summary; total: number }> {
+  async function summaryFromVotes(): Promise<{
+    summary: Summary;
+    total: number;
+  }> {
     let match: Filter<VoteDoc>;
     if (isObjId) {
-      match = { $or: [{ statementId: new ObjectId(statementIdStr) }, { statementId: statementIdStr }] };
+      match = {
+        $or: [
+          { statementId: new ObjectId(statementIdStr) },
+          { statementId: statementIdStr },
+        ],
+      };
     } else {
       match = { statementId: statementIdStr };
     }
-    const options: FindOptions<VoteDoc> = { projection: { vote: 1, choice: 1, role: 1 } };
+    const options: FindOptions<VoteDoc> = {
+      projection: { vote: 1, choice: 1, role: 1 },
+    };
     const cursor = votesRef.find(match, options).batchSize(1000);
 
     const weighted = votingRule.type === "weighted";
@@ -121,7 +154,10 @@ export async function GET(req: NextRequest) {
     votesTotal: Number(statement?.stats?.votesTotal) || cachedTotal,
   };
 
-  const mustLive = fresh || votingRule.type === "weighted" || (cachedTotal === 0 && stats.votesTotal > 0);
+  const mustLive =
+    fresh ||
+    votingRule.type === "weighted" ||
+    (cachedTotal === 0 && stats.votesTotal > 0);
 
   let data: Summary;
   let total: number;
@@ -140,6 +176,6 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json(
     { ok: true, data, meta: { total, votingRule, result, stats, source } },
-    { status: 200 }
+    { status: 200 },
   );
 }

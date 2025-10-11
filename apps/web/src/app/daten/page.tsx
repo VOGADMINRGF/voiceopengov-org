@@ -8,19 +8,26 @@ export default function DatenPage() {
 
       <section className="bg-gray-50 p-6 rounded-lg shadow space-y-4">
         <p className="text-gray-700 text-lg">
-          Wir legen großen Wert auf Datenschutz. Die Nutzung von VoiceOpenGov ist weitgehend anonym möglich – freiwillige Angaben kannst du jederzeit einsehen oder löschen.
+          Wir legen großen Wert auf Datenschutz. Die Nutzung von VoiceOpenGov
+          ist weitgehend anonym möglich – freiwillige Angaben kannst du
+          jederzeit einsehen oder löschen.
         </p>
 
         <ul className="list-disc list-inside space-y-1 text-gray-700">
           <li>Keine dauerhafte Speicherung deiner IP-Adresse</li>
           <li>Kein Einsatz von Tracking-Cookies oder externem Profiling</li>
-          <li>Alle Daten unterliegen der DSGVO (Serverstandort: Deutschland)</li>
+          <li>
+            Alle Daten unterliegen der DSGVO (Serverstandort: Deutschland)
+          </li>
           <li>Transparente Datenverwaltung – jederzeit einsehbar & löschbar</li>
         </ul>
 
         <p className="text-sm text-gray-600">
           Fragen? Schreib uns unter{" "}
-          <a href="mailto:datenschutz@voiceopengov.org" className="text-coral underline">
+          <a
+            href="mailto:datenschutz@voiceopengov.org"
+            className="text-coral underline"
+          >
             datenschutz@voiceopengov.org
           </a>
         </p>

@@ -28,40 +28,54 @@ export async function GET(_req: NextRequest) {
     return NextResponse.json({ ok: false, error: "NO_UID" }, { status: 401 });
   }
 
-  const Users = await coreCol<any>("users");
+  const Users = await coreCol("users");
   const user = await Users.findOne(
     { _id: new ObjectId(uid) },
-    { projection: { "profile.location": 1 } }
+    { projection: { "profile.location": 1 } },
   );
 
-  return NextResponse.json({ ok: true, location: user?.profile?.location ?? null });
+  return NextResponse.json({
+    ok: true,
+    location: user?.profile?.location ?? null,
+  });
 }
 
 // ---------- POST: Location setzen/aktualisieren ----------
 export async function POST(req: NextRequest) {
   const uid = await readCookie("u_id");
   if (!uid || !ObjectId.isValid(uid)) {
-    return NextResponse.json({ ok: false, error: "UNAUTHORIZED" }, { status: 401 });
+    return NextResponse.json(
+      { ok: false, error: "UNAUTHORIZED" },
+      { status: 401 },
+    );
   }
 
   const body = (await req.json().catch(() => null)) as Partial<LocPatch> | null;
 
   const city = String(body?.city ?? "").trim();
   if (!city) {
-    return NextResponse.json({ ok: false, error: "CITY_REQUIRED" }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "CITY_REQUIRED" },
+      { status: 400 },
+    );
   }
 
   const zip = body?.zip != null ? String(body.zip) : undefined;
-  const country = body?.country != null ? String(body.country).toUpperCase() : undefined;
+  const country =
+    body?.country != null ? String(body.country).toUpperCase() : undefined;
 
   const lat =
-    typeof body?.lat === "number" && Number.isFinite(body.lat) ? body.lat : undefined;
+    typeof body?.lat === "number" && Number.isFinite(body.lat)
+      ? body.lat
+      : undefined;
   const lng =
-    typeof body?.lng === "number" && Number.isFinite(body.lng) ? body.lng : undefined;
+    typeof body?.lng === "number" && Number.isFinite(body.lng)
+      ? body.lng
+      : undefined;
 
   const location: LocPatch = { city, zip, country, lat, lng };
 
-  const Users = await coreCol<any>("users");
+  const Users = await coreCol("users");
   await Users.updateOne(
     { _id: new ObjectId(uid) },
     {
@@ -69,7 +83,7 @@ export async function POST(req: NextRequest) {
         "profile.location": location,
         updatedAt: new Date(),
       },
-    }
+    },
   );
 
   const res = NextResponse.json({ ok: true, location });

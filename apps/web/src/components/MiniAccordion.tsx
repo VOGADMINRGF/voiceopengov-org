@@ -1,18 +1,19 @@
 import { useState } from "react";
 import { colors } from "@ui/theme";
 
-export function MiniAccordion({ items }) {
+export function MiniAccordion({ items }: { items: any[] }) {
   const [open, setOpen] = useState(-1);
   return (
     <div className="space-y-2">
-      {items.map((item, idx) => (
+      {items.map((item: any, idx: number) => (
         <div key={idx} className="rounded-lg border bg-white/90 shadow">
           <button
             onClick={() => setOpen(open === idx ? -1 : idx)}
             className="w-full text-left flex items-center px-4 py-3 font-semibold"
             style={{ color: colors.coral }}
           >
-            <span className="mr-2">{item.icon || "❔"}</span>{item.title}
+            <span className="mr-2">{item.icon || "❔"}</span>
+            {item.title}
             <span className="ml-auto">{open === idx ? "▲" : "▼"}</span>
           </button>
           {open === idx && (

@@ -18,19 +18,33 @@ export interface IStream extends Document {
 
 const StreamSchema = new Schema<IStream>(
   {
-    key: { type: String, required: true, unique: true, trim: true, index: true },
+    key: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      index: true,
+    },
     title: { type: String, required: true, trim: true },
     description: { type: String, trim: true },
     languages: [{ type: String, trim: true }],
-    regionScope: [{ iso: { type: String, trim: true }, name: { type: String, required: true, trim: true } }],
+    regionScope: [
+      {
+        iso: { type: String, trim: true },
+        name: { type: String, required: true, trim: true },
+      },
+    ],
     tags: [{ type: String, trim: true, lowercase: true }],
-    status: { type: String, enum: ["draft", "active", "archived"], default: "active", index: true },
+    status: {
+      type: String,
+      enum: ["draft", "active", "archived"],
+      default: "active",
+      index: true,
+    },
     featured: { type: Boolean, default: false, index: true },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 StreamSchema.index({ featured: 1, updatedAt: -1 });
-
-const conn = coreConn();
 export default modelOn<IStream>(conn, "Stream", StreamSchema, "streams");

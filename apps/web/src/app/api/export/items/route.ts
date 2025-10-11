@@ -1,14 +1,17 @@
 // apps/web/src/app/api/export/items/route.ts
 export const runtime = "nodejs";
 
-import { prisma } from "@db-web";
+import { prisma } from "@db/web";
 
 export async function GET() {
   const items = await prisma.contentItem.findMany({
     include: {
       regionEffective: { select: { code: true } },
       topic: { select: { slug: true } },
-      answerOptions: { orderBy: { sortOrder: "asc" }, select: { label: true, value: true } },
+      answerOptions: {
+        orderBy: { sortOrder: "asc" },
+        select: { label: true, value: true },
+      },
     },
     orderBy: [{ createdAt: "desc" }],
     take: 1000,
@@ -31,7 +34,9 @@ export async function GET() {
   const esc = (s: unknown) => {
     const v = s == null ? "" : String(s);
     // CSV escaping nach RFC 4180
-    return v.includes(",") || v.includes("\n") || v.includes('"') ? `"${v.replace(/"/g, '""')}"` : v;
+    return v.includes(",") || v.includes("\n") || v.includes('"')
+      ? `"${v.replace(/"/g, '""')}"`
+      : v;
   };
 
   const lines: string[] = [];
@@ -40,7 +45,7 @@ export async function GET() {
   for (const it of items) {
     const row = [
       it.id,
-      it.kind,                         // Prisma-Enums → stringified
+      it.kind, // Prisma-Enums → stringified
       it.status,
       it.locale,
       it.topic?.slug ?? "",
@@ -49,7 +54,7 @@ export async function GET() {
       it.publishAt?.toISOString() ?? "",
       it.expireAt?.toISOString() ?? "",
       it.regionEffective?.code ?? "",
-      (it.answerOptions ?? []).map((o) => `${o.label}:${o.value}`).join("|"),
+      (it.answerOptions ?? []).map((o: any) => `${o.label}:${o.value}`).join("|"),
     ].map(esc);
 
     lines.push(row.join(","));

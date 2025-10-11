@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { ResetRequestSchema } from "@/utils/authSchemas";
-import { getCol } from "@core/db/triMongo";
+import { coreCol } from "@core/db/triMongo";
 import { rateLimit } from "@/utils/rateLimit";
 import { createToken } from "@/utils/tokens";
 import { sendMail, resetEmailLink } from "@/utils/email";
@@ -13,10 +13,11 @@ export async function POST(req: Request) {
   const email_lc = email.trim().toLowerCase();
 
   const rl = await rateLimit(`reset:${email_lc}`, 3, 10 * 60_000);
-  if (!rl.ok) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  if (!rl.ok)
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
 
-  const users = await getCol("users");
-  const user = await users.findOne<{ _id: any }>({ email_lc });
+  const users = await coreCol("users");
+  const user = await users.findOne({ email_lc });
   // immer 200 zurückgeben, um User-Enumeration zu vermeiden
   if (!user) return NextResponse.json({ ok: true });
 

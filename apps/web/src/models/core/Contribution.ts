@@ -5,23 +5,6 @@ import { coreConn } from "@/lib/db/core";
 import { modelOn } from "@/lib/db/modelOn";
 
 // --- MediaObject (separat zu MediaItem: hier eher Uploads/OCR) ---
-const MediaObjectSchema = new Schema(
-  {
-    type: {
-      type: String,
-      enum: ["image", "video", "audio", "pdf", "excel", "csv", "doc", "link", "other"],
-      required: true,
-    },
-    url: { type: String, required: true, trim: true },
-    filename: { type: String, trim: true },
-    size: { type: Number, min: 0 },
-    mimeType: { type: String, trim: true },
-    previewUrl: { type: String, trim: true },
-    extractedText: { type: String }, // OCR/Text (PDF/Image)
-  },
-  { _id: false }
-);
-
 // --- Provenance/Audit ---
 const ProvenanceEntrySchema = new Schema(
   {
@@ -31,11 +14,14 @@ const ProvenanceEntrySchema = new Schema(
     notes: { type: String, trim: true },
     meta: { type: Schema.Types.Mixed },
   },
-  { _id: false }
+  { _id: false },
 );
 
 // TTL-Beispiel (1 Jahr) – aus deinem Ausschnitt:
-ProvenanceEntrySchema.index({ date: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 365 });
+ProvenanceEntrySchema.index(
+  { date: 1 },
+  { expireAfterSeconds: 60 * 60 * 24 * 365 },
+);
 
 // --- Hauptschema ---
 export interface IContribution extends Document {
@@ -55,9 +41,9 @@ export interface IContribution extends Document {
   status?: "draft" | "pending" | "review" | "published" | "archived";
   reviewStatus?: "none" | "queued" | "in-review" | "approved" | "rejected";
   userContext?: {
-    region?: string;   // z. B. "DE-BE"
-    country?: string;  // ISO
-    locale?: string;   // "de", "en"
+    region?: string; // z. B. "DE-BE"
+    country?: string; // ISO
+    locale?: string; // "de", "en"
     client?: "web" | "mobile" | "api";
   };
   analysis?: {
@@ -119,7 +105,12 @@ const ContributionSchema = new Schema<IContribution>(
         },
       ],
       language: { type: String, trim: true },
-      factsExtracted: [{ text: { type: String, trim: true }, sourceUrl: { type: String, trim: true } }],
+      factsExtracted: [
+        {
+          text: { type: String, trim: true },
+          sourceUrl: { type: String, trim: true },
+        },
+      ],
     },
 
     provenance: [ProvenanceEntrySchema],
@@ -127,16 +118,24 @@ const ContributionSchema = new Schema<IContribution>(
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // --- Indizes (deine + sinnvolle Ergänzungen) ---
 ContributionSchema.index({ status: 1, reviewStatus: 1, createdAt: -1 });
 ContributionSchema.index({ "analysis.topics": 1, "userContext.region": 1 });
-ContributionSchema.index({ content: "text", summary: "text", "media.extractedText": "text" });
+ContributionSchema.index({
+  content: "text",
+  summary: "text",
+  "media.extractedText": "text",
+});
 ContributionSchema.index({ authorId: 1, createdAt: -1 });
 ContributionSchema.index({ "provenance.by": 1, "provenance.date": -1 });
 
 // Export
-const conn = coreConn();
-export default modelOn<IContribution>(conn, "Contribution", ContributionSchema, "contributions");
+export default modelOn<IContribution>(
+  conn,
+  "Contribution",
+  ContributionSchema,
+  "contributions",
+);

@@ -1,6 +1,6 @@
 // apps/web/src/utils/validation/promptSchemas.ts
 import { z } from "zod";
-import { safeJsonParse } from "../../../../core/utils/jsonRepair";
+import { safeJsonParse } from "../jsonRepair";
 
 /**
  * Ziel:

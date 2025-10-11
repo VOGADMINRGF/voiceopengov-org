@@ -1,15 +1,19 @@
+import { env } from "@/utils/env";
 import neo4j, { Driver } from "neo4j-driver";
 
-const uri = process.env.MEMGRAPH_URI as string; // bolt://
-const user = process.env.MEMGRAPH_USER || undefined;
-const password = process.env.MEMGRAPH_PASSWORD || undefined;
+const uri = env.MEMGRAPH_URI;                    // z. B. bolt://localhost:7688
+const user = env.MEMGRAPH_USER || undefined;     // optional
+const pass = env.MEMGRAPH_PASSWORD || "";        // optional
 
 let driver: Driver | null = null;
 
 export function getMemgraphDriver() {
   if (!uri) throw new Error("MEMGRAPH_URI missing");
+
   if (!driver) {
-    driver = user ? neo4j.driver(uri, neo4j.auth.basic(user, password || "")) : neo4j.driver(uri);
+    driver = user
+      ? neo4j.driver(uri, neo4j.auth.basic(user, pass))
+      : neo4j.driver(uri);
   }
   return driver;
 }

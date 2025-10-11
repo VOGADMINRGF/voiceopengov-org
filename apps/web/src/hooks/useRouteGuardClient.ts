@@ -1,21 +1,16 @@
-// apps/web/src/hooks/useRouteGuardClient.ts
-"use client";
-import { usePathname } from "next/navigation";
-import { useRouteGuard, type AccessRule, type UserLike } from "../../../features/auth/hooks/useRouteGuard";
+import useRouteGuard from "@features/auth/hooks/useRouteGuard";
 
-// Falls du noch keinen UserContext hast, setz user = null oder bring deinen eigenen Hook mit:
-function useUser(): UserLike {
-  return null; // stub, bis dein echter Context da ist
-}
+// Fallback-Typen (bis die echten in @features stabil sind)
+export type AccessRule = any;
+export type UserLike = any;
 
-// Beispiel-Regeln – oder importiere deine echten:
-const DEFAULT_RULES: AccessRule[] = [
-  { path: "/admin", allowedRoles: ["admin"] },
-  { path: "/account", allowedRoles: ["user", "admin"] },
-];
+export const DEFAULT_RULES: AccessRule[] = [];
 
-export default function useRouteGuardClient(rules: AccessRule[] = DEFAULT_RULES) {
-  const pathname = usePathname() || "/";
-  const user = useUser();
-  return useRouteGuard({ pathname, user, rules });
+type Options = {
+  user?: UserLike;
+  rules?: AccessRule[];
+};
+
+export default function useRouteGuardClient(opts: Options = {}) {
+  return (useRouteGuard as any)(opts);
 }

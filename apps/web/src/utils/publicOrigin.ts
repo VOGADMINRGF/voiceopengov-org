@@ -7,5 +7,9 @@ export function publicOrigin(): string {
   );
 }
 export function publicHost(): string {
-  try { return new URL(publicOrigin()).host; } catch { return "app.local"; }
+  try {
+    return new URL(publicOrigin()).host;
+  } catch {
+    return "app.local";
+  }
 }

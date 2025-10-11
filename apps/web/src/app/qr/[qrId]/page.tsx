@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
 
-export default async function QRScanPage({ params }) {
+export default async function QRScanPage({ params }: any) {
   const { qrId } = params;
 
   // Call to API (server or client) to resolve QR-Entry
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/qr/resolve?qrId=${qrId}`);
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/qr/resolve?qrId=${qrId}`,
+  );
   const { success, data } = await res.json();
   if (!success || !data) return notFound();
 
@@ -29,23 +31,23 @@ export default async function QRScanPage({ params }) {
 }
 
 // Dummy-Komponenten für das Beispiel
-function RedirectToStatement({ id }) {
+function RedirectToStatement({ id }: any) {
   // Hier Voting-Komponente rendern
   return <div>Statement Voting für ID: {id}</div>;
 }
-function RedirectToContribution({ id }) {
+function RedirectToContribution({ id }: any) {
   // Beitrag anzeigen
   return <div>Beitrag ID: {id}</div>;
 }
-function RedirectToStream({ id }) {
+function RedirectToStream({ id }: any) {
   // Stream-Komponente einbinden
   return <div>Stream ID: {id}</div>;
 }
-function QuestionSetFlow({ ids }) {
+function QuestionSetFlow({ ids }: any) {
   // Schritt-für-Schritt alle IDs abfragen
   return <div>Fragen-Set: {ids.join(", ")}</div>;
 }
-function CustomFlow({ data }) {
+function CustomFlow({ data }: any) {
   // Individueller Flow
   return <div>Individuelle Aktion: {JSON.stringify(data)}</div>;
 }

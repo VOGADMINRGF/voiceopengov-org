@@ -3,10 +3,19 @@
 
 let _tx: any = null;
 
-export async function sendMail(opts: { to: string; subject: string; html: string; text?: string }) {
+export async function sendMail(opts: {
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
+}) {
   const { to, subject, html, text } = opts;
   const from = process.env.MAIL_FROM || "no-reply@localhost";
-  const wantsSmtp = !!(process.env.SMTP_URL || process.env.SMTP_HOST || process.env.SMTP_USER);
+  const wantsSmtp = !!(
+    process.env.SMTP_URL ||
+    process.env.SMTP_HOST ||
+    process.env.SMTP_USER
+  );
 
   // Helper: sicher in die Konsole loggen (Dev-Fallback)
   const logToConsole = (reason?: string) => {
@@ -23,7 +32,7 @@ export async function sendMail(opts: { to: string; subject: string; html: string
   // SMTP gewünscht → nodemailer nur *zur Laufzeit* laden (ohne Webpack-Analyse)
   try {
     // Trick: verhindert, dass Webpack 'nodemailer' build-time auflöst
-    const nm = await (new Function('return import("nodemailer")'))();
+    const nm = await new Function('return import("nodemailer")')();
 
     if (!_tx) {
       _tx = process.env.SMTP_URL
@@ -31,7 +40,8 @@ export async function sendMail(opts: { to: string; subject: string; html: string
         : nm.createTransport({
             host: process.env.SMTP_HOST,
             port: Number(process.env.SMTP_PORT || 587),
-            secure: String(process.env.SMTP_SECURE || "").toLowerCase() === "true",
+            secure:
+              String(process.env.SMTP_SECURE || "").toLowerCase() === "true",
             auth: process.env.SMTP_USER
               ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
               : undefined,

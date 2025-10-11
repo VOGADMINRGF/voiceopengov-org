@@ -1,13 +1,12 @@
-// apps/web/src/app/context/page.tsx
 "use client";
-
+import React from "react";
 import ContextExplorer from "@features/context/ContextExplorer";
 
-export default function ContextPage() {
+export default function Page() {
   return (
-    <main className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-4">Kommentare im Kontext</h1>
-      <ContextExplorer />
+    <main style={{ padding: 16 }}>
+      <h1>Kontext</h1>
+      <ContextExplorer roots={[]} />
     </main>
   );
 }

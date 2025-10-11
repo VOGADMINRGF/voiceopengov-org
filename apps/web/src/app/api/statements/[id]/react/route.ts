@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-  if (!ObjectId.isValid(params.id)) return NextResponse.json({ error: "bad_id" }, { status: 400 });
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: string } },
+) {
+  if (!ObjectId.isValid(params.id))
+    return NextResponse.json({ error: "bad_id" }, { status: 400 });
   const { reaction } = await req.json().catch(() => ({}));
   if (!["agree", "neutral", "disagree"].includes(reaction)) {
     return NextResponse.json({ error: "bad_reaction" }, { status: 400 });

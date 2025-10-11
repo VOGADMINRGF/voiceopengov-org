@@ -13,7 +13,7 @@ import type {
 
 /** Optionale Boost-Hooks (z. B. Orchestrator/LLM) */
 type BoostHooks = {
-  aiTopics?: (text: string) => Promise<TopicScore[]>;                 // 0..1 confidence
+  aiTopics?: (text: string) => Promise<TopicScore[]>; // 0..1 confidence
   aiRegion?: (body: ContributionAnalysisRequest) => Promise<string | null>;
   aiSuggestions?: (text: string) => Promise<string[]>;
 };
@@ -40,18 +40,6 @@ function inferRegion(body: ContributionAnalysisRequest): string | null {
   return null;
 }
 
-const TOPIC_KEYWORDS: Record<string, string[]> = {
-  "Demokratie & Wahlen": ["wahl", "abstimmung", "bürger", "direkte demokratie", "petition"],
-  Bildung: ["schule", "bildung", "universität", "lehrer", "studium"],
-  Gesundheit: ["klinik", "gesundheit", "krankenhaus", "pflege", "arzt", "kasse"],
-  "Mobilität & Verkehr": ["bahn", "bus", "verkehr", "auto", "fahrrad", "öpnv", "tickets"],
-  "Sicherheit & Justiz": ["polizei", "kriminalität", "gericht", "justiz", "sicherheit"],
-  "Energie & Klima": ["energie", "co2", "klima", "strom", "heizung", "wärmepumpe", "wind"],
-  "Wirtschaft & Arbeit": ["wirtschaft", "arbeit", "gehalt", "unternehmen", "mittelstand"],
-  "Digitales & Verwaltung": ["digital", "verwaltung", "online", "formular", "it", "internet"],
-  "Soziales & Wohnen": ["miete", "wohnung", "sozial", "kita", "familie", "rente"],
-};
-
 function scoreTopicsHeuristic(text: string, cap = 5): TopicScore[] {
   const lower = text.toLowerCase();
   const raw: Array<{ name: string; hits: number }> = [];
@@ -59,8 +47,11 @@ function scoreTopicsHeuristic(text: string, cap = 5): TopicScore[] {
   for (const [name, kws] of Object.entries(TOPIC_KEYWORDS)) {
     let hits = 0;
     for (const kw of kws) {
-      const re = new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "g");
-      hits += (lower.match(re)?.length ?? 0);
+      const re = new RegExp(
+        `\\b${String(kw).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
+        "g",
+      );
+      hits += lower.match(re)?.length ?? 0;
     }
     if (hits > 0) raw.push({ name, hits });
   }
@@ -81,8 +72,14 @@ function makeSuggestionsHeuristic(text: string): string[] {
   const t = text.trim();
   const len = t.length;
 
-  if (len < 80) s.push("Bitte gib mehr Kontext: Wer ist betroffen, welches Ziel, warum jetzt?");
-  if (len > 1500) s.push("Der Text ist lang. Erstelle eine kurze Zusammenfassung (3–5 Sätze).");
+  if (len < 80)
+    s.push(
+      "Bitte gib mehr Kontext: Wer ist betroffen, welches Ziel, warum jetzt?",
+    );
+  if (len > 1500)
+    s.push(
+      "Der Text ist lang. Erstelle eine kurze Zusammenfassung (3–5 Sätze).",
+    );
   if (!/[.!?]$/.test(t)) s.push("Schließe mit einem klaren Satz und Punkt.");
   if (!/\b(https?:\/\/|www\.)/.test(t) && /quelle|beleg|nachweis/i.test(t))
     s.push("Füge ggf. eine Quelle/URL als Nachweis hinzu.");
@@ -96,7 +93,11 @@ function mergeTopics(a: TopicScore[], b: TopicScore[], cap = 5): TopicScore[] {
     const key = x.name.toLowerCase();
     const prev = map.get(key);
     if (!prev) map.set(key, x);
-    else map.set(key, { name: x.name, confidence: Math.max(prev.confidence, x.confidence) });
+    else
+      map.set(key, {
+        name: x.name,
+        confidence: Math.max(prev.confidence, x.confidence),
+      });
   };
   a.forEach(put);
   b.forEach(put);
@@ -130,7 +131,7 @@ function emptyStatements(): AnalyzedStatement[] {
 
 /** ---------- Hauptfunktion ---------- **/
 export async function analyzeContribution(
-  body: ContributionAnalysisRequest
+  body: ContributionAnalysisRequest,
 ): Promise<ContributionAnalysisResponse> {
   const text = String(body?.text ?? "").trim();
 
@@ -146,9 +147,15 @@ export async function analyzeContribution(
 
   if (BOOST_HOOKS) {
     const [aiRegion, aiTopics, aiSug] = await Promise.all([
-      BOOST_HOOKS.aiRegion ? BOOST_HOOKS.aiRegion(body).catch(() => null) : Promise.resolve(null),
-      BOOST_HOOKS.aiTopics ? BOOST_HOOKS.aiTopics(text).catch(() => []) : Promise.resolve([]),
-      BOOST_HOOKS.aiSuggestions ? BOOST_HOOKS.aiSuggestions(text).catch(() => []) : Promise.resolve([]),
+      BOOST_HOOKS.aiRegion
+        ? BOOST_HOOKS.aiRegion(body).catch(() => null)
+        : Promise.resolve(null),
+      BOOST_HOOKS.aiTopics
+        ? BOOST_HOOKS.aiTopics(text).catch(() => [])
+        : Promise.resolve([]),
+      BOOST_HOOKS.aiSuggestions
+        ? BOOST_HOOKS.aiSuggestions(text).catch(() => [])
+        : Promise.resolve([]),
     ]);
 
     if (aiRegion) region = aiRegion;

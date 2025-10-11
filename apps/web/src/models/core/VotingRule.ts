@@ -38,5 +38,5 @@ export const VotingRuleSchema = new Schema<VotingRule>(
     weightMap: { type: Object },
     minQuorum: { type: Number, min: 0 },
   },
-  { _id: false }
+  { _id: false },
 );

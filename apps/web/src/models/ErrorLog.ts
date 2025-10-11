@@ -2,7 +2,7 @@
 import mongoose, { Schema, models, model } from "mongoose";
 
 export interface IErrorLog {
-  _id: string;           // Hinweis: Runtime ist ObjectId – für Client i.d.R. als string genutzt
+  _id: string; // Hinweis: Runtime ist ObjectId – für Client i.d.R. als string genutzt
   traceId: string;
   code?: string;
   path?: string;
@@ -23,7 +23,7 @@ const ErrorLogSchema = new Schema<IErrorLog>(
   {
     collection: "error_logs",
     versionKey: false,
-  }
+  },
 );
 
 /**
@@ -31,7 +31,10 @@ const ErrorLogSchema = new Schema<IErrorLog>(
  * Für Listen mit Filter (open/resolved) und Sortierung "neueste zuerst"
  * beschleunigt dieser Index deutlich: find({ resolved }).sort({ timestamp: -1 })
  */
-ErrorLogSchema.index({ resolved: 1, timestamp: -1 }, { background: true, name: "by_resolved_ts_desc" });
+ErrorLogSchema.index(
+  { resolved: 1, timestamp: -1 },
+  { background: true, name: "by_resolved_ts_desc" },
+);
 
 // Optional – wenn du _id in JSONs als string haben willst (wirkt NICHT bei .lean()):
 // ErrorLogSchema.set("toJSON", {
@@ -43,13 +46,7 @@ ErrorLogSchema.index({ resolved: 1, timestamp: -1 }, { background: true, name: "
 //   },
 // });
 // ErrorLogSchema.set("toObject", { ...ErrorLogSchema.get("toJSON") });
-
-const ErrorLogModel =
-  (models.ErrorLog as mongoose.Model<IErrorLog>) ||
-  model<IErrorLog>("ErrorLog", ErrorLogSchema);
-
 export default ErrorLogModel;
-export type { IErrorLog };
 
 // Optionaler Hinweis (z.B. in connectDB() aufrufbar):
 // if (process.env.MONGOOSE_SYNC_INDEXES === "1") {

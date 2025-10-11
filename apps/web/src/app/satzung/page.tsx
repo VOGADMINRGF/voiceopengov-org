@@ -7,17 +7,24 @@ export default function SatzungPage() {
       <section className="space-y-6 text-gray-700">
         <article className="bg-white border-l-4 border-coral p-4 rounded shadow-sm">
           <h2 className="font-semibold">§1 Zweck</h2>
-          <p>Förderung politischer Partizipation und demokratischer Transparenz.</p>
+          <p>
+            Förderung politischer Partizipation und demokratischer Transparenz.
+          </p>
         </article>
 
         <article className="bg-white border-l-4 border-coral p-4 rounded shadow-sm">
           <h2 className="font-semibold">§2 Mittel</h2>
-          <p>Digitale Beteiligungsformate, offene Debatten und politische Bildung.</p>
+          <p>
+            Digitale Beteiligungsformate, offene Debatten und politische
+            Bildung.
+          </p>
         </article>
 
         <article className="bg-white border-l-4 border-coral p-4 rounded shadow-sm">
           <h2 className="font-semibold">§3 Mitgliedschaft</h2>
-          <p>Offen für alle – freiwillig, beitragsbasiert, jederzeit kündbar.</p>
+          <p>
+            Offen für alle – freiwillig, beitragsbasiert, jederzeit kündbar.
+          </p>
         </article>
 
         <article className="bg-white border-l-4 border-coral p-4 rounded shadow-sm">

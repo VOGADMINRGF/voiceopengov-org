@@ -1,5 +1,6 @@
 // apps/web/src/core/factcheck/triage.ts
-import type { ExtractedUnit } from "@prisma/client";
+import type { Prisma } from "@db/core";
+export type ExtractedUnit = any;
 
 /**
  * Markiert Einheiten für die Watchlist, wenn
@@ -7,7 +8,7 @@ import type { ExtractedUnit } from "@prisma/client";
  *  - der Text bestimmte aktuelle/brisante Stichwörter enthält.
  */
 export function shouldWatchlist(
-  u: Pick<ExtractedUnit, "kind" | "confidence" | "text">
+  u: Pick<ExtractedUnit, "kind" | "confidence" | "text">,
 ): boolean {
   const hotKeywords = [
     /miete|mietendeckel/i,

@@ -5,7 +5,7 @@ import { LocaleProvider } from "@/context/LocaleContext"; // <-- dein eigener Ko
 
 export default function LocaleLayout({
   children,
-  params: { locale }
+  params: { locale },
 }: {
   children: React.ReactNode;
   params: { locale: string };

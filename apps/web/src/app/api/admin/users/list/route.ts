@@ -9,27 +9,45 @@ function isAdmin(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  if (!isAdmin(req)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  if (!isAdmin(req))
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
 
   const url = req.nextUrl;
   const q = (url.searchParams.get("q") || "").trim().toLowerCase();
-  const limit = Math.max(1, Math.min(100, Number(url.searchParams.get("limit") || 25)));
-  const skip  = Math.max(0, Number(url.searchParams.get("skip") || 0));
+  const limit = Math.max(
+    1,
+    Math.min(100, Number(url.searchParams.get("limit") || 25)),
+  );
+  const skip = Math.max(0, Number(url.searchParams.get("skip") || 0));
 
-  const Users = await getCol<any>("users");
+  const Users = await getCol("users");
 
   const filter: any = q
-    ? { $or: [{ email: { $regex: q, $options: "i" } }, { name: { $regex: q, $options: "i" } }] }
+    ? {
+        $or: [
+          { email: { $regex: q, $options: "i" } },
+          { name: { $regex: q, $options: "i" } },
+        ],
+      }
     : {};
 
   const [items, total] = await Promise.all([
     Users.find(filter, {
       projection: {
-        email: 1, name: 1, role: 1, verifiedEmail: 1,
+        email: 1,
+        name: 1,
+        role: 1,
+        verifiedEmail: 1,
         "verification.twoFA.enabled": 1,
-        suspended: 1, createdAt: 1, updatedAt: 1,
+        suspended: 1,
+        createdAt: 1,
+        updatedAt: 1,
       },
-    }).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
+    })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray(),
     Users.countDocuments(filter),
   ]);
 

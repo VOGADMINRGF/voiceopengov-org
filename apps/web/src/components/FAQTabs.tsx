@@ -12,45 +12,6 @@ import {
 } from "@heroicons/react/24/outline";
 
 // Rollen-Array
-const roles = [
-  {
-    id: "citizen",
-    label: "Privatperson",
-    desc: "Als Einzelperson teilnehmen, Beiträge schreiben & abstimmen",
-    icon: <UserIcon className="w-10 h-10 text-[#9333ea] mb-2" />,
-  },
-  {
-    id: "ngo",
-    label: "Organisation / Verein",
-    desc: "Für gemeinnützige Initiativen, NGOs, Verbände",
-    icon: <BuildingLibraryIcon className="w-10 h-10 text-green-600 mb-2" />,
-  },
-  {
-    id: "media",
-    label: "Medienhaus / Redaktion",
-    desc: "Für akkreditierte Redaktionen, Medien, Community-Journalismus",
-    icon: <NewspaperIcon className="w-10 h-10 text-blue-700 mb-2" />,
-    pressHint: "Presse-API, Sonderrechte & Kontakt für Redaktionen",
-  },
-  {
-    id: "school",
-    label: "Schule / Bildungsträger",
-    desc: "Für Schulen, Hochschulen, Bildungseinrichtungen",
-    icon: <AcademicCapIcon className="w-10 h-10 text-yellow-500 mb-2" />,
-  },
-  {
-    id: "company",
-    label: "Unternehmen / externe Events",
-    desc: "Firmen, Events, Kongresse, Workshops, Bürgerbeteiligung",
-    icon: <BuildingOffice2Icon className="w-10 h-10 text-gray-700 mb-2" />,
-  },
-  {
-    id: "party",
-    label: "Partei / politische Bewegung",
-    desc: "Für Parteien, Gruppen, Gremien",
-    icon: <BanknotesIcon className="w-10 h-10 text-orange-500 mb-2" />,
-  },
-];
 
 export default function LoginPage() {
   const [role, setRole] = useState<string | null>(null);
@@ -83,7 +44,11 @@ export default function LoginPage() {
               <div>{r.icon}</div>
               <div
                 className={`font-bold text-lg flex items-center gap-2 ${
-                  r.id === "media" ? "text-blue-900" : r.id === "party" ? "text-orange-700" : ""
+                  r.id === "media"
+                    ? "text-blue-900"
+                    : r.id === "party"
+                      ? "text-orange-700"
+                      : ""
                 }`}
               >
                 {r.label}
@@ -137,12 +102,12 @@ function LoginForm({ role }: { role: string }) {
             role === "ngo"
               ? "Name der Organisation/Verein"
               : role === "company"
-              ? "Name der Firma / Event"
-              : role === "media"
-              ? "Name des Medienhauses"
-              : role === "school"
-              ? "Name der Schule / Bildungsträger"
-              : "Name der Partei / Bewegung"
+                ? "Name der Firma / Event"
+                : role === "media"
+                  ? "Name des Medienhauses"
+                  : role === "school"
+                    ? "Name der Schule / Bildungsträger"
+                    : "Name der Partei / Bewegung"
           }
           className="w-full border-2 rounded px-3 py-2"
           required

@@ -4,10 +4,10 @@ import { modelOn } from "@lib/db/modelOn";
 
 // Wissenschaftlich brauchbare Felder (optional, sauber benannt)
 const GENDERS = ["male", "female", "diverse", "n/a"] as const;
-type Gender = typeof GENDERS[number];
+type Gender = (typeof GENDERS)[number];
 
 export interface IUserDemographics extends Document {
-  userId: { type: Schema.Types.ObjectId, ref: "UserProfile", required: true },
+  userId: { type: Schema.Types.ObjectId; ref: "UserProfile"; required: true };
   address?: {
     street?: string;
     houseNumber?: string;
@@ -16,12 +16,12 @@ export interface IUserDemographics extends Document {
     region?: string;
     country?: string;
   };
-  dateOfBirth?: Date;                     // **Date statt string**
+  dateOfBirth?: Date; // **Date statt string**
   gender?: Gender;
   nationality?: string;
-  education?: string;                     // ISCED optional später
-  profession?: string;                    // Standardisierung später
-  incomeGroup?: string;                   // z.B. Quintile oder Baskets
+  education?: string; // ISCED optional später
+  profession?: string; // Standardisierung später
+  incomeGroup?: string; // z.B. Quintile oder Baskets
   householdSize?: number;
   // Forschungs-/Validitätsfelder (optional)
   householdChildren?: number;
@@ -43,8 +43,8 @@ export interface IUserDemographics extends Document {
   }>;
   // Survey-Metadaten (optional; für wissenschaftl. Auswertungen)
   surveyMeta?: {
-    wave?: string;        // z.B. "2025Q3"
-    weight?: number;      // Sampling-Gewicht
+    wave?: string; // z.B. "2025Q3"
+    weight?: number; // Sampling-Gewicht
     mode?: "web" | "app" | "phone";
   };
 
@@ -63,7 +63,7 @@ const UserDemographicsSchema = new Schema<IUserDemographics>(
       region: { type: String, default: null, trim: true },
       country: { type: String, default: null, trim: true },
     },
-    dateOfBirth: { type: Date, default: null },        // **Date**
+    dateOfBirth: { type: Date, default: null }, // **Date**
     gender: { type: String, enum: GENDERS, default: "n/a" },
     nationality: { type: String, default: null, trim: true },
     education: { type: String, default: null, trim: true },
@@ -72,7 +72,11 @@ const UserDemographicsSchema = new Schema<IUserDemographics>(
     householdSize: { type: Number, default: null, min: 1, max: 20 },
     householdChildren: { type: Number, default: null, min: 0, max: 20 },
     householdAdults: { type: Number, default: null, min: 0, max: 20 },
-    residenceType: { type: String, enum: ["urban", "suburban", "rural"], default: null },
+    residenceType: {
+      type: String,
+      enum: ["urban", "suburban", "rural"],
+      default: null,
+    },
 
     partyMembership: {
       partyId: { type: String, default: null, trim: true },
@@ -88,7 +92,7 @@ const UserDemographicsSchema = new Schema<IUserDemographics>(
           field: { type: String, required: true },
           action: { type: String, enum: ["given", "revoked"], required: true },
           details: { type: Schema.Types.Mixed, default: null },
-        }
+        },
       ],
       default: [],
     },
@@ -99,7 +103,7 @@ const UserDemographicsSchema = new Schema<IUserDemographics>(
       mode: { type: String, enum: ["web", "app", "phone"], default: "web" },
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Indizes
@@ -107,6 +111,9 @@ UserDemographicsSchema.index({ userId: 1 }); // 1:1 zu UserProfile
 UserDemographicsSchema.index({ "address.country": 1, "address.region": 1 });
 UserDemographicsSchema.index({ gender: 1 });
 UserDemographicsSchema.index({ "surveyMeta.wave": 1 });
-
-const conn = piiConn();
-export default modelOn<IUserDemographics>(conn, "UserDemographics", UserDemographicsSchema, "user_demographics");
+export default modelOn(
+  conn,
+  "UserDemographics",
+  UserDemographicsSchema,
+  "user_demographics",
+);

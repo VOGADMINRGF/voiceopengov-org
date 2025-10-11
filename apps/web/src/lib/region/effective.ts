@@ -1,10 +1,9 @@
-// apps/web/src/lib/region/effective.ts
 export const runtime = "nodejs";
 
 import { getCookie } from "@/lib/http/typedCookies";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@db-web";
+import { prisma } from "@/lib/prisma"; // <— hier korrigiert
 
 export type RegionLevel =
   | "country"
@@ -44,7 +43,7 @@ export async function readRegionCookie(): Promise<string | undefined> {
 export async function getEffectiveRegion(): Promise<EffectiveRegionResult> {
   // 1) Versuch: über Profil (NextAuth optional)
   try {
-    const session = await getServerSession(authOptions);
+    const session: any = (await getServerSession(authOptions)) as any;
     const userId = session?.user?.id ?? null;
 
     if (userId) {
@@ -94,7 +93,9 @@ export async function getEffectiveRegion(): Promise<EffectiveRegionResult> {
   // 2) Nur Cookie (auch ohne Login)
   const cookieVal = await readRegionCookie();
   if (cookieVal) {
-    const region = await prisma.region.findUnique({ where: { code: cookieVal } });
+    const region = await prisma.region.findUnique({
+      where: { code: cookieVal },
+    });
     if (region) {
       return {
         region: {

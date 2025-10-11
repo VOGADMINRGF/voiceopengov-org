@@ -1,20 +1,23 @@
-import "server-only";
+import { env } from "@/utils/env";
 import type { Transporter } from "nodemailer";
 import nodemailer from "nodemailer";
 
-type Mail = { to: string | string[]; subject: string; html: string; text?: string };
+type Mail = {
+  to: string | string[];
+  subject: string;
+  html: string;
+  text?: string;
+};
 type AlertItem = { name: string; error?: string; ms?: number };
 type AlertMail = {
   to: string | string[];
   title: string;
   severity?: "info" | "warn" | "error";
   items?: AlertItem[];
-  linkHref?: string;     // z.B. "/admin/system"
-  linkLabel?: string;    // z.B. "Systemübersicht öffnen"
-  note?: string;         // freie Zusatzzeile
+  linkHref?: string; // z.B. "/admin/system"
+  linkLabel?: string; // z.B. "Systemübersicht öffnen"
+  note?: string; // freie Zusatzzeile
 };
-
-const DEFAULT_FROM = process.env.SMTP_FROM ?? "VoiceOpenGov <no-reply@voiceopengov.org>";
 const PUBLIC_BASE = process.env.PUBLIC_BASE_URL ?? "http://localhost:3000";
 
 // Cache den Transporter (Singleton)
@@ -33,7 +36,9 @@ async function getTransporter(): Promise<Transporter | null> {
   // Kein SMTP konfiguriert -> dev/console
   const url = process.env.SMTP_URL; // optional: vollständige URL wie smtp://user:pass@host:port
   const host = process.env.SMTP_HOST;
-  const port = process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : undefined;
+  const port = process.env.SMTP_PORT
+    ? Number(process.env.SMTP_PORT)
+    : undefined;
 
   if (!url && (!host || !port)) return null;
 
@@ -42,9 +47,7 @@ async function getTransporter(): Promise<Transporter | null> {
       try {
         const secureEnv = process.env.SMTP_SECURE?.toLowerCase();
         const secure =
-          secureEnv === "true" ||
-          secureEnv === "1" ||
-          (!!port && port === 465); // 465 meist „secure“
+          secureEnv === "true" || secureEnv === "1" || (!!port && port === 465); // 465 meist „secure“
 
         const user = process.env.SMTP_USER;
         const pass = process.env.SMTP_PASS;
@@ -85,7 +88,10 @@ async function getTransporter(): Promise<Transporter | null> {
         return transporter;
       } catch (err) {
         // Fallback: Kein harter Absturz – wir gehen in dev/console-Mode
-        console.warn("[MAIL] SMTP verify failed – falling back to console log:", err);
+        console.warn(
+          "[MAIL] SMTP verify failed – falling back to console log:",
+          err,
+        );
         return null;
       }
     })();
@@ -115,7 +121,7 @@ export async function sendMail({ to, subject, html, text }: Mail) {
 
   try {
     const info = await transporter.sendMail({
-      from: DEFAULT_FROM,
+      from: env.EMAIL_DEFAULT_FROM,
       to: toList,
       subject,
       // Beides mitsenden – viele Clients bevorzugen text
@@ -142,8 +148,22 @@ export async function sendAlertEmail({
   note,
 }: AlertMail) {
   const subject = `[VOG Alert] ${title}`;
-  const html = renderAlertHtml({ title, severity, items, linkHref, linkLabel, note });
-  const text = renderAlertText({ title, severity, items, linkHref, linkLabel, note });
+  const html = renderAlertHtml({
+    title,
+    severity,
+    items,
+    linkHref,
+    linkLabel,
+    note,
+  });
+  const text = renderAlertText({
+    title,
+    severity,
+    items,
+    linkHref,
+    linkLabel,
+    note,
+  });
   return sendMail({ to, subject, html, text });
 }
 
@@ -184,7 +204,7 @@ function renderAlertHtml(params: {
                 ${it.ms ? `<span style="opacity:.6">(${it.ms} ms)</span>` : ""}
                 ${it.error ? `<div style="color:#dc2626;margin-top:2px;">${escapeHtml(it.error)}</div>` : ""}
               </td>
-            </tr>`
+            </tr>`,
           )
           .join("");
 
@@ -228,7 +248,7 @@ function renderAlertText(params: {
     ...(items.length
       ? items.map(
           (it) =>
-            `- ${it.name}${it.ms ? ` (${it.ms} ms)` : ""}${it.error ? ` — ${it.error}` : ""}`
+            `- ${it.name}${it.ms ? ` (${it.ms} ms)` : ""}${it.error ? ` — ${it.error}` : ""}`,
         )
       : ["(keine Details)"]),
     "",

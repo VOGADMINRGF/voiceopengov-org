@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { analyzeContribution } from "@core/gpt/analyzeContribution";
-import { parseAnalysisOrThrow, parseLegacyFreeText } from "@core/gpt/parseAnalysisResponse";
+import {
+  parseAnalysisOrThrow,
+  parseLegacyFreeText,
+} from "@core/gpt/parseAnalysisResponse";
 import { formatError } from "@core/utils/errors";
 import ErrorLogModel from "@/models/ErrorLog";
 
@@ -12,24 +15,19 @@ export const maxDuration = 60;
 // Upload-Limits
 const MAX_FILES = 5;
 const MAX_FILE_SIZE = 15 * 1024 * 1024;
-const ALLOWED_MIME = new Set<string>([
-  "image/png",
-  "image/jpeg",
-  "image/webp",
-  "application/pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
-  "text/plain",
-]);
-
 type FileMeta = { filename: string; mime: string; size: number };
 
 function safeJson<T = any>(s: unknown): T | undefined {
   if (typeof s !== "string") return undefined;
-  try { return JSON.parse(s) as T; } catch { return undefined; }
+  try {
+    return JSON.parse(s) as T;
+  } catch {
+    return undefined;
+  }
 }
 
 /** Versucht beliebige Analyse-Ergebnisse in ein einheitliches Format zu bringen */
-function normalizeAnalysis(analysis: any, fallbackText: string) {
+function normalizeAnalysis(analysis: any, fallbackText: string): any {
   // 1) String → striktes JSON (zod) versuchen, sonst Legacy-Freitext
   if (typeof analysis === "string") {
     try {
@@ -57,7 +55,7 @@ function normalizeAnalysis(analysis: any, fallbackText: string) {
 
   // 2) Objekt mit gptRaw → erst gptRaw parsen, Meta übernehmen
   if (analysis && typeof analysis === "object" && "gptRaw" in analysis) {
-    const base = normalizeAnalysis((analysis as any).gptRaw, fallbackText);
+    const base: any = normalizeAnalysis((analysis as any).gptRaw, fallbackText);
     return {
       ...base,
       language: (analysis as any).originalLanguage ?? base.language,
@@ -66,7 +64,12 @@ function normalizeAnalysis(analysis: any, fallbackText: string) {
   }
 
   // 3) Bereits strukturiert?
-  if (analysis && typeof analysis === "object" && "statements" in analysis && "topics" in analysis) {
+  if (
+    analysis &&
+    typeof analysis === "object" &&
+    "statements" in analysis &&
+    "topics" in analysis
+  ) {
     return {
       statements: (analysis as any).statements ?? [],
       topics: (analysis as any).topics ?? [],
@@ -79,7 +82,11 @@ function normalizeAnalysis(analysis: any, fallbackText: string) {
   }
 
   // 4) Fallback: Impact-ähnliche Struktur in Statements übersetzen
-  if (analysis && typeof analysis === "object" && Array.isArray((analysis as any).items)) {
+  if (
+    analysis &&
+    typeof analysis === "object" &&
+    Array.isArray((analysis as any).items)
+  ) {
     const items = (analysis as any).items as Array<{ claim?: string }>;
     const statements = items.map((i) => i.claim).filter(Boolean) as string[];
     return {
@@ -120,13 +127,21 @@ async function collectMultipart(form: FormData) {
   const notes: string[] = [];
 
   for (const f of files) {
-    const meta: FileMeta = { filename: f.name || "upload", mime: f.type || "application/octet-stream", size: f.size };
+    const meta: FileMeta = {
+      filename: f.name || "upload",
+      mime: f.type || "application/octet-stream",
+      size: f.size,
+    };
 
     if (!ALLOWED_MIME.has(meta.mime)) {
-      return { error: `Nicht erlaubter Dateityp: ${meta.mime} (${meta.filename})` } as const;
+      return {
+        error: `Nicht erlaubter Dateityp: ${meta.mime} (${meta.filename})`,
+      } as const;
     }
     if (meta.size > MAX_FILE_SIZE) {
-      return { error: `Datei zu groß (${meta.filename}). Limit ${Math.round(MAX_FILE_SIZE / (1024 * 1024))} MB` } as const;
+      return {
+        error: `Datei zu groß (${meta.filename}). Limit ${Math.round(MAX_FILE_SIZE / (1024 * 1024))} MB`,
+      } as const;
     }
 
     metas.push(meta);
@@ -135,11 +150,16 @@ async function collectMultipart(form: FormData) {
       const ab = await f.arrayBuffer();
       inlineTxt.push(Buffer.from(ab).toString("utf8").slice(0, 40_000));
     } else {
-      notes.push(`[Anhang: ${meta.filename} • ${meta.mime} • ${Math.round(meta.size / 1024)} KB]`);
+      notes.push(
+        `[Anhang: ${meta.filename} • ${meta.mime} • ${Math.round(meta.size / 1024)} KB]`,
+      );
     }
   }
 
-  const mergedText = [text, ...inlineTxt, ...notes].filter(Boolean).join("\n\n").trim();
+  const mergedText = [text, ...inlineTxt, ...notes]
+    .filter(Boolean)
+    .join("\n\n")
+    .trim();
 
   return { text: mergedText, userContext, files: metas } as const;
 }
@@ -154,15 +174,21 @@ export async function POST(req: NextRequest) {
     if (ct.includes("multipart/form-data")) {
       const form = await req.formData();
       const res = await collectMultipart(form);
-      if ("error" in res) return NextResponse.json({ error: res.error }, { status: 400 });
+      if ("error" in res)
+        return NextResponse.json({ error: res.error }, { status: 400 });
 
       const { text, userContext } = res;
-      if (!text || text.length < 10) return NextResponse.json({ error: "TEXT_TOO_SHORT" }, { status: 400 });
+      if (!text || text.length < 10)
+        return NextResponse.json({ error: "TEXT_TOO_SHORT" }, { status: 400 });
 
       // analyzeContribution: akzeptiert je nach Implementierung string ODER { text, userContext }
       const analysis = await (async () => {
-        try { return await (analyzeContribution as any)(text, userContext); } // Variante (text, ctx)
-        catch { return await (analyzeContribution as any)({ text, userContext }); } // Variante ({ text, ctx })
+        try {
+          return await (analyzeContribution as any)(text, userContext);
+        } catch {
+          // Variante (text, ctx)
+          return await (analyzeContribution as any)({ text, userContext });
+        } // Variante ({ text, ctx })
       })();
 
       const normalized = normalizeAnalysis(analysis, text);
@@ -178,7 +204,7 @@ export async function POST(req: NextRequest) {
           suggestions: normalized.suggestions,
           translations: normalized.translations,
         },
-        { status: 200 }
+        { status: 200 },
       );
     }
 
@@ -190,8 +216,14 @@ export async function POST(req: NextRequest) {
     }
 
     const analysis = await (async () => {
-      try { return await (analyzeContribution as any)(cleanText, userContext); }
-      catch { return await (analyzeContribution as any)({ text: cleanText, userContext }); }
+      try {
+        return await (analyzeContribution as any)(cleanText, userContext);
+      } catch {
+        return await (analyzeContribution as any)({
+          text: cleanText,
+          userContext,
+        });
+      }
     })();
 
     const normalized = normalizeAnalysis(analysis, cleanText);
@@ -207,7 +239,7 @@ export async function POST(req: NextRequest) {
         suggestions: normalized.suggestions,
         translations: normalized.translations,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (err: any) {
     const formattedError = formatError({
@@ -222,7 +254,9 @@ export async function POST(req: NextRequest) {
         path: "/api/contributions/analyze",
         payload: { contentType: req.headers.get("content-type") },
       });
-    } catch { /* ignore logging failure */ }
+    } catch {
+      /* ignore logging failure */
+    }
 
     return NextResponse.json(formattedError, { status: 500 });
   }

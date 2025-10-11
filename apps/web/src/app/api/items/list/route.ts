@@ -1,12 +1,12 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { prisma, PublishStatus, ContentKind } from "@db-web";
+import { prisma, PublishStatus, ContentKind } from "@db/web";
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const kindParam = searchParams.get("kind") as ContentKind | null;
+    const kindParam = searchParams.get("kind") as (keyof typeof ContentKind) | null;
     const locale = searchParams.get("locale") ?? undefined;
     const regionCode = searchParams.get("region") ?? undefined;
     const latest = searchParams.get("latest") === "true";
@@ -15,7 +15,7 @@ export async function GET(req: Request) {
     const now = new Date();
 
     const where: any = {
-      status: PublishStatus.published,
+      status: PublishStatus.PUBLISHED,
       OR: [{ publishAt: null }, { publishAt: { lte: now } }],
       AND: [{ OR: [{ expireAt: null }, { expireAt: { gt: now } }] }],
     };
@@ -53,7 +53,7 @@ export async function GET(req: Request) {
   } catch (e: any) {
     return NextResponse.json(
       { ok: false, error: e?.message ?? "Failed to load items" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

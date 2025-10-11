@@ -22,7 +22,17 @@ export interface AccessControlConfig {
 export const accessControl: AccessControlConfig = {
   rules: [
     { path: "/admin", allowedRoles: ["admin", "moderator"] },
-    { path: "/account", allowedRoles: ["user", "legitimized", "admin", "moderator", "ngo", "politics"] },
+    {
+      path: "/account",
+      allowedRoles: [
+        "user",
+        "legitimized",
+        "admin",
+        "moderator",
+        "ngo",
+        "politics",
+      ],
+    },
     { path: "/ngo", allowedRoles: ["ngo", "admin", "moderator"] },
     { path: "/politics", allowedRoles: ["politics", "admin", "moderator"] },
   ],

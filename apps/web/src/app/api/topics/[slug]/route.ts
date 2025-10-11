@@ -2,7 +2,7 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { prisma, PublishStatus } from "@db-web";
+import { prisma, PublishStatus } from "@db/web";
 
 type Params = { params: { slug: string } };
 
@@ -15,7 +15,7 @@ export async function GET(_req: Request, { params }: Params) {
       include: {
         items: {
           where: {
-            status: PublishStatus.published,
+            status: PublishStatus.PUBLISHED,
             OR: [{ publishAt: null }, { publishAt: { lte: now } }],
             AND: [{ OR: [{ expireAt: null }, { expireAt: { gt: now } }] }],
           },
@@ -36,7 +36,7 @@ export async function GET(_req: Request, { params }: Params) {
   } catch (err: any) {
     return NextResponse.json(
       { error: err?.message ?? "Failed to load topic" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

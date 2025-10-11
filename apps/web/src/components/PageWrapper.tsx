@@ -19,7 +19,7 @@ export default function PageWrapper({
       className={clsx(
         "flex-1 px-4 py-20",
         centered && "max-w-3xl mx-auto text-center space-y-6",
-        className
+        className,
       )}
     >
       {children}

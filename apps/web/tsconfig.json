@@ -1,33 +1,60 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "target": "ES2022",
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
-      "@core/triMongo": ["../../core/db/triMongo.ts"],
-      "@/*": ["src/*"],
-      "@features/*": ["../../features/*"],
-      "@core/*": ["../../core/*"],
-      "@db-web": ["../../packages/db-web/src/client.ts"],
-      "@db-web/*": ["../../packages/db-web/src/*"],
-      "@vog/ui": ["../../packages/ui/dist/index.d.ts"],
-      "@vog/ui/*": ["../../packages/ui/dist/*"]
+      "@/*": [
+        "src/*"
+      ],
+      "@db/web": [
+        "src/shims/db-web.ts"
+      ],
+      "@db/core": [
+        "src/shims/db-core.ts"
+      ],
+      "@core/triMongo": [
+        "src/shims/core/db/triMongo.ts"
+      ],
+      "@core/db/triMongo": [
+        "src/shims/core/db/triMongo.ts"
+      ],
+      "@models/*": [
+        "src/models/*"
+      ],
+      "@ui/*": [
+        "src/ui/*"
+      ],
+      "@context/LocaleContext": [
+        "src/shims/context/LocaleContext.tsx"
+      ],
+      "@features/utils/ai/generateImage": [
+        "src/shims/features/utils/ai/generateImage.ts"
+      ],
+      "@features/utils/ai/youClient": [
+        "src/shims/features/utils/ai/youClient.ts"
+      ]
     },
-    "moduleResolution": "Bundler",
-    "incremental": true,
-    "noEmit": true,
-    "skipLibCheck": true,
-    "jsx": "preserve",
-    "types": ["node"],
-    "plugins": [{ "name": "next" }]
+    "types": [
+      "node"
+    ]
   },
   "include": [
     "next-env.d.ts",
-    "src/**/*",
-    "types/**/*.d.ts",
-    "../../features/**/*",
-    "../../core/**/*",
-    "../../packages/ui/dist/**/*.d.ts",
-    "next.config.*"
+    "src/**/*"
   ],
-  "exclude": ["node_modules", ".next", "dist", "coverage"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.*",
+    "**/__tests__/**",
+    "src/_disabled/**",
+    ".next/**"
+  ]
 }

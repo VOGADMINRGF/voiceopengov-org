@@ -9,17 +9,23 @@ export async function GET(req: NextRequest) {
   const token = url.searchParams.get("token") || "";
   const next = url.searchParams.get("next") || "/";
 
-  if (!email || !token) return NextResponse.json({ error: "bad_input" }, { status: 400 });
+  if (!email || !token)
+    return NextResponse.json({ error: "bad_input" }, { status: 400 });
 
-  const Tokens = await piiCol<any>("tokens");
+  const Tokens = await piiCol("tokens");
   const t = await Tokens.findOne({ type: "magic_login", email, token });
   if (!t || (t.expiresAt && new Date(t.expiresAt).getTime() < Date.now())) {
-    return NextResponse.redirect(new URL(`/login?error=magic_expired`, url.origin));
+    return NextResponse.redirect(
+      new URL(`/login?error=magic_expired`, url.origin),
+    );
   }
 
-  const Users = await getCol<any>("users");
+  const Users = await getCol("users");
   const u = await Users.findOne({ _id: new ObjectId(String(t.userId)) });
-  if (!u) return NextResponse.redirect(new URL(`/login?error=user_not_found`, url.origin));
+  if (!u)
+    return NextResponse.redirect(
+      new URL(`/login?error=user_not_found`, url.origin),
+    );
 
   // Token verbrauchen (one-shot)
   await Tokens.deleteOne({ _id: t._id });

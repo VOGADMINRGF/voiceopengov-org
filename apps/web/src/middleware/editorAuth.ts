@@ -23,19 +23,29 @@ export function checkEditorAuth(req: NextRequest) {
 
   if (!envToken) {
     return NextResponse.json(
-      { error: { code: 500, message: "Server misconfiguration: EDITOR_TOKEN missing" } },
-      { status: 500 }
+      {
+        error: {
+          code: 500,
+          message: "Server misconfiguration: EDITOR_TOKEN missing",
+        },
+      },
+      { status: 500 },
     );
   }
 
   const header = req.headers.get("authorization");
-  const bearer = header?.startsWith("Bearer ") ? header.split(" ")[1]?.trim() : "";
+  const bearer = header?.startsWith("Bearer ")
+    ? header.split(" ")[1]?.trim()
+    : "";
   const cookieToken = req.cookies.get("editor_token")?.value?.trim();
 
   const presented = bearer || cookieToken || "";
 
   if (!presented || !safeEqual(presented, envToken)) {
-    return NextResponse.json({ error: { code: 401, message: "Unauthorized" } }, { status: 401 });
+    return NextResponse.json(
+      { error: { code: 401, message: "Unauthorized" } },
+      { status: 401 },
+    );
   }
 
   return null;

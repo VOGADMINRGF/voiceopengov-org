@@ -5,18 +5,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-// ✅ Policy: ≥12 Zeichen, mind. 1 Zahl & 1 Sonderzeichen
 function okPwd(p: string) {
-  return (
-    p.length >= 12 &&
-    /[0-9]/.test(p) &&
-    /[!@#$%^&*()_\-+\=\[\]{};:,.?~]/.test(p)
-  );
+  return p.length >= 12 && /[0-9]/.test(p) && /[^A-Za-z0-9]/.test(p);
 }
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
-  const [name, setName] = useState(""); // optional
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [errMsg, setErrMsg] = useState<string>();
@@ -29,7 +24,6 @@ export default function RegisterPage() {
     setErrMsg(undefined);
     setOkMsg(undefined);
 
-    // ✅ Client-Check
     if (!okPwd(password)) {
       setErrMsg("Passwort: min. 12 Zeichen, inkl. Zahl & Sonderzeichen.");
       return;
@@ -76,7 +70,7 @@ export default function RegisterPage() {
       setErrMsg(
         err?.name === "AbortError"
           ? "Zeitüberschreitung. Bitte erneut versuchen."
-          : err?.message || "Unbekannter Fehler"
+          : err?.message || "Unbekannter Fehler",
       );
     } finally {
       setBusy(false);
@@ -129,7 +123,7 @@ export default function RegisterPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={12}
-            pattern={"^(?=.*[0-9])(?=.*[!@#$%^&*()_\\-+\\=\\[\\]{};:,.?~]).{12,}$"}
+            pattern="^(?=.*[0-9])(?=.*[^A-Za-z0-9]).{12,}$"
             autoComplete="new-password"
             disabled={busy}
             aria-describedby="pw-help"
@@ -146,12 +140,9 @@ export default function RegisterPage() {
 
         <p
           id="pw-help"
-          className={`text-xs ${
-            okPwd(password) ? "text-green-600" : "text-neutral-500"
-          }`}
+          className={`text-xs ${okPwd(password) ? "text-green-600" : "text-neutral-500"}`}
         >
-          Anforderungen: min. 12 Zeichen, mind. eine Zahl und ein
-          Sonderzeichen.
+          Anforderungen: min. 12 Zeichen, mind. eine Zahl und ein Sonderzeichen.
         </p>
 
         {errMsg && (
@@ -175,7 +166,10 @@ export default function RegisterPage() {
       </form>
 
       <p className="text-sm mt-4">
-        Schon ein Konto? <Link className="underline" href="/login">Login</Link>
+        Schon ein Konto?{" "}
+        <Link className="underline" href="/login">
+          Login
+        </Link>
       </p>
     </div>
   );

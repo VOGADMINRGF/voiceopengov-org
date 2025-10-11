@@ -1,15 +1,11 @@
-import mongoose from "mongoose";
-import { ENV } from "../../utils/env.server";
+import * as tri from "@core/triMongo";
+export const piiConn = asFn<any>(
+  (tri as any).piiConn || (tri as any).getPiiConn || (tri as any).pii,
+);
+export const piiDb = () => (piiConn() as any).db ?? (piiConn() as any);
+export const piiCol = (name: string) =>
+  typeof (tri as any).piiCol === "function"
+    ? (tri as any).piiCol(name)
+    : piiDb().collection(name);
 
-let conn: mongoose.Connection | undefined;
-
-export function piiConn(): mongoose.Connection {
-  if (!conn) {
-    conn = mongoose.createConnection(ENV.PII_MONGODB_URI, {
-      dbName: ENV.PII_DB_NAME,
-      maxPoolSize: 15,
-      serverSelectionTimeoutMS: 8000,
-    });
-  }
-  return conn;
-}
+export default { piiConn, piiDb, piiCol };

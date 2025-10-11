@@ -8,30 +8,55 @@ import { coreCol, votesCol } from "@core/triMongo";
 
 /** --- Helpers ------------------------------------------------------------ */
 
-function parseBbox(param: string | null): [number, number, number, number] | null {
+function parseBbox(
+  param: string | null,
+): [number, number, number, number] | null {
   if (!param) return null;
   const a = param.split(",").map(Number);
   if (a.length !== 4 || a.some(Number.isNaN)) return null;
   const [w, s, e, n] = a;
-  return [Math.max(-180, w), Math.max(-90, s), Math.min(180, e), Math.min(90, n)];
+  return [
+    Math.max(-180, w),
+    Math.max(-90, s),
+    Math.min(180, e),
+    Math.min(90, n),
+  ];
 }
 
 function bboxToPolygon([w, s, e, n]: [number, number, number, number]) {
   return {
     type: "Polygon" as const,
-    coordinates: [[[w, s], [e, s], [e, n], [w, n], [w, s]]],
+    coordinates: [
+      [
+        [w, s],
+        [e, s],
+        [e, n],
+        [w, n],
+        [w, s],
+      ],
+    ],
   };
 }
 
-type Summary = { agree: number; neutral: number; disagree: number; requiredMajority?: number };
+type Summary = {
+  agree: number;
+  neutral: number;
+  disagree: number;
+  requiredMajority?: number;
+};
 
 /** Aggregiert Votes für viele Statements in einem Rutsch (ObjectId ODER string). */
-async function batchVotesSummary(statementIdsObj: ObjectId[], statementIdsStr: string[]) {
-  const votes = await votesCol<any>("votes");
+async function batchVotesSummary(
+  statementIdsObj: ObjectId[],
+  statementIdsStr: string[],
+) {
+  const votes = await votesCol("votes");
 
   const or: any[] = [];
-  if (statementIdsObj.length) or.push({ statementId: { $in: statementIdsObj } });
-  if (statementIdsStr.length) or.push({ statementId: { $in: statementIdsStr } });
+  if (statementIdsObj.length)
+    or.push({ statementId: { $in: statementIdsObj } });
+  if (statementIdsStr.length)
+    or.push({ statementId: { $in: statementIdsStr } });
 
   if (!or.length) return new Map<string, Summary>();
 
@@ -54,7 +79,9 @@ async function batchVotesSummary(statementIdsObj: ObjectId[], statementIdsStr: s
     },
   ];
 
-  const rows = await votes.aggregate(pipeline, { allowDiskUse: true }).toArray();
+  const rows = await votes
+    .aggregate(pipeline, { allowDiskUse: true })
+    .toArray();
   const map = new Map<string, Summary>();
 
   for (const r of rows) {
@@ -62,8 +89,15 @@ async function batchVotesSummary(statementIdsObj: ObjectId[], statementIdsStr: s
     const s: Summary = { agree: 0, neutral: 0, disagree: 0 };
     for (const { k, v } of r.counts as Array<{ k: string; v: number }>) {
       const kk = String(k).toLowerCase();
-      if (kk === "agree" || kk === "yes" || kk === "pro" || kk === "for") s.agree += v;
-      else if (kk === "disagree" || kk === "no" || kk === "contra" || kk === "against") s.disagree += v;
+      if (kk === "agree" || kk === "yes" || kk === "pro" || kk === "for")
+        s.agree += v;
+      else if (
+        kk === "disagree" ||
+        kk === "no" ||
+        kk === "contra" ||
+        kk === "against"
+      )
+        s.disagree += v;
       else s.neutral += v;
     }
     map.set(idKey, s);
@@ -91,10 +125,13 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
 
     const bbox = parseBbox(searchParams.get("bbox"));
-    const limit = Math.min(Math.max(Number(searchParams.get("limit") || 200), 1), 1000);
+    const limit = Math.min(
+      Math.max(Number(searchParams.get("limit") || 200), 1),
+      1000,
+    );
     const tags = (searchParams.get("tags") || "")
       .split(",")
-      .map((s) => s.trim())
+      .map((s: any) => s.trim())
       .filter(Boolean);
     const status = searchParams.get("status") || undefined;
 
@@ -103,7 +140,9 @@ export async function GET(req: NextRequest) {
 
     // Regionale Filter auf regionScope
     const region = searchParams.get("region") || undefined;
-    const regionMode = (searchParams.get("regionMode") || "contains") as "contains" | "overlaps";
+    const regionMode = (searchParams.get("regionMode") || "contains") as
+      | "contains"
+      | "overlaps";
 
     // Cluster-Option
     const doCluster = searchParams.get("cluster") === "true";
@@ -112,7 +151,7 @@ export async function GET(req: NextRequest) {
     // Wenn freshVotes=true, zählen wir live aus votes (Batch-Aggregation).
     const freshVotes = searchParams.get("freshVotes") === "true";
 
-    const stmts = await coreCol<any>("statements");
+    const stmts = await coreCol("statements");
 
     // Query auf Statements
     const q: any = {
@@ -150,13 +189,15 @@ export async function GET(req: NextRequest) {
     // Optional: live Votes aus votes-Collection ziehen (batch, kein N+1)
     let liveMap: Map<string, Summary> | null = null;
     if (freshVotes && items.length) {
-      const idsObj = items.map((s) => s?._id).filter((x): x is ObjectId => !!x);
-      const idsStr = items.map((s) => s?.id).filter((x): x is string => typeof x === "string" && x.length > 0);
+      const idsObj = items.map((s: any) => s?._id).filter((x: any): x is ObjectId => !!x);
+      const idsStr = items
+        .map((s: any) => s?.id)
+        .filter((x: any): x is string => typeof x === "string" && x.length > 0);
       liveMap = await batchVotesSummary(idsObj, idsStr);
     }
 
     // Features bauen
-    const features = items.map((s) => {
+    const features = items.map((s: any) => {
       const keyObj = s?._id ? String(s._id) : null;
       const keyStr = typeof s?.id === "string" ? s.id : null;
 
@@ -191,14 +232,23 @@ export async function GET(req: NextRequest) {
       const size = cellSizeDeg(zoom);
       const bucket = new Map<
         ClusterKey,
-        { lon: number; lat: number; n: number; votes: { agree: number; neutral: number; disagree: number } }
+        {
+          lon: number;
+          lat: number;
+          n: number;
+          votes: { agree: number; neutral: number; disagree: number };
+        }
       >();
 
       for (const f of features) {
         const [lon, lat] = (f.geometry as any).coordinates as [number, number];
         const k = keyFor(lon, lat, size);
-        const b =
-          bucket.get(k) || { lon: 0, lat: 0, n: 0, votes: { agree: 0, neutral: 0, disagree: 0 } };
+        const b = bucket.get(k) || {
+          lon: 0,
+          lat: 0,
+          n: 0,
+          votes: { agree: 0, neutral: 0, disagree: 0 },
+        };
         b.lon += lon;
         b.lat += lat;
         b.n += 1;
@@ -208,9 +258,12 @@ export async function GET(req: NextRequest) {
         bucket.set(k, b);
       }
 
-      const clusters = Array.from(bucket.values()).map((b) => ({
+      const clusters = Array.from(bucket.values()).map((b: any) => ({
         type: "Feature" as const,
-        geometry: { type: "Point" as const, coordinates: [b.lon / b.n, b.lat / b.n] },
+        geometry: {
+          type: "Point" as const,
+          coordinates: [b.lon / b.n, b.lat / b.n],
+        },
         properties: { cluster: true, count: b.n, votes: b.votes },
       }));
 
@@ -234,6 +287,9 @@ export async function GET(req: NextRequest) {
       query: { region, regionMode },
     });
   } catch (e: any) {
-    return NextResponse.json({ ok: false, error: e?.message || "err" }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: e?.message || "err" },
+      { status: 500 },
+    );
   }
 }

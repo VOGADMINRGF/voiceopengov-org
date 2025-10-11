@@ -7,7 +7,9 @@ export async function POST(req: Request) {
   const { text, region = "de", userId = "anonymous" } = await req.json();
 
   if (!text || text.length < 10) {
-    return new Response(JSON.stringify({ error: "Text too short" }), { status: 400 });
+    return new Response(JSON.stringify({ error: "Text too short" }), {
+      status: 400,
+    });
   }
 
   const analysis = await analyzeContribution(text);
@@ -22,5 +24,7 @@ export async function POST(req: Request) {
     userId,
   });
 
-  return new Response(JSON.stringify({ success: true, saved }), { status: 200 });
+  return new Response(JSON.stringify({ success: true, saved }), {
+    status: 200,
+  });
 }

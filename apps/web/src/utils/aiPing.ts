@@ -20,9 +20,17 @@ export async function pingOpenAI(): Promise<Row> {
       headers: { Authorization: `Bearer ${key}` },
       cache: "no-store",
     });
-    return { name: "ai:openai", ok: r.ok, error: r.ok ? undefined : await toErr(r) };
-  } catch (e:any) {
-    return { name: "ai:openai", ok: false, error: e?.message ?? "fetch failed" };
+    return {
+      name: "ai:openai",
+      ok: r.ok,
+      error: r.ok ? undefined : await toErr(r),
+    };
+  } catch (e: any) {
+    return {
+      name: "ai:openai",
+      ok: false,
+      error: e?.message ?? "fetch failed",
+    };
   }
 }
 
@@ -34,9 +42,17 @@ export async function pingAnthropic(): Promise<Row> {
       headers: { "x-api-key": key, "anthropic-version": "2023-06-01" },
       cache: "no-store",
     });
-    return { name: "ai:anthropic", ok: r.ok, error: r.ok ? undefined : await toErr(r) };
-  } catch (e:any) {
-    return { name: "ai:anthropic", ok: false, error: e?.message ?? "fetch failed" };
+    return {
+      name: "ai:anthropic",
+      ok: r.ok,
+      error: r.ok ? undefined : await toErr(r),
+    };
+  } catch (e: any) {
+    return {
+      name: "ai:anthropic",
+      ok: false,
+      error: e?.message ?? "fetch failed",
+    };
   }
 }
 
@@ -48,9 +64,17 @@ export async function pingMistral(): Promise<Row> {
       headers: { Authorization: `Bearer ${key}` },
       cache: "no-store",
     });
-    return { name: "ai:mistral", ok: r.ok, error: r.ok ? undefined : await toErr(r) };
-  } catch (e:any) {
-    return { name: "ai:mistral", ok: false, error: e?.message ?? "fetch failed" };
+    return {
+      name: "ai:mistral",
+      ok: r.ok,
+      error: r.ok ? undefined : await toErr(r),
+    };
+  } catch (e: any) {
+    return {
+      name: "ai:mistral",
+      ok: false,
+      error: e?.message ?? "fetch failed",
+    };
   }
 }
 
@@ -63,18 +87,31 @@ export async function pingMistral(): Promise<Row> {
  * Wir rufen eine Mini-Suche auf (count=1). Header ist **X-API-Key**.
  */
 export async function pingAriSearch(): Promise<Row> {
-  const key   = process.env.YOUCOM_ARI_API_KEY;
-  const base  = process.env.YOUCOM_SEARCH_URL || "https://api.ydc-index.io";
-  if (!key) return { name: "ai:ari:search", ok: false, error: "YOUCOM_ARI_API_KEY missing" };
+  const key = process.env.YOUCOM_ARI_API_KEY;
+  const base = process.env.YOUCOM_SEARCH_URL || "https://api.ydc-index.io";
+  if (!key)
+    return {
+      name: "ai:ari:search",
+      ok: false,
+      error: "YOUCOM_ARI_API_KEY missing",
+    };
 
-  const url = `${base.replace(/\/+$/,"")}/v1/search?query=ping&count=1`;
+  const url = `${base.replace(/\/+$/, "")}/v1/search?query=ping&count=1`;
   try {
     const r = await fetch(url, {
       headers: { "X-API-Key": key, Accept: "application/json" },
       cache: "no-store",
     });
-    return { name: "ai:ari:search", ok: r.ok, error: r.ok ? undefined : await toErr(r) };
-  } catch (e:any) {
-    return { name: "ai:ari:search", ok: false, error: e?.message ?? "fetch failed" };
+    return {
+      name: "ai:ari:search",
+      ok: r.ok,
+      error: r.ok ? undefined : await toErr(r),
+    };
+  } catch (e: any) {
+    return {
+      name: "ai:ari:search",
+      ok: false,
+      error: e?.message ?? "fetch failed",
+    };
   }
 }

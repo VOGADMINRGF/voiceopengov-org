@@ -16,19 +16,19 @@ export interface IVote {
   // Strukturierte Region (für EU/NUTS/AGS kannst du erweitern)
   region?: {
     country?: string; // ISO-3166-1 alpha-2 (DE, FR, …)
-    state?: string;   // z. B. "BY", "BE-BRU", NUTS2
-    city?: string;    // frei
+    state?: string; // z. B. "BY", "BE-BRU", NUTS2
+    city?: string; // frei
   };
 
   device?: "mobile" | "desktop" | "api";
   source?: "web" | "app" | "api";
-  voteGroup?: string;     // A/B, Experimente
-  graphEdgeId?: string;   // Verknüpfung in GraphDB
+  voteGroup?: string; // A/B, Experimente
+  graphEdgeId?: string; // Verknüpfung in GraphDB
 
   // Timeseries-Bucket (UTC 00:00), wird automatisch gesetzt
   day: Date;
 
-  deletedAt?: Date;       // Soft-Delete
+  deletedAt?: Date; // Soft-Delete
   createdAt: Date;
   updatedAt: Date;
 }
@@ -37,15 +37,29 @@ const VoteSchema = new Schema<IVote>(
   {
     userHash: { type: String, required: true, index: true, trim: true },
     statementId: { type: Schema.Types.ObjectId, required: true, index: true },
-    choice: { type: String, enum: ["agree", "neutral", "disagree"], required: true },
-
-    region: {
-      country: { type: String, trim: true, uppercase: true, minlength: 2, maxlength: 2 },
-      state:   { type: String, trim: true, maxlength: 64 },
-      city:    { type: String, trim: true, maxlength: 96 },
+    choice: {
+      type: String,
+      enum: ["agree", "neutral", "disagree"],
+      required: true,
     },
 
-    device: { type: String, enum: ["mobile", "desktop", "api"], required: false },
+    region: {
+      country: {
+        type: String,
+        trim: true,
+        uppercase: true,
+        minlength: 2,
+        maxlength: 2,
+      },
+      state: { type: String, trim: true, maxlength: 64 },
+      city: { type: String, trim: true, maxlength: 96 },
+    },
+
+    device: {
+      type: String,
+      enum: ["mobile", "desktop", "api"],
+      required: false,
+    },
     source: { type: String, enum: ["web", "app", "api"], required: false },
     voteGroup: { type: String, trim: true, maxlength: 64 },
     graphEdgeId: { type: String, trim: true, maxlength: 96 },
@@ -59,7 +73,7 @@ const VoteSchema = new Schema<IVote>(
     timestamps: true, // createdAt / updatedAt
     minimize: true,
     versionKey: false,
-  }
+  },
 );
 
 /** Ein Vote pro (statementId,userHash) – nur für nicht-gelöschte Dokumente */
@@ -68,12 +82,17 @@ VoteSchema.index(
   {
     unique: true,
     partialFilterExpression: { deletedAt: { $exists: false } },
-  }
+  },
 );
 
 // Analytics-freundliche Indizes (Timeseries/Aggregationen)
 VoteSchema.index({ statementId: 1, day: 1 });
-VoteSchema.index({ "region.country": 1, "region.state": 1, "region.city": 1, day: 1 });
+VoteSchema.index({
+  "region.country": 1,
+  "region.state": 1,
+  "region.city": 1,
+  day: 1,
+});
 VoteSchema.index({ voteGroup: 1, day: 1 });
 
 /** day (UTC Mitternacht) automatisch setzen */
@@ -100,10 +119,15 @@ VoteSchema.statics.upsertUserVote = async function (args: {
   statementId: Types.ObjectId | string;
   userHash: string;
   choice: VoteChoice;
-  meta?: Partial<Pick<IVote, "region" | "device" | "source" | "voteGroup" | "graphEdgeId">>;
+  meta?: Partial<
+    Pick<IVote, "region" | "device" | "source" | "voteGroup" | "graphEdgeId">
+  >;
 }) {
   const { statementId, userHash, choice, meta } = args;
-  const sid = typeof statementId === "string" ? new Types.ObjectId(statementId) : statementId;
+  const sid =
+    typeof statementId === "string"
+      ? new Types.ObjectId(statementId)
+      : statementId;
 
   // Day (UTC Mitternacht)
   const d = new Date();
@@ -123,7 +147,7 @@ VoteSchema.statics.upsertUserVote = async function (args: {
       },
       $unset: { deletedAt: "" },
     },
-    { new: true, upsert: true }
+    { new: true, upsert: true },
   ).lean();
 };
 
@@ -132,6 +156,5 @@ export type VoteDoc = IVote & { _id: Types.ObjectId };
 export function VoteModel() {
   // Wichtig: *votes*-Cluster nutzen (keine PII in diesem DB!)
   const conn = votesConn();
-  return (conn.models.Vote as ReturnType<typeof conn.model<IVote>>)
-    || conn.model<IVote>("Vote", VoteSchema, "votes");
+  return (conn.models.Vote as any) || conn.model("Vote", VoteSchema, "votes");
 }

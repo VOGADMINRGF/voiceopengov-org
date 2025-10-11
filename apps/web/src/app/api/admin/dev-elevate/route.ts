@@ -9,21 +9,27 @@ import { ObjectId } from "mongodb";
 export async function POST(_req: NextRequest) {
   // Hart stoppen in Production
   if (process.env.NODE_ENV === "production") {
-    return NextResponse.json({ ok: false, error: "FORBIDDEN" }, { status: 403 });
+    return NextResponse.json(
+      { ok: false, error: "FORBIDDEN" },
+      { status: 403 },
+    );
   }
 
   // UID aus Cookie lesen (Helper ist async)
   const uid = await getCookie("u_id");
   if (!uid || !ObjectId.isValid(uid)) {
-    return NextResponse.json({ ok: false, error: "UNAUTHORIZED" }, { status: 401 });
+    return NextResponse.json(
+      { ok: false, error: "UNAUTHORIZED" },
+      { status: 401 },
+    );
   }
 
   try {
-    const Users = await getCol<any>("users");
+    const Users = await getCol("users");
     await Users.updateOne(
       { _id: new ObjectId(uid) },
       { $set: { role: "admin", updatedAt: new Date() } },
-      { upsert: false }
+      { upsert: false },
     );
 
     const res = NextResponse.json({ ok: true });
@@ -37,7 +43,7 @@ export async function POST(_req: NextRequest) {
   } catch (e: any) {
     return NextResponse.json(
       { ok: false, error: e?.message ?? "ELEVATE_FAILED" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

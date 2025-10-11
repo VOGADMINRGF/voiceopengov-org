@@ -1,6 +1,8 @@
 "use client";
 
-import QuickRegister, { QuickRegisterSuccess } from "@/components/QuickRegister";
+import QuickRegister, {
+  QuickRegisterSuccess,
+} from "@/components/QuickRegister";
 
 export default function JoinClient() {
   return (

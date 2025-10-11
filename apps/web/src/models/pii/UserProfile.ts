@@ -56,27 +56,6 @@ export interface IUserProfile extends Document {
 // -----------------------------
 // Subschema
 // -----------------------------
-const RoleObjectSchema = new Schema<RoleObject>(
-  {
-    role: {
-      type: String,
-      required: true,
-      enum: ["user", "moderator", "admin", "b2b", "ngo", "politics"],
-    },
-    subRole: { type: String, default: null },
-    orgId: { type: String, default: null },
-    orgName: { type: String, default: null },
-    region: { type: String, default: null },
-    verification: {
-      type: String,
-      enum: ["none", "verified", "legitimized"],
-      default: "none",
-    },
-    premium: { type: Boolean, default: false },
-  },
-  { _id: false }
-);
-
 // -----------------------------
 // Main schema
 // -----------------------------
@@ -92,7 +71,13 @@ const UserProfileSchema = new Schema<IUserProfile>(
     },
 
     // PII – standardmäßig nicht selektieren
-    email: { type: String, default: null, select: false, lowercase: true, trim: true },
+    email: {
+      type: String,
+      default: null,
+      select: false,
+      lowercase: true,
+      trim: true,
+    },
 
     roles: { type: [RoleObjectSchema], default: [] },
     activeRole: { type: Number, default: 0, min: 0 },
@@ -148,7 +133,7 @@ const UserProfileSchema = new Schema<IUserProfile>(
     // interne Lowercase-Spiegelung für case-insensitive Eindeutigkeit
     username_lc: { type: String, select: false },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // -----------------------------
@@ -175,7 +160,7 @@ UserProfileSchema.pre("save", function (next) {
   if (this.isModified("mfaBackupCodes") && Array.isArray(this.mfaBackupCodes)) {
     // @ts-ignore
     this.mfaBackupCodes = this.mfaBackupCodes.map((c: string) =>
-      crypto.createHash("sha256").update(c).digest("hex")
+      crypto.createHash("sha256").update(c).digest("hex"),
     );
   }
   next();
@@ -193,12 +178,12 @@ UserProfileSchema.index(
     unique: true,
     // erlaubt viele Docs ohne username_lc (Altbestand), schützt aber neue/aktualisierte
     partialFilterExpression: { username_lc: { $type: "string" } },
-  }
+  },
 );
 
 UserProfileSchema.index(
   { email: 1 },
-  { partialFilterExpression: { email: { $type: "string" } } }
+  { partialFilterExpression: { email: { $type: "string" } } },
 );
 
 UserProfileSchema.index({ status: 1, premium: 1 });
@@ -208,5 +193,4 @@ UserProfileSchema.index({ "roles.role": 1 });
 // -----------------------------
 // Model
 // -----------------------------
-const conn = piiConn();
-export default modelOn<IUserProfile>(conn, "UserProfile", UserProfileSchema, "user_profiles");
+export default modelOn(conn, "UserProfile", UserProfileSchema, "user_profiles");

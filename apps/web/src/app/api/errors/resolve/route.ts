@@ -8,11 +8,14 @@ export async function POST(req: NextRequest) {
   const updated = await ErrorLogModel.findOneAndUpdate(
     query,
     { resolved: Boolean(resolved) },
-    { new: true }
+    { new: true },
   );
 
   if (!updated) {
-    return NextResponse.json({ ok: false, error: "Fehler nicht gefunden" }, { status: 404 });
+    return NextResponse.json(
+      { ok: false, error: "Fehler nicht gefunden" },
+      { status: 404 },
+    );
   }
   return NextResponse.json({ ok: true });
 }

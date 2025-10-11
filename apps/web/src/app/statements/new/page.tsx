@@ -10,17 +10,18 @@ export default function NewStatement() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    setBusy(true); setMsg(undefined);
+    setBusy(true);
+    setMsg(undefined);
     try {
       const r = await fetch("/api/statements", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, language: "de" }) // <-- richtiges Feld
+        body: JSON.stringify({ text, language: "de" }), // <-- richtiges Feld
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j?.error || "Fehler beim Speichern");
       router.push(`/statements/${j.id}`);
-    } catch (e:any) {
+    } catch (e: any) {
       setMsg(e.message);
     } finally {
       setBusy(false);
@@ -35,7 +36,7 @@ export default function NewStatement() {
           className="w-full border rounded px-3 py-2 min-h-[240px]"
           placeholder="Beschreibe dein Anliegen... (wir extrahieren automatisch prüfbare Aussagen)"
           value={text}
-          onChange={e=>setText(e.target.value)}
+          onChange={(e) => setText(e.target.value)}
           required
         />
         {msg && <p className="text-red-600 text-sm">{msg}</p>}
@@ -46,7 +47,8 @@ export default function NewStatement() {
           {busy ? "…" : "Speichern"}
         </button>
         <p className="text-xs text-neutral-500">
-          Hinweis: Du musst dich nicht einloggen. Wir erzeugen den Titel automatisch und prüfen dein Anliegen optional.
+          Hinweis: Du musst dich nicht einloggen. Wir erzeugen den Titel
+          automatisch und prüfen dein Anliegen optional.
         </p>
       </form>
     </div>

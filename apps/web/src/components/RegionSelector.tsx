@@ -6,7 +6,11 @@ import { useEffectiveRegion } from "@/hooks/useEffectiveRegion";
 
 type RegionOption = { code: string; label: string };
 
-export default function RegionSelector({ options }: { options: RegionOption[] }) {
+export default function RegionSelector({
+  options,
+}: {
+  options: RegionOption[];
+}) {
   const { data, setRegion, loading } = useEffectiveRegion();
   const [busy, setBusy] = useState(false);
 
@@ -31,9 +35,13 @@ export default function RegionSelector({ options }: { options: RegionOption[] })
         onChange={(e) => apply(e.target.value)}
         disabled={loading || busy}
       >
-        <option value="" disabled>Region wählen…</option>
+        <option value="" disabled>
+          Region wählen…
+        </option>
         {options.map((o) => (
-          <option key={o.code} value={o.code}>{o.label}</option>
+          <option key={o.code} value={o.code}>
+            {o.label}
+          </option>
         ))}
       </select>
     </div>

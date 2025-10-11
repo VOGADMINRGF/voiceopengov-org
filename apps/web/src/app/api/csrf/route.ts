@@ -1,12 +1,11 @@
+import { env } from "@/utils/env";
 // apps/web/src/app/api/csrf/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
 const CSRF_COOKIE = "csrf-token";
-const CSRF_HEADER = "x-csrf-token";
-
 // Route handler runs on Node by default; no edge-only restrictions here.
 export async function GET(req: NextRequest) {
-  const res = new NextResponse(null, {
+  const res = NextResponse.json(null, {
     status: 204,
     headers: { "Cache-Control": "no-store" },
   });

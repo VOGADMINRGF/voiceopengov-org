@@ -1,3 +1,4 @@
+const isDev = process.env.NODE_ENV !== "production";
 /**
  * Web-Client-Helfer für den Faktencheck-Workflow (API calls).
  * Diese Datei existiert, weil irgendwo `lib/worker` importiert wird.
@@ -31,10 +32,11 @@ type StatusResponse =
   | { ok: false; reason?: string; code?: string; message?: string };
 
 const isServer = typeof window === "undefined";
-const isDev = process.env.NODE_ENV !== "production";
 
 function baseUrl() {
-  return isServer ? process.env.NEXT_PUBLIC_APP_ORIGIN ?? "http://localhost:3000" : "";
+  return isServer
+    ? (process.env.NEXT_PUBLIC_APP_ORIGIN ?? "http://localhost:3000")
+    : "";
 }
 function roleHeaders(role?: string) {
   const h: Record<string, string> = { "Content-Type": "application/json" };
@@ -42,20 +44,38 @@ function roleHeaders(role?: string) {
   return h;
 }
 
-export async function enqueueFactcheck(payload: EnqueuePayload, role = "editor"): Promise<EnqueueResponse> {
+export async function enqueueFactcheck(
+  payload: EnqueuePayload,
+  role = "editor",
+): Promise<EnqueueResponse> {
   const res = await fetch(`${baseUrl()}/api/factcheck/enqueue`, {
     method: "POST",
     headers: roleHeaders(role),
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
   });
-  try { return await res.json(); } catch { return { ok: false, message: "enqueue failed" }; }
+  try {
+    return await res.json();
+  } catch {
+    return { ok: false, message: "enqueue failed" };
+  }
 }
 
-export async function getFactcheckStatus(jobId: string, role = "editor"): Promise<StatusResponse> {
+export async function getFactcheckStatus(
+  jobId: string,
+  role = "editor",
+): Promise<StatusResponse> {
   const base = `${baseUrl()}/api/factcheck/status/${encodeURIComponent(jobId)}`;
-  const url = !isServer && isDev ? `${base}?role=${encodeURIComponent(role)}` : base;
-  const res = await fetch(url, { headers: isServer ? roleHeaders(role) : undefined, cache: "no-store" });
-  try { return await res.json(); } catch { return { ok: false, message: "status failed" }; }
+  const url =
+    !isServer && isDev ? `${base}?role=${encodeURIComponent(role)}` : base;
+  const res = await fetch(url, {
+    headers: isServer ? roleHeaders(role) : undefined,
+    cache: "no-store",
+  });
+  try {
+    return await res.json();
+  } catch {
+    return { ok: false, message: "status failed" };
+  }
 }
 
 export default { enqueueFactcheck, getFactcheckStatus };

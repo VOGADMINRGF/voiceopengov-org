@@ -11,11 +11,7 @@ export async function GET(req: NextRequest) {
   const skip = Math.max(Number(url.searchParams.get("skip") || 0), 0);
   const sort = (url.searchParams.get("sort") || "-updatedAt") as string;
 
-  const items = await Report.find({})
-    .sort(sort)
-    .skip(skip)
-    .limit(limit)
-    .lean();
+  const items = await Report.find({}).sort(sort).skip(skip).limit(limit).lean();
 
   const data = items.map((d: any) => ({ id: String(d._id), ...d }));
   return NextResponse.json(data);

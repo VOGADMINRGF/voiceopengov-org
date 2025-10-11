@@ -8,7 +8,7 @@ import { translationCache } from "@/utils/translationCache";
  */
 export async function translateAndCache(
   texts: string[],
-  targetLanguages: string[]
+  targetLanguages: string[],
 ): Promise<Record<string, Record<string, string>>> {
   const result: Record<string, Record<string, string>> = {};
 

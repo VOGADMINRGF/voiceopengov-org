@@ -23,7 +23,7 @@ export type Permission =
 
 export interface RpUser {
   id: string;
-  roles: GlobalRole[];                  // z. B. ["user","verified"]
+  roles: GlobalRole[]; // z. B. ["user","verified"]
   verified?: boolean;
   orgRoles?: Record<string, OrgRole[]>; // orgId -> ["member","manager"]
   flags?: Record<string, boolean>;
@@ -36,32 +36,51 @@ export interface PermissionContext {
 
 export const DEFAULT_POLICY: Record<Permission, GlobalRole[]> = {
   "statement:create": ["user", "verified", "moderator", "admin", "superadmin"],
-  "statement:edit":   ["verified", "moderator", "admin", "superadmin"],
+  "statement:edit": ["verified", "moderator", "admin", "superadmin"],
   "statement:delete": ["moderator", "admin", "superadmin"],
-  "statement:moderate":["moderator", "admin", "superadmin"],
-  "vote:cast":        ["user", "verified", "moderator", "admin", "superadmin"],
-  "vote:retract":     ["user", "verified", "moderator", "admin", "superadmin"],
-  "report:create":    ["user", "verified", "moderator", "admin", "superadmin"],
-  "admin:access":     ["admin", "superadmin"],
-  "org:manage":       ["admin", "superadmin"],
-  "org:invite":       ["admin", "superadmin"],
+  "statement:moderate": ["moderator", "admin", "superadmin"],
+  "vote:cast": ["user", "verified", "moderator", "admin", "superadmin"],
+  "vote:retract": ["user", "verified", "moderator", "admin", "superadmin"],
+  "report:create": ["user", "verified", "moderator", "admin", "superadmin"],
+  "admin:access": ["admin", "superadmin"],
+  "org:manage": ["admin", "superadmin"],
+  "org:invite": ["admin", "superadmin"],
 };
 
 const ORG_ORDER: OrgRole[] = ["member", "moderator", "manager", "owner"];
-function hasOrgPower(user: RpUser | null | undefined, orgId?: string, min: OrgRole = "manager") {
+function hasOrgPower(
+  user: RpUser | null | undefined,
+  orgId?: string,
+  min: OrgRole = "manager",
+) {
   if (!user || !orgId) return false;
   const roles = user.orgRoles?.[orgId] ?? [];
   const needIdx = ORG_ORDER.indexOf(min);
-  const best = roles.reduce((max, r) => Math.max(max, ORG_ORDER.indexOf(r)), -1);
+  const best = roles.reduce(
+    (max, r) => Math.max(max, ORG_ORDER.indexOf(r)),
+    -1,
+  );
   return best >= needIdx;
 }
 
 /** Alias-Helper: behandle "legitimized" als "verified" (falls aus alter Welt) */
-export function normalizeRoles(roles: readonly string[] | undefined): GlobalRole[] {
+export function normalizeRoles(
+  roles: readonly string[] | undefined,
+): GlobalRole[] {
   const out: GlobalRole[] = [];
   for (const r of roles ?? []) {
     if (r === "legitimized") out.push("verified");
-    else if (["guest","user","verified","moderator","admin","superadmin"].includes(r)) out.push(r as GlobalRole);
+    else if (
+      [
+        "guest",
+        "user",
+        "verified",
+        "moderator",
+        "admin",
+        "superadmin",
+      ].includes(r)
+    )
+      out.push(r as GlobalRole);
   }
   return out.length ? out : (["guest"] as GlobalRole[]);
 }
@@ -71,7 +90,7 @@ export function checkPermission(
   user: RpUser | null | undefined,
   permission: Permission,
   ctx?: PermissionContext,
-  policy: Record<Permission, GlobalRole[]> = DEFAULT_POLICY
+  policy: Record<Permission, GlobalRole[]> = DEFAULT_POLICY,
 ): boolean {
   if (!user) return false;
 
@@ -85,7 +104,10 @@ export function checkPermission(
   if (!ok && permission === "statement:edit" && user.verified) ok = true;
 
   // Owner-Edit, aber kein Owner-Delete
-  if (!ok && (permission === "statement:edit" || permission === "statement:delete")) {
+  if (
+    !ok &&
+    (permission === "statement:edit" || permission === "statement:delete")
+  ) {
     if (ctx?.resourceOwnerId && ctx.resourceOwnerId === user.id) {
       ok = permission === "statement:edit";
     }
@@ -93,7 +115,13 @@ export function checkPermission(
 
   // Org-Scopes
   if (!ok && (permission === "org:manage" || permission === "org:invite")) {
-    if (hasOrgPower(user, ctx?.orgId, permission === "org:manage" ? "manager" : "moderator")) {
+    if (
+      hasOrgPower(
+        user,
+        ctx?.orgId,
+        permission === "org:manage" ? "manager" : "moderator",
+      )
+    ) {
       ok = true;
     }
   }

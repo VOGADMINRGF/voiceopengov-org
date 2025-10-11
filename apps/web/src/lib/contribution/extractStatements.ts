@@ -1,5 +1,9 @@
 // apps/web/src/lib/contribution/extractStatements.ts
-import type { AnalyzedStatement, Polarity, StatementType } from "@/types/contribution";
+import type {
+  AnalyzedStatement,
+  Polarity,
+  StatementType,
+} from "@/types/contribution";
 
 export type ExtractOpts = { max?: number; minChars?: number };
 
@@ -12,7 +16,7 @@ export type ExtractOpts = { max?: number; minChars?: number };
  */
 export function extractStatementsFromText(
   text: string,
-  opts: ExtractOpts = {}
+  opts: ExtractOpts = {},
 ): { text: string }[] {
   const max = Number.isFinite(opts.max) ? (opts.max as number) : 10;
   const min = Number.isFinite(opts.minChars) ? (opts.minChars as number) : 12;
@@ -40,7 +44,9 @@ export function extractStatementsFromText(
  * Kompatibilitäts-Variante:
  * Nimmt eine typische GPT-Listen-Antwort (Zeilen) und liefert reine Strings.
  */
-export async function extractStatements(gptResponse: string): Promise<string[]> {
+export async function extractStatements(
+  gptResponse: string,
+): Promise<string[]> {
   return gptResponse
     .split("\n")
     .map((line) => line.trim())
@@ -54,7 +60,7 @@ export async function extractStatements(gptResponse: string): Promise<string[]> 
  */
 export function upcastToAnalyzedStatements(
   items: { text: string }[],
-  defaults?: { type?: StatementType; polarity?: Polarity }
+  defaults?: { type?: StatementType; polarity?: Polarity },
 ): AnalyzedStatement[] {
   const type: StatementType = defaults?.type ?? "frei";
   const polarity: Polarity = defaults?.polarity ?? "mittel";

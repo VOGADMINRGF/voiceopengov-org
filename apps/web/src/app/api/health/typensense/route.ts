@@ -9,16 +9,26 @@ export async function GET() {
     const apiKey = process.env.TYPESENSE_API_KEY;
 
     if (!host || !apiKey) {
-      return NextResponse.json({ ok:false, error:"Missing TYPESENSE_HOST/API_KEY" }, { status: 200 });
+      return NextResponse.json(
+        { ok: false, error: "Missing TYPESENSE_HOST/API_KEY" },
+        { status: 200 },
+      );
     }
 
     const r = await fetch(`${protocol}://${host}:${port}/health`, {
-      headers: { "X-TYPESENSE-API-KEY": apiKey }
+      headers: { "X-TYPESENSE-API-KEY": apiKey },
     });
-    const j = await r.json().catch(()=>({}));
-    const ok = r.ok && (j.ok === true || j.healthy === true || j.status === "ok");
-    return NextResponse.json({ ok, status: j || r.statusText }, { status: 200 });
-  } catch (e:any) {
-    return NextResponse.json({ ok:false, error: e?.message ?? String(e) }, { status: 200 });
+    const j = await r.json().catch(() => ({}));
+    const ok =
+      r.ok && (j.ok === true || j.healthy === true || j.status === "ok");
+    return NextResponse.json(
+      { ok, status: j || r.statusText },
+      { status: 200 },
+    );
+  } catch (e: any) {
+    return NextResponse.json(
+      { ok: false, error: e?.message ?? String(e) },
+      { status: 200 },
+    );
   }
 }

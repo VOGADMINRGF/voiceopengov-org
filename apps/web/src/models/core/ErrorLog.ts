@@ -27,10 +27,13 @@ const ErrorLogSchema = new Schema<IErrorLog>(
     payload: { type: Schema.Types.Mixed },
     resolved: { type: Boolean, default: false, index: true },
   },
-  { timestamps: false }
+  { timestamps: false },
 );
 
 ErrorLogSchema.index({ resolved: 1, timestamp: -1 });
-
-const conn = coreConn();
-export default modelOn<IErrorLog>(conn, "ErrorLog", ErrorLogSchema, "error_logs");
+export default modelOn<IErrorLog>(
+  conn,
+  "ErrorLog",
+  ErrorLogSchema,
+  "error_logs",
+);

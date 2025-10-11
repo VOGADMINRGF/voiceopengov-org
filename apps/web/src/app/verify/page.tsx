@@ -38,7 +38,10 @@ export default function VerifyPage() {
 
       const r = await fetch("/api/auth/verify", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         credentials: "include",
         cache: "no-store",
         body: JSON.stringify({ email: em, token: tk }),
@@ -52,19 +55,29 @@ export default function VerifyPage() {
         ? await r.json().catch(() => ({}))
         : { error: (await r.text()).slice(0, 500) };
 
-      if (!r.ok) throw new Error(data?.error || data?.message || `HTTP ${r.status}`);
+      if (!r.ok)
+        throw new Error(data?.error || data?.message || `HTTP ${r.status}`);
 
       setOk(true);
       setOkMsg("Verifiziert! Weiterleitung …");
 
       // 1) API bevorzugen (nextUrl vom Server)
-      const serverNext = typeof data?.nextUrl === "string" && data.nextUrl.length > 0 ? data.nextUrl : null;
+      const serverNext =
+        typeof data?.nextUrl === "string" && data.nextUrl.length > 0
+          ? data.nextUrl
+          : null;
       // 2) ansonsten clientseitiges ?next= aus der URL beachten
       const qpNext = sp.get("next");
-      const next = serverNext || (qpNext ? decodeURIComponent(qpNext) : "/login?verified=1");
+      const next =
+        serverNext ||
+        (qpNext ? decodeURIComponent(qpNext) : "/login?verified=1");
       router.replace(next);
     } catch (err: any) {
-      setErrMsg(err?.name === "AbortError" ? "Zeitüberschreitung. Bitte erneut versuchen." : err?.message || "Unbekannter Fehler");
+      setErrMsg(
+        err?.name === "AbortError"
+          ? "Zeitüberschreitung. Bitte erneut versuchen."
+          : err?.message || "Unbekannter Fehler",
+      );
     } finally {
       setBusy(false);
     }
@@ -77,7 +90,6 @@ export default function VerifyPage() {
     if (em && tk) {
       verifyNow(em, tk);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sp]);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -95,9 +107,11 @@ export default function VerifyPage() {
       });
       const j = await r.json().catch(() => ({}));
       if (r.ok) {
-        setInfoMsg(j?.verifyUrl
-          ? `Neuer Link gesendet. (Dev: ${j.verifyUrl})`
-          : "Neuer Verifizierungslink gesendet (Postfach prüfen).");
+        setInfoMsg(
+          j?.verifyUrl
+            ? `Neuer Link gesendet. (Dev: ${j.verifyUrl})`
+            : "Neuer Verifizierungslink gesendet (Postfach prüfen).",
+        );
       } else {
         setInfoMsg(j?.error || "Senden nicht möglich.");
       }
@@ -105,7 +119,6 @@ export default function VerifyPage() {
       setInfoMsg("Senden nicht möglich.");
     }
   }
- 
 
   return (
     <div className="mx-auto max-w-md p-6">
@@ -143,8 +156,16 @@ export default function VerifyPage() {
           />
         </label>
 
-        {errMsg && <p className="text-red-600 text-sm" aria-live="assertive">{String(errMsg)}</p>}
-        {okMsg && <p className="text-green-700 text-sm" aria-live="polite">{okMsg}</p>}
+        {errMsg && (
+          <p className="text-red-600 text-sm" aria-live="assertive">
+            {String(errMsg)}
+          </p>
+        )}
+        {okMsg && (
+          <p className="text-green-700 text-sm" aria-live="polite">
+            {okMsg}
+          </p>
+        )}
         {infoMsg && <p className="text-sm">{infoMsg}</p>}
 
         <div className="flex items-center gap-3">
@@ -155,7 +176,12 @@ export default function VerifyPage() {
           >
             {busy ? "…" : "Verifizieren"}
           </button>
-          <button type="button" onClick={resend} disabled={!email || busy} className="text-sm underline">
+          <button
+            type="button"
+            onClick={resend}
+            disabled={!email || busy}
+            className="text-sm underline"
+          >
             Code erneut senden
           </button>
         </div>
@@ -167,7 +193,9 @@ export default function VerifyPage() {
 
       <p className="text-sm mt-2">
         Zurück zum{" "}
-        <Link className="underline" href="/login">Login</Link>
+        <Link className="underline" href="/login">
+          Login
+        </Link>
       </p>
     </div>
   );

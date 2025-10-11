@@ -17,13 +17,20 @@
     "start:web": "pnpm --filter @vog/web start",
     "build:ui": "pnpm --filter @vog/ui build",
     "build": "pnpm run build:ui && pnpm run build:web",
-    "prisma:gen:core": "prisma generate --schema=prisma/core/schema.prisma",
-    "prisma:gen:web": "prisma generate --schema=prisma/web/schema.prisma",
-    "prisma:gen": "pnpm -w prisma:gen:core && pnpm -w prisma:gen:web",
+    "prisma:gen:web": "pnpm -w dlx prisma generate --schema=prisma/web/schema.prisma",
+    "prisma:gen:core": "pnpm -w dlx prisma generate --schema=prisma/core/schema.prisma",
+    "prisma:gen": "pnpm -w run prisma:gen:core && pnpm -w run prisma:gen:web",
     "prisma:migrate:core": "prisma migrate deploy --schema=prisma/core/schema.prisma",
     "prisma:migrate:web": "prisma migrate deploy --schema=prisma/web/schema.prisma",
     "prisma:migrate": "pnpm -w prisma:migrate:core && pnpm -w prisma:migrate:web",
-    "postinstall": "pnpm -w prisma:gen"
+    "postinstall": "pnpm -w run prisma:gen:web",
+    "check:web": "pnpm -w exec tsc --noEmit -p apps/web/tsconfig.public.json",
+    "check:repo": "pnpm -w exec tsc --noEmit -p tsconfig.base.json",
+    "lint:fix:web": "bash ./scripts/lint-fix.sh",
+    "lint:clean": "node tools/reperatur/41-lint-warnings-clean.mjs",
+    "typecheck": "pnpm -w exec tsc --noEmit -p apps/web/tsconfig.json",
+    "lint": "pnpm -w dlx eslint --config apps/web/eslint.config.js \"apps/web/src/**/*.{ts,tsx}\" --max-warnings=0",
+    "e200": "pnpm run typecheck && pnpm run lint"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -80,6 +87,9 @@
     "zod": "^4.1.11"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.37.0",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/lodash": "^4.17.20",
     "@types/node": "^20.19.17",
@@ -90,6 +100,7 @@
     "@typescript-eslint/eslint-plugin": "^8.46.0",
     "@typescript-eslint/parser": "^8.46.0",
     "eslint": "^9.37.0",
+    "eslint-plugin-react-hooks": "^6.1.1",
     "fast-glob": "^3.3.3",
     "glob": "^11.0.3",
     "jscodeshift": "^17.3.0",

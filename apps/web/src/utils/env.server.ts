@@ -10,26 +10,28 @@ import { z } from "zod";
 const bool = (v: any) => String(v).toLowerCase() === "true";
 
 const ServerEnvSchema = z.object({
-  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-  
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
+
   // Keine Pflicht, wenn NextAuth nicht genutzt wird:
   NEXTAUTH_URL: z.string().url().optional(),
-  NEXTAUTH_SECRET: z.string().min(16).optional(),   // <- .min(16).optional() (ohne Komma)
+  NEXTAUTH_SECRET: z.string().min(16).optional(), // <- .min(16).optional() (ohne Komma)
 
   CORE_MONGODB_URI: z.string().min(1),
   CORE_DB_NAME: z.string().min(1),
-  
+
   PII_MONGODB_URI: z.string().min(1),
   PII_DB_NAME: z.string().min(1),
-  
+
   VOTES_MONGODB_URI: z.string().min(1),
   VOTES_DB_NAME: z.string().min(1),
-  
+
   PUBLIC_ID_SALT: z.string().min(16),
 
   AI_CORE_READER_MONGODB_URI: z.string().optional(),
   AI_CORE_READER_DB_NAME: z.string().optional(),
-  
+
   NEO4J_URI: z.string().optional(),
   NEO4J_USER: z.string().optional(),
   NEO4J_PASSWORD: z.string().optional(),
@@ -67,12 +69,12 @@ const ServerEnvSchema = z.object({
   YOU_API_BASE: z.string().optional(),
   YOU_MODEL: z.string().optional(),
 
-  FEATURE_GRAPHDB: z.string().transform(bool).default("false"),
-  FEATURE_SEARCH: z.string().transform(bool).default("true"),
-  FEATURE_TYPESENSE: z.string().transform(bool).default("false"),
-  FEATURE_ELASTIC: z.string().transform(bool).default("true"),
-  FEATURE_AI_ARBITER: z.string().transform(bool).default("true"),
-  FEATURE_TRANSLATION_CACHE: z.string().transform(bool).default("true"),
+  FEATURE_GRAPHDB: z.string().transform(bool).default(false),
+  FEATURE_SEARCH: z.string().transform(bool).default(true),
+  FEATURE_TYPESENSE: z.string().transform(bool).default(false),
+  FEATURE_ELASTIC: z.string().transform(bool).default(true),
+  FEATURE_AI_ARBITER: z.string().transform(bool).default(true),
+  FEATURE_TRANSLATION_CACHE: z.string().transform(bool).default(true),
 
   CORS_ALLOWED_ORIGINS: z.string().optional(),
   JWT_SECRET: z.string().min(16),
@@ -82,7 +84,7 @@ export const ENV = ServerEnvSchema.parse({
   NODE_ENV: process.env.NODE_ENV,
   NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
-  
+
   CORE_MONGODB_URI: process.env.CORE_MONGODB_URI,
   CORE_DB_NAME: process.env.CORE_DB_NAME,
 
@@ -93,7 +95,7 @@ export const ENV = ServerEnvSchema.parse({
   VOTES_DB_NAME: process.env.VOTES_DB_NAME,
 
   PUBLIC_ID_SALT: process.env.PUBLIC_ID_SALT,
-  
+
   AI_CORE_READER_MONGODB_URI: process.env.AI_CORE_READER_MONGODB_URI,
   AI_CORE_READER_DB_NAME: process.env.AI_CORE_READER_DB_NAME,
 

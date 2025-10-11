@@ -13,7 +13,10 @@ export async function GET() {
     total: await StreamEvent.estimatedDocumentCount(),
   };
 
-  const idemKey = crypto.createHash("sha1").update("HEALTH_SMOKE").digest("hex");
+  const idemKey = crypto
+    .createHash("sha1")
+    .update("HEALTH_SMOKE")
+    .digest("hex");
   const res = await StreamEvent.updateOne(
     { idempotencyKey: idemKey },
     {
@@ -26,7 +29,7 @@ export async function GET() {
         payload: { ok: true, at: now.toISOString() },
       },
     },
-    { upsert: true }
+    { upsert: true },
   );
 
   return NextResponse.json({
@@ -34,6 +37,6 @@ export async function GET() {
     created: Boolean((res as any).upsertedCount),
     idempotencyKey: idemKey,
     counts,
-    ts: now.toISOString()
+    ts: now.toISOString(),
   });
 }

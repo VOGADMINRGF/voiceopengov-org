@@ -1,3 +1,3 @@
-// apps/web/src/lib/dbWeb.ts  (nur sauberer Re-Export)
-export { prisma as prismaWeb } from "@db-web";
+import { prisma } from "@db-web";
+export { prisma };
 export type { Prisma } from "@db-web";

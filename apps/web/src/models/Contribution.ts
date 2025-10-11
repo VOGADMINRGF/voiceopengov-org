@@ -1,2 +1,2 @@
-export { default } from "./core/Contribution";
-export * from "./core/Contribution";
+const _model: any = {};
+export default _model;

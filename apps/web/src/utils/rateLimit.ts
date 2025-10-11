@@ -13,7 +13,9 @@ function sweep(now: number) {
   for (const [k, b] of store) if (b.resetAt <= now) store.delete(k);
   if (store.size > MAX_KEYS) {
     // naive LRU-approx: delete oldest resetAt first
-    const arr = [...store.entries()].sort((a, b) => a[1].resetAt - b[1].resetAt);
+    const arr = [...store.entries()].sort(
+      (a, b) => a[1].resetAt - b[1].resetAt,
+    );
     for (let i = 0; i < arr.length - MAX_KEYS; i++) store.delete(arr[i][0]);
   }
 }
@@ -24,10 +26,12 @@ async function hashKey(key: string, salt = ""): Promise<string> {
   // WebCrypto verfügbar?
   if (typeof crypto !== "undefined" && "subtle" in crypto) {
     const buf = await crypto.subtle.digest("SHA-256", data);
-    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+    return [...new Uint8Array(buf)]
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
   }
   // Node-Fallback
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
   // @ts-ignore
   const { createHash } = await import("node:crypto");
   return createHash("sha256").update(data).digest("hex");
@@ -45,7 +49,7 @@ export async function rateLimit(
   key: string,
   limit: number,
   windowMs: number,
-  opts?: { salt?: string }
+  opts?: { salt?: string },
 ): Promise<RateLimitResult> {
   const now = Date.now();
   sweep(now);
@@ -63,7 +67,13 @@ export async function rateLimit(
   }
 
   if (bucket.count >= limit) {
-    return { ok: false, remaining: 0, limit, resetAt: bucket.resetAt, retryIn: Math.max(0, bucket.resetAt - now) };
+    return {
+      ok: false,
+      remaining: 0,
+      limit,
+      resetAt: bucket.resetAt,
+      retryIn: Math.max(0, bucket.resetAt - now),
+    };
   }
 
   bucket.count++;

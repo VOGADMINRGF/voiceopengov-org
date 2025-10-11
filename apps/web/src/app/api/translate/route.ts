@@ -36,21 +36,37 @@ export async function POST(req: NextRequest) {
     // A) Nur Übersetzen
     if (!isContributionBody(body)) {
       const text = String((body as any)?.text ?? "");
-      const to = String((body as any)?.to ?? "").trim().toLowerCase();
+      const to = String((body as any)?.to ?? "")
+        .trim()
+        .toLowerCase();
       if (!text || !to) {
-        return NextResponse.json({ ok: false, error: "Missing 'text' or 'to'." }, { status: 400 });
+        return NextResponse.json(
+          { ok: false, error: "Missing 'text' or 'to'." },
+          { status: 400 },
+        );
       }
       const translated = await fetchGptTranslation(text, to);
-      return NextResponse.json({ ok: true, mode: "translate", result: translated });
+      return NextResponse.json({
+        ok: true,
+        mode: "translate",
+        result: translated,
+      });
     }
 
     // B) Contribution-Pipeline
     const text = String(body.text ?? "");
-    if (!text) return NextResponse.json({ ok: false, error: "Missing 'text'." }, { status: 400 });
+    if (!text)
+      return NextResponse.json(
+        { ok: false, error: "Missing 'text'." },
+        { status: 400 },
+      );
 
     const region = body.region ?? null;
     const userId = body.userId ?? null;
-    const locales = Array.isArray(body.locales) && body.locales.length ? body.locales : ["de", "en"];
+    const locales =
+      Array.isArray(body.locales) && body.locales.length
+        ? body.locales
+        : ["de", "en"];
 
     // 1) Analyse
     const analysisReq: ContributionAnalysisRequest = {
@@ -74,7 +90,7 @@ export async function POST(req: NextRequest) {
     // 4) Persistenz — Signatur erwartet string statt undefined/null
     const saved = await storeContribution({
       originalText: text,
-      statements,           // string[]
+      statements, // string[]
       translations,
       region: region ?? "", // erzwinge string
       userId: userId ?? "", // erzwinge string
@@ -90,6 +106,9 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: any) {
     console.error("POST /api/translate failed:", err?.message || err);
-    return NextResponse.json({ ok: false, error: "internal_error" }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: "internal_error" },
+      { status: 500 },
+    );
   }
 }

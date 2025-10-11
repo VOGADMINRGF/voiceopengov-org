@@ -1,13 +1,12 @@
+import { env } from "@/utils/env";
 // apps/web/src/lib/contribution/llm/analyzeWithGPT.ts
 import { LLMAnalysisZ, type LLMAnalysis } from "@/lib/contribution/schema";
 
-const MODEL = process.env.ANALYZE_MODEL || "gpt-4o-mini";
-const TIMEOUT_MS = Number(process.env.ANALYZE_TIMEOUT_MS || 15000);
-const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
-
 function withTimeout<T>(p: Promise<T>, ms: number) {
   let t: NodeJS.Timeout;
-  const killer = new Promise<never>((_, rej) => { t = setTimeout(() => rej(new Error("timeout")), ms); });
+  const killer = new Promise<never>((_, rej) => {
+    t = setTimeout(() => rej(new Error("timeout")), ms);
+  });
   return Promise.race([p, killer]).finally(() => clearTimeout(t!));
 }
 
@@ -37,11 +36,14 @@ export async function analyzeWithGPT(input: {
   });
 
   const r = await withTimeout(
-    fetch(OPENAI_URL, {
+    fetch(env.OPENAI_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
       body: JSON.stringify({
-        model: MODEL,
+        model: env.MODEL,
         response_format: { type: "json_object" },
         temperature: 0.2,
         messages: [
@@ -50,7 +52,7 @@ export async function analyzeWithGPT(input: {
         ],
       }),
     }),
-    TIMEOUT_MS
+    env.TIMEOUT_MS,
   );
 
   if (!r.ok) {

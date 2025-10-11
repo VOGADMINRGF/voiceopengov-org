@@ -9,8 +9,10 @@ function stableStringify(v: unknown): string {
   if (Array.isArray(v)) return `[${v.map(stableStringify).join(",")}]`;
   if (typeof v === "object") {
     const o = v as Record<string, unknown>;
-    const keys = Object.keys(o).filter(k => o[k] !== undefined).sort();
-    return `{${keys.map(k => JSON.stringify(k)+":"+stableStringify(o[k])).join(",")}}`;
+    const keys = Object.keys(o)
+      .filter((k) => o[k] !== undefined)
+      .sort();
+    return `{${keys.map((k) => JSON.stringify(k) + ":" + stableStringify(o[k])).join(",")}}`;
   }
   return JSON.stringify(v);
 }
@@ -39,7 +41,7 @@ export async function emitStreamEvent(input: EmitInput) {
       extId: input.extId ?? "",
       type: input.type,
       payload: input.payload ?? null,
-    })
+    }),
   );
 
   const ts = input.ts ? new Date(input.ts) : new Date();
@@ -54,8 +56,12 @@ export async function emitStreamEvent(input: EmitInput) {
     meta: input.meta ?? {},
   };
 
-  const setIfString = (k: string, v: unknown) => { if (typeof v === "string" && v.trim() !== "") onInsert[k] = v; };
-  const setIfNumber = (k: string, v: unknown) => { if (typeof v === "number" && Number.isFinite(v)) onInsert[k] = v; };
+  const setIfString = (k: string, v: unknown) => {
+    if (typeof v === "string" && v.trim() !== "") onInsert[k] = v;
+  };
+  const setIfNumber = (k: string, v: unknown) => {
+    if (typeof v === "number" && Number.isFinite(v)) onInsert[k] = v;
+  };
 
   setIfString("provider", input.provider);
   setIfString("extId", input.extId);
@@ -70,7 +76,7 @@ export async function emitStreamEvent(input: EmitInput) {
   const res = await StreamEvent.updateOne(
     { idempotencyKey },
     { $setOnInsert: onInsert },
-    { upsert: true, setDefaultsOnInsert: false }
+    { upsert: true, setDefaultsOnInsert: false },
   );
 
   return { created: Boolean((res as any).upsertedCount), idempotencyKey };

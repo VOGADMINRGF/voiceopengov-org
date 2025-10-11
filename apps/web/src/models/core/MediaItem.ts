@@ -5,9 +5,9 @@ export type MediaKind = "image" | "video" | "audio" | "other";
 
 export interface MediaItem {
   src: string;
-  alt?: string;             // manuell vergeben
+  alt?: string; // manuell vergeben
   gptSuggestedAlt?: string; // KI-Vorschlag
-  approvedAlt?: string;     // redaktionell bestätigt
+  approvedAlt?: string; // redaktionell bestätigt
   type?: MediaKind;
   createdBy?: string;
   createdAt?: Date;
@@ -19,9 +19,13 @@ export const MediaItemSchema = new Schema<MediaItem>(
     alt: { type: String, trim: true },
     gptSuggestedAlt: { type: String, trim: true },
     approvedAlt: { type: String, trim: true },
-    type: { type: String, enum: ["image", "video", "audio", "other"], default: "image" },
+    type: {
+      type: String,
+      enum: ["image", "video", "audio", "other"],
+      default: "image",
+    },
     createdBy: { type: String, trim: true },
     createdAt: { type: Date, default: Date.now },
   },
-  { _id: false }
+  { _id: false },
 );

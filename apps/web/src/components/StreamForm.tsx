@@ -18,19 +18,38 @@ export default function StreamForm({ stream = {}, onSave, onCancel }: any) {
   }
 
   return (
-    <form className="bg-white p-6 rounded-xl shadow-xl mb-6" onSubmit={handleSubmit}>
-      <h2 className="font-semibold text-lg mb-4">{stream._id ? "Stream bearbeiten" : "Stream anlegen"}</h2>
+    <form
+      className="bg-white p-6 rounded-xl shadow-xl mb-6"
+      onSubmit={handleSubmit}
+    >
+      <h2 className="font-semibold text-lg mb-4">
+        {stream._id ? "Stream bearbeiten" : "Stream anlegen"}
+      </h2>
       <div className="mb-3">
         <label className="block text-sm mb-1">Titel</label>
-        <input value={title} onChange={e => setTitle(e.target.value)} required className="w-full border rounded p-2" />
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+          className="w-full border rounded p-2"
+        />
       </div>
       <div className="mb-3">
         <label className="block text-sm mb-1">Thema</label>
-        <input value={topic} onChange={e => setTopic(e.target.value)} required className="w-full border rounded p-2" />
+        <input
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
+          required
+          className="w-full border rounded p-2"
+        />
       </div>
       <div className="mb-3">
         <label className="block text-sm mb-1">Status</label>
-        <select value={status} onChange={e => setStatus(e.target.value)} className="w-full border rounded p-2">
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          className="w-full border rounded p-2"
+        >
           <option>Geplant</option>
           <option>Live</option>
           <option>Replay</option>
@@ -38,8 +57,19 @@ export default function StreamForm({ stream = {}, onSave, onCancel }: any) {
         </select>
       </div>
       <div className="flex gap-2 mt-4">
-        <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded">Speichern</button>
-        <button type="button" onClick={onCancel} className="bg-gray-200 px-4 py-2 rounded">Abbrechen</button>
+        <button
+          type="submit"
+          className="bg-indigo-600 text-white px-4 py-2 rounded"
+        >
+          Speichern
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="bg-gray-200 px-4 py-2 rounded"
+        >
+          Abbrechen
+        </button>
       </div>
     </form>
   );

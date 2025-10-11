@@ -1,14 +1,18 @@
+import { env } from "@/utils/env";
 import { Database } from "arangojs";
 
-const url = process.env.ARANGO_URL as string;
-const dbName = (process.env.ARANGO_DB as string) || "vog";
-const user = process.env.ARANGO_USER as string;
-const password = process.env.ARANGO_PASSWORD as string;
-
-let db: Database | null = null;
+let db: any = null;
 
 export function getArango() {
-  if (!url || !user || !password) throw new Error("ARANGO env missing");
+  const url = env.ARANGO_URL;
+  const user = env.ARANGO_USER;
+  const password = env.ARANGO_ROOT_PASSWORD;
+  const dbName = env.ARANGO_DB;
+
+  if (!url || !user || !password || !dbName) {
+    throw new Error("ARANGO env missing (ARANGO_URL/ARANGO_USER/ARANGO_ROOT_PASSWORD/ARANGO_DB)");
+  }
+
   if (!db) {
     db = new Database({ url });
     db.useBasicAuth(user, password);

@@ -2,7 +2,9 @@
 import { redirect } from "next/navigation";
 import { getServerUser } from "@/lib/auth/getServerUser";
 import ReportPage from "@features/report/components/ReportPage";
-import UserHydrator, { type User as HydratorUser } from "@features/user/components/UserHydrator";
+import UserHydrator, {
+  type User as HydratorUser,
+} from "@features/user/components/UserHydrator";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

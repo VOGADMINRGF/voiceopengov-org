@@ -8,7 +8,10 @@ export type AppError = {
   status?: number;
 };
 
-export function formatError(err: unknown, opts?: { code?: string; status?: number }): AppError {
+export function formatError(
+  err: unknown,
+  opts?: { code?: string; status?: number },
+): AppError {
   const traceId = crypto.randomBytes(8).toString("hex");
   const base = err instanceof Error ? err.message : String(err);
   return {

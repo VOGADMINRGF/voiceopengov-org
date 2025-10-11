@@ -1,11 +1,32 @@
+//apps/web/src/lib/vote/stats.ts
+
 import { Types } from "mongoose";
-import { VoteModel } from "@/models/Vote";
+import { VoteModel } from "@/models/votes/Vote";
 import { redisPublish } from "@/lib/redis"; // nur für Invalidation-Event, optional
 
-type Totals = { agree: number; neutral: number; disagree: number; total: number; pctAgree: number; pctNeutral: number; pctDisagree: number };
-type CountryRow = { country: string; agree: number; neutral: number; disagree: number; total: number; pctAgree: number; pctNeutral: number; pctDisagree: number };
+type Totals = {
+  agree: number;
+  neutral: number;
+  disagree: number;
+  total: number;
+  pctAgree: number;
+  pctNeutral: number;
+  pctDisagree: number;
+};
+type CountryRow = {
+  country: string;
+  agree: number;
+  neutral: number;
+  disagree: number;
+  total: number;
+  pctAgree: number;
+  pctNeutral: number;
+  pctDisagree: number;
+};
 
-function pctOf(total: number, n: number) { return total ? Math.round((n / total) * 1000) / 10 : 0; }
+function pctOf(total: number, n: number) {
+  return total ? Math.round((n / total) * 1000) / 10 : 0;
+}
 
 export async function getVoteStats(statementId: string) {
   const Vote = await VoteModel();
@@ -15,15 +36,21 @@ export async function getVoteStats(statementId: string) {
     { $match: { statementId: sid, deletedAt: { $exists: false } } },
     {
       $facet: {
-        totals: [
-          { $group: { _id: "$choice", c: { $sum: 1 } } },
-        ],
+        totals: [{ $group: { _id: "$choice", c: { $sum: 1 } } }],
         byCountry: [
           { $match: { "region.country": { $type: "string" } } },
-          { $group: { _id: { country: { $toUpper: "$region.country" }, choice: "$choice" }, c: { $sum: 1 } } },
+          {
+            $group: {
+              _id: {
+                country: { $toUpper: "$region.country" },
+                choice: "$choice",
+              },
+              c: { $sum: 1 },
+            },
+          },
         ],
-      }
-    }
+      },
+    },
   ]).allowDiskUse(true);
 
   // totals
@@ -31,7 +58,10 @@ export async function getVoteStats(statementId: string) {
   for (const t of res?.totals ?? []) tMap[t._id] = t.c;
   const total = tMap.agree + tMap.neutral + tMap.disagree;
   const totals: Totals = {
-    agree: tMap.agree, neutral: tMap.neutral, disagree: tMap.disagree, total,
+    agree: tMap.agree,
+    neutral: tMap.neutral,
+    disagree: tMap.disagree,
+    total,
     pctAgree: pctOf(total, tMap.agree),
     pctNeutral: pctOf(total, tMap.neutral),
     pctDisagree: pctOf(total, tMap.disagree),
@@ -42,7 +72,17 @@ export async function getVoteStats(statementId: string) {
   for (const r of res?.byCountry ?? []) {
     const c = r._id.country;
     if (!c) continue;
-    if (!cMap.has(c)) cMap.set(c, { country: c, agree: 0, neutral: 0, disagree: 0, total: 0, pctAgree: 0, pctNeutral: 0, pctDisagree: 0 });
+    if (!cMap.has(c))
+      cMap.set(c, {
+        country: c,
+        agree: 0,
+        neutral: 0,
+        disagree: 0,
+        total: 0,
+        pctAgree: 0,
+        pctNeutral: 0,
+        pctDisagree: 0,
+      });
     const row = cMap.get(c)!;
     (row as any)[r._id.choice] += r.c;
     row.total += r.c;
@@ -66,17 +106,33 @@ export async function getVoteTimeseries(statementId: string, days = 30) {
   since.setUTCHours(0, 0, 0, 0);
 
   const rows = await Vote.aggregate([
-    { $match: { statementId: sid, deletedAt: { $exists: false }, day: { $gte: since } } },
+    {
+      $match: {
+        statementId: sid,
+        deletedAt: { $exists: false },
+        day: { $gte: since },
+      },
+    },
     { $group: { _id: { day: "$day", choice: "$choice" }, c: { $sum: 1 } } },
     { $sort: { "_id.day": 1 } },
   ]).allowDiskUse(true);
 
-  const out: Array<{ day: string; agree: number; neutral: number; disagree: number; total: number }> = [];
+  const out: Array<{
+    day: string;
+    agree: number;
+    neutral: number;
+    disagree: number;
+    total: number;
+  }> = [];
   for (const r of rows) {
     const day = new Date(r._id.day).toISOString().slice(0, 10);
     let row = out.find((x) => x.day === day);
-    if (!row) { row = { day, agree: 0, neutral: 0, disagree: 0, total: 0 }; out.push(row); }
-    (row as any)[r._id.choice] += r.c; row.total += r.c;
+    if (!row) {
+      row = { day, agree: 0, neutral: 0, disagree: 0, total: 0 };
+      out.push(row);
+    }
+    (row as any)[r._id.choice] += r.c;
+    row.total += r.c;
   }
   return out;
 }

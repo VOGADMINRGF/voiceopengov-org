@@ -1,5 +1,13 @@
 // apps/web/src/lib/validation/contentValidation.ts
-import { ContentKind, RegionMode, Locale } from "@db-web";
+
+// ✅ Prisma-Enums aus @db-web (Runtime-Objekte)
+import { ContentKind, RegionMode, Locale, type Prisma } from "@db/web";
+
+// Kleine Helper-Typen, um die Enum-Werte sauber zu referenzieren
+type EnumValue<T extends Record<string, string>> = T[keyof T];
+type ContentKindValue = EnumValue<typeof ContentKind>;
+type RegionModeValue = EnumValue<typeof RegionMode>;
+type LocaleValue = EnumValue<typeof Locale>;
 
 // ---- Types ----
 export type AnswerOptionInput = {
@@ -18,14 +26,14 @@ export interface ValidationResult {
 }
 
 export interface ItemDraftInput {
-  kind: ContentKind;
+  kind: ContentKindValue;
   text: string;
   topicId: string;
-  regionMode: RegionMode;
+  regionMode: RegionModeValue;
   regionManualId?: string | null;
   publishAt?: string | Date | null;
   expireAt?: string | Date | null;
-  locale?: Locale | string;
+  locale?: LocaleValue | string;
   answerOptions?: AnswerOptionInput[];
 }
 
@@ -41,89 +49,189 @@ function isNonEmpty(s: unknown): s is string {
 function uniq<T>(arr: T[]): T[] {
   return Array.from(new Set(arr));
 }
+function isEnumValue<T extends Record<string, string>>(
+  e: T,
+  v: unknown,
+): v is T[keyof T] {
+  return Object.values(e as Record<string, string>).includes(
+    String(v),
+  ) as boolean;
+}
+function asInt(v: unknown): number | null {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
 
-// ---- Core validation ----
-export async function validateItemDraft(input: ItemDraftInput): Promise<ValidationResult> {
+// ---- Validation ----
+export function validateItemDraft(input: ItemDraftInput): ValidationResult {
   const errors: ValidationResult["errors"] = [];
 
   // kind
-  if (!Object.values(ContentKind).includes(input.kind)) {
-    errors.push({ field: "kind", code: "INVALID_KIND", message: "Ungültiger Content-Typ." });
+  if (!isEnumValue(ContentKind, input.kind)) {
+    errors.push({
+      field: "kind",
+      code: "invalid_kind",
+      message: `Ungültiger ContentKind-Wert: ${String(input.kind)}`,
+    });
   }
 
   // text
   if (!isNonEmpty(input.text)) {
-    errors.push({ field: "text", code: "REQUIRED", message: "Text darf nicht leer sein." });
-  } else if (input.text.length > 10_000) {
-    errors.push({ field: "text", code: "TOO_LONG", message: "Text ist zu lang (max. 10.000 Zeichen)." });
+    errors.push({
+      field: "text",
+      code: "required",
+      message: "Text darf nicht leer sein.",
+    });
   }
 
   // topicId
   if (!isNonEmpty(input.topicId)) {
-    errors.push({ field: "topicId", code: "REQUIRED", message: "Topic ist erforderlich." });
+    errors.push({
+      field: "topicId",
+      code: "required",
+      message: "topicId ist erforderlich.",
+    });
   }
 
-  // region
-  if (!Object.values(RegionMode).includes(input.regionMode)) {
-    errors.push({ field: "regionMode", code: "INVALID_REGION_MODE", message: "Ungültiger Regionsmodus." });
+  // regionMode
+  if (!isEnumValue(RegionMode, input.regionMode)) {
+    errors.push({
+      field: "regionMode",
+      code: "invalid_region_mode",
+      message: `Ungültiger RegionMode-Wert: ${String(input.regionMode)}`,
+    });
   }
-  if (input.regionMode === RegionMode.MANUAL && !isNonEmpty(input.regionManualId)) {
-    errors.push({ field: "regionManualId", code: "REQUIRED", message: "Manuelle Region ist erforderlich." });
+
+  // regionManualId (nur prüfen, wenn gesetzt)
+  if (input.regionManualId != null && input.regionManualId !== undefined) {
+    if (!isNonEmpty(input.regionManualId)) {
+      errors.push({
+        field: "regionManualId",
+        code: "invalid_region_manual",
+        message: "regionManualId darf, wenn vorhanden, nicht leer sein.",
+      });
+    }
   }
 
   // publish/expire
-  const publishAt = toDate(input.publishAt);
-  const expireAt = toDate(input.expireAt);
-  if (publishAt && expireAt && publishAt.getTime() >= expireAt.getTime()) {
-    errors.push({ field: "expireAt", code: "RANGE", message: "expireAt muss nach publishAt liegen." });
+  const pub = toDate(input.publishAt ?? null);
+  const exp = toDate(input.expireAt ?? null);
+
+  if (input.publishAt != null && !pub) {
+    errors.push({
+      field: "publishAt",
+      code: "invalid_date",
+      message: "publishAt ist kein gültiges Datum.",
+    });
+  }
+  if (input.expireAt != null && !exp) {
+    errors.push({
+      field: "expireAt",
+      code: "invalid_date",
+      message: "expireAt ist kein gültiges Datum.",
+    });
+  }
+  if (pub && exp && exp.getTime() <= pub.getTime()) {
+    errors.push({
+      field: "expireAt",
+      code: "range",
+      message: "expireAt muss nach publishAt liegen.",
+    });
   }
 
-  // locale (optional, aber wenn gesetzt, prüfen)
-  if (input.locale && !Object.values(Locale as any).includes(input.locale as any)) {
-    errors.push({ field: "locale", code: "INVALID_LOCALE", message: "Ungültiges Locale." });
+  // locale (optional: Enum ODER freier String)
+  if (input.locale != null) {
+    const l = String(input.locale);
+    const allowed = Object.values(Locale as Record<string, string>);
+    const isAllowed = allowed.includes(l);
+    // Kein Fehler, wenn als freier String zugelassen werden soll – dann nur "säubern"
+    if (!isAllowed && !isNonEmpty(l)) {
+      errors.push({
+        field: "locale",
+        code: "invalid_locale",
+        message: "locale ist leer oder ungültig.",
+      });
+    }
   }
 
-  // answerOptions (für SWIPE/SUNDAY_POLL etc. sinnvoll)
+  // answerOptions (optional, aber wenn vorhanden, validieren)
   if (Array.isArray(input.answerOptions)) {
-    const opts = input.answerOptions;
-    if (opts.length === 0) {
-      errors.push({ field: "answerOptions", code: "EMPTY", message: "Mindestens eine Option erforderlich." });
-    }
-    const vals = opts.map(o => (o.value ?? "").toString().trim()).filter(Boolean);
-    const labels = opts.map(o => (o.label ?? "").toString().trim()).filter(Boolean);
-    if (uniq(vals).length !== vals.length) {
-      errors.push({ field: "answerOptions", code: "DUP_VALUE", message: "Option-Werte müssen eindeutig sein." });
-    }
-    if (uniq(labels).length !== labels.length) {
-      errors.push({ field: "answerOptions", code: "DUP_LABEL", message: "Option-Labels müssen eindeutig sein." });
-    }
-  }
+    const seenValues: string[] = [];
+    input.answerOptions.forEach((opt, idx) => {
+      const idxLabel = `answerOptions[${idx}]`;
 
-  // regionAuto – hier ggf. Geo-Logik einhängen; Dummy vorerst:
-  const regionAuto = input.regionMode === RegionMode.AUTO ? { country: null, regionCode: null } : null;
+      if (!isNonEmpty(opt.label)) {
+        errors.push({
+          field: `${idxLabel}.label`,
+          code: "required",
+          message: "label darf nicht leer sein.",
+        });
+      }
+      if (!isNonEmpty(opt.value)) {
+        errors.push({
+          field: `${idxLabel}.value`,
+          code: "required",
+          message: "value darf nicht leer sein.",
+        });
+      } else {
+        const v = String(opt.value);
+        if (seenValues.includes(v)) {
+          errors.push({
+            field: `${idxLabel}.value`,
+            code: "duplicate",
+            message: `value '${v}' ist nicht einzigartig.`,
+          });
+        }
+        seenValues.push(v);
+      }
+
+      if (opt.order != null) {
+        const n = asInt(opt.order);
+        if (n == null) {
+          errors.push({
+            field: `${idxLabel}.order`,
+            code: "invalid_number",
+            message: "order muss eine Zahl sein.",
+          });
+        }
+      }
+    });
+
+    // Optional: Reihenfolge-Check auf Eindeutigkeit (nur wenn alle numerisch sind)
+    const numericOrders = input.answerOptions
+      .map((o) => (o.order == null ? null : asInt(o.order)))
+      .filter((v): v is number => v != null);
+
+    if (
+      numericOrders.length > 0 &&
+      uniq(numericOrders).length !== numericOrders.length
+    ) {
+      errors.push({
+        field: "answerOptions",
+        code: "duplicate_order",
+        message: "order-Werte der answerOptions müssen eindeutig sein.",
+      });
+    }
+  } else if (input.answerOptions != null) {
+    errors.push({
+      field: "answerOptions",
+      code: "invalid",
+      message: "answerOptions muss ein Array sein.",
+    });
+  }
 
   return {
-    ok: !errors.length,
+    ok: (errors?.length ?? 0) === 0,
     errors: errors.length ? errors : undefined,
-    regionAuto,
+    regionAuto: null, // Platzhalter – kann bei Bedarf in der Aufrufer-Logik gesetzt werden
   };
 }
 
-// ---- Wrapper, damit bestehende Call-Sites kompatibel bleiben ----
-export function validateContentItem(input: ItemDraftInput): Promise<ValidationResult> {
-  return validateItemDraft(input);
-}
-export const validateCreateItem = validateContentItem;
-export const validateUpdateItem = validateContentItem;
-
-export function sanitizeContentItem<T>(x: T): T {
-  return x;
-}
-
-export default {
-  validateItemDraft,
-  validateContentItem,
-  validateCreateItem,
-  validateUpdateItem,
-  sanitizeContentItem,
+// ---- Optionale Re-Exports / Nützliches ----
+export const Allowed = {
+  ContentKind: Object.values(ContentKind) as ContentKindValue[],
+  RegionMode: Object.values(RegionMode) as RegionModeValue[],
+  Locale: Object.values(Locale) as LocaleValue[],
 };
+
+export type { Prisma };

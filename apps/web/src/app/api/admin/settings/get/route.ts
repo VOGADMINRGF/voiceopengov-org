@@ -10,12 +10,6 @@ async function isAdmin() {
   return c.get("u_role")?.value === "admin";
 }
 
-const DEFAULTS = {
-  requireLocation: true,
-  requireEmailVerified: true,
-  require2FAForReports: false,
-};
-
 export async function GET() {
   if (!(await isAdmin())) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });

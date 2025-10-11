@@ -7,11 +7,12 @@ import { cookies } from "next/headers";
 
 /** -------- Utils -------- */
 function headerCountry(h: Headers): string | null {
-  const v =
-    (h.get("x-country") ||
-      h.get("cf-ipcountry") ||
-      h.get("x-vercel-ip-country") ||
-      "")?.toUpperCase();
+  const v = (
+    h.get("x-country") ||
+    h.get("cf-ipcountry") ||
+    h.get("x-vercel-ip-country") ||
+    ""
+  )?.toUpperCase();
   return v || null;
 }
 
@@ -39,18 +40,30 @@ async function findRegionPayload(code: string) {
     try {
       const r = await prismaWeb.region.findUnique({ where: { code } });
       if (r) return { id: r.id, code: r.code, name: r.name, level: r.level };
-    } catch { /* noop */ }
+    } catch {
+      /* noop */
+    }
   }
   // Fallback: nur Code
-  return { code } as { id?: string; code: string; name?: string; level?: number };
+  return { code } as {
+    id?: string;
+    code: string;
+    name?: string;
+    level?: number;
+  };
 }
 
 /** Optionaler Profil-Fallback: nur wenn next-auth + authOptions vorhanden sind */
-async function getProfileRegionFromSession():
-  Promise<{ id?: string; code: string; name?: string; level?: number } | null> {
+async function getProfileRegionFromSession(): Promise<{
+  id?: string;
+  code: string;
+  name?: string;
+  level?: number;
+} | null> {
   try {
     const nextAuthMod: any = await import("next-auth");
-    const getServerSession: (opts: any) => Promise<any> = nextAuthMod.getServerSession;
+    const getServerSession: (opts: any) => Promise<any> =
+      nextAuthMod.getServerSession;
 
     // "@/lib/auth" darf fehlen → wenn Import scheitert, abbrechen
     const authMod: any = await import("src/lib/auth");
@@ -61,7 +74,9 @@ async function getProfileRegionFromSession():
     if (!prismaWeb?.userProfile) return null;
 
     const session: any = await getServerSession(authOptions);
-    const userId: string | null = session?.user?.id ? String(session.user.id) : null;
+    const userId: string | null = session?.user?.id
+      ? String(session.user.id)
+      : null;
     if (!userId) return null;
 
     const prof = await prismaWeb.userProfile.findUnique({
@@ -92,10 +107,14 @@ export async function GET(req: NextRequest) {
 
   // 2) Manuell: Query oder Cookie (Next 15: cookies() kann async sein)
   const url = new URL(req.url);
-  const qManual = normalize(url.searchParams.get("region") || url.searchParams.get("code"));
+  const qManual = normalize(
+    url.searchParams.get("region") || url.searchParams.get("code"),
+  );
   const c = await cookies();
   // akzeptiere sowohl "region_code" (neu) als auch "u_region" (legacy)
-  const cookieManual = normalize(c.get("region_code")?.value || c.get("u_region")?.value);
+  const cookieManual = normalize(
+    c.get("region_code")?.value || c.get("u_region")?.value,
+  );
 
   if (qManual) {
     const region = await findRegionPayload(qManual);

@@ -7,7 +7,13 @@ import { useState } from "react";
  * @param tabs Die Tab-Beschriftungen
  * @param children Jeweils ein Child pro Tab (Reihenfolge beachten!)
  */
-export default function TabNav({ tabs, children }: { tabs: string[]; children: React.ReactNode[] }) {
+export default function TabNav({
+  tabs,
+  children,
+}: {
+  tabs: string[];
+  children: React.ReactNode[];
+}) {
   const [tab, setTab] = useState(0);
   return (
     <div>

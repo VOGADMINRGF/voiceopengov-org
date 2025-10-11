@@ -1,6 +1,6 @@
 // apps/web/src/app/api/topics/route.ts
 import { NextResponse } from "next/server";
-import { prismaWeb as db } from "@/lib/dbWeb";
+import { prisma as db } from "@/lib/dbWeb";
 
 export async function GET(req: Request) {
   try {
@@ -28,9 +28,16 @@ export async function GET(req: Request) {
       },
     });
 
-    return NextResponse.json({ topics, locale: locale ?? null, asOf: now.toISOString() });
+    return NextResponse.json({
+      topics,
+      locale: locale ?? null,
+      asOf: now.toISOString(),
+    });
   } catch (err) {
     console.error("GET /api/topics error:", err);
-    return NextResponse.json({ error: "INTERNAL_SERVER_ERROR" }, { status: 500 });
+    return NextResponse.json(
+      { error: "INTERNAL_SERVER_ERROR" },
+      { status: 500 },
+    );
   }
 }

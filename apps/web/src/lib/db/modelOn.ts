@@ -1,9 +1,17 @@
-import type { Connection, Model, Schema } from "mongoose";
+// apps/web/src/lib/db/modelOn.ts
 
-/**
- * Registriert ein Model *auf einer Connection*, ohne globale mongoose.models zu verwenden.
- * Verhindert "OverwriteModelError" bei Hot Reload.
- */
-export function modelOn<T>(conn: Connection, name: string, schema: Schema, collection?: string): Model<T> {
-  return (conn.models[name] as Model<T>) || conn.model<T>(name, schema, collection);
+// Minimales, tolerantes modelOn – keine harten mongoose-Generics nötig
+export function modelOn<T = any>(
+  conn: any,
+  name: string,
+  schema: any,
+  collection?: string,
+): any {
+  const existing = conn?.models?.[name];
+  if (existing) return existing;
+  return conn?.model
+    ? conn.model(name, schema, collection)
+    : {
+        /* noop */
+      };
 }

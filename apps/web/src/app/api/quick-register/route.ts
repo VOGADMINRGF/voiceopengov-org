@@ -1,20 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { rateLimit } from "@/utils/rateLimiter";        // mit '/‘
+import { rateLimit } from "@/utils/rateLimiter"; // mit '/‘
 import { getServerSession } from "next-auth";
-import { authOptions } from "@lib/auth";                 // ohne '/‘
+import { authOptions } from "@lib/auth"; // ohne '/‘
 import { piiConn } from "@lib/db/pii";
 import { getQuickSignupModel } from "@lib/pii/QuickSignup";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-const BodyZ = z.object({
-  name: z.string().trim().min(1).max(120).nullable().optional(),
-  email: z.string().email().max(190).nullable().optional(),
-  consent: z.boolean(),
-  source: z.string().max(64).optional().default("quick"),
-});
 
 export async function POST(req: NextRequest) {
   const ipHeader = req.headers.get("x-forwarded-for");
@@ -31,7 +24,7 @@ export async function POST(req: NextRequest) {
           "X-RateLimit-Remaining": "0",
           "X-RateLimit-Reset": String(rl.resetSec),
         },
-      }
+      },
     );
   }
 
@@ -77,7 +70,7 @@ export async function POST(req: NextRequest) {
           "Cache-Control": "no-store",
           "X-RateLimit-Remaining": String(rl.remaining),
         },
-      }
+      },
     );
 
     res.cookies.set("u_quick", String(doc._id), {
@@ -93,7 +86,7 @@ export async function POST(req: NextRequest) {
     if (err?.name === "ZodError") {
       return NextResponse.json(
         { error: "invalid_request", issues: err.issues },
-        { status: 400 }
+        { status: 400 },
       );
     }
     console.error("[quick-register]", err);
@@ -102,7 +95,7 @@ export async function POST(req: NextRequest) {
         error: "internal_error",
         detail: String(err?.message ?? err),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

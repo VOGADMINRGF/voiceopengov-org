@@ -5,7 +5,8 @@ import { useFactcheckJob } from "@/hooks/useFactcheckJob";
 
 export default function Demo() {
   const [input, setInput] = useState("");
-  const { jobId, status, claims, loading, error, enqueue, done } = useFactcheckJob();
+  const { jobId, status, claims, loading, error, enqueue, done } =
+    useFactcheckJob();
 
   return (
     <div className="p-6 space-y-4">
@@ -35,7 +36,8 @@ export default function Demo() {
             <div key={c.id} className="border rounded p-3">
               <div className="font-medium">{c.text}</div>
               <div className="text-sm">
-                Konsens: {c.consensus?.verdict ?? "—"} ({Math.round((c.consensus?.confidence ?? 0) * 100)}%)
+                Konsens: {c.consensus?.verdict ?? "—"} (
+                {Math.round((c.consensus?.confidence ?? 0) * 100)}%)
               </div>
             </div>
           ))}
