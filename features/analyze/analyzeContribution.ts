@@ -1,321 +1,262 @@
-import { needsClarify, clarifyForPrices } from "./clarify";
-import { callOpenAIJson } from "../ai/providers";
+// apps/web/src/features/analyze/analyzeContribution.ts
+import { AnalyzeResultSchema } from "./schemas";
+import type { AnalyzeResult, StatementRecord } from "./schemas";
+import { callOpenAIJson } from "@features/ai";
 
-/* =======================
- * Typen
- * ======================= */
-
-export type Claim = {
+export type AnalyzeInput = {
   text: string;
-  categoryMain?: string | null;
-  categorySubs?: string[];
-  region?: string | null;
-  authority?: string | null;
-  canon?: string | null;
-  // v2 (optional, wenn Modell liefert)
-  specificity?: number;       // 0..1
-  needsClarify?: boolean;
+  locale?: string; // "de" | "en" | ...
+  maxClaims?: number;
 };
 
-type Organ = {
-  level: "EU" | "Bund" | "Land" | "Kommune" | "Behörde";
-  name: string;
-  why: string;
-};
+// User-Wunsch: MaxClaims wieder auf 20
+const DEFAULT_MAX_CLAIMS = 20;
 
-type Trust = {
-  score: number;              // 0..1
-  reasons: string[];
-  riskFlags: string[];
-};
+/* ---------- Prompt-Bausteine ---------- */
 
-type Newsroom = {
-  queries: string[];
-  angles: string[];
-  watch: string[];
-};
+function buildSystemPrompt(locale: string = "de"): string {
+  const isDe = locale.toLowerCase().startsWith("de");
 
-type WeightsUpdated = {
-  specificity: number;
-  sources: number;
-  organ_alignment: number;
-  region_link: number;
-  feasibility: number;
-};
+  if (isDe) {
+    return [
+      "Du bist eine unparteiische redaktionelle KI für eDebatte / VoiceOpenGov.",
+      "Du erfüllst einen demokratischen Bildungsauftrag:",
+      "- Du hilfst Bürger:innen, komplexe Themen zu verstehen, abzuwägen und fundiert zu entscheiden.",
+      "- Du gibst KEINE Empfehlung, wie man abstimmen soll.",
+      "",
+      "WICHTIG:",
+      "- Du arbeitest streng textbasiert.",
+      "- Du erfindest keine Fakten und keine Inhalte, die im Text nicht angelegt sind.",
+      "- Wenn du unsicher bist, lässt du Felder leer statt zu raten.",
+    ].join("\n");
+  }
 
-type ClarifyCTAFromModel = {
-  title?: string;
-  hint?: string;
-  options?: string[];
-} | null;
-
-export type AnalyzeResult = {
-  language: string | null;
-  mainTopic: string | null;
-  subTopics: string[];
-  regionHint: string | null;
-  claims: Claim[];
-  organs?: Organ[];           // v2
-  trust?: Trust;              // v2
-  newsroom?: Newsroom;        // v2
-  weightsUpdated?: WeightsUpdated; // v2
-  news: any[];
-  scoreHints: { baseWeight?: number; reasons?: string[] } | null;
-  // Für die UI belassen wir "cta" (type:"clarify", ask[], options[], quickSources[])
-  cta: any | null;
-  _meta: {
-    mode: "gpt" | "ari" | "error";
-    errors: string[] | null;
-    tookMs: number;
-    gptMs?: number;
-    ariMs?: number;
-    gptText: string | null;
-  };
-};
-
-/* =======================
- * Mini-Prompt (v2)
- * ======================= */
-
-const MINI_PROMPT = String.raw`You are VOG Analyzer. Output STRICT JSON (RFC8259), no prose.
-Use the MANIFEST and RUBRIC to 1) extract claims, 2) map to political organs, 3) compute trust,
-4) emit an optional clarify CTA for generic price statements, 5) propose newsroom queries/angles.
-
-MANIFEST.topics_to_organs (DE/EU):
-- "Preise/Preiserhöhungen": EU-Kommission (DG COMP, DG ENER), Bund: BMWK; Behörden: Bundeskartellamt, BNetzA; Länder: Wirtschafts-/Verbraucherschutz-Min.; Kommune: Stadtrat (Tarife/ÖPNV).
-- "Lebensmittelpreise": BMEL; Behörden: BLE; Statistik: Destatis; EU: DG AGRI.
-- "Energie/Kraftstoff": BMWK, BMDV; BNetzA; EU: DG ENER.
-- "Mieten/Nebenkosten": BMI/BMWSB; Landesbau-/Mietrecht; Kommune: Mietspiegel, Stadtwerke.
-(Erweitere implizit mit gesundem Menschenverstand, aber bleib konservativ.)
-
-RUBRIC (0..1, additiv):
-- specificity (0.0..0.4) – je konkreter (Branche/Region/Preistyp), desto höher
-- sources (0.0..0.2) – valide Quellen/URLs (z.B. Destatis, Behörden)
-- organ_alignment (0.0..0.2) – passt Topic → zuständige Organe?
-- region_link (0.0..0.1) – erkennbare Region?
-- feasibility (0.0..0.1) – als Maßnahme/Abstimmung formulierbar?
-Total = sum; include reasons.
-
-CLARIFY rule:
-If statement is generic about “Preiserhöhungen/Preise” without subtype (Lebensmittel, Energie, Kraftstoff, Miete, Tarife),
-set needsClarify=true and propose options: ["Lebensmittelpreise","Energiepreise","Kraftstoffpreise","Mieten/Nebenkosten","ÖPNV/Telekom-Tarife"].
-
-FEEDBACK (editorSignals): summarize patterns and adjust weights slightly (±0.05 per strong pattern).
-No free-form text—return newWeights with the deltas applied.
-
-OUTPUT schema:
-{
- "language": "de"|"en"|null,
- "mainTopic": string|null,
- "subTopics": string[],
- "claims": [{
-   "text": string,
-   "categoryMain": string|null,
-   "categorySubs": string[],
-   "specificity": number,
-   "needsClarify": boolean
- }],
- "organs": [{"level":"EU"|"Bund"|"Land"|"Kommune"|"Behörde","name":string,"why":string}],
- "trust": {"score": number, "reasons": string[], "riskFlags": string[]},
- "clarifyCTA": null | {"title":string,"hint":string,"options":string[]},
- "newsroom": {"queries": string[], "angles": string[], "watch": string[]},
- "scoreHints": {"baseWeight": number, "reasons": string[]},
- "weightsUpdated": {"specificity":number,"sources":number,"organ_alignment":number,"region_link":number,"feasibility":number}
+  return [
+    "You are an impartial editorial AI for a digital public debate platform.",
+    "Your role is educational:",
+    "- Help citizens understand complex issues, weigh pros and cons, and decide in an informed way.",
+    "- Do NOT recommend how to vote.",
+    "",
+    "IMPORTANT:",
+    "- Work strictly text-based.",
+    "- Do NOT invent facts or content that is not grounded in the input text.",
+    "- If you are unsure, leave fields empty instead of guessing.",
+  ].join("\n");
 }
 
-== TEXT ==
-<<<INPUT>>
+function buildUserPrompt(
+  text: string,
+  locale: string = "de",
+  maxClaims: number = DEFAULT_MAX_CLAIMS
+): string {
+  const isDe = locale.toLowerCase().startsWith("de");
 
-== EDITOR_SIGNALS_JSON ==
-<<<EDITOR>>`;
+  if (isDe) {
+    return [
+      "AUFGABE:",
+      `1) Zerlege den Beitrag in maximal ${maxClaims} atomare Aussagen (Claims). Jede Aussage:`,
+      "   - ist ein einzelner, prüfbarer Satz;",
+      "   - hat genau eine Kernforderung oder Behauptung;",
+      "   - ist so formuliert, dass man später zustimmen oder ablehnen kann.",
+      "   - ist nach Möglichkeit positiv und konstruktiv formuliert (z.B. „X sollte eingeführt werden“ statt „X wird abgelehnt“).",
+      "   - vermeidet Dopplungen: eng verwandte Inhalte und Kontexte fasst du zu EINEM Claim zusammen.",
+      "",
+      "   Ziel: eher 3–8 gut unterscheidbare Kern-Claims statt sehr vieler ähnlicher Aussagen.",
+      "",
+      "2) Für jeden Claim bestimmst du zusätzlich (sofern möglich):",
+      '   - title: ein sehr kurzer Oberbegriff (max. 6–8 Wörter), z.B. „Stufe 4 als Tierwohl-Standard“.',
+      '   - responsibility: grobe Zuständigkeit, z.B. "EU", "Bund", "Land", "Kommune", "privat", "unbestimmt".',
+      "   Wenn die Ebene unklar ist, nutze „unbestimmt“ oder lasse das Feld weg.",
+      "",
+      "3) Optional kannst du Kontext-Notizen, Fragen und Knoten hinzufügen, aber NUR wenn der Text das eindeutig hergibt.",
+      "   - Wenn etwas unklar ist oder du zu wenig Informationen hast, lasse die Arrays einfach leer.",
+      "",
+      "4) Gib das Ergebnis ausschließlich als JSON mit diesem Shape zurück (keine Markdown-Formatierung, keine ```-Blöcke):",
+      "   {",
+      '     "mode": "E150",',
+      '     "sourceText": "...",',
+      '     "language": "de",',
+      '     "claims": [ { "id": "...", "title": "...", "text": "...", "responsibility": "Bund" } ],',
+      '     "notes": [ { "id": "...", "text": "..." } ],',
+      '     "questions": [ { "id": "...", "text": "..." } ],',
+      '     "knots": [ { "id": "...", "label": "...", "description": "..." } ]',
+      "   }",
+      "",
+      "5) Gib NUR den JSON-Text zurück – keine Erklärungen, keine Kommentare, keine Markdown-Formatierung.",
+      "",
+      "BEITRAG:",
+      text,
+    ].join("\n");
+  }
 
-/* =======================
- * Analyzer
- * ======================= */
+  // EN-Variante analog, lasse ich der Kürze halber weg;
+  // hier kannst du 1:1 an deine bisherige englische Version anlehnen
+  // und ebenfalls title/responsibility beschreiben.
+  return [
+    "TASK:",
+    `1) Split the contribution into at most ${maxClaims} atomic statements (claims). Each claim:`,
+    "   - is a single, verifiable sentence;",
+    "   - has exactly one core demand or assertion;",
+    "   - is phrased so people could later agree or disagree.",
+    "   - is phrased as a positive, constructive statement whenever possible.",
+    "   - avoids duplicates: merge closely related content into ONE claim.",
+    "",
+    "   Aim for about 3–8 distinct core claims rather than many small variations.",
+    "",
+    "2) For each claim you must also provide (if possible):",
+    '   - title: a very short label (max. 6–8 words).',
+    '   - responsibility: one of "EU", "Bund", "Land", "Kommune", "privat", "unbestimmt" or leave it empty.',
+    "",
+    "3) You MAY add notes, questions and knots, but ONLY if the text clearly supports them.",
+    "",
+    "4) Return ONLY raw JSON with this shape (no markdown, no ``` blocks):",
+    "   {",
+    '     "mode": "E150",',
+    '     "sourceText": "...",',
+    '     "language": "en" or "de",',
+    '     "claims": [ { "id": "...", "title": "...", "text": "...", "responsibility": "Bund" } ],',
+    '     "notes": [ { "id": "...", "text": "..." } ],',
+    '     "questions": [ { "id": "...", "text": "..." } ],',
+    '     "knots": [ { "id": "...", "label": "...", "description": "..." } ]',
+    "   }",
+    "",
+    "CONTRIBUTION:",
+    text,
+  ].join("\n");
+}
+
+/* ---------- Claim-Normalisierung (ohne Fallback) ---------- */
+
+function normalizeStatementRecord(
+  raw: any,
+  idx: number
+): StatementRecord | null {
+  if (!raw || typeof raw.text !== "string") return null;
+  const text = raw.text.trim();
+  if (!text) return null;
+
+  const id =
+    typeof raw.id === "string" && raw.id.trim().length > 0
+      ? raw.id.trim()
+      : `claim-${idx + 1}`;
+
+  const rec: any = { id, text };
+
+  if (typeof raw.title === "string" && raw.title.trim().length > 0) {
+    rec.title = raw.title.trim();
+  }
+
+  if (typeof raw.responsibility === "string") {
+    rec.responsibility = raw.responsibility;
+  }
+  if (
+    typeof raw.importance === "number" &&
+    Number.isFinite(raw.importance)
+  ) {
+    rec.importance = Math.min(5, Math.max(1, Math.round(raw.importance)));
+  }
+  if (typeof raw.topic === "string") {
+    rec.topic = raw.topic;
+  }
+  if (typeof raw.domain === "string") {
+    rec.domain = raw.domain;
+  }
+  if (
+    raw.stance === "pro" ||
+    raw.stance === "contra" ||
+    raw.stance === "neutral"
+  ) {
+    rec.stance = raw.stance;
+  }
+
+  return rec as StatementRecord;
+}
+
+/* ---------- Hauptfunktion ---------- */
 
 export async function analyzeContribution(
-  text: string,
-  opts: {
-    maxClaims?: number;
-    context?: { editorSignals?: any };
-    debug?: boolean;
-    // optionaler Hook für zukünftige ARI/Suche (siehe unten)
-    searchFn?: (queries: string[]) => Promise<{ news?: any[] }>;
-  } = {}
+  input: AnalyzeInput
 ): Promise<AnalyzeResult> {
-  const t0 = Date.now();
-  const errs: string[] = [];
-  const maxClaims = Math.max(1, Number(opts.maxClaims ?? 5));
-
-  let outText = "";
-  let gptMs = 0;
-
-  // Prompt mit Editor-Signalen füllen
-  const prompt = MINI_PROMPT
-    .replace("<<<INPUT>>>", text)
-    .replace("<<<EDITOR>>>", JSON.stringify(opts?.context?.editorSignals ?? {}));
-
-  let parsed: any = {};
-  try {
-    const tCall0 = Date.now();
-    const { text: t } = await callOpenAIJson(prompt, 1600);
-    gptMs = Date.now() - tCall0;
-    outText = String(t || "");
-    parsed = JSON.parse(outText || "{}");
-  } catch (e: any) {
-    errs.push("GPT JSON parse failed: " + String(e?.message || e));
-    parsed = {};
+  const sourceText = input.text?.trim() ?? "";
+  if (!sourceText) {
+    throw new Error("analyzeContribution: input.text ist leer");
   }
 
-  // 🧹 Claims normalisieren (DE: „opinion“ → „Meinung“)
-  const claims: Claim[] = Array.isArray(parsed?.claims)
-    ? (parsed.claims as any[])
-        .slice(0, maxClaims)
-        .map((c): Claim => {
-          const rawCat = c?.categoryMain ?? null;
-          const catDE =
-            rawCat && String(rawCat).toLowerCase() === "opinion" ? "Meinung" : rawCat;
-          return {
-            text: String(c?.text || "").trim(),
-            categoryMain: catDE,
-            categorySubs: Array.isArray(c?.categorySubs) ? c.categorySubs : [],
-            region: c?.region ?? null,
-            authority: c?.authority ?? null,
-            canon: c?.canon ?? null,
-            specificity: typeof c?.specificity === "number" ? c.specificity : undefined,
-            needsClarify: Boolean(c?.needsClarify),
-          };
-        })
-        .filter((c) => c.text)
+  const language = (input.locale || "de").toLowerCase();
+  const maxClaims =
+    typeof input.maxClaims === "number" && input.maxClaims > 0
+      ? Math.min(input.maxClaims, DEFAULT_MAX_CLAIMS)
+      : DEFAULT_MAX_CLAIMS;
+
+  const { text: rawText } = await callOpenAIJson({
+    system: buildSystemPrompt(language),
+    user: buildUserPrompt(sourceText, language, maxClaims),
+    max_tokens: 1800,
+  });
+
+  let raw: any;
+  try {
+    let cleaned = rawText.trim();
+
+    if (cleaned.startsWith("```")) {
+      const firstNewline = cleaned.indexOf("\n");
+      if (firstNewline !== -1) {
+        cleaned = cleaned.slice(firstNewline + 1);
+      }
+      const lastFence = cleaned.lastIndexOf("```");
+      if (lastFence !== -1) {
+        cleaned = cleaned.slice(0, lastFence);
+      }
+      cleaned = cleaned.trim();
+    }
+
+    raw = JSON.parse(cleaned);
+  } catch (err) {
+    console.error("[analyzeContribution] JSON-Parse-Fehler:", err, rawText);
+    throw new Error(
+      "AnalyzeContribution: KI-Antwort war kein gültiges JSON. Bitte später erneut versuchen."
+    );
+  }
+
+  const rawClaims = Array.isArray(raw?.claims) ? raw.claims : [];
+  const rawNotes = Array.isArray(raw?.notes) ? raw.notes : [];
+  const rawQuestions = Array.isArray(raw?.questions) ? raw.questions : [];
+  const rawKnots = Array.isArray(raw?.knots) ? raw.knots : [];
+
+  const parsed = AnalyzeResultSchema.safeParse({
+    mode: "E150",
+    sourceText,
+    language,
+    claims: rawClaims,
+    notes: rawNotes,
+    questions: rawQuestions,
+    knots: rawKnots,
+  } as any);
+
+  if (!parsed.success) {
+    console.error(
+      "[analyzeContribution] Zod-Validierung fehlgeschlagen:",
+      parsed.error?.message
+    );
+    throw new Error(
+      "AnalyzeContribution: KI-Antwort entsprach nicht dem erwarteten Schema."
+    );
+  }
+
+  const base: AnalyzeResult = parsed.data;
+
+  const normalizedClaims: StatementRecord[] = Array.isArray(
+    (base as any).claims
+  )
+    ? (base as any).claims
+        .map((c: any, idx: number) => normalizeStatementRecord(c, idx))
+        .filter(
+          (c: StatementRecord | null): c is StatementRecord => c !== null
+        )
     : [];
 
-  // (Optional) Heuristik: „Preiserhöhung“ → Wirtschaft/Preise
-  if (/preiserh[oö]hung/i.test(claims?.[0]?.text || "")) {
-    claims[0] = {
-      ...claims[0],
-      categoryMain: "Wirtschaft",
-      categorySubs: Array.from(new Set([...(claims[0].categorySubs || []), "Preise", "Tarife"])),
-    };
-  }
-
-  // v2-Felder übernehmen, mit defensivem Fallback
-  const organs = Array.isArray(parsed?.organs) ? parsed.organs : [];
-  const trust = parsed?.trust && typeof parsed.trust === "object"
-    ? {
-        score: clamp01(Number(parsed.trust.score ?? 0)),
-        reasons: Array.isArray(parsed.trust.reasons) ? parsed.trust.reasons : [],
-        riskFlags: Array.isArray(parsed.trust.riskFlags) ? parsed.trust.riskFlags : [],
-      }
-    : undefined;
-
-  const newsroom = {
-    queries: Array.isArray(parsed?.newsroom?.queries) ? parsed.newsroom.queries : [],
-    angles: Array.isArray(parsed?.newsroom?.angles) ? parsed.newsroom.angles : [],
-    watch: Array.isArray(parsed?.newsroom?.watch) ? parsed.newsroom.watch : [],
+  return {
+    ...base,
+    claims: normalizedClaims,
   };
-
-  const weightsUpdated =
-    parsed?.weightsUpdated && typeof parsed.weightsUpdated === "object"
-      ? {
-          specificity: Number(parsed.weightsUpdated.specificity ?? 0),
-          sources: Number(parsed.weightsUpdated.sources ?? 0),
-          organ_alignment: Number(parsed.weightsUpdated.organ_alignment ?? 0),
-          region_link: Number(parsed.weightsUpdated.region_link ?? 0),
-          feasibility: Number(parsed.weightsUpdated.feasibility ?? 0),
-        }
-      : undefined;
-
-  // Klassische Felder (Kompatibilität zu v1)
-  const language = parsed?.language ?? null;
-  const mainTopic = parsed?.mainTopic ?? null;
-  const subTopics = Array.isArray(parsed?.subTopics) ? parsed.subTopics : [];
-  const regionHint = parsed?.regionHint ?? null;
-
-  // scoreHints: vom Modell übernehmen oder aus trust ableiten
-  let scoreHints =
-    parsed?.scoreHints && typeof parsed.scoreHints === "object"
-      ? parsed.scoreHints
-      : null;
-
-  if (!scoreHints && trust) {
-    scoreHints = {
-      baseWeight: Math.round(clamp01(trust.score) * 5 * 10) / 10,
-      reasons: trust.reasons || [],
-    };
-  }
-
-  // News-Array
-  let news: any[] = Array.isArray(parsed?.news) ? parsed.news : [];
-
-  // Clarify-CTA
-  let cta: any = null;
-  const clarifyFromModel: ClarifyCTAFromModel = parsed?.clarifyCTA ?? null;
-  if (clarifyFromModel && Array.isArray(clarifyFromModel.options) && clarifyFromModel.options.length) {
-    const pricesPreset = clarifyForPrices?.() || { ask: [], options: [], quickSources: [] };
-    cta = {
-      type: "clarify",
-      ask: [
-        clarifyFromModel.title || "Bitte präzisieren: Welche Preise genau?",
-        clarifyFromModel.hint || "Konkreter = bessere Zuordnung, Faktencheck, Quellen.",
-        ...(pricesPreset.ask || []),
-      ].filter(Boolean),
-      options: clarifyFromModel.options.map((label: string, i: number) => ({ key: `opt${i + 1}`, label })),
-      quickSources: pricesPreset.quickSources || [],
-    };
-  } else {
-    const first = claims?.[0];
-    if (first && needsClarify?.({ text: first.text, categoryMain: first.categoryMain, region: first.region })) {
-      cta = { type: "clarify", ...(clarifyForPrices?.() || {}) };
-    }
-  }
-
-  const resultBase = {
-    language,
-    mainTopic,
-    subTopics,
-    regionHint,
-    claims,
-    organs,
-    trust,
-    newsroom,
-    weightsUpdated,
-    news,
-    scoreHints,
-    cta,
-  };
-
-  // Optional: ARI/Suche
-  let ariMs: number | undefined;
-  if ((resultBase as any) && Array.isArray(newsroom.queries) && newsroom.queries.length && (typeof (opts as any).searchFn === "function")) {
-    const tAri0 = Date.now();
-    try {
-      const res = await (opts as any).searchFn(newsroom.queries);
-      if (res?.news?.length) {
-        (resultBase as any).news = res.news;
-      }
-      ariMs = Date.now() - tAri0;
-    } catch (e: any) {}
-  }
-
-  const meta = {
-    mode: (ariMs ? "ari" : (errs.length ? "error" : "gpt")) as "gpt"|"ari"|"error",
-    errors: errs.length ? errs : null,
-    tookMs: Date.now() - t0,
-    gptMs,
-    ariMs,
-    gptText: (opts as any)?.debug ? outText ?? null : null,
-  };
-
-  return { ...(resultBase as any), _meta: meta };
-}
-
-/* =======================
- * Helpers
- * ======================= */
-
-function clamp01(x: number) {
-  if (Number.isNaN(x)) return 0;
-  if (x < 0) return 0;
-  if (x > 1) return 1;
-  return x;
 }

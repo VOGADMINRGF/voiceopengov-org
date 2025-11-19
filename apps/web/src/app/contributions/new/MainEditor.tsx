@@ -7,11 +7,17 @@ export type AnalyzeResult = {
   claims?: any[];
   questions?: any[];
   knots?: any[];
+  notes?: any[];
   sourceText?: string;
 };
 
 export function MainEditor({
-  onResult, outline, claims, onHeight, onActiveOutline, hasData,
+  onResult,
+  outline,
+  claims,
+  onHeight,
+  onActiveOutline,
+  hasData,
 }: {
   onResult: (r: AnalyzeResult) => void;
   outline: Outline[];
@@ -23,12 +29,14 @@ export function MainEditor({
   const [text, setText] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [processedIds, setProcessedIds] = React.useState<string[]>([]);
-  const taRef = React.useRef<HTMLTextAreaElement>(null);
+  const [processed, setProcessed] = React.useState(0);
 
-  // Jump-Helfer
+  const textRef = React.useRef<HTMLTextAreaElement | null>(null);
+
+  // Jump-Helfer (externes __edbtt_jumpTo)
   React.useEffect(() => {
     (window as any).__edbtt_jumpTo = (offset: number) => {
-      const el = taRef.current;
+      const el = textRef.current;
       if (!el) return;
       el.focus();
       el.setSelectionRange(offset, offset);
@@ -37,18 +45,32 @@ export function MainEditor({
     };
   }, []);
 
-  // Auto-Resize
-  const autoSize = React.useCallback(() => {
-    const el = taRef.current;
+  // 👉 Auto-Scroll: Marker läuft beim Fortschritt ans Ende
+  React.useEffect(() => {
+    const el = textRef.current;
     if (!el) return;
-    el.style.height = "0px";
-    el.style.height = `${el.scrollHeight}px`;
-    onHeight(el.getBoundingClientRect().height);
-  }, [onHeight]);
-  React.useEffect(() => { autoSize(); }, [text, autoSize]);
+    if (!processed) return; // bei 0 nichts tun
+
+    const end = Math.max(0, Math.min(el.value.length, processed - 1));
+    onActiveOutline?.(null);
+    el.setSelectionRange(end, end);
+    el.scrollTop = el.scrollHeight;
+  }, [processed, onActiveOutline]);
+
+  // Auto-Resize + Höhe nach außen melden (abhängig von Text & Fortschritt)
+  React.useEffect(() => {
+    if (!textRef.current) return;
+    const el = textRef.current;
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+    onHeight?.(el.getBoundingClientRect().height);
+  }, [text, processed, onHeight]);
 
   // Wenn Text geändert wird → alte Markierungen zurücksetzen
-  React.useEffect(() => { setProcessedIds([]); }, [text]);
+  React.useEffect(() => {
+    setProcessedIds([]);
+    setProcessed(0);
+  }, [text]);
 
   const showHighlights = (outline?.length ?? 0) > 0;
 
@@ -83,24 +105,118 @@ export function MainEditor({
   function playOutline(ids: string[]) {
     setProcessedIds([]);
     ids.forEach((id, idx) => {
-      setTimeout(() => setProcessedIds((p) => Array.from(new Set([...p, id]))), 200 + idx * 200);
+      setTimeout(
+        () => setProcessedIds((p) => Array.from(new Set([...p, id]))),
+        200 + idx * 200
+      );
     });
+  }
+
+  function markerPct() {
+    const total = text.length || 1;
+    return Math.min(100, Math.round((processed / total) * 100));
   }
 
   async function analyze() {
     if (!text.trim()) return;
     setBusy(true);
+    setProcessed(0);
     setProcessedIds([]);
+
+    // Aggregierte Live-Daten für onResult
+    let notesAcc: any[] = [];
+    let questionsAcc: any[] = [];
+    let knotsAcc: any[] = [];
+    let claimsAcc: any[] = Array.isArray(claims) ? [...claims] : [];
+
     try {
       const res = await fetch("/api/contributions/analyze", {
         method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ text: text.slice(0, 8000), locale: "de", maxClaims: 20 }),
+        headers: {
+          "content-type": "application/json",
+          accept: "text/event-stream",
+        },
+        body: JSON.stringify({
+          text: text.slice(0, 8000),
+          stream: true,
+          locale: "de",
+          maxClaims: 20,
+        }),
       });
-      const data = await res.json();
-      if (!res.ok || !data?.ok) throw new Error(String(data?.reason ?? "ANALYZE_FAILED"));
-      onResult({ ...data, sourceText: text });   // ← Text mitgeben für Fallbacks
-      playOutline((data.outline ?? []).map((o: Outline) => o.id));
+
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error("No stream");
+
+      const dec = new TextDecoder();
+      let buf = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+
+        const parts = buf.split("\n\n");
+        buf = parts.pop() || "";
+
+        for (const chunk of parts) {
+          const line = chunk.split("\n").find((l) => l.startsWith("data:"));
+          if (!line) continue;
+
+          let evt: any;
+          try {
+            evt = JSON.parse(line.slice(5));
+          } catch (e) {
+            console.warn("Bad SSE line", line, e);
+            continue;
+          }
+
+          if (evt.phase === "start") continue;
+
+          // Fortschritt updaten → Marker & Auto-Height & Auto-Scroll
+          if (typeof evt.processed === "number") {
+            setProcessed(evt.processed);
+          }
+
+          // Notes / Questions / Knots / Claims sukzessive sammeln
+          if (evt.note) {
+            notesAcc.push(evt.note);
+          }
+          if (evt.question) {
+            questionsAcc.push(evt.question);
+          }
+          if (evt.knot) {
+            knotsAcc.push(evt.knot);
+          }
+          if (evt.claims) {
+            claimsAcc = evt.claims;
+          }
+
+          // Live an Parent durchreichen (für Cards etc.)
+          onResult({
+            outline,
+            claims: claimsAcc,
+            questions: questionsAcc,
+            knots: knotsAcc,
+            notes: notesAcc,
+            sourceText: text,
+          });
+        }
+      }
+
+      // Finaler Stand
+      onResult({
+        outline,
+        claims: claimsAcc,
+        questions: questionsAcc,
+        knots: knotsAcc,
+        notes: notesAcc,
+        sourceText: text,
+      });
+
+      // Optional: Outline-Animation abspielen, falls vorhanden
+      if (outline?.length) {
+        playOutline(outline.map((o) => o.id));
+      }
     } catch (e) {
       console.error(e);
       alert("Analyse fehlgeschlagen.");
@@ -110,34 +226,49 @@ export function MainEditor({
   }
 
   return (
-    <section className="rounded-2xl border bg-white/75 p-4 shadow-[0_24px_64px_-40px_rgba(0,0,0,.35)] backdrop-blur">
+    <section className="rounded-2xl border bg-white/75 p-4 shadow-[0_24px_64px_-40px_rgba(0,0,0,.35)] backdrop-blur relative">
       {!hasData && !text && (
         <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -translate-y-6 opacity-90 animate-fade-in-up text-cyan-700 text-[15px] z-10">
-          <svg className="mx-auto mb-1 h-6 w-6 animate-bounce" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 3v14m0 0l-5-5m5 5l5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <svg
+            className="mx-auto mb-1 h-6 w-6 animate-bounce"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path
+              d="M12 3v14m0 0l-5-5m5 5l5-5"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
           Beschreibe dein Anliegen und klicke auf <strong>Analyse starten</strong>.
         </div>
       )}
 
       <div className="hl-wrap">
-        {/* Nur EIN Overlay – und nur anzeigen, wenn es wirklich Segmente gibt */}
+        {/* Overlay mit Outline-Highlights */}
         {showHighlights && <div className="hl-bg">{renderHighlights()}</div>}
 
-        <textarea
-          ref={taRef}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onInput={autoSize}
-          className="hl-ta"
-          style={{
-            color: showHighlights ? "transparent" : "#111",
-            caretColor: "#111",
-            overflow: "hidden",
-          }}
-          placeholder="Beschreibe dein Anliegen …"
-          aria-busy={busy}
-        />
+        {/* Marker-Maske mit Fortschrittsvariable */}
+        <div
+          className="marker-mask"
+          style={{ ["--marker-pct" as any]: `${markerPct()}%` }}
+        >
+          <textarea
+            ref={textRef}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            className="hl-ta"
+            style={{
+              color: showHighlights ? "transparent" : "#111",
+              caretColor: "#111",
+              overflow: "hidden",
+            }}
+            placeholder="Beschreibe dein Anliegen …"
+            aria-busy={busy}
+          />
+        </div>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-3">

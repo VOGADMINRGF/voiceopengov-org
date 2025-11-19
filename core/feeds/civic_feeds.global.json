@@ -1,0 +1,32 @@
+{
+    "$schema": "https://voiceopengov.dev/schemas/civic_feeds_v1.json",
+    "version": 1,
+    "regions": {
+      "GLOBAL": {
+        "default": [
+          "https://feeds.bbci.co.uk/news/world/rss.xml",
+          "https://www.aljazeera.com/xml/rss/all.xml",
+          "https://rss.dw.com/rdf/rss-en-all",
+          "https://www.france24.com/en/rss",
+          "https://www.euronews.com/rss?level=theme&name=news"
+        ],
+        "agencies_tier0": [
+          "https://<DPA-GLOBAL-FEED-ODER-ENDPUNKT>",
+          "https://<REUTERS-WORLD-FEED>",
+          "https://<AFP-WORLD-FEED>",
+          "https://<AP-TOP-STORIES-FEED>",
+          "https://<XINHUA-WORLD-FEED>",
+          "https://<TASS-WORLD-FEED>",
+          "https://<EFE-MUNDO-FEED>",
+          "https://<KYODO-WORLD-FEED>",
+          "https://<YONHAP-WORLD-FEED>"
+        ]
+      }
+    },
+    "notes": [
+      "GLOBAL.default enthält nur öffentliche, relativ neutrale Welt-Feeds (Beispiele).",
+      "Die URLs mit <...> sind Platzhalter und dürfen nur mit lizenzierten Agentur-Feeds ersetzt werden.",
+      "Die Batch-Skripte in scripts/news können civic_feeds.de.json und civic_feeds.global.json zusammenziehen."
+    ]
+  }
+  

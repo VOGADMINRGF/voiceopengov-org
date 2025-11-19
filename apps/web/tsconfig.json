@@ -48,7 +48,7 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     ".next/types/**/*.ts"
-  ],
+, "../../MainEditor.tsx"  ],
   "exclude": [
     "node_modules"
   ]

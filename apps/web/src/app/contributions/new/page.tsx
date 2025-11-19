@@ -1,179 +1,944 @@
+// apps/web/src/app/contributions/new/page.tsx
 "use client";
+
 import * as React from "react";
-import { LeftSide, type Note } from "./LeftSide";
-import { RightSide, type Chip } from "./RightSide";
-import { MainEditor, type Outline, type AnalyzeResult } from "./MainEditor";
+import Link from "next/link";
+import type { AnalyzeResult } from "@features/analyze/schemas";
 
-/** Hilfen zum Robust-Mapping (API liefert je nach Stage unterschiedliche Keys) */
-function pickArray<T = any>(obj: any, keys: string[]): T[] {
-  for (const k of keys) {
-    const v = obj?.[k];
-    if (Array.isArray(v) && v.length) return v as T[];
-  }
-  return [];
+/* ---------- Types ---------- */
+
+type NoteSection = { id: string; title: string; body: string };
+type QuestionCard = {
+  id: string;
+  label: string;
+  category: string;
+  body: string;
+};
+type KnotCard = { id: string; title: string; category: string; body: string };
+
+type VoteKind = "pro" | "neutral" | "contra" | null;
+
+type StatementCard = {
+  id: string;
+  index: number;
+  text: string;
+  title?: string;
+  responsibility?: string;
+  topic?: string;
+  quality?: {
+    precision: number;
+    testability: number;
+    readability: number;
+    balance: number;
+  };
+  vote?: VoteKind;
+  locallyEdited?: boolean; // lokal angepasst → redaktionelle Prüfung
+  flagged?: boolean;       // vom User gemeldet
+};
+
+const STORAGE_KEY = "vog_contribution_draft_v1";
+
+/* ---------- AI → UI Mapping (nur 1:1, keine Heuristik) ---------- */
+
+function mapAiNoteToSection(raw: any, idx: number): NoteSection | null {
+  if (!raw || typeof raw.text !== "string") return null;
+  const id =
+    typeof raw.id === "string" && raw.id.trim() ? raw.id : `note-${idx + 1}`;
+  const kind = typeof raw.kind === "string" ? raw.kind : null;
+
+  return {
+    id,
+    title: kind ? kind.toUpperCase() : `Abschnitt ${idx + 1}`,
+    body: raw.text,
+  };
 }
-const textOf = (x: any) =>
-  (x?.summary ?? x?.label ?? x?.title ?? x?.text ?? (typeof x === "string" ? x : "")) as string;
 
-function deriveNotes(result: AnalyzeResult): Note[] {
-  const raw =
-    pickArray(result, ["outline", "sections", "excerpts", "notes", "contexts", "hints"]) ||
-    [];
-  if (raw.length) {
-    return raw.map((o: any, i) => ({
-      id: o?.id ?? `n${i}`,
-      text: textOf(o),
-      start: typeof o?.start === "number" ? o.start : undefined,
-    }));
-  }
-  // Fallback aus Text (erste 2–3 Absätze kurz zusammenziehen)
-  const src = result.sourceText ?? "";
-  const paras = src.split(/\n{2,}/).map((s) => s.trim()).filter(Boolean).slice(0, 3);
-  return paras.map((p, i) => ({ id: `nf${i}`, text: p.slice(0, 180) }));
+function mapAiQuestionToCard(raw: any, idx: number): QuestionCard | null {
+  if (!raw || typeof raw.text !== "string") return null;
+  const id =
+    typeof raw.id === "string" && raw.id.trim() ? raw.id : `q-${idx + 1}`;
+  const dimension =
+    typeof raw.dimension === "string" && raw.dimension ? raw.dimension : null;
+
+  return {
+    id,
+    label: dimension ? dimension.toUpperCase() : "FRAGE",
+    category: dimension ?? "",
+    body: raw.text,
+  };
 }
 
-function deriveChips(result: AnalyzeResult, keyList: string[], defaults: string[]): Chip[] {
-  const arr = pickArray(result, keyList);
-  if (arr.length) return arr.map((q: any, i) => ({ id: q?.id ?? `${keyList[0]}${i}`, text: textOf(q) }));
-  return defaults.map((t, i) => ({ id: `${keyList[0]}D${i}`, text: t }));
+function mapAiKnotToCard(raw: any, idx: number): KnotCard | null {
+  if (!raw || typeof raw.description !== "string") return null;
+  const id =
+    typeof raw.id === "string" && raw.id.trim() ? raw.id : `k-${idx + 1}`;
+  const label =
+    typeof raw.label === "string" && raw.label.trim()
+      ? raw.label
+      : `Knoten ${idx + 1}`;
+
+  return {
+    id,
+    title: label,
+    category: "Themenschwerpunkt",
+    body: raw.description,
+  };
 }
 
-export default function ContributionAnalyzePage() {
-  const [outline, setOutline] = React.useState<Outline[]>([]);
-  const [claims, setClaims] = React.useState<any[]>([]);
-  const [notes, setNotes] = React.useState<Note[]>([]);
-  const [questions, setQuestions] = React.useState<Chip[]>([]);
-  const [knots, setKnots] = React.useState<Chip[]>([]);
-  const [editorHeight, setEditorHeight] = React.useState(0);
-  const [activeId, setActiveId] = React.useState<string | null>(null);
+function mapAiClaimToStatement(raw: any, idx: number): StatementCard | null {
+  if (!raw || typeof raw.text !== "string") return null;
 
-  const hasData =
-    outline.length + notes.length + questions.length + knots.length + claims.length > 0;
+  const id =
+    typeof raw.id === "string" && raw.id.trim() ? raw.id : `s-${idx + 1}`;
 
-  function handleResult(res: AnalyzeResult) {
-    // Outline & Claims direkt setzen (wenn vorhanden)
-    setOutline(res.outline ?? []);
-    setClaims(res.claims ?? []);
+  const topic =
+    typeof raw.topic === "string" && raw.topic
+      ? raw.topic
+      : typeof raw.domain === "string"
+      ? raw.domain
+      : undefined;
 
-    // Notizen/Fragen/Knoten robust ableiten (+ Fallbacks)
-    setNotes(deriveNotes(res));
-    setQuestions(
-      deriveChips(
-        res,
-        ["questions", "clarifications", "asks"],
-        [
-          "Welche Zuständigkeit ist betroffen? (EU/Bund/Land/Kommune)",
-          "Welche Standards gelten aktuell in Nachbarländern?",
-          "Welche empirischen Quellen liegen vor (Zeitreihen, Benchmarks)?",
-          "Welche Kosten/Nutzen-Folgen ergeben sich (Personal, Qualität)?",
-        ]
-      )
+  const meta = (raw as any)?.meta ?? {};
+
+  const title =
+    typeof raw.title === "string" && raw.title.trim()
+      ? raw.title.trim()
+      : typeof meta?.title === "string" && meta.title.trim()
+      ? meta.title.trim()
+      : undefined;
+
+  const responsibility =
+    typeof raw.responsibility === "string"
+      ? raw.responsibility
+      : typeof meta?.responsibility === "string"
+      ? meta.responsibility
+      : undefined;
+
+  const quality =
+    meta && typeof meta === "object" && meta.quality
+      ? (meta.quality as StatementCard["quality"])
+      : undefined;
+
+  return {
+    id,
+    index: idx,
+    text: raw.text,
+    title,
+    responsibility,
+    topic,
+    quality,
+    vote: null,
+    locallyEdited: false,
+    flagged: false,
+  };
+}
+
+/* ---------- Inline-Editor ---------- */
+
+type InlineEditableTextProps = {
+  value: string;
+  onChange: (val: string) => void;
+  label?: string;
+};
+
+function InlineEditableText({ value, onChange, label }: InlineEditableTextProps) {
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [draft, setDraft] = React.useState(value);
+
+  React.useEffect(() => setDraft(value), [value]);
+
+  const save = () => {
+    setIsEditing(false);
+    const trimmed = draft.trim();
+    if (trimmed !== value.trim()) onChange(trimmed);
+  };
+
+  if (!isEditing) {
+    return (
+      <div className="group relative">
+        {label && (
+          <div className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">
+            {label}
+          </div>
+        )}
+        <p className="text-sm leading-relaxed text-slate-800 whitespace-pre-line">
+          {value}
+        </p>
+        <button
+          type="button"
+          onClick={() => setIsEditing(true)}
+          className="absolute -top-1 -right-1 hidden items-center gap-1 rounded-full border border-sky-200 bg-white px-2 py-0.5 text-[11px] text-sky-600 shadow-sm group-hover:inline-flex"
+          aria-label="Text bearbeiten"
+        >
+          ✏️
+        </button>
+      </div>
     );
-    setKnots(
-      deriveChips(
-        res,
-        ["knots", "nodes", "links"],
-        [
-          "Knoten: Tierhaltung – Stufen & Mindeststandard",
-          "Knoten: Internationale Abkommen – Diskussionsstand",
-          "Knoten: Berufsgruppen & Finanzierung – Respekt & Ressourcen",
-        ]
-      )
-    );
-  }
-
-  function onJump(offset: number) {
-    (window as any).__edbtt_jumpTo?.(offset);
   }
 
   return (
-    <div className="mx-auto max-w-[1600px] px-4 py-8">
-      <h1 className="mb-2 text-4xl font-extrabold tracking-tight">
-        <span className="bg-gradient-to-r from-[#06b6d4] to-[#2196F3] bg-clip-text text-transparent">eDebatte</span>{" "}
-        – Deine Anliegen, sauber analysiert.
-      </h1>
-      <p className="mb-8 max-w-3xl text-[15px] text-neutral-700">
-        Schreibe frei – wir extrahieren Kernaussagen, ordnen Themen zu und zeigen die Schritte transparent.
-      </p>
-
-      {/* Start: 1 Spalte; nach Analyse weich auf 3 Spalten 15/55/30 */}
-      <div
-        className={[
-          "grid gap-8 transition-all duration-700 ease-in-out",
-          hasData ? "md:grid-cols-3" : "grid-cols-1",
-        ].join(" ")}
-        style={{
-          gridTemplateColumns: hasData ? "15% 55% 30%" : "100%",
-          alignItems: "start",
-        }}
-      >
-        {hasData && (
-          <div className="animate-swipe-in-left">
-            <LeftSide
-              notes={notes}
-              editorHeight={editorHeight}
-              activeId={activeId}
-              onJump={onJump}
-            />
-          </div>
-        )}
-
-        <div className={hasData ? "animate-fade-in-up" : "animate-fade-in-up-delayed relative"}>
-          <MainEditor
-            onResult={handleResult}
-            outline={outline}
-            claims={claims}
-            onHeight={setEditorHeight}
-            onActiveOutline={setActiveId}
-            hasData={hasData}
-          />
+    <div>
+      {label && (
+        <div className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">
+          {label}
         </div>
+      )}
+      <textarea
+        className="w-full rounded-md border border-sky-200 bg-white px-2 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-300"
+        rows={3}
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={save}
+      />
+    </div>
+  );
+}
 
-        {hasData && (
-          <div className="animate-swipe-in-right">
-            <RightSide
-              questions={questions}
-              knots={knots}
-              editorHeight={editorHeight}
-              onJump={onJump}
-            />
-          </div>
-        )}
+/* ---------- HighlightedTextarea (Textmarker) ---------- */
+
+type HighlightedTextareaProps = {
+  value: string;
+  onChange: (val: string) => void;
+  analyzing: boolean;
+};
+
+function HighlightedTextarea({
+  value,
+  onChange,
+  analyzing,
+}: HighlightedTextareaProps) {
+  const [markerPct, setMarkerPct] = React.useState(0);
+  const textareaRef = React.useRef<HTMLTextAreaElement | null>(null);
+  const overlayRef = React.useRef<HTMLDivElement | null>(null);
+
+  // Animation: von 0% auf 100%, Dauer abhängig von Textlänge
+  React.useEffect(() => {
+    const total = value.length;
+    if (!analyzing || total === 0) {
+      setMarkerPct(100);
+      return;
+    }
+
+    setMarkerPct(0);
+    const duration = Math.min(3000, Math.max(900, total * 5));
+    const start = performance.now();
+    let frameId: number;
+
+    const tick = (now: number) => {
+      const progress = Math.min(1, (now - start) / duration);
+      setMarkerPct(progress * 100);
+      if (progress < 1 && analyzing) {
+        frameId = window.requestAnimationFrame(tick);
+      } else {
+        setMarkerPct(100);
+      }
+    };
+
+    frameId = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frameId);
+  }, [analyzing, value]);
+
+  // Scroll-Sync
+  const handleScroll = () => {
+    if (!textareaRef.current || !overlayRef.current) return;
+    overlayRef.current.scrollTop = textareaRef.current.scrollTop;
+    overlayRef.current.scrollLeft = textareaRef.current.scrollLeft;
+  };
+
+  return (
+    <div className="relative">
+      {/* Marker-Overlay */}
+      <div
+        ref={overlayRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 overflow-hidden rounded-lg px-3 py-2 text-sm leading-relaxed font-sans text-transparent marker-mask"
+        style={{ ["--marker-pct" as any]: `${markerPct}%` }}
+      >
+        {value || " "}
       </div>
 
-      {hasData && claims.length > 0 && (
-        <section className="mt-12 rounded-2xl border bg-white/80 p-5 backdrop-blur">
-          <div className="mb-4 text-sm font-semibold tracking-tight text-neutral-700">
-            Statements aus deinem Beitrag
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {claims.slice(0, 12).map((c: any, i) => (
-              <article
-                key={i}
-                className="card-soft group flex h-full flex-col rounded-2xl border bg-white/90 p-4 transition hover:-translate-y-[2px] hover:shadow-xl"
+      {/* Eigentliche Eingabe */}
+      <textarea
+        ref={textareaRef}
+        className="relative z-10 w-full min-h-[260px] rounded-lg border border-slate-200 bg-transparent px-3 py-2 text-sm leading-relaxed text-slate-900 shadow-inner focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-300"
+        rows={14}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onScroll={handleScroll}
+      />
+    </div>
+  );
+}
+
+
+/* ---------- Hauptseite ---------- */
+
+export default function ContributionNewPage() {
+  const [viewLevel, setViewLevel] = React.useState<1 | 2>(2);
+  const [text, setText] = React.useState("");
+
+  const [notes, setNotes] = React.useState<NoteSection[]>([]);
+  const [questions, setQuestions] = React.useState<QuestionCard[]>([]);
+  const [knots, setKnots] = React.useState<KnotCard[]>([]);
+  const [statements, setStatements] = React.useState<StatementCard[]>([]);
+
+  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [info, setInfo] = React.useState<string | null>(null);
+  const [saveInfo, setSaveInfo] = React.useState<string | null>(null);
+  const [lastStatus, setLastStatus] = React.useState<
+    "idle" | "success" | "error" | "empty"
+  >("idle");
+
+  // welches Statement ist gerade im Meta-Edit-Modus?
+  const [metaEditingId, setMetaEditingId] = React.useState<string | null>(null);
+
+  // Draft aus localStorage holen
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.text === "string" && !text) {
+        setText(parsed.text);
+      }
+    } catch {
+      // ignore
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const updateNote = (id: string, body: string) =>
+    setNotes((prev) => prev.map((n) => (n.id === id ? { ...n, body } : n)));
+
+  const updateQuestion = (id: string, body: string) =>
+    setQuestions((prev) => prev.map((q) => (q.id === id ? { ...q, body } : q)));
+
+  const updateKnot = (id: string, body: string) =>
+    setKnots((prev) => prev.map((k) => (k.id === id ? { ...k, body } : k)));
+
+  const setVote = (id: string, vote: VoteKind) =>
+    setStatements((prev) =>
+      prev.map((s) =>
+        s.id === id ? { ...s, vote: s.vote === vote ? null : vote } : s
+      )
+    );
+
+  const updateStatementText = (id: string, newText: string) =>
+    setStatements((prev) =>
+      prev.map((s) =>
+        s.id === id ? { ...s, text: newText, locallyEdited: true } : s
+      )
+    );
+
+  const updateStatementMeta = (
+    id: string,
+    patch: Partial<Pick<StatementCard, "title" | "responsibility" | "topic">>
+  ) =>
+    setStatements((prev) =>
+      prev.map((s) =>
+        s.id === id ? { ...s, ...patch, locallyEdited: true } : s
+      )
+    );
+
+  const reportStatement = (id: string) => {
+    setStatements((prev) =>
+      prev.map((s) =>
+        s.id === id ? { ...s, flagged: true } : s
+      )
+    );
+    setInfo(
+      "Danke für deinen Hinweis. Das Statement wurde zur redaktionellen Prüfung markiert. Deine eigene Stimme bleibt davon unberührt."
+    );
+  };
+
+  const removeStatement = (id: string) => {
+    setStatements((prev) => prev.filter((s) => s.id !== id));
+    if (metaEditingId === id) setMetaEditingId(null);
+  };
+
+  const handleAnalyze = async () => {
+    if (!text.trim()) return;
+
+    setIsAnalyzing(true);
+    setError(null);
+    setInfo(null);
+    setSaveInfo(null);
+    setLastStatus("idle");
+    setMetaEditingId(null);
+
+    try {
+      const res = await fetch("/api/contributions/analyze", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ text, locale: "de" }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.ok) {
+        throw new Error(data?.error || `HTTP ${res.status}`);
+      }
+
+      const result: AnalyzeResult = (data.result ?? data) as AnalyzeResult;
+
+      const rawNotes: any[] = Array.isArray((result as any).notes)
+        ? (result as any).notes
+        : [];
+      const rawQuestions: any[] = Array.isArray((result as any).questions)
+        ? (result as any).questions
+        : [];
+      const rawKnots: any[] = Array.isArray((result as any).knots)
+        ? (result as any).knots
+        : [];
+      const rawClaims: any[] = Array.isArray((result as any).claims)
+        ? (result as any).claims
+        : [];
+
+      const mappedNotes = rawNotes
+        .map(mapAiNoteToSection)
+        .filter((x): x is NoteSection => x !== null);
+      const mappedQuestions = rawQuestions
+        .map(mapAiQuestionToCard)
+        .filter((x): x is QuestionCard => x !== null);
+      const mappedKnots = rawKnots
+        .map(mapAiKnotToCard)
+        .filter((x): x is KnotCard => x !== null);
+      const mappedStatements = rawClaims
+        .map(mapAiClaimToStatement)
+        .filter((x): x is StatementCard => x !== null);
+
+      setNotes(mappedNotes);
+      setQuestions(mappedQuestions);
+      setKnots(mappedKnots);
+      setStatements(mappedStatements);
+
+      if (mappedStatements.length === 0) {
+        setLastStatus("empty");
+        setInfo(
+          "Die Analyse konnte aus deinem Beitrag im Moment keine klaren Einzel-Statements ableiten. Du kannst deinen Text leicht anpassen (z.B. kürzere Sätze) und die Analyse erneut starten."
+        );
+      } else {
+        setLastStatus("success");
+        setInfo(null);
+      }
+    } catch (e: any) {
+      setError(
+        e?.message ??
+          "Analyse fehlgeschlagen. Vermutlich gab es ein Problem mit dem KI-Dienst."
+      );
+      setInfo(
+        "Dein Beitrag bleibt oben erhalten. Du kannst es nach einem kurzen Moment mit „Erneut versuchen“ noch einmal probieren."
+      );
+      setNotes([]);
+      setQuestions([]);
+      setKnots([]);
+      setStatements([]);
+      setLastStatus("error");
+      setMetaEditingId(null);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleReset = () => {
+    setText("");
+    setNotes([]);
+    setQuestions([]);
+    setKnots([]);
+    setStatements([]);
+    setError(null);
+    setInfo(null);
+    setSaveInfo(null);
+    setLastStatus("idle");
+    setMetaEditingId(null);
+  };
+
+  const handleSave = () => {
+    try {
+      if (typeof window === "undefined") return;
+      window.localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          text,
+          savedAt: new Date().toISOString(),
+        })
+      );
+      setSaveInfo(
+        "Dein Beitrag wurde lokal im Browser gespeichert (nicht auf dem Server). Du kannst ihn später in diesem Browser wieder aufrufen."
+      );
+    } catch {
+      setSaveInfo(
+        "Speichern im Browser ist fehlgeschlagen. Kopiere deinen Text bitte vorsichtshalber in ein Dokument."
+      );
+    }
+  };
+
+  const layoutClass =
+    viewLevel >= 2
+      ? "grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.6fr)_minmax(0,1.1fr)]"
+      : "grid gap-4 lg:grid-cols-[minmax(0,1.8fr)] max-w-4xl mx-auto";
+
+  const analyzeButtonLabel =
+    isAnalyzing
+      ? "Analyse läuft …"
+      : lastStatus === "error" || lastStatus === "empty"
+      ? "Erneut versuchen"
+      : "Analyse starten";
+
+  return (
+    <div className="min-h-[calc(100vh-64px)] bg-[linear-gradient(180deg,#e9f6ff_0%,#c0f8ff_45%,#a4fcec_100%)]">
+      <div className="container-vog space-y-4 pb-10 pt-6">
+        {/* Hinweis oben */}
+        <div className="rounded-xl border border-sky-100 bg-sky-50/80 px-4 py-2 text-xs text-sky-800">
+          Für die schlanke Bürger-Ansicht nutze{" "}
+          <Link href="/statements/new" className="font-semibold underline">
+            /statements/new
+          </Link>
+          . Hier siehst du die ausführliche Analyse-Ansicht (E150).
+        </div>
+
+        {/* Level-Switcher */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="vog-head">Beitrag analysieren</h1>
+          <div className="inline-flex items-center rounded-full bg-slate-100 p-1 text-xs">
+            {[
+              { id: 1, label: "Level 1 – Basis" },
+              { id: 2, label: "Level 2 – Mehr Fakten" },
+            ].map((lvl) => (
+              <button
+                key={lvl.id}
+                type="button"
+                onClick={() => setViewLevel(lvl.id as 1 | 2)}
+                className={[
+                  "rounded-full px-3 py-1 transition",
+                  viewLevel === lvl.id
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900",
+                ].join(" ")}
               >
-                <h3 className="mb-1 text-[13px] font-semibold">
-                  {(c.title ?? c.text ?? "Statement").slice(0, 140)}
-                </h3>
-                <p className="mb-4 grow text-[13px] text-neutral-800">
-                  {c.summary ?? c.text ?? ""}
-                </p>
-                <div className="mt-auto flex flex-wrap gap-2">
-                  {["pos:Zustimmen", "neu:Neutral", "neg:Ablehnen"].map((t) => {
-                    const [v, lbl] = t.split(":");
-                    return (
-                      <label key={v} className={`toggle-chip variant-${v}`}>
-                        <input name={`v${i}`} type="radio" />
-                        <span>{lbl}</span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </article>
+                {lvl.label}
+              </button>
             ))}
           </div>
-        </section>
-      )}
+        </div>
+
+        {/* Layout */}
+        <div className={layoutClass}>
+          {/* Links: Notizen (nur Level 2, Desktop) */}
+          <div
+            className={
+              viewLevel >= 2 ? "hidden lg:flex lg:flex-col gap-3" : "hidden"
+            }
+          >
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Kontext (Notizen)
+            </h2>
+            {notes.length === 0 ? (
+              <p className="text-[11px] text-slate-400">
+                Noch keine Notizen. Wenn die Analyse relevante Kontextstellen
+                erkennt, erscheinen sie hier.
+              </p>
+            ) : (
+              notes.map((note) => (
+                <div
+                  key={note.id}
+                  className="rounded-xl border border-slate-200 bg-white/90 p-3 shadow-sm"
+                >
+                  <InlineEditableText
+                    value={note.body}
+                    onChange={(val) => updateNote(note.id, val)}
+                    label={note.title}
+                  />
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Mitte: Editor + Statements */}
+          <div className="flex flex-col gap-4">
+            {/* Editor */}
+            <div className="rounded-xl border border-slate-200 bg-white/95 p-4 shadow-sm">
+              <div className="mb-2 flex items-baseline justify-between gap-2">
+                <div>
+                  <h2 className="text-sm font-semibold text-slate-800">
+                    Diesen Beitrag (Editor-Ansicht)
+                  </h2>
+                  <p className="text-[11px] text-slate-500">
+                    Du kannst deinen Beitrag später jederzeit überarbeiten.
+                    Speicherung erfolgt derzeit lokal in deinem Browser.
+                  </p>
+                </div>
+                <div className="text-[11px] text-slate-500">
+                  Sprache: <span className="font-medium">de</span>
+                </div>
+              </div>
+
+              <HighlightedTextarea
+                value={text}
+                onChange={setText}
+                analyzing={isAnalyzing}
+              />
+
+              {/* Buttons */}
+              <div className="mt-3 flex flex-col items-center gap-1 text-[11px] text-slate-500">
+                <span>{text.length} Zeichen</span>
+                <div className="inline-flex gap-2 flex-wrap justify-center">
+                  <button
+                    type="button"
+                    onClick={handleAnalyze}
+                    disabled={isAnalyzing || !text.trim()}
+                    className="rounded-full bg-sky-500 px-5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {analyzeButtonLabel}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    className="rounded-full border border-slate-300 px-4 py-1.5 text-xs text-slate-700 hover:bg-slate-50"
+                  >
+                    Zurücksetzen
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    className="rounded-full border border-emerald-300 px-4 py-1.5 text-xs text-emerald-700 bg-emerald-50 hover:bg-emerald-100"
+                  >
+                    Speichern
+                  </button>
+                </div>
+              </div>
+
+              {error && (
+                <div className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-[11px] text-rose-700 space-y-1">
+                  <p>{error}</p>
+                  <p>
+                    Wenn das häufiger passiert, gib uns bitte kurz Bescheid über
+                    unsere{" "}
+                    <Link
+                      href="/kontakt"
+                      className="underline font-semibold text-rose-700"
+                    >
+                      Kontakt-Seite
+                    </Link>
+                    .
+                  </p>
+                </div>
+              )}
+
+              {saveInfo && (
+                <p className="mt-2 rounded-lg bg-emerald-50 px-3 py-2 text-[11px] text-emerald-700">
+                  {saveInfo}
+                </p>
+              )}
+
+              {info && (
+                <p className="mt-2 rounded-lg bg-slate-50 px-3 py-2 text-[11px] text-slate-700">
+                  {info}
+                </p>
+              )}
+            </div>
+
+            {/* Statements + Voting */}
+            <div className="rounded-xl border border-slate-200 bg-white/95 p-4 shadow-sm">
+              <div className="mb-2 flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-slate-800">
+                  Abgeleitete Statements (Claims)
+                </h2>
+                <div className="text-[11px] text-slate-500">
+                  {statements.length} Statements zu diesem Beitrag
+                </div>
+              </div>
+
+              <div className="space-y-3 max-w-2xl mx-auto">
+                {statements.map((s) => {
+                  const inMetaEdit = metaEditingId === s.id;
+
+                  return (
+                    <div
+                      key={s.id}
+                      className="rounded-lg border border-slate-200 bg-slate-50/80 p-3 shadow-sm"
+                    >
+                      {/* Header: Titel + Meta + Badges */}
+                      <div className="mb-2 flex flex-col gap-1 text-[11px] text-slate-500">
+                        {inMetaEdit ? (
+                          <div className="flex flex-wrap items-center gap-2">
+                            <input
+                              type="text"
+                              className="min-w-[120px] flex-1 rounded-full border border-sky-200 bg-white px-3 py-0.5 text-[11px] font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-sky-300"
+                              placeholder={`Titel (z.B. „Tierwohl-Standard Stufe 4“)`}
+                              value={s.title ?? ""}
+                              onChange={(e) =>
+                                updateStatementMeta(s.id, {
+                                  title: e.target.value,
+                                })
+                              }
+                            />
+                            <input
+                              type="text"
+                              className="min-w-[120px] rounded-full border border-slate-200 bg-white px-3 py-0.5 text-[11px] text-slate-700 focus:outline-none focus:ring-1 focus:ring-sky-300"
+                              placeholder="Zuständigkeit (z.B. Bund, EU, Kommune …)"
+                              value={s.responsibility ?? ""}
+                              onChange={(e) =>
+                                updateStatementMeta(s.id, {
+                                  responsibility: e.target.value,
+                                })
+                              }
+                            />
+                            <input
+                              type="text"
+                              className="min-w-[120px] rounded-full border border-slate-200 bg-white px-3 py-0.5 text-[11px] text-slate-700 focus:outline-none focus:ring-1 focus:ring-sky-300"
+                              placeholder="Topic (z.B. Tierwohl, Sicherheit …)"
+                              value={s.topic ?? ""}
+                              onChange={(e) =>
+                                updateStatementMeta(s.id, {
+                                  topic: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="rounded-full bg-sky-50 px-3 py-0.5 font-semibold text-sky-700">
+                              {s.title && s.title.trim().length > 0
+                                ? s.title
+                                : `Statement #${s.index + 1}`}
+                            </span>
+                            <span className="rounded-full bg-slate-100 px-2 py-0.5">
+                              Zuständigkeit:{" "}
+                              <span className="font-medium">
+                                {s.responsibility || "–"}
+                              </span>
+                            </span>
+                            <span className="rounded-full bg-slate-100 px-2 py-0.5">
+                              Topic:{" "}
+                              <span className="font-medium">
+                                {s.topic || "–"}
+                              </span>
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="flex flex-wrap items-center gap-2">
+                          {s.locallyEdited && (
+                            <span className="rounded-full bg-amber-50 px-2 py-0.5 text-amber-700">
+                              Änderung wird redaktionell geprüft
+                            </span>
+                          )}
+                          {s.flagged && (
+                            <span className="rounded-full bg-rose-50 px-2 py-0.5 text-rose-700">
+                              Zur Prüfung gemeldet
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Statement-Text mit ✏️-Editor */}
+                      <InlineEditableText
+                        value={s.text}
+                        onChange={(val) => updateStatementText(s.id, val)}
+                      />
+
+                      {/* Voting */}
+                      <div className="mt-3 space-y-2 text-[11px] text-slate-600 text-center">
+                        <div className="font-semibold text-slate-700">
+                          Deine aktuelle Stimme (manuell auswählbar)
+                        </div>
+                        <div className="inline-flex flex-wrap justify-center gap-2">
+                          {[
+                            {
+                              id: "pro" as const,
+                              label: "Zustimmen",
+                              icon: "👍",
+                              activeClass:
+                                "border-emerald-400 bg-emerald-50 text-emerald-700",
+                            },
+                            {
+                              id: "neutral" as const,
+                              label: "Neutral",
+                              icon: "😐",
+                              activeClass:
+                                "border-sky-400 bg-sky-50 text-sky-700",
+                            },
+                            {
+                              id: "contra" as const,
+                              label: "Ablehnen",
+                              icon: "👎",
+                              activeClass:
+                                "border-rose-400 bg-rose-50 text-rose-700",
+                            },
+                          ].map((opt) => {
+                            const active = s.vote === opt.id;
+                            return (
+                              <button
+                                key={opt.id}
+                                type="button"
+                                onClick={() => setVote(s.id, opt.id)}
+                                className={[
+                                  "flex items-center gap-2 rounded-full border-2 px-4 py-1.5 font-semibold shadow-sm transition",
+                                  active
+                                    ? opt.activeClass
+                                    : "border-slate-200 bg-white text-slate-700 hover:border-slate-300",
+                                ].join(" ")}
+                              >
+                                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-xs">
+                                  {opt.icon}
+                                </span>
+                                <span>{opt.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Footer: Qualität + Aktionen (melden/ändern/entfernen) */}
+                      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[10px] text-slate-500">
+                        {s.quality ? (
+                          <div className="grid grid-cols-2 gap-1">
+                            <span>
+                              Präzision:{" "}
+                              <span className="font-semibold">
+                                {s.quality.precision.toFixed(2)}
+                              </span>
+                            </span>
+                            <span>
+                              Prüfbar:{" "}
+                              <span className="font-semibold">
+                                {s.quality.testability.toFixed(2)}
+                              </span>
+                            </span>
+                            <span>
+                              Lesbarkeit:{" "}
+                              <span className="font-semibold">
+                                {s.quality.readability.toFixed(2)}
+                              </span>
+                            </span>
+                            <span>
+                              Balance:{" "}
+                              <span className="font-semibold">
+                                {s.quality.balance.toFixed(2)}
+                              </span>
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-[10px] text-slate-400">
+                            (Keine Qualitätsmetriken für dieses Statement
+                            übermittelt.)
+                          </span>
+                        )}
+
+                        <div className="ml-auto flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => reportStatement(s.id)}
+                            className="text-[10px] text-slate-500 hover:text-rose-700 hover:underline"
+                          >
+                            melden
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setMetaEditingId(
+                                metaEditingId === s.id ? null : s.id
+                              )
+                            }
+                            className="text-[10px] text-slate-500 hover:text-sky-700 hover:underline"
+                          >
+                            {metaEditingId === s.id ? "Änderung schließen" : "ändern"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeStatement(s.id)}
+                            className="text-[10px] text-slate-500 hover:text-rose-700 hover:underline"
+                          >
+                            entfernen
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {!statements.length && !info && (
+                  <p className="text-sm text-slate-500">
+                    Noch keine Statements vorhanden. Sie erscheinen nur, wenn
+                    die Analyse erfolgreich war und der KI-Dienst klare
+                    Einzel-Statements liefern konnte.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Rechts: Fragen & Knoten (nur Level 2) */}
+          <div
+            className={
+              viewLevel >= 2 ? "hidden lg:flex lg:flex-col gap-3" : "hidden"
+            }
+          >
+            <div className="space-y-3">
+              <div>
+                <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Fragen zum Weiterdenken
+                </h2>
+                {questions.length === 0 ? (
+                  <p className="mt-1 text-[11px] text-slate-400">
+                    Noch keine Fragen. Wenn die Analyse vertiefende Fragen
+                    ableitet, erscheinen sie hier.
+                  </p>
+                ) : (
+                  <div className="mt-1 space-y-2">
+                    {questions.map((q) => (
+                      <div
+                        key={q.id}
+                        className="rounded-xl border border-slate-200 bg-white/90 p-3 shadow-sm"
+                      >
+                        <InlineEditableText
+                          value={q.body}
+                          onChange={(val) => updateQuestion(q.id, val)}
+                          label={
+                            q.category ? `${q.label} · ${q.category}` : q.label
+                          }
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <h2 className="mt-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Knoten (Themenschwerpunkte)
+                </h2>
+                {knots.length === 0 ? (
+                  <p className="mt-1 text-[11px] text-slate-400">
+                    Noch keine Knoten. Sobald die Analyse zentrale
+                    Themenschwerpunkte erkennt, erscheinen sie hier.
+                  </p>
+                ) : (
+                  <div className="mt-1 space-y-2">
+                    {knots.map((k) => (
+                      <div
+                        key={k.id}
+                        className="rounded-xl border border-slate-200 bg-white/90 p-3 shadow-sm"
+                      >
+                        <InlineEditableText
+                          value={k.body}
+                          onChange={(val) => updateKnot(k.id, val)}
+                          label={`${k.title}${
+                            k.category ? ` · ${k.category}` : ""
+                          }`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
