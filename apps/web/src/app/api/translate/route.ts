@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { fetchGptTranslation } from "@/utils/gptTranslator";
-import { analyzeContribution } from "@/features/analysis/extract";
+import { analyzeContribution } from "@features/analyze/analyzeContribution";
 import { extractStatementsFromText } from "@/lib/contribution/extractStatements";
 import { translateAndCache } from "@/lib/contribution/translateAndCache";
 import { storeContribution } from "@/lib/contribution/storeContribution";
@@ -58,11 +58,14 @@ export async function POST(req: NextRequest) {
     const cookieUserId = req.cookies.get("u_id")?.value ?? null;
     const levelCheck = await ensureUserMeetsVerificationLevel(cookieUserId, "soft");
     if (!levelCheck.ok) {
-      const status = levelCheck.error === "login_required" ? 401 : 403;
+      const errCode =
+        (levelCheck as { error?: "login_required" | "user_not_found" | "insufficient_level" }).error ??
+        "insufficient_level";
+      const status = errCode === "login_required" ? 401 : 403;
       return NextResponse.json(
         {
           ok: false,
-          error: levelCheck.error,
+          error: errCode,
           requiredLevel: "soft",
           currentLevel: levelCheck.level,
         },
@@ -89,7 +92,7 @@ export async function POST(req: NextRequest) {
       text,
       region: region ?? undefined,
     };
-    const analysis = await analyzeContribution(String((analysisReq as any)?.text ?? ""));
+    const analysis = await analyzeContribution(analysisReq);
 
     // 2) Statements aus Originaltext (Objekte)
     const statementObjs = extractStatementsFromText(text, {

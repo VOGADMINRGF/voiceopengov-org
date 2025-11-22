@@ -4,12 +4,15 @@ import { voteDraftsCol, statementCandidatesCol, analyzeResultsCol } from "@featu
 import { isStaffRequest } from "../../utils";
 import { getRegionName } from "@core/regions/regionTranslations";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) {
   if (!isStaffRequest(req)) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
 
-  const id = params.id;
+  const { id } = await context.params;
   let objectId: ObjectId;
   try {
     objectId = new ObjectId(id);
@@ -35,7 +38,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ ok: false, error: "analyze_result_not_found" }, { status: 404 });
   }
 
-  const regionName = await resolveRegionName(draft.regionCode ?? candidate.regionCode);
+  const regionCode = draft.regionCode ?? candidate.regionCode ?? null;
+  const regionName = await resolveRegionName(regionCode ? String(regionCode) : null);
 
   return NextResponse.json({
     ok: true,

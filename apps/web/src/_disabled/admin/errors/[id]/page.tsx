@@ -7,6 +7,25 @@ interface ErrorDetailProps {
 }
 
 // 🚧 Temporär Mock-Daten
+const MOCK_ERRORS: Record<string, any> = {
+  "ERR-12AB34CD": {
+    message: "GPT-Analyse fehlgeschlagen",
+    path: "/api/contribution/analyze",
+    timestamp: "2025-05-27T12:34:00Z",
+    cause: "Unexpected GPT API response",
+    payload: {
+      text: "Lorem ipsum...",
+      userContext: { locale: "de", region: "Sachsen" },
+    },
+  },
+  "ERR-9XYZ1234": {
+    message: "Beitrag konnte nicht gespeichert werden",
+    path: "/api/contribution/save",
+    timestamp: "2025-05-27T11:58:00Z",
+    cause: "Validation failed: text missing",
+    payload: {},
+  },
+};
 
 export default function ErrorDetailPage({ params }: ErrorDetailProps) {
   const error = MOCK_ERRORS[params.id];

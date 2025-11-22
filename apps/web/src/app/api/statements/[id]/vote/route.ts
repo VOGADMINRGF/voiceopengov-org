@@ -13,9 +13,13 @@ function hash(s: string) {
   return crypto.createHash("sha256").update(s).digest("hex").slice(0, 40);
 }
 
-export async function POST(req: NextRequest, ctx: { params: { id: string } }) {
+export async function POST(
+  req: NextRequest,
+  ctx: { params: Promise<{ id: string }> },
+) {
   try {
-    const statementId = String(ctx.params.id || "").trim();
+    const { id } = await ctx.params;
+    const statementId = String(id || "").trim();
     if (!statementId) return err("MISSING_STATEMENT_ID", 400);
 
     const b = await req.json().catch(() => ({}));

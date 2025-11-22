@@ -7,8 +7,12 @@ import { streamAgendaCol, streamSessionsCol } from "@features/stream/db";
 import type { StreamOverlayItem } from "@features/stream/types";
 import { VoteModel } from "@/models/votes/Vote";
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
-  const sessionId = new ObjectId(params.id);
+export async function GET(
+  _req: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) {
+  const { id } = await context.params;
+  const sessionId = new ObjectId(id);
   const sessions = await streamSessionsCol();
   const session = await sessions.findOne({ _id: sessionId });
   if (!session) {

@@ -2,7 +2,7 @@ import { analyzeContribution, type AnalyzeResult } from "@features/analyze/analy
 
 /** Legacy-Wrapper: liefert nur die Claims zurück (Fallback v1/v3) */
 export async function extractContributions(text: string): Promise<{ claims: AnalyzeResult["claims"] }> {
-  const r = await analyzeContribution(String(text ?? ""));
+  const r = await analyzeContribution({ text: String(text ?? "") });
   return { claims: r.claims || [] };
 }
 

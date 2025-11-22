@@ -1,6 +1,7 @@
 // apps/web/src/app/api/errors/resolve/route.ts
 import { NextResponse } from "next/server";
 import { getCol, ObjectId } from "@core/db/triMongo";
+import type { ModifyResult } from "mongodb";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -52,7 +53,8 @@ export async function POST(req: Request) {
       }
     );
 
-    const updated = result?.value; // ✅ ModifyResult<T> hat .value
+    const updated =
+      (result as unknown as { value?: ErrorLogDoc | null })?.value ?? null;
 
     if (!updated) {
       return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });

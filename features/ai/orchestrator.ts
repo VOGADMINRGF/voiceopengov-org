@@ -58,3 +58,18 @@ export function withMetrics<Args extends any[], R>(
 // Optional fürs Debuggen:
 export function getMetricsSnapshot(){ return JSON.parse(JSON.stringify(METRICS)); }
 export function resetMetrics(){ for(const k of Object.keys(METRICS)) delete (METRICS as any)[k]; }
+
+export type OrchestratedTaskResult =
+  | { ok: true; parsed: unknown; rawText?: string; lastProvider?: string }
+  | { ok: false; error: string; rawText?: string; lastProvider?: string };
+
+export async function runOrchestratedTask(
+  task: string,
+  _payload: Record<string, unknown>,
+  _opts?: Record<string, unknown>,
+): Promise<OrchestratedTaskResult> {
+  return {
+    ok: false,
+    error: `runOrchestratedTask(${task}) is not available in this build`,
+  };
+}

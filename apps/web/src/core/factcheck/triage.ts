@@ -1,5 +1,4 @@
 // apps/web/src/core/factcheck/triage.ts
-import type { Prisma } from "@db/core";
 export type ExtractedUnit = any;
 
 /**

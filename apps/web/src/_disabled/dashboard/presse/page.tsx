@@ -5,7 +5,7 @@
  */
 
 import { useState } from "react";
-import TabNav from "@components/TabNav";
+import TabNav from "@/components/TabNav";
 import StatementList from "@features/statement/components/StatementList";
 import ContributionList from "@features/contribution/components/ContributionList";
 import ReportList from "@features/report/components/ReportList";

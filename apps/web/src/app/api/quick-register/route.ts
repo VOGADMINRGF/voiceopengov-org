@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     const ua = req.headers.get("user-agent") || null;
 
     // --- PII (Mongo) schreiben
-    const conn = piiConn();
+    const conn = await piiConn();
     const QuickSignup = getQuickSignupModel(conn);
     const doc = await QuickSignup.create({
       name: body.name ?? null,

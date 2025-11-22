@@ -1,5 +1,5 @@
 // apps/web/src/lib/contribution/regionLookup.ts
-import { prisma } from "@db/web";
+import { prisma } from "@/lib/prisma";
 
 export async function findRegionByCodeOrName(codeOrName?: string) {
   if (!codeOrName) return null;

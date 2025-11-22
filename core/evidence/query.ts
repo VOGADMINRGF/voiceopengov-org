@@ -17,7 +17,7 @@ export interface EvidenceClaimFilter {
   locale?: string;
   topicKey?: string;
   pipeline?: string;
-  sourceType?: "contribution" | "feed" | "admin";
+  sourceType?: "contribution" | "feed" | "admin" | "all";
   textQuery?: string;
   limit?: number;
   offset?: number;
@@ -106,13 +106,14 @@ export async function findEvidenceClaims(
   const evidenceItemsMap = await loadEvidenceItems(evidenceIds);
 
   const items: EvidenceClaimWithMeta[] = docs.map((doc) => {
+    const claim = doc as unknown as EvidenceClaimDoc;
     const claimLinks = doc.links ?? [];
     const linkedItems = claimLinks
       .map((link) => (link.toEvidenceId ? evidenceItemsMap.get(link.toEvidenceId.toString()) : null))
       .filter((item): item is EvidenceItemDoc => Boolean(item));
 
     return {
-      claim: doc as EvidenceClaimDoc,
+      claim,
       links: claimLinks,
       decisions: doc.decisions ?? [],
       latestDecision: extractLatestDecision(doc.decisions ?? []),

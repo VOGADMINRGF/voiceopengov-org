@@ -1,12 +1,15 @@
-import type { Collection, OptionalId, WithId } from "mongodb";
+import type { Collection, OptionalId } from "mongodb";
 import { votesCol, ObjectId } from "@core/db/triMongo";
 
 export type VoteChoice = "yes" | "no" | "skip" | string;
 
-export type VoteDoc = WithId<{
+export type VoteDoc = {
+  _id?: ObjectId;
   statementId: string | ObjectId;
   choice?: VoteChoice;
   /** legacy field name from VPM */
+  vote?: VoteChoice;
+  /** another legacy alias */
   value?: VoteChoice;
   sessionId?: string;
   userHash?: string;
@@ -18,7 +21,7 @@ export type VoteDoc = WithId<{
   updatedAt?: Date;
   streamSessionId?: string | ObjectId | null;
   agendaItemId?: string | ObjectId | null;
-}>;
+};
 
 export async function VoteModel(): Promise<Collection<VoteDoc>> {
   return votesCol<VoteDoc>("votes");

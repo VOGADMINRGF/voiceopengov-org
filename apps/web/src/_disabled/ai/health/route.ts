@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { mongo, mongoPing } from "@/lib/db";
-import { redis, redisPing } from "@/lib/redis";
+import { mongoPing } from "@/utils/mongoPing";
+import { redisPing } from "@/utils/redisPing";
 import { neo4jDriver, neo4jVerify } from "@/lib/neo4j";
 
 // Sicherstellen: Node-Runtime, keine Caches
@@ -38,7 +38,6 @@ function withTimeout<T>(p: Promise<T>, ms: number, label: string) {
 }
 
 async function pingMongo(): Promise<Check> {
-  if (!mongo) return { ok: false, info: "client_missing" };
   try {
     const { ms } = await time(() => withTimeout(mongoPing(), 800, "mongo"));
     return { ok: true, ms };
@@ -48,7 +47,6 @@ async function pingMongo(): Promise<Check> {
 }
 
 async function pingRedis(): Promise<Check> {
-  if (!redis) return { ok: false, info: "client_missing" };
   try {
     const { ms } = await time(() => withTimeout(redisPing(), 500, "redis"));
     return { ok: true, ms };

@@ -9,11 +9,15 @@ import {
 } from "@core/access/db";
 import type { RouteId, UserRouteOverrideMode } from "@features/access/types";
 
-export async function GET(req: NextRequest, { params }: { params: { userId: string } }) {
+export async function GET(
+  req: NextRequest,
+  context: { params: Promise<{ userId: string }> },
+) {
   if (!isStaffRequest(req)) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
-  const rows = await getUserOverridesWithMeta(params.userId);
+  const { userId } = await context.params;
+  const rows = await getUserOverridesWithMeta(userId);
   return NextResponse.json({
     ok: true,
     overrides: rows.map((row) => ({
@@ -27,10 +31,14 @@ export async function GET(req: NextRequest, { params }: { params: { userId: stri
   });
 }
 
-export async function POST(req: NextRequest, { params }: { params: { userId: string } }) {
+export async function POST(
+  req: NextRequest,
+  context: { params: Promise<{ userId: string }> },
+) {
   if (!isStaffRequest(req)) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
+  const { userId } = await context.params;
 
   const body = (await req.json().catch(() => null)) as {
     routeId?: RouteId;
@@ -43,7 +51,7 @@ export async function POST(req: NextRequest, { params }: { params: { userId: str
   }
 
   await upsertUserOverride({
-    userId: params.userId,
+    userId,
     routeId: body.routeId,
     mode: body.mode,
     reason: body.reason,

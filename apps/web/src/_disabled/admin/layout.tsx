@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import SidebarNav from "@features/dashboard/components/admin/SidebarNavAdmin";
 import { getServerUser } from "@/lib/auth/getServerUser";
-import { ADMIN_ALLOWED_ROLES } from "@/app/admin/config/adminConfig";
+import { ADMIN_ALLOWED_ROLES } from "./config/adminConfig";
 
 type UserWithRole = { role?: string };
 

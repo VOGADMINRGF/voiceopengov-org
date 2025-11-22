@@ -2,6 +2,7 @@ import type { ObjectId } from "@core/db/triMongo";
 import type { AnalyzeResult } from "@features/analyze/schemas";
 import { evidenceClaimsCol } from "@core/evidence/db";
 import type { EvidenceClaimDoc, EvidenceSourceType } from "@core/evidence/types";
+import type { ModifyResult } from "mongodb";
 
 export interface EvidenceSyncContext {
   sourceType: EvidenceSourceType;
@@ -40,7 +41,7 @@ export async function syncAnalyzeResultToEvidenceGraph(
     const importance = typeof claim?.importance === "number" ? claim.importance : undefined;
     const confidence = importance && importance > 0 ? Math.min(1, importance / 5) : undefined;
 
-    const updateResult = await claimsCol.findOneAndUpdate(
+    const updateResult = (await claimsCol.findOneAndUpdate(
       { claimId: stableId },
       {
         $set: {
@@ -64,10 +65,11 @@ export async function syncAnalyzeResultToEvidenceGraph(
         },
       },
       { upsert: true, returnDocument: "after" },
-    );
+    )) as unknown as ModifyResult<EvidenceClaimDoc>;
 
-    if (updateResult.value) {
-      results.push(updateResult.value as EvidenceClaimDoc);
+    const updatedDoc = (updateResult?.value ?? null) as EvidenceClaimDoc | null;
+    if (updatedDoc) {
+      results.push(updatedDoc);
     }
   }
 

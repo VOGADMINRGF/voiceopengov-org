@@ -74,8 +74,13 @@ const PROVIDER_LABELS: Record<AiProviderName, string> = {
 const PIPELINE_LABELS: Record<AiPipelineName, string> = {
   contribution_analyze: "Beiträge",
   feeds_analyze: "Feeds",
+  feeds_to_statementCandidate: "Feeds → Statements",
   factcheck: "Factcheck",
+  news_factcheck: "News Factcheck",
   report_summarize: "Reports",
+  content_translate: "Übersetzung",
+  content_summarize_news: "News-Summary",
+  orchestrator_smoke: "Orchestrator Smoke",
   other: "Andere",
 };
 

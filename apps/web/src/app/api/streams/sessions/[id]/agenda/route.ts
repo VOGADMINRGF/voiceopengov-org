@@ -19,11 +19,15 @@ async function loadSession(sessionId: string) {
   return col.findOne({ _id: new ObjectId(sessionId) });
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) {
   const ctx = await requireCreatorContext(req);
   if (!ctx) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
 
-  const session = await loadSession(params.id);
+  const { id } = await context.params;
+  const session = await loadSession(id);
   if (!session) return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
   if (!ctx.isStaff && session.creatorId !== ctx.userId) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
@@ -31,7 +35,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
   const agendaCol = await streamAgendaCol();
   const items = await agendaCol
-    .find({ sessionId: new ObjectId(params.id) })
+    .find({ sessionId: new ObjectId(id) })
     .sort({ createdAt: 1 })
     .toArray();
 
@@ -49,11 +53,15 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   });
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) {
   const ctx = await requireCreatorContext(req);
   if (!ctx) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
 
-  const session = await loadSession(params.id);
+  const { id } = await context.params;
+  const session = await loadSession(id);
   if (!session) return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
   if (!ctx.isStaff && session.creatorId !== ctx.userId) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
@@ -68,7 +76,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const agendaCol = await streamAgendaCol();
   const now = new Date();
   const doc: StreamAgendaItemDoc = {
-    sessionId: new ObjectId(params.id),
+    sessionId: new ObjectId(id),
     creatorId: ctx.userId,
     kind,
     status: "queued",
@@ -90,10 +98,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   return NextResponse.json({ ok: true, itemId: result.insertedId.toHexString() });
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) {
   const ctx = await requireCreatorContext(req);
   if (!ctx) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
-  const session = await loadSession(params.id);
+  const { id } = await context.params;
+  const session = await loadSession(id);
   if (!session) return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
   if (!ctx.isStaff && session.creatorId !== ctx.userId) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
@@ -109,7 +121,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   if (action === "go_live") {
     await agendaCol.updateMany(
-      { sessionId: new ObjectId(params.id), status: "live" },
+      { sessionId: new ObjectId(id), status: "live" },
       { $set: { status: "archived", archivedAt: now } },
     );
     await agendaCol.updateOne(
@@ -118,7 +130,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     );
     const sessions = await streamSessionsCol();
     await sessions.updateOne(
-      { _id: new ObjectId(params.id) },
+      { _id: new ObjectId(id) },
       { $set: { isLive: true, updatedAt: now, startedAt: session.startedAt ?? now } },
     );
   } else if (action === "skip") {

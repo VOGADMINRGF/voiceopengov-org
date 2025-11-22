@@ -1,10 +1,40 @@
-// apps/web/src/app/api/contributions/save/route.ts
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Contribution from "@/models/Contribution";
 
-export default async function handler(req: any, res: any) {
-  if (req.method !== "POST")
-    return res.status(405).json({ error: "POST required" });
+type ContributionPayload = {
+  title?: string;
+  summary?: string;
+  content?: string;
+  language?: string;
+  userContext?: any;
+  topics?: any;
+  level?: any;
+  context?: any;
+  suggestions?: any;
+  statements?: any;
+  alternatives?: any;
+  facts?: any;
+  media?: any;
+  links?: any;
+  analysis?: any;
+  authorId?: string | null;
+};
+
+export async function POST(req: NextRequest) {
+  if (req.method !== "POST") {
+    return NextResponse.json({ error: "POST required" }, { status: 405 });
+  }
+
+  let body: ContributionPayload;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "invalid_body" }, { status: 400 });
+  }
 
   await dbConnect();
 
@@ -25,12 +55,12 @@ export default async function handler(req: any, res: any) {
     links,
     analysis,
     authorId,
-  } = req.body;
+  } = body;
 
-  // Minimalprüfung
-  if (!content) return res.status(400).json({ error: "Kein Inhalt." });
+  if (!content) {
+    return NextResponse.json({ error: "Kein Inhalt." }, { status: 400 });
+  }
 
-  // Provenance-Log initialisieren
   const provenance = [
     {
       action: "created",
@@ -63,5 +93,5 @@ export default async function handler(req: any, res: any) {
 
   await doc.save();
 
-  res.status(201).json(doc);
+  return NextResponse.json(doc, { status: 201 });
 }

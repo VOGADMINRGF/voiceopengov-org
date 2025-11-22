@@ -3,21 +3,28 @@ import Link from "next/link";
 import { findEvidenceClaims } from "@core/evidence/query";
 import { getRegionName } from "@core/regions/regionTranslations";
 import type { EvidenceClaimWithMeta } from "@core/evidence/query";
-import { CORE_LOCALES, EXTENDED_LOCALES } from "@/config/locales";
+import {
+  CORE_LOCALES,
+  EXTENDED_LOCALES,
+  DEFAULT_LOCALE,
+  isSupportedLocale,
+  type SupportedLocale,
+} from "@/config/locales";
 import { getRegionEvidenceSummary } from "@features/report/evidenceAggregates";
 import { resolveTimeRange, type TimeRangeKey } from "@/utils/timeRange";
 
-async function detectLocale(): Promise<string> {
+async function detectLocale(): Promise<SupportedLocale> {
   const cookieStore = await cookies();
   const cookieLang = cookieStore.get("lang")?.value;
-  if (cookieLang) return cookieLang;
+  if (cookieLang && isSupportedLocale(cookieLang)) return cookieLang;
   const headerStore = await headers();
   const acceptLanguage = headerStore.get("accept-language");
   if (acceptLanguage) {
     const primary = acceptLanguage.split(",")[0]?.split(";")[0]?.trim();
-    if (primary) return primary.slice(0, 2);
+    const candidate = primary?.slice(0, 2);
+    if (candidate && isSupportedLocale(candidate)) return candidate;
   }
-  return "de";
+  return DEFAULT_LOCALE;
 }
 
 const LOCALE_OPTIONS = ["all", ...CORE_LOCALES, ...EXTENDED_LOCALES];
@@ -26,12 +33,20 @@ export default async function EvidenceRegionPage({
   params,
   searchParams,
 }: {
-  params: { regionCode: string };
+  params: Promise<{ regionCode: string }>;
   searchParams: Promise<{ locale?: string; pipeline?: string; q?: string; timeRange?: string }>;
 }) {
-  const regionParam = decodeURIComponent(params.regionCode);
+  const { regionCode } = await params;
+  const regionParam = decodeURIComponent(regionCode);
   const sp = await searchParams;
-  const localeParam = sp.locale ?? (await detectLocale());
+  const detectedLocale = await detectLocale();
+  const requestedLocale = sp.locale ?? null;
+  const localeParam: SupportedLocale | "all" =
+    requestedLocale === "all"
+      ? "all"
+      : requestedLocale && isSupportedLocale(requestedLocale)
+        ? requestedLocale
+        : detectedLocale;
   const pipelineParam = sp.pipeline ?? "all";
   const textQuery = sp.q ?? "";
   const timeRangeParam = (sp.timeRange as TimeRangeKey | undefined) ?? "90d";
@@ -60,7 +75,10 @@ export default async function EvidenceRegionPage({
   const regionName =
     regionParam === "global"
       ? "Global / offen"
-      : await getRegionName(regionParam, localeParam === "all" ? "de" : localeParam);
+      : await getRegionName(
+          regionParam,
+          localeParam === "all" ? detectedLocale : localeParam,
+        );
 
   return (
     <main className="mx-auto flex min-h-[80vh] max-w-5xl flex-col gap-6 px-4 py-10">

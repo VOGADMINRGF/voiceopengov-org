@@ -9,9 +9,9 @@ import * as React from "react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Input, Separator, Button, CardFooter, Avatar, AvatarImage, AvatarFallback } from "@vog/ui";
 import {
   ArrowDownAZ,
   ArrowUpAZ,
@@ -508,8 +508,8 @@ export default function StreamListV3({
               <SortSelect sort={sort} setSort={setSort} language={language} />
               <Button
                 type="button"
-                size="sm"
-                variant="outline"
+                variant="ghost"
+                className="border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 px-3 py-1.5 text-sm"
                 onClick={refresh}
                 disabled={loading}
                 aria-label={language === "en" ? "Refresh" : "Aktualisieren"}
@@ -711,12 +711,12 @@ function DefaultStreamCard({
 
   const statusBadge =
     (item.status && (
-      <Badge variant="secondary" className="capitalize">
+      <Badge className="capitalize bg-neutral-200 text-neutral-800 ring-0 px-2 py-0.5 text-xs">
         {item.status}
       </Badge>
     )) ||
     (item.kind && (
-      <Badge variant="secondary" className="capitalize">
+      <Badge className="capitalize bg-neutral-200 text-neutral-800 ring-0 px-2 py-0.5 text-xs">
         {item.kind}
       </Badge>
     ));
@@ -726,7 +726,7 @@ function DefaultStreamCard({
       <div className="flex flex-wrap items-center gap-1.5">
         <TagIcon className="h-3.5 w-3.5 opacity-60" />
         {item.tags.map((t) => (
-          <Badge key={t} variant="outline">
+          <Badge key={t} className="bg-white text-slate-600 ring-1 ring-slate-200">
             {t}
           </Badge>
         ))}
@@ -849,7 +849,7 @@ function SortSelect({
       <Button
         type="button"
         size="sm"
-        variant={sort === "newest" ? "default" : "outline"}
+        variant={sort === "newest" ? "primary" : "secondary"}
         onClick={() => setSort("newest")}
         aria-pressed={sort === "newest"}
         className="gap-1"
@@ -861,7 +861,7 @@ function SortSelect({
       <Button
         type="button"
         size="sm"
-        variant={sort === "oldest" ? "default" : "outline"}
+        variant={sort === "oldest" ? "primary" : "secondary"}
         onClick={() => setSort("oldest")}
         aria-pressed={sort === "oldest"}
         className="gap-1"
@@ -873,7 +873,7 @@ function SortSelect({
       <Button
         type="button"
         size="sm"
-        variant={sort === "most_commented" ? "default" : "outline"}
+        variant={sort === "most_commented" ? "primary" : "secondary"}
         onClick={() => setSort("most_commented")}
         aria-pressed={sort === "most_commented"}
         className="gap-1"
@@ -885,7 +885,7 @@ function SortSelect({
       <Button
         type="button"
         size="sm"
-        variant={sort === "most_liked" ? "default" : "outline"}
+        variant={sort === "most_liked" ? "primary" : "secondary"}
         onClick={() => setSort("most_liked")}
         aria-pressed={sort === "most_liked"}
         className="gap-1"
@@ -897,7 +897,7 @@ function SortSelect({
       <Button
         type="button"
         size="sm"
-        variant={sort === "most_viewed" ? "default" : "outline"}
+        variant={sort === "most_viewed" ? "primary" : "secondary"}
         onClick={() => setSort("most_viewed")}
         aria-pressed={sort === "most_viewed"}
         className="gap-1"
@@ -927,8 +927,12 @@ function TagSelector({
         return (
           <Badge
             key={t}
-            variant={active ? "default" : "outline"}
-            className={cn("cursor-pointer select-none whitespace-nowrap", active && "ring-1 ring-ring")}
+            className={cn(
+              "cursor-pointer select-none whitespace-nowrap px-3 py-0.5 text-xs transition",
+              active
+                ? "bg-neutral-900 text-white ring-0"
+                : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"
+            )}
             onClick={() => onSelect(t)}
           >
             {t}

@@ -11,7 +11,11 @@ function hashSession(input: string) {
   return createHash("sha256").update(input).digest("hex").slice(0, 40);
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) {
+  const { id } = await context.params;
   const agendaCol = await streamAgendaCol();
   const body = (await req.json().catch(() => null)) as { agendaItemId?: string; choice?: string } | null;
   const agendaItemId = body?.agendaItemId;
@@ -20,7 +24,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ ok: false, error: "invalid_payload" }, { status: 400 });
   }
 
-  const item = await agendaCol.findOne({ _id: new ObjectId(agendaItemId), sessionId: new ObjectId(params.id) });
+  const item = await agendaCol.findOne({ _id: new ObjectId(agendaItemId), sessionId: new ObjectId(id) });
   if (!item || item.kind !== "poll") {
     return NextResponse.json({ ok: false, error: "poll_not_found" }, { status: 404 });
   }
@@ -39,18 +43,18 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const ip = req.headers.get("x-forwarded-for") ?? "0.0.0.0";
   const ua = req.headers.get("user-agent") ?? "unknown";
-  const sessionHash = item.allowAnonymousVoting ? hashSession(`${ip}|${ua}|${params.id}`) : hashSession(userId ?? `${ip}|${ua}`);
+  const sessionHash = item.allowAnonymousVoting ? hashSession(`${ip}|${ua}|${id}`) : hashSession(userId ?? `${ip}|${ua}`);
   const Vote = await VoteModel();
   await Vote.updateOne(
     {
-      streamSessionId: params.id,
+      streamSessionId: id,
       agendaItemId,
       sessionId: sessionHash,
     },
     {
       $set: {
         statementId: agendaItemId,
-        streamSessionId: params.id,
+        streamSessionId: id,
         agendaItemId,
         sessionId: sessionHash,
         choice,

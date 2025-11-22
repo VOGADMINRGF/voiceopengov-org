@@ -12,32 +12,29 @@ type Repo = {
   seed?: (...args: any[]) => Promise<any>;
 };
 
-let repo: Repo;
-switch (GRAPH_PRIMARY) {
-  case "arango":
-    repo = arangoRepo;
-    break;
-  case "memgraph":
-    repo = memgraphRepo;
-    break;
-  case "neo4j":
-  default:
-    repo = neo4jRepo;
-    break;
-}
+const activeGraphRepo: Repo = (() => {
+  switch (GRAPH_PRIMARY) {
+    case "arango":
+      return arangoRepo;
+    case "memgraph":
+      return memgraphRepo;
+    case "neo4j":
+    default:
+      return neo4jRepo;
+  }
+})();
 
 const noop = async () => ({ ok: true, skipped: true });
 
 export async function ensureGraph(...args: any[]) {
-  const fn = repo.ensureGraph ?? repo.ensureSchema ?? repo.ensure ?? noop;
+  const fn = activeGraphRepo.ensureGraph ?? activeGraphRepo.ensureSchema ?? activeGraphRepo.ensure ?? noop;
   return fn(...args);
 }
 
 export async function seedGraph(...args: any[]) {
-  const fn = repo.seedGraph ?? repo.seed ?? noop;
+  const fn = activeGraphRepo.seedGraph ?? activeGraphRepo.seed ?? noop;
   return fn(...args);
 }
 
 export * from "./types";
 export * from "./config";
-export default repo;

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findEvidenceClaims } from "@core/evidence/query";
 import { getRegionName } from "@core/regions/regionTranslations";
+import type { SupportedLocale } from "@core/locale/locales";
 import { isStaffRequest } from "../../feeds/utils";
 
 export async function GET(req: NextRequest) {
@@ -27,8 +28,9 @@ export async function GET(req: NextRequest) {
   const result = await findEvidenceClaims(filter);
   const items = await Promise.all(
     result.items.map(async (entry) => {
+      const locale = (entry.claim.locale ?? "de") as SupportedLocale;
       const regionName = entry.claim.regionCode
-        ? await getRegionName(entry.claim.regionCode, entry.claim.locale ?? "de")
+        ? await getRegionName(entry.claim.regionCode, locale)
         : null;
       const latest = entry.latestDecision ?? null;
 

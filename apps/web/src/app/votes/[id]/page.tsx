@@ -5,9 +5,14 @@ import { VoteButtons } from "./VoteButtons";
 
 export const dynamic = "force-dynamic";
 
-export default async function VoteDetailPage({ params }: { params: { id: string } }) {
+export default async function VoteDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
   const userId = (await cookies()).get("u_id")?.value ?? null;
-  const result = await getPublicVoteDetail(params.id, userId);
+  const result = await getPublicVoteDetail(id, userId);
   if (!result.ok) {
     const levelHint =
       result.error === "login_required"
@@ -61,7 +66,7 @@ export default async function VoteDetailPage({ params }: { params: { id: string 
           <h3 className="text-sm font-semibold text-slate-900">Evidence & Quellen</h3>
           {vote.regionCode && (
             <p className="text-sm text-slate-600">
-              Region: {vote.regionCode} –{" "}
+              Region: {String(vote.regionCode)} –{" "}
               <Link href={`/evidence/${vote.regionCode}`} className="text-sky-600 underline">
                 Evidence-Ansicht öffnen
               </Link>

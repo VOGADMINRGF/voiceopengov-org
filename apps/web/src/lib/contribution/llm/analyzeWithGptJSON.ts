@@ -11,6 +11,6 @@ export async function analyzeWithGptJSON(text: string) {
   const USER = `Text:\n---\n${text}\n---`;
   const prompt = `${SYSTEM}\n\n${USER}`;
 
-  const { text: out } = await callOpenAI(prompt, { forceJsonMode: true });
+  const { text: out } = await callOpenAI({ prompt, asJson: true });
   return JSON.parse(out || "{}");
 }

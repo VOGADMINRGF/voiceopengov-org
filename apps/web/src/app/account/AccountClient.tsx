@@ -3,7 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { AccountOverview } from "@features/account/types";
-import { CORE_LOCALES, EXTENDED_LOCALES } from "@/config/locales";
+import {
+  CORE_LOCALES,
+  EXTENDED_LOCALES,
+  type SupportedLocale,
+} from "@/config/locales";
 import { VERIFICATION_LEVEL_DESCRIPTIONS } from "@features/auth/verificationRules";
 
 const LOCALE_OPTIONS = [...CORE_LOCALES, ...EXTENDED_LOCALES];
@@ -15,7 +19,9 @@ type Props = {
 export function AccountClient({ initialData }: Props) {
   const [data, setData] = useState<AccountOverview>(initialData);
   const [displayName, setDisplayName] = useState(initialData.displayName ?? "");
-  const [preferredLocale, setPreferredLocale] = useState(initialData.preferredLocale);
+  const [preferredLocale, setPreferredLocale] = useState<SupportedLocale>(
+    initialData.preferredLocale as SupportedLocale,
+  );
   const [newsletterOptIn, setNewsletterOptIn] = useState(!!initialData.newsletterOptIn);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -53,7 +59,7 @@ export function AccountClient({ initialData }: Props) {
       if (body?.overview) {
         setData(body.overview);
         setDisplayName(body.overview.displayName ?? "");
-        setPreferredLocale(body.overview.preferredLocale);
+        setPreferredLocale(body.overview.preferredLocale as SupportedLocale);
         setNewsletterOptIn(!!body.overview.newsletterOptIn);
       }
       setMessage("Einstellungen aktualisiert");
@@ -150,7 +156,9 @@ export function AccountClient({ initialData }: Props) {
             <select
               className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-2 text-sm"
               value={preferredLocale}
-              onChange={(e) => setPreferredLocale(e.target.value)}
+              onChange={(e) =>
+                setPreferredLocale(e.target.value as SupportedLocale)
+              }
             >
               {LOCALE_OPTIONS.map((loc) => (
                 <option key={loc} value={loc}>

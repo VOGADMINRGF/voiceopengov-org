@@ -42,8 +42,9 @@ export async function analyzeContribution(input: {
   }
 
   const res = await runOrchestratedTask(task as any, { text: input.content, locale });
-  if (!res.ok) {
-    throw new Error(`Analyze failed: ${res.error}${res.lastProvider ? ` [last=${res.lastProvider}]` : ""}`);
+  if (!res.ok || !("parsed" in res)) {
+    const errMsg = "error" in res ? res.error : "unknown_error";
+    throw new Error(`Analyze failed: ${errMsg}${res.lastProvider ? ` [last=${res.lastProvider}]` : ""}`);
   }
 
   let analysis = res.parsed as AnyAnalysis;

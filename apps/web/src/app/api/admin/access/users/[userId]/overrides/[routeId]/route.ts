@@ -8,11 +8,12 @@ import type { RouteId, UserRouteOverrideMode } from "@features/access/types";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { userId: string; routeId: RouteId } },
+  context: { params: Promise<{ userId: string; routeId: RouteId }> },
 ) {
   if (!isStaffRequest(req)) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
+  const { userId, routeId } = await context.params;
   const body = (await req.json().catch(() => null)) as {
     mode?: UserRouteOverrideMode;
     reason?: string;
@@ -22,8 +23,8 @@ export async function PATCH(
     return NextResponse.json({ ok: false, error: "invalid_body" }, { status: 400 });
   }
   await upsertUserOverride({
-    userId: params.userId,
-    routeId: params.routeId,
+    userId,
+    routeId,
     mode: body.mode,
     reason: body.reason,
     expiresAt: body.expiresAt ? new Date(body.expiresAt) : null,
@@ -33,11 +34,12 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { userId: string; routeId: RouteId } },
+  context: { params: Promise<{ userId: string; routeId: RouteId }> },
 ) {
   if (!isStaffRequest(req)) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
-  await deleteUserOverride(params.userId, params.routeId);
+  const { userId, routeId } = await context.params;
+  await deleteUserOverride(userId, routeId);
   return NextResponse.json({ ok: true });
 }

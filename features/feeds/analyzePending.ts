@@ -28,7 +28,7 @@ export async function analyzePendingStatementCandidates(opts: {
   while (analyzed + errors < limit) {
     if (Date.now() - started > timeoutMs) break;
 
-    const claimed = await candidateCol.findOneAndUpdate(
+    const candidate: CandidateDoc | null = await candidateCol.findOneAndUpdate(
       { analyzeStatus: "pending" as AnalyzeStatus },
       {
         $set: {
@@ -43,7 +43,6 @@ export async function analyzePendingStatementCandidates(opts: {
       },
     );
 
-    const candidate = claimed.value as CandidateDoc | null;
     if (!candidate) break;
 
     try {

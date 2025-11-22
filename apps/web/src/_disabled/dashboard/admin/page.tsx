@@ -1,5 +1,5 @@
 "use client";
-import TabNav from "@components/TabNav";
+import TabNav from "@/components/TabNav";
 import StatementList from "@features/statement/components/StatementList";
 import ContributionList from "@features/contribution/components/ContributionList";
 import SwipeAdminList from "@features/swipe/components/SwipeAdminList";
@@ -13,7 +13,7 @@ import { useAuth } from "@features/auth/hooks/useAuth";
 export default function AdminDashboard() {
   return (
     <main>
-      <StatementList admin />
+      <StatementList />
     </main>
   );
 }

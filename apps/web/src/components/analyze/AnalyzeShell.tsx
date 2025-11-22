@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import StatementCarousel from "@/components/statement/StatementCarousel";
-import { buildPyramid } from "@/features/analyze/pyramid";
+import { buildPyramid } from "@features/analyze/pyramid";
 
 type ApiResponse = {
   ok: boolean;
@@ -66,7 +66,6 @@ export default function AnalyzeShell() {
       }
 
       const { previews } = buildPyramid({
-        frames: data.frames,
         claims: data.claims,
         statements: data.statements,
       });

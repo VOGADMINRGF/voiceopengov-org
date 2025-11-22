@@ -1,6 +1,6 @@
 import type { ObjectId } from "@core/db/triMongo";
 import { evidenceItemsCol, evidenceLinksCol } from "@core/evidence/db";
-import type { EvidenceClaimDoc, EvidenceItemDoc } from "@core/evidence/types";
+import type { EvidenceClaimDoc } from "@core/evidence/types";
 import type { StatementCandidate } from "@features/feeds/types";
 import { summariseForEvidence } from "./summariseForEvidence";
 
@@ -23,12 +23,12 @@ export async function syncNewsEvidenceForCandidate({
   const shortSummary = await summariseForEvidence(summarySource, 800);
   const quoteSnippet = shortSummary ? shortSummary.slice(0, 300) : "";
 
-  const result = await itemsCol.findOneAndUpdate(
+  const evidenceItem = await itemsCol.findOneAndUpdate(
     { url: candidate.sourceUrl },
     {
       $set: {
         url: candidate.sourceUrl,
-        sourceKind: candidate.sourceType || "news_article",
+        sourceKind: "news_article",
         publisher,
         shortTitle,
         shortSummary,
@@ -36,7 +36,12 @@ export async function syncNewsEvidenceForCandidate({
         author: null,
         publishedAt: candidate.publishedAt ? new Date(candidate.publishedAt) : null,
         locale: candidate.sourceLocale ?? null,
-        regionCode: candidate.regionCode ?? null,
+        regionCode:
+          typeof candidate.regionCode === "string"
+            ? candidate.regionCode
+            : candidate.regionCode
+            ? String(candidate.regionCode)
+            : null,
         licenseHint: "unknown",
         reliabilityHint: "unknown",
         isActive: true,
@@ -49,7 +54,6 @@ export async function syncNewsEvidenceForCandidate({
     { upsert: true, returnDocument: "after" },
   );
 
-  const evidenceItem = result.value as EvidenceItemDoc;
   if (!evidenceItem?._id) return;
 
   const linksCol = await evidenceLinksCol();

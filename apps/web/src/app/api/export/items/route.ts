@@ -1,9 +1,15 @@
 // apps/web/src/app/api/export/items/route.ts
 export const runtime = "nodejs";
 
-import { prisma } from "@db/web";
-
 export async function GET() {
+  const prisma = await getPrismaClient();
+  if (!prisma) {
+    return new Response("export_disabled", {
+      status: 503,
+      headers: { "cache-control": "no-store" },
+    });
+  }
+
   const items = await prisma.contentItem.findMany({
     include: {
       regionEffective: { select: { code: true } },
@@ -71,4 +77,10 @@ export async function GET() {
       "cache-control": "no-store",
     },
   });
+}
+
+async function getPrismaClient() {
+  if (!process.env.WEB_DATABASE_URL) return null;
+  const mod = await import("@/lib/prisma");
+  return mod.prisma;
 }

@@ -32,4 +32,6 @@ export function pipeResult(send: (e: string, d: any) => void, r: any) {
   send("topics", topics);
   send("theses", theses);
   send("statements", statements);
+
+  return { topics, theses, statements, summary };
 }

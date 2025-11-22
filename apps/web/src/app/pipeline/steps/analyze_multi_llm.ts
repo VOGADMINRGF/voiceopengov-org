@@ -1,6 +1,5 @@
-import { orchestrateContribution } from "@/features/ai/orchestrator_contrib";
-import { civicSearchStrict } from "@/features/search/civic";
-import type { AnalyzeResult } from "@/features/analyze/analyzeContribution";
+import { orchestrateContribution } from "@features/ai/orchestrator_contrib";
+import { civicSearchStrict } from "@features/search/civic";
 
 export async function step_analyze_multi_llm(text: string, { maxClaims = 5 }: { maxClaims?: number } = {}) {
   const prompt = [
@@ -24,7 +23,7 @@ export async function step_analyze_multi_llm(text: string, { maxClaims = 5 }: { 
   try { parsed = JSON.parse(String(best?.text || "{}")); }
   catch (e:any) { parseErr = "json-parse-failed"; parsed = {}; }
 
-  const result: Omit<AnalyzeResult, "_meta"> = {
+  const result = {
     language: parsed?.language ?? null,
     mainTopic: parsed?.mainTopic ?? null,
     subTopics: Array.isArray(parsed?.subTopics) ? parsed.subTopics : [],
@@ -54,7 +53,11 @@ export async function step_analyze_multi_llm(text: string, { maxClaims = 5 }: { 
 
   const news = civic.ok ? civic.items : [];
   const logs: string[] = [];
-  logs.push(civic.ok ? `civic:${news.length}` : `civic-error:${civic.error}`);
+  logs.push(
+    civic.ok
+      ? `civic:${news.length}`
+      : `civic-error:${"error" in civic ? civic.error : "unknown"}`,
+  );
 
   return {
     ...result,

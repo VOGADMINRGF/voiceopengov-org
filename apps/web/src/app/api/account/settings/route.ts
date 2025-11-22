@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { updateAccountSettings } from "@features/account/service";
+import type { AccountSettingsUpdate } from "@features/account/types";
 import { isSupportedLocale } from "@core/locale/locales";
 
 export const runtime = "nodejs";
@@ -41,7 +42,17 @@ export async function PATCH(req: NextRequest) {
     );
   }
 
-  const overview = await updateAccountSettings(userId, parsed.data);
+  const payload: AccountSettingsUpdate = {
+    displayName:
+      parsed.data.displayName !== undefined ? parsed.data.displayName : undefined,
+    preferredLocale:
+      parsed.data.preferredLocale !== undefined
+        ? (parsed.data.preferredLocale as AccountSettingsUpdate["preferredLocale"])
+        : undefined,
+    newsletterOptIn: parsed.data.newsletterOptIn,
+  };
+
+  const overview = await updateAccountSettings(userId, payload);
   if (!overview) {
     return NextResponse.json({ ok: false, error: "user_not_found" }, { status: 404 });
   }

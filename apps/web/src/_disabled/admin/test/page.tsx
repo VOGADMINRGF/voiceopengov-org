@@ -3,6 +3,17 @@
 
 import Link from "next/link";
 
+const checkItems = [
+  { label: "Stream-Kacheln sichtbar & korrekt", href: "/stream" },
+  { label: "Unterstützen-Button im Header", href: "/unterstuetzen" },
+  { label: "CI-Farben & Fonts greifen", href: "/" },
+  { label: "Impressum geladen & erreichbar", href: "/impressum" },
+  { label: "Datenschutzseite erreichbar", href: "/daten" },
+  { label: "Satzung aufrufbar & formatiert", href: "/satzung" },
+  { label: "Footer mit Links korrekt gerendert", href: "/" },
+  { label: "Build & Dev starten ohne Fehler", href: "#check-console" },
+];
+
 export default function AdminTestPage() {
   return (
     <div className="max-w-2xl mx-auto py-10 px-4">

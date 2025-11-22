@@ -100,7 +100,7 @@ export async function GET(req: NextRequest) {
       regionCodes.length
         ? prisma.region.findMany({
             where: { code: { in: regionCodes } },
-            select: { code: true, meta: true, name: true },
+            select: { code: true, name: true },
           })
         : [],
     ]);
@@ -113,7 +113,7 @@ export async function GET(req: NextRequest) {
     const centerMap = new Map<string, RegionCenter | null>();
     const fallbackName = new Map<string, string>();
     regionRows.forEach((row) => {
-      centerMap.set(row.code, extractCenter(row.meta));
+      centerMap.set(row.code, null);
       fallbackName.set(row.code, row.name);
     });
 

@@ -4,14 +4,14 @@ import ErrorTable from "./ErrorTable";
 export const dynamic = "force-dynamic";
 
 export default async function AdminErrorsPage() {
-  // keine connectDB – direkt lesen
   const docs = await ErrorLogModel.find(
     {},
-    { traceId: 1, code: 1, path: 1, status: 1, resolved: 1, timestamp: 1 },
-  )
-    .sort({ timestamp: -1 })
-    .limit(50)
-    .lean();
+    {
+      projection: { traceId: 1, code: 1, path: 1, status: 1, resolved: 1, timestamp: 1 },
+      sort: { timestamp: -1 },
+      limit: 50,
+    },
+  );
 
   const initial = docs.map((d: any) => ({
     _id: String(d._id),

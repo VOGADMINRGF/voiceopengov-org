@@ -47,6 +47,19 @@ declare module "@vog/ui" {
   const _: any;
   export const Header: any;
   export const Footer: any;
+  export const Badge: any;
+  export const Button: any;
+  export const Input: any;
+  export const Card: any;
+  export const CardHeader: any;
+  export const CardContent: any;
+  export const CardFooter: any;
+  export const Avatar: any;
+  export const AvatarImage: any;
+  export const AvatarFallback: any;
+  export const badgeColors: any;
+  export const getBadgeColor: any;
+  export const Separator: any;
   export default _;
 }
 

@@ -7,7 +7,7 @@ export default function NewsFeedPanel({ topic, region, keywords=[] as string[] }
   const [items,setItems]=React.useState<Item[]|null>(null);
   const [errors,setErrors]=React.useState<string[]|null>(null);
   const [loading,setLoading]=React.useState(false);
-  async function load(){
+  const load = React.useCallback(async ()=>{
     setLoading(true); setErrors(null);
     try{
       const res=await fetch("/api/search/civic",{method:"POST",headers:{"content-type":"application/json"},
@@ -15,8 +15,8 @@ export default function NewsFeedPanel({ topic, region, keywords=[] as string[] }
       const js=await res.json(); setItems(Array.isArray(js.items)?js.items:[]);
       if(js.errors) setErrors(js.errors);
     }catch(e:any){ setItems([]); setErrors([String(e?.message||e)]) } finally{ setLoading(false) }
-  }
-  React.useEffect(()=>{ load() },[topic,region,JSON.stringify(keywords)]);
+  },[topic,region,keywords]);
+  React.useEffect(()=>{ load() },[load]);
   return (
     <div className="vog-card p-4">
       <div className="font-semibold mb-2">Aktuelle Recherche</div>

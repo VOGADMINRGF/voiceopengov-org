@@ -1,17 +1,20 @@
-
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 
 async function seedPrismaAdjacency() {
+  const client = await getPrismaClient();
+  if (!client) return null;
   // minimal: 2 Topics + Relation in adjacency table (falls du schon ein Modell hast, passe hier an)
-  const t1 = await prisma.topic.upsert({ where:{ slug:"energie" }, update:{}, create:{ slug:"energie", title:"Energie" }});
-  const t2 = await prisma.topic.upsert({ where:{ slug:"klima" }, update:{}, create:{ slug:"klima", title:"Klima" }});
+  const t1 = await client.topic.upsert({ where:{ slug:"energie" }, update:{}, create:{ slug:"energie", title:"Energie" }});
+  const t2 = await client.topic.upsert({ where:{ slug:"klima" }, update:{}, create:{ slug:"klima", title:"Klima" }});
   // Beispielhafte Relation (TopicRelation: { fromId, toId, kind })
-  await prisma.topicRelation.upsert({
-    where: { fromId_toId_kind: { fromId: t1.id, toId: t2.id, kind: "RELATES" } },
-    update: {},
-    create: { fromId: t1.id, toId: t2.id, kind: "RELATES" }
-  });
+  const topicRelation = (client as any).topicRelation;
+  if (topicRelation?.upsert) {
+    await topicRelation.upsert({
+      where: { fromId_toId_kind: { fromId: t1.id, toId: t2.id, kind: "RELATES" } },
+      update: {},
+      create: { fromId: t1.id, toId: t2.id, kind: "RELATES" },
+    });
+  }
   return { ok:true, mode:"prisma", nodes:[t1.id,t2.id] };
 }
 
@@ -40,4 +43,10 @@ export async function POST() {
   } catch (e:any) {
     return NextResponse.json({ ok:false, error: e?.message || String(e) }, { status: 500 });
   }
+}
+
+async function getPrismaClient() {
+  if (!process.env.WEB_DATABASE_URL) return null;
+  const mod = await import("@/lib/prisma");
+  return mod.prisma;
 }

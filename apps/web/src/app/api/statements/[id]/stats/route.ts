@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { coreCol } from "@core/db/triMongo";
 
-export async function GET(_: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  _: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  const { id } = await context.params;
   const col = await coreCol("statements");
   const doc = await col.findOne(
-    { id: params.id },
+    { id },
     { projection: { _id: 0, stats: 1 } },
   );
   if (!doc) return NextResponse.json({ error: "not found" }, { status: 404 });

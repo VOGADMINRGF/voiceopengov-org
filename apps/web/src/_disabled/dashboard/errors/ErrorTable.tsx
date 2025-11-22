@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface ErrorEntry {
   code: string;
@@ -9,9 +9,24 @@ interface ErrorEntry {
   traceIds: string[];
 }
 
-export default function ErrorTable() {
-  const router = useRouter();
+const errors: ErrorEntry[] = [
+  {
+    code: "ANALYSIS_ERROR",
+    count: 6,
+    path: "/api/contribution/analyze",
+    lastSeen: "vor 4 Min",
+    traceIds: ["ERR-12AB34CD", "ERR-56EF78GH"],
+  },
+  {
+    code: "SAVE_ERROR",
+    count: 2,
+    path: "/api/contribution/save",
+    lastSeen: "vor 13 Min",
+    traceIds: ["ERR-9XYZ1234"],
+  },
+];
 
+export default function ErrorTable() {
   return (
     <table className="w-full text-left border border-gray-200">
       <thead>
@@ -36,13 +51,13 @@ export default function ErrorTable() {
             </td>
             <td className="px-4 py-2 flex gap-2 flex-wrap">
               {entry.traceIds.map((id) => (
-                <button
+                <Link
                   key={id}
-                  onClick={() => router.push(`/admin/errors/${id}`)}
                   className="bg-gray-100 rounded px-2 py-1 font-mono text-xs hover:bg-gray-200"
+                  href={`/admin/errors/${id}`}
                 >
                   {id}
-                </button>
+                </Link>
               ))}
             </td>
           </tr>

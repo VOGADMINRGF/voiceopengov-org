@@ -1,6 +1,7 @@
 import type { ObjectId } from "@core/db/triMongo";
 import { evidenceDecisionsCol } from "@core/evidence/db";
 import type { EvidenceDecisionDoc } from "@core/evidence/types";
+import type { ModifyResult } from "mongodb";
 
 export interface VoteAggregationInput {
   claimId: ObjectId;
@@ -45,7 +46,7 @@ export async function upsertEvidenceDecision(
         }
       : undefined;
 
-  const update = await decisions.findOneAndUpdate(
+  const update = (await decisions.findOneAndUpdate(
     { claimId: input.claimId },
     {
       $set: {
@@ -69,7 +70,7 @@ export async function upsertEvidenceDecision(
       },
     },
     { upsert: true, returnDocument: "after" },
-  );
+  )) as unknown as ModifyResult<EvidenceDecisionDoc>;
 
   return update.value as EvidenceDecisionDoc;
 }

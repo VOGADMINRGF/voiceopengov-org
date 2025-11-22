@@ -11,9 +11,9 @@ export const analyzeGpt: StepDefinition = {
     try{
       const r = await analyzeWithGptJSON(ctx.text);
       if (r && (Array.isArray(r.topics)||Array.isArray(r.theses))){
-        pipeResult(send, r);
-        if (ctx.data?.cacheKey) putCache(ctx.data.cacheKey, r);
-        return { result: r };
+        const normalized = pipeResult(send, r);
+        if (ctx.data?.cacheKey) putCache(ctx.data.cacheKey, normalized);
+        return { result: normalized };
       }
     }catch{}
     return {};

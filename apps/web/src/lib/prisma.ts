@@ -1,2 +1,2 @@
-import { prisma } from "@db/web";
+import { prisma } from "@db/web/client";
 export { prisma };

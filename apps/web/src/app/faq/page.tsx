@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useLocale } from "@/context/LocaleContext";
 import { getFaqTabs } from "./strings";
 
-export function FAQTabs() {
+function FAQTabs() {
   const { locale } = useLocale();
   const faqTabs = getFaqTabs(locale);
   const [tab, setTab] = useState(0);
@@ -29,5 +29,20 @@ export function FAQTabs() {
         <p>{faqTabs[tab].body}</p>
       </div>
     </section>
+  );
+}
+
+export default function FAQPage() {
+  return (
+    <main className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-10">
+      <header className="space-y-2 text-center">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">FAQ</p>
+        <h1 className="text-3xl font-bold text-slate-900">Häufig gestellte Fragen</h1>
+        <p className="text-sm text-slate-600">
+          Hier beantworten wir die wichtigsten Fragen rund um VoiceOpenGov und den Evidence/Vote-Stack.
+        </p>
+      </header>
+      <FAQTabs />
+    </main>
   );
 }

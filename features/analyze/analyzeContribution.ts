@@ -4,6 +4,7 @@ import type { AnalyzeResult, StatementRecord } from "./schemas";
 import { normalizeStatementRecord } from "./normalizeClaim";
 import { callE150Orchestrator } from "@features/ai/orchestratorE150";
 import type { AiPipelineName } from "@core/telemetry/aiUsageTypes";
+export type { AnalyzeResult } from "./schemas";
 
 export type AnalyzeInput = {
   text: string;

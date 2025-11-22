@@ -1,4 +1,4 @@
-import AdminErrorLog from "@/app/dashboard/admin/AdminErrorLog";
+import AdminErrorLog from "../admin/AdminErrorLog";
 
 export default function ErrorDashboard() {
   return <AdminErrorLog />;

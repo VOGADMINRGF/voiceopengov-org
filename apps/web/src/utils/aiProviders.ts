@@ -10,7 +10,8 @@ import {
   saveAnalysisResult,
   saveMetaLayerLog,
 } from "@/lib/audit";
-import { callOpenAIJson, youcomResearch as callARIAPI } from "@features/ai/providers";
+import { callOpenAIJson } from "@features/ai/providers/openai";
+import { youcomResearch as callARIAPI } from "@features/ai";
 import { getPolicyRules, getImpactScoring } from "@/lib/policy";
 import { findCrossRefs, runFactCheck } from "@/lib/factcheck";
 
@@ -24,7 +25,7 @@ async function callMetaLLM(opts: { input: any; instruction: string }) {
   const prompt =
     `Du bist ein Erklär-Modul. Liefere strikt JSON.\n` +
     `Anweisung:\n${opts.instruction}\n---\nEingabe:\n${JSON.stringify(opts.input)}`;
-  const { text } = await callOpenAIJson(prompt, 1200);
+  const { text } = await callOpenAIJson(prompt);
   return safeJSON(text, { layman: "", bias: "", raw: text });
 }
 
@@ -58,7 +59,7 @@ export async function callGPTAPI({ text, context }: { text: string; context?: an
     `  "suggestions": string[],\n` +
     `  "isNewContext": boolean\n` +
     `}`;
-  const { text: out } = await callOpenAIJson(prompt, 1600);
+  const { text: out } = await callOpenAIJson(prompt);
   const gptResult = safeJSON(out, {});
   await saveAuditLog?.({ step: "gpt-analysis", payload: gptResult, timestamp: new Date().toISOString() });
   return gptResult;
@@ -143,16 +144,21 @@ export async function analyzeContributionE120(input: any, userContext: any) {
 
   // 6) Audit Trail
   const audit = await finalizeAuditTrail(meta, gptData, ariData, metaResult, userContext);
+  const gptAny = gptData as any;
+  const statements = Array.isArray(gptAny?.statements)
+    ? gptAny.statements.slice(0, 10)
+    : [];
+  const topics = Array.isArray(gptAny?.topics) ? gptAny.topics : [];
 
   // 7) Compose Ergebnis
   return {
     ...audit,
-    statements: gptData?.statements?.slice?.(0, 10) ?? [],
-    topics: gptData?.topics ?? [],
-    level: gptData?.level ?? null,
+    statements,
+    topics,
+    level: gptAny?.level ?? null,
     context: contextResult ?? null,
-    suggestions: gptData?.suggestions ?? [],
-    translations: gptData?.translations ?? {},
+    suggestions: gptAny?.suggestions ?? [],
+    translations: gptAny?.translations ?? {},
     policy: contextResult?.policy ?? null,
     impact: contextResult?.impact ?? null,
     crossRefs: metaResult?.crossRefs ?? [],

@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { votesCol } from "@core/db/triMongo";
 
-export async function GET(_: Request, { params }: { params: { id: string } }) {
-  const statementId = params.id;
+export async function GET(
+  _: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  const { id: statementId } = await context.params;
   const votes = await votesCol("votes");
   const since = Date.now() - 90 * 24 * 3600 * 1000;
 

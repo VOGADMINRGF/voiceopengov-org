@@ -1,7 +1,8 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { prisma, PublishStatus, ContentKind } from "@db/web";
+import { prisma } from "@/lib/prisma";
+import { PublishStatus, ContentKind } from "@db/web";
 
 export async function GET(req: Request) {
   try {
@@ -15,7 +16,7 @@ export async function GET(req: Request) {
     const now = new Date();
 
     const where: any = {
-      status: PublishStatus.PUBLISHED,
+      status: PublishStatus.published,
       OR: [{ publishAt: null }, { publishAt: { lte: now } }],
       AND: [{ OR: [{ expireAt: null }, { expireAt: { gt: now } }] }],
     };

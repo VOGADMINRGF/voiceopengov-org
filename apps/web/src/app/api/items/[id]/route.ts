@@ -1,14 +1,15 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { prisma } from "@db/web";
+import { prisma } from "@/lib/prisma";
 
-type Params = { params: { id: string } };
+type Params = { params: Promise<{ id: string }> };
 
-export async function GET(_req: Request, { params }: Params) {
+export async function GET(_req: Request, context: Params) {
   try {
+    const { id } = await context.params;
     const item = await prisma.contentItem.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         answerOptions: { orderBy: { sortOrder: "asc" } },
         regionEffective: true,

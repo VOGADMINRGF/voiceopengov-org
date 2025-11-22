@@ -1,2 +1,2 @@
 // shim für ältere Importe
-export { analyzeContribution } from "../../../../../features/analyze/analyzeContribution";
+export { analyzeContribution } from "@features/analyze/analyzeContribution";

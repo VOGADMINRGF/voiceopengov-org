@@ -4,9 +4,9 @@ import { logAiUsage } from "@core/telemetry/aiUsage";
 import type { AiPipelineName } from "@core/telemetry/aiUsageTypes";
 import { callOpenAIJson } from "@features/ai";
 import {
-  CORE_LOCALES,
   DEFAULT_LOCALE,
   type SupportedLocale,
+  isCoreLocale,
 } from "@/config/locales";
 
 const COLLECTION = "content_translations";
@@ -31,10 +31,13 @@ export type TranslationKeyRef =
 
 function resolveTranslationKey(ref: TranslationKeyRef): string {
   if ("key" in ref && ref.key) return ref.key;
-  const type = ref.contentType?.toString().trim().toLowerCase();
-  const id = ref.contentId?.toString();
-  const field = ref.field?.toString().trim().toLowerCase();
-  return `${type ?? "content"}:${id ?? "unknown"}:${field ?? "body"}`;
+  if ("contentType" in ref) {
+    const type = ref.contentType?.toString().trim().toLowerCase();
+    const id = ref.contentId?.toString();
+    const field = ref.field?.toString().trim().toLowerCase();
+    return `${type ?? "content"}:${id ?? "unknown"}:${field ?? "body"}`;
+  }
+  return "content:unknown:body";
 }
 
 export type TranslateAndStoreArgs = TranslationKeyRef & {
@@ -170,7 +173,7 @@ export async function translateOnDemand(
   const acceptMatch = demand.acceptLanguageHeader
     ? matchesAcceptLanguage(args.targetLocale, demand.acceptLanguageHeader)
     : false;
-  const targetIsCore = CORE_LOCALES.includes(args.targetLocale);
+  const targetIsCore = isCoreLocale(args.targetLocale);
   const shouldTranslate =
     demand.force || targetIsCore || demand.localeSelected || acceptMatch;
 

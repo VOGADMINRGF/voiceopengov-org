@@ -51,7 +51,6 @@ export async function getVoteStats(statementId: string) {
       },
     },
   ]);
-  totalsCursor.allowDiskUse(true);
   const [res] = await totalsCursor.toArray();
 
   // totals
@@ -117,7 +116,6 @@ export async function getVoteTimeseries(statementId: string, days = 30) {
     { $group: { _id: { day: "$day", choice: "$choice" }, c: { $sum: 1 } } },
     { $sort: { "_id.day": 1 } },
   ]);
-  rowsCursor.allowDiskUse(true);
   const rows = await rowsCursor.toArray();
 
   const out: Array<{

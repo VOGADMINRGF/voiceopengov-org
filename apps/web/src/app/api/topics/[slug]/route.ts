@@ -2,20 +2,22 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { prisma, PublishStatus } from "@db/web";
+import { prisma } from "@/lib/prisma";
+import { PublishStatus } from "@db/web";
 
-type Params = { params: { slug: string } };
+type Params = { params: Promise<{ slug: string }> };
 
-export async function GET(_req: Request, { params }: Params) {
+export async function GET(_req: Request, context: Params) {
   try {
+    const { slug } = await context.params;
     const now = new Date();
 
     const topic = await prisma.topic.findUnique({
-      where: { slug: params.slug },
+      where: { slug },
       include: {
         items: {
           where: {
-            status: PublishStatus.PUBLISHED,
+            status: PublishStatus.published,
             OR: [{ publishAt: null }, { publishAt: { lte: now } }],
             AND: [{ OR: [{ expireAt: null }, { expireAt: { gt: now } }] }],
           },

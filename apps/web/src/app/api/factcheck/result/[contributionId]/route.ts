@@ -1,13 +1,26 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@db/web";
 
 export async function GET(
   _: Request,
-  { params }: { params: { contributionId: string } },
+  context: { params: Promise<{ contributionId: string }> },
 ) {
-  const { contributionId } = params;
+  const { contributionId } = await context.params;
 
-  const job = await prisma.factcheckJob.findFirst({
+  const prisma = await getPrismaClient();
+  if (!prisma) {
+    return NextResponse.json({ ok: false, reason: "prisma_disabled", results: [] }, { status: 503 });
+  }
+
+  const factcheckJob = (prisma as any).factcheckJob;
+  const factcheckResult = (prisma as any).factcheckResult;
+  if (!factcheckJob || !factcheckResult) {
+    return NextResponse.json(
+      { ok: false, reason: "Factcheck models not available", results: [] },
+      { status: 501 },
+    );
+  }
+
+  const job = await factcheckJob.findFirst({
     where: { contributionId },
     orderBy: { createdAt: "desc" },
   });
@@ -19,7 +32,7 @@ export async function GET(
     );
   }
 
-  const results = await prisma.factcheckResult.findMany({
+  const results = await factcheckResult.findMany({
     where: { jobId: job.id },
     orderBy: { createdAt: "asc" },
   });
@@ -34,4 +47,10 @@ export async function GET(
     },
     results,
   });
+}
+
+async function getPrismaClient() {
+  if (!process.env.WEB_DATABASE_URL) return null;
+  const mod = await import("@/lib/prisma");
+  return mod.prisma;
 }

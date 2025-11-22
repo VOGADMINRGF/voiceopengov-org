@@ -9,14 +9,14 @@ export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   const routeId = matchRoute(pathname);
   if (!routeId) {
-    return NextResponse.next();
+    return allowNext();
   }
 
   const user = extractUser(req);
   const decision = canViewRouteEdge(routeId, user);
 
   if (decision.allowed) {
-    return NextResponse.next();
+    return allowNext();
   }
 
   if (decision.requireLogin) {
@@ -25,7 +25,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  return new NextResponse("Forbidden", { status: 403 });
+  return NextResponse.json({ error: "forbidden" }, { status: 403 });
+}
+
+function allowNext() {
+  return (NextResponse as any).next();
 }
 
 function extractUser(req: NextRequest): AccessUser | null {

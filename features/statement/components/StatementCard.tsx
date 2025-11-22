@@ -1,11 +1,49 @@
 // features/statement/components/StatementCard.tsx
 "use client";
 
-import type { StatementRecord, Perspective } from "@features/analyze/schemas";
+type Perspective = {
+  text: string;
+  stance: "pro" | "contra" | "alternative";
+  scenarioType?: "fallback" | "best_case" | "worst_case" | "compromise" | "baseline" | string | null;
+  valueTags?: string[] | null;
+  keyArguments?: string[] | null;
+  condition?: string | null;
+};
+
+type StatementRecord = {
+  core: {
+    text: string;
+    responsibility?: string | null;
+    topicKanonId?: string | null;
+    reviewStatus?: string | null;
+  };
+  evidence: Array<{
+    id: string;
+    sourceType: string;
+    status?: string | null;
+    baseCountry?: string | null;
+    compareCountry?: string | null;
+    tradeAspect?: string | null;
+    searchQuery?: string | null;
+    domainTags?: string[] | null;
+    stakeholderTags?: string[] | null;
+  }>;
+  perspectives: {
+    items: Perspective[];
+  };
+  quality: {
+    precision: number;
+    checkability: number;
+    readability: number;
+    balance: number;
+    evidenceStrength: number;
+  };
+};
 
 type Props = {
   statement: StatementRecord;
   index?: number;
+  language?: string;
 };
 
 function groupPerspectives(perspectives: Perspective[]) {

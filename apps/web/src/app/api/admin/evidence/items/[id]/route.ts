@@ -1,16 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "@core/db/triMongo";
 import { evidenceItemsCol, evidenceLinksCol } from "@core/evidence/db";
+import type { EvidenceItemDoc } from "@core/evidence/types";
 import { isStaffRequest } from "../../../feeds/utils";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) {
   if (!isStaffRequest(req)) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
 
+  const { id } = await context.params;
   let objectId: ObjectId;
   try {
-    objectId = new ObjectId(params.id);
+    objectId = new ObjectId(id);
   } catch {
     return NextResponse.json({ ok: false, error: "invalid_id" }, { status: 400 });
   }
@@ -30,7 +35,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   });
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) {
   if (!isStaffRequest(req)) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
@@ -55,21 +63,27 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   updates.updatedAt = new Date();
 
+  const { id } = await context.params;
   let objectId: ObjectId;
   try {
-    objectId = new ObjectId(params.id);
+    objectId = new ObjectId(id);
   } catch {
     return NextResponse.json({ ok: false, error: "invalid_id" }, { status: 400 });
   }
 
   const col = await evidenceItemsCol();
-  const result = await col.findOneAndUpdate({ _id: objectId }, { $set: updates }, { returnDocument: "after" });
-  if (!result.value) {
+  const updateResult = await col.findOneAndUpdate(
+    { _id: objectId },
+    { $set: updates },
+    { returnDocument: "after" },
+  );
+  const updatedItem = (updateResult as { value?: EvidenceItemDoc | null }).value;
+  if (!updatedItem) {
     return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
   }
 
   return NextResponse.json({
     ok: true,
-    item: { ...result.value, _id: result.value._id.toHexString() },
+    item: { ...updatedItem, _id: updatedItem._id.toHexString() },
   });
 }

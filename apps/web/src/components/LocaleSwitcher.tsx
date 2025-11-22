@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LOCALE_CONFIG,
   SUPPORTED_LOCALES,
@@ -13,7 +13,6 @@ export default function LocaleSwitcher() {
   const { locale, setLocale } = useLocale();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [open, setOpen] = React.useState(false);
 
   const current = LOCALE_CONFIG.find((item) => item.code === locale);
@@ -26,11 +25,14 @@ export default function LocaleSwitcher() {
 
     setLocale(code);
 
-    if (pathname) {
-      const params = new URLSearchParams(searchParams?.toString() ?? "");
-      params.set("lang", code);
-      const qs = params.toString();
-      router.replace(`${pathname}${qs ? `?${qs}` : ""}`);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("lang", code);
+      if (pathname && url.pathname !== pathname) {
+        url.pathname = pathname;
+      }
+      window.history.replaceState(null, "", url.toString());
+      router.refresh();
     }
     setOpen(false);
   };

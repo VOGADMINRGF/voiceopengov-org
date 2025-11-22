@@ -1,44 +1,51 @@
 import { findEvidenceClaims } from "@core/evidence/query";
 import { getRegionName } from "@core/regions/regionTranslations";
 import { cookies, headers } from "next/headers";
+import {
+  DEFAULT_LOCALE,
+  isSupportedLocale,
+  type SupportedLocale,
+} from "@/config/locales";
 
-function detectLocale(): string {
+function detectLocale(): SupportedLocale {
   const cookieStore = cookies();
   const cookieLang = cookieStore.get("lang")?.value;
-  if (cookieLang) return cookieLang;
+  if (cookieLang && isSupportedLocale(cookieLang)) return cookieLang;
   const acceptLanguage = headers().get("accept-language");
   if (acceptLanguage) {
     const primary = acceptLanguage.split(",")[0]?.split(";")[0]?.trim();
-    if (primary) return primary.slice(0, 2);
+    const candidate = primary?.slice(0, 2);
+    if (candidate && isSupportedLocale(candidate)) return candidate;
   }
-  return "de";
+  return DEFAULT_LOCALE;
 }
 
 export default async function EvidenceTopicPage({
   params,
 }: {
-  params: { regionCode: string; topicKey: string };
+  params: Promise<{ regionCode: string; topicKey: string }>;
 }) {
+  const { regionCode, topicKey } = await params;
   const locale = detectLocale();
   const { items } = await findEvidenceClaims({
-    regionCode: params.regionCode === "global" ? undefined : params.regionCode,
-    topicKey: params.topicKey,
+    regionCode: regionCode === "global" ? undefined : regionCode,
+    topicKey,
     locale,
     limit: 50,
     offset: 0,
   });
 
   const regionName =
-    params.regionCode === "global"
+    regionCode === "global"
       ? "Global / offen"
-      : await getRegionName(params.regionCode, locale);
+      : await getRegionName(regionCode, locale);
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-10">
       <header className="space-y-1">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Evidence · Topic</p>
         <h1 className="text-2xl font-bold text-slate-900">
-          Claims zu {params.topicKey} – {regionName}
+          Claims zu {topicKey} – {regionName}
         </h1>
       </header>
       <section className="space-y-3">

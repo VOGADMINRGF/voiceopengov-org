@@ -15,7 +15,7 @@ export default function LocaleLayout({
   return (
     <html lang={locale}>
       <body>
-        <LocaleProvider locale={locale}>
+        <LocaleProvider initialLocale={locale as any}>
           <Header />
           {children}
           <Footer />

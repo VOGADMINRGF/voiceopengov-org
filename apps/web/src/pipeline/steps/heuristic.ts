@@ -9,8 +9,8 @@ export const heuristic: StepDefinition = {
   when(ctx){ return !ctx.result; },
   async run(ctx, send){
     const r = heuristicAnalyze(ctx.text);
-    pipeResult(send, r);
-    if (ctx.data?.cacheKey) putCache(ctx.data.cacheKey, r);
-    return { result: r };
+    const normalized = pipeResult(send, r);
+    if (ctx.data?.cacheKey) putCache(ctx.data.cacheKey, normalized);
+    return { result: normalized };
   }
 };

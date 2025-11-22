@@ -24,9 +24,9 @@ export default function ManageContributionsDashboard() {
     <main className="max-w-6xl mx-auto p-8">
       <h1 className="text-3xl font-bold mb-6">Inhalts-Dashboard</h1>
       <TabNav tabs={["Statements", "Beiträge", "Swipes"]}>
-        <StatementList editable />
-        <ContributionList editable />
-        <SwipeAdminList editable />
+        <StatementList />
+        <ContributionList />
+        <SwipeAdminList />
       </TabNav>
     </main>
   );

@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
   const enabled =
     (process.env.AI_REGION_SUMMARY_ENABLED || "").toLowerCase() === "true";
   if (!enabled) {
-    return new NextResponse("Not Found", { status: 404 });
+    return NextResponse.json({ ok: false, error: "disabled" }, { status: 404 });
   }
 
   const { region, filters } = await req.json().catch(() => ({}));

@@ -104,7 +104,7 @@ export async function getRegionEvidenceSummary(
         $facet: {
           counts: [{ $count: "total" }],
           topics: [
-            { $match: { topicKey: { $exists: true, $ne: null, $ne: "" } } },
+            { $match: { topicKey: { $exists: true, $nin: [null, ""] } } },
             { $group: { _id: "$topicKey", total: { $sum: 1 } } },
             { $sort: { total: -1 } },
             { $limit: limitTopics },
@@ -207,7 +207,7 @@ export async function getEvidenceRegionHeatmap(
   const { locale, limit = 200, dateFrom, dateTo } = input;
   const claims = await evidenceClaimsCol();
   const match: Record<string, any> = {
-    regionCode: { $exists: true, $ne: null, $ne: "" },
+    regionCode: { $exists: true, $nin: [null, ""] },
     ...buildLocaleMatch(locale),
     ...buildDateRangeMatch(dateFrom, dateTo),
   };

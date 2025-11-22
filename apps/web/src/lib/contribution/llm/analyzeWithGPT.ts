@@ -41,8 +41,8 @@ export async function analyzeWithGPT(input: {
   const prompt = `${systemHint}\n\nINPUT:\n${JSON.stringify(payload)}`;
 
   const { text } = await withTimeout(
-    callOpenAI(prompt, { forceJsonMode: true }),
-    TIMEOUT_MS
+    callOpenAI({ prompt, asJson: true }),
+    TIMEOUT_MS,
   );
 
   let parsed: unknown;
@@ -51,5 +51,5 @@ export async function analyzeWithGPT(input: {
   } catch {
     throw new Error("OpenAI lieferte kein valides JSON.");
   }
-  return LLLMAnalysisZ.parse(parsed);
+  return LLMAnalysisZ.parse(parsed);
 }

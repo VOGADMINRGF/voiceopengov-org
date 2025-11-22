@@ -1,6 +1,5 @@
 // apps/web/src/app/api/factcheck/status/[jobId]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@db/web";
 import { z, ZodError } from "zod";
 import { formatError } from "@core/errors/formatError";
 import { logger } from "@core/observability/logger";
@@ -17,9 +16,7 @@ async function resolveParams(p: any): Promise<{ jobId: string }> {
 
 export async function GET(
   req: NextRequest,
-  ctx:
-    | { params: { jobId: string } } // <= Next 13/14
-    | { params: Promise<{ jobId: string }> }, // <= Next 15
+  ctx: { params: Promise<{ jobId: string }> },
 ) {
   const t0 = Date.now();
   try {
@@ -40,16 +37,27 @@ export async function GET(
       return NextResponse.json(fe, { status: 403 });
     }
 
-    const { jobId } = await resolveParams((ctx as any).params);
+    const { jobId } = await resolveParams(ctx.params);
+    const prisma = await getPrismaClient();
+    if (!prisma) {
+      const fe = formatError("SERVICE_UNAVAILABLE", "Factcheck storage disabled", {});
+      return NextResponse.json(fe, { status: 503 });
+    }
+    const factcheckJob = (prisma as any).factcheckJob;
+    const factcheckClaim = (prisma as any).factcheckClaim;
+    if (!factcheckJob || !factcheckClaim) {
+      const fe = formatError("NOT_IMPLEMENTED", "Factcheck models missing", {});
+      return NextResponse.json(fe, { status: 501 });
+    }
 
-    const job = await prisma.factcheckJob.findFirst({ where: { jobId } });
+    const job = await factcheckJob.findFirst({ where: { jobId } });
     if (!job) {
       const fe = formatError("NOT_FOUND", "Job not found", { jobId });
       logger.warn({ fe }, "FACTCHECK_STATUS_NOT_FOUND");
       return NextResponse.json(fe, { status: 404 });
     }
 
-    const claims = await prisma.factcheckClaim.findMany({
+    const claims = await factcheckClaim.findMany({
       where: { jobId: job.id },
       include: { consensus: true, evidences: true, providerRuns: true },
       orderBy: { createdAt: "asc" },
@@ -97,4 +105,10 @@ export async function GET(
     logger.error({ fe, e }, "FACTCHECK_STATUS_FAIL");
     return NextResponse.json(fe, { status: 500 });
   }
+}
+
+async function getPrismaClient() {
+  if (!process.env.WEB_DATABASE_URL) return null;
+  const mod = await import("@/lib/prisma");
+  return mod.prisma;
 }

@@ -15,16 +15,17 @@ type Stats = {
 export default async function StatementPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const tri: any = await import("@core/db/triMongo");
   const stmts = tri.coreCol
     ? await tri.coreCol("statements")
     : (await tri.getDb()).collection("statements");
 
-  const selector = ObjectId.isValid(params.id)
-    ? { _id: new ObjectId(params.id) }
-    : { id: params.id };
+  const selector = ObjectId.isValid(id)
+    ? { _id: new ObjectId(id) }
+    : { id };
 
   const doc = await stmts.findOne(selector);
   if (!doc) return notFound();

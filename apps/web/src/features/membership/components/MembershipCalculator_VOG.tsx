@@ -52,7 +52,7 @@ export function MembershipCalculator_VOG() {
           Beitrag berechnen – VoiceOpenGov
         </h2>
         <p className="text-sm text-slate-600">
-          Empfehlung: 1 % von (Haushaltsnetto – Miete), mindestens 5,63 € pro
+          Empfehlung: 1 % von (Haushaltsnetto – Miete), mindestens 5,63 € pro
           Person ab 16 Jahren – dieser Betrag entspricht dem sozial verträglichen Minimum (ALG&nbsp;II/Bürgergeld).
         </p>
       </header>
@@ -67,7 +67,7 @@ export function MembershipCalculator_VOG() {
             value={netIncome}
             onChange={(e) => setNetIncome(e.target.value)}
             className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2"
-            placeholder="z. B. 2400"
+            placeholder="z. B. 2400"
           />
         </label>
         <label className="text-sm font-medium text-slate-700">
@@ -79,7 +79,7 @@ export function MembershipCalculator_VOG() {
             value={rent}
             onChange={(e) => setRent(e.target.value)}
             className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2"
-            placeholder="z. B. 900"
+            placeholder="z. B. 900"
           />
         </label>
       </div>
@@ -152,7 +152,7 @@ export function MembershipCalculator_VOG() {
 
       <div className="grid gap-4 md:grid-cols-2">
         <label className="text-sm font-medium text-slate-700">
-          Haushaltsgröße (≥ 16 Jahre)
+          Haushaltsgröße (≥ 16 Jahre)
           <input
             type="number"
             min={1}

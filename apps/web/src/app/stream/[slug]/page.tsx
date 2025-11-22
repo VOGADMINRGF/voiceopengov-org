@@ -6,8 +6,13 @@ export async function generateStaticParams() {
   return streamData.map((s) => ({ slug: s.slug }));
 }
 
-export default function StreamDetail({ params }: { params: { slug: string } }) {
-  const stream = streamData.find((s) => s.slug === params.slug);
+export default async function StreamDetail({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const stream = streamData.find((s) => s.slug === slug);
   if (!stream) return notFound();
 
   const trailerUrl =

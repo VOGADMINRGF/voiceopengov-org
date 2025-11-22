@@ -15,9 +15,14 @@ export default function CommunityDashboard() {
     <main className="max-w-5xl mx-auto p-8">
       <h1 className="text-3xl font-bold mb-6">Community-Dashboard</h1>
       <TabNav tabs={["User", "Beteiligung", "Statements"]}>
-        <UserAdminList communityView />
-        <EngagementStats communityView />
-        <StatementList communityView />
+        <UserAdminList />
+        <EngagementStats
+          periodLabel="Demo"
+          totals={{ members: 0, contributions: 0, activeThisMonth: 0 }}
+          kpis={[]}
+          timeseries={[]}
+        />
+        <StatementList />
       </TabNav>
     </main>
   );

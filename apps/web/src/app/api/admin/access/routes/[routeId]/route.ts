@@ -6,12 +6,16 @@ import { getEffectiveRoutePolicy, upsertRoutePolicy } from "@core/access/db";
 import type { AccessGroup, RouteId } from "@features/access/types";
 import { isStaffRequest } from "../../../feeds/utils";
 
-export async function PATCH(req: NextRequest, { params }: { params: { routeId: string } }) {
+export async function PATCH(
+  req: NextRequest,
+  context: { params: Promise<{ routeId: string }> },
+) {
   if (!isStaffRequest(req)) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
 
-  const routeId = params.routeId as RouteId;
+  const { routeId: rawRouteId } = await context.params;
+  const routeId = rawRouteId as RouteId;
   const policy = await getEffectiveRoutePolicy(routeId);
   if (!policy) {
     return NextResponse.json({ ok: false, error: "unknown_route" }, { status: 404 });

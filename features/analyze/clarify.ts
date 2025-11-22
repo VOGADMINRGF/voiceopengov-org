@@ -30,7 +30,7 @@ export function buildClarifyCTA(result: AnalyzeResult): ClarifyCTA | null {
   const firstClaim = result.claims?.[0];
   if (!firstClaim) return null;
 
-  const text = firstClaim.core?.text ?? "";
+  const text = firstClaim.text ?? "";
   if (!text.trim()) return null;
 
   if (!isGenericPriceStatement(text)) {

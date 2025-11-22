@@ -28,6 +28,12 @@ export interface EffectiveRegionResult {
   userId?: string | null;
 }
 
+function normalizeLevel(level: unknown): RegionLevel | string {
+  if (typeof level === "string") return level as RegionLevel | string;
+  if (typeof level === "number") return String(level);
+  return (level ?? "custom") as RegionLevel | string;
+}
+
 /** Liest den Wert des u_region-Cookies asynchron (z. B. DE-BE-BERLIN). */
 export async function readRegionCookie(): Promise<string | undefined> {
   const raw = await getCookie("u_region");
@@ -47,22 +53,25 @@ export async function getEffectiveRegion(): Promise<EffectiveRegionResult> {
     const userId = session?.user?.id ?? null;
 
     if (userId) {
-      const prof = await prisma.userProfile.findUnique({
-        where: { userId },
-        include: { region: true },
-      });
+      const userProfile = (prisma as any).userProfile;
+      if (userProfile?.findUnique) {
+        const prof = await userProfile.findUnique({
+          where: { userId },
+          include: { region: true },
+        });
 
-      if (prof?.region) {
-        return {
-          region: {
-            id: prof.region.id,
-            code: prof.region.code,
-            name: prof.region.name,
-            level: prof.region.level as RegionLevel,
-          },
-          source: "profile",
-          userId,
-        };
+        if (prof?.region) {
+          return {
+            region: {
+              id: prof.region.id,
+              code: prof.region.code,
+              name: prof.region.name,
+              level: prof.region.level as RegionLevel,
+            },
+            source: "profile",
+            userId,
+          };
+        }
       }
 
       // kein Profil-Regionseintrag → Cookie prüfen
@@ -75,7 +84,7 @@ export async function getEffectiveRegion(): Promise<EffectiveRegionResult> {
               id: region.id,
               code: region.code,
               name: region.name,
-              level: region.level as RegionLevel,
+              level: normalizeLevel(region.level),
             },
             source: "cookie",
             userId,
@@ -102,7 +111,7 @@ export async function getEffectiveRegion(): Promise<EffectiveRegionResult> {
           id: region.id,
           code: region.code,
           name: region.name,
-          level: region.level as RegionLevel,
+              level: normalizeLevel(region.level),
         },
         source: "cookie",
         userId: null,

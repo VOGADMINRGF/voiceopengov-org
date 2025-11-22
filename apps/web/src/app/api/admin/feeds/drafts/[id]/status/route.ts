@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "@core/db/triMongo";
 import { voteDraftsCol } from "@features/feeds/db";
-import type { VoteDraftStatus } from "@features/feeds/types";
+import type { VoteDraftDoc, VoteDraftStatus } from "@features/feeds/types";
 import { isStaffRequest } from "../../../utils";
 
 const ALLOWED_STATUS: VoteDraftStatus[] = ["draft", "review", "discarded"];
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) {
   if (!isStaffRequest(req)) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
@@ -23,9 +26,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ ok: false, error: "invalid_status" }, { status: 400 });
   }
 
+  const { id } = await context.params;
   let draftId: ObjectId;
   try {
-    draftId = new ObjectId(params.id);
+    draftId = new ObjectId(id);
   } catch {
     return NextResponse.json({ ok: false, error: "invalid_id" }, { status: 400 });
   }
@@ -42,22 +46,23 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     update.reviewNote = reviewNote;
   }
 
-  const result = await drafts.findOneAndUpdate(
+  const updateResult = await drafts.findOneAndUpdate(
     { _id: draftId },
     { $set: update },
     { returnDocument: "after" },
   );
-  if (!result.value) {
+  const updatedDraft = (updateResult as { value?: VoteDraftDoc | null }).value;
+  if (!updatedDraft) {
     return NextResponse.json({ ok: false, error: "draft_not_found" }, { status: 404 });
   }
 
   return NextResponse.json({
     ok: true,
     draft: {
-      id: result.value._id.toHexString(),
-      status: result.value.status,
-      reviewNote: result.value.reviewNote ?? null,
-      updatedAt: result.value.updatedAt?.toISOString?.() ?? null,
+      id: updatedDraft._id.toHexString(),
+      status: updatedDraft.status,
+      reviewNote: updatedDraft.reviewNote ?? null,
+      updatedAt: updatedDraft.updatedAt?.toISOString?.() ?? null,
     },
   });
 }

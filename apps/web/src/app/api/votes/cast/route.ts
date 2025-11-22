@@ -90,13 +90,15 @@ export async function POST(req: NextRequest) {
   const userId = req.cookies.get("u_id")?.value || null;
   const levelCheck = await ensureUserMeetsVerificationLevel(userId, "email");
   if (!levelCheck.ok) {
+    const errCode =
+      "error" in levelCheck ? levelCheck.error : "insufficient_level";
     return NextResponse.json(
       {
-        error: levelCheck.error,
+        error: errCode,
         requiredLevel: "email",
         currentLevel: levelCheck.level,
       },
-      { status: levelCheck.error === "login_required" ? 401 : 403 },
+      { status: errCode === "login_required" ? 401 : 403 },
     );
   }
 

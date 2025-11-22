@@ -41,10 +41,13 @@ export async function POST(req: NextRequest) {
         const session = await getServerSession(authOptions);
         const userId = session?.user?.id;
         if (userId) {
-          await prisma.userProfile.update({
-            where: { userId },
-            data: { regionId: region.id },
-          });
+          const userProfile = (prisma as any).userProfile;
+          if (userProfile?.update) {
+            await userProfile.update({
+              where: { userId },
+              data: { regionId: region.id },
+            });
+          }
         }
       } catch {
         // NextAuth nicht aktiv → still ignorieren

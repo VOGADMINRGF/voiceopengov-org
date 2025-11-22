@@ -4,4 +4,7 @@ export const colors = {
   accent: "#f97316",
   neutral: "#f8fafc",
   muted: "#94a3b8",
+  coral: "#ff6f61",
+  indigo: "#4338ca",
+  turquoise: "#14b8a6",
 };

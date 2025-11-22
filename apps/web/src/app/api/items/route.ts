@@ -1,7 +1,8 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { prisma, PublishStatus, ContentKind } from "@db/web";
+import { prisma } from "@/lib/prisma";
+import { PublishStatus, ContentKind } from "@db/web";
 
 export async function POST(req: Request) {
   try {
@@ -10,7 +11,7 @@ export async function POST(req: Request) {
     const data: any = {
       kind: body.kind as keyof typeof ContentKind,
       text: String(body.text ?? ""),
-      status: PublishStatus.DRAFT,
+      status: PublishStatus.draft,
     };
 
     if (typeof body.topicId === "string" && body.topicId) {

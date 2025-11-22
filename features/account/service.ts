@@ -104,7 +104,7 @@ export async function getAccountOverview(userId: string): Promise<AccountOvervie
   const groups = deriveGroups(doc, accessTier, roles);
   const preferredLocale = normalizeLocale(doc.settings?.preferredLocale ?? doc.profile?.locale);
   const stats = deriveStats(doc);
-  const verification = ensureVerificationDefaults(doc.verification);
+  const verification = ensureVerificationDefaults(doc.verification as any);
 
   return {
     userId: String(doc._id),
@@ -252,12 +252,10 @@ function derivePricingTier(doc: UserDoc, tier: AccessTier): PricingTier {
   if (doc.membership?.status === "active" && tier === "citizenBasic") {
     return "citizenPremium";
   }
-  if (["citizenPremium", "institutionPremium"].includes(tier)) {
-    return tier;
-  }
-  if (["institutionBasic", "institutionPremium"].includes(tier)) {
-    return tier as PricingTier;
-  }
+  if (tier === "citizenPremium") return "citizenPremium";
+  if (tier === "institutionPremium") return "institutionPremium";
+  if (tier === "institutionBasic") return "institutionBasic";
+  if (tier === "citizenBasic") return "citizenBasic";
   if (tier === "staff") return "staff";
-  return doc.premium ? "citizenPremium" : tier ?? "free";
+  return doc.premium ? "citizenPremium" : "free";
 }

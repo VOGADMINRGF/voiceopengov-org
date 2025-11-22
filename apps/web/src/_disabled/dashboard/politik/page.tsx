@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import TabNav from "@components/TabNav";
+import TabNav from "@/components/TabNav";
 import StreamList from "@features/stream/components/StreamList";
 import StreamForm from "@features/stream/components/StreamForm";
 import StatementList from "@features/statement/components/StatementList";

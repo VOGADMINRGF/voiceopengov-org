@@ -1,7 +1,7 @@
 // apps/web/src/app/verify/page.tsx (final)
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -25,63 +25,66 @@ export default function VerifyPage() {
     if (tk) setToken(tk);
   }, [sp]);
 
-  async function verifyNow(em: string, tk: string) {
-    setBusy(true);
-    setErrMsg(undefined);
-    setOkMsg(undefined);
-    setOk(false);
-    try {
-      if (!em || !tk) throw new Error("Bitte E-Mail und Token angeben.");
+  const verifyNow = useCallback(
+    async (em: string, tk: string) => {
+      setBusy(true);
+      setErrMsg(undefined);
+      setOkMsg(undefined);
+      setOk(false);
+      try {
+        if (!em || !tk) throw new Error("Bitte E-Mail und Token angeben.");
 
-      const ac = new AbortController();
-      const to = setTimeout(() => ac.abort("timeout"), 15_000);
+        const ac = new AbortController();
+        const to = setTimeout(() => ac.abort("timeout"), 15_000);
 
-      const r = await fetch("/api/auth/verify", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        credentials: "include",
-        cache: "no-store",
-        body: JSON.stringify({ email: em, token: tk }),
-        signal: ac.signal,
-      });
+        const r = await fetch("/api/auth/verify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          credentials: "include",
+          cache: "no-store",
+          body: JSON.stringify({ email: em, token: tk }),
+          signal: ac.signal,
+        });
 
-      clearTimeout(to);
+        clearTimeout(to);
 
-      const ct = r.headers.get("content-type") || "";
-      const data = ct.includes("application/json")
-        ? await r.json().catch(() => ({}))
-        : { error: (await r.text()).slice(0, 500) };
+        const ct = r.headers.get("content-type") || "";
+        const data = ct.includes("application/json")
+          ? await r.json().catch(() => ({}))
+          : { error: (await r.text()).slice(0, 500) };
 
-      if (!r.ok)
-        throw new Error(data?.error || data?.message || `HTTP ${r.status}`);
+        if (!r.ok)
+          throw new Error(data?.error || data?.message || `HTTP ${r.status}`);
 
-      setOk(true);
-      setOkMsg("Verifiziert! Weiterleitung …");
+        setOk(true);
+        setOkMsg("Verifiziert! Weiterleitung …");
 
-      // 1) API bevorzugen (nextUrl vom Server)
-      const serverNext =
-        typeof data?.nextUrl === "string" && data.nextUrl.length > 0
-          ? data.nextUrl
-          : null;
-      // 2) ansonsten clientseitiges ?next= aus der URL beachten
-      const qpNext = sp.get("next");
-      const next =
-        serverNext ||
-        (qpNext ? decodeURIComponent(qpNext) : "/login?verified=1");
-      router.replace(next);
-    } catch (err: any) {
-      setErrMsg(
-        err?.name === "AbortError"
-          ? "Zeitüberschreitung. Bitte erneut versuchen."
-          : err?.message || "Unbekannter Fehler",
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
+        // 1) API bevorzugen (nextUrl vom Server)
+        const serverNext =
+          typeof data?.nextUrl === "string" && data.nextUrl.length > 0
+            ? data.nextUrl
+            : null;
+        // 2) ansonsten clientseitiges ?next= aus der URL beachten
+        const qpNext = sp.get("next");
+        const next =
+          serverNext ||
+          (qpNext ? decodeURIComponent(qpNext) : "/login?verified=1");
+        router.replace(next);
+      } catch (err: any) {
+        setErrMsg(
+          err?.name === "AbortError"
+            ? "Zeitüberschreitung. Bitte erneut versuchen."
+            : err?.message || "Unbekannter Fehler",
+        );
+      } finally {
+        setBusy(false);
+      }
+    },
+    [router, sp],
+  );
 
   // Auto-Submit, wenn beide Query-Parameter vorhanden
   useEffect(() => {
@@ -90,7 +93,7 @@ export default function VerifyPage() {
     if (em && tk) {
       verifyNow(em, tk);
     }
-  }, [sp]);
+  }, [sp, verifyNow]);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

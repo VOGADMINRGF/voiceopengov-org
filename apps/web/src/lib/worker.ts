@@ -14,7 +14,7 @@ type EnqueuePayload = {
 };
 
 type EnqueueResponse =
-  | { ok: true; jobId: string }
+  | { ok: true; jobId: string; message?: string }
   | { ok: false; reason?: string; code?: string; message?: string };
 
 type StatusResponse =

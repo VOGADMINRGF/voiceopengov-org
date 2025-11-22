@@ -1,5 +1,22 @@
 "use client";
 
+const logs = [
+  {
+    code: "ANALYSIS_ERROR",
+    count: 6,
+    traceIds: ["ERR-12AB34CD", "ERR-56EF78GH"],
+    path: "/api/contribution/analyze",
+    lastSeen: "vor 4 Min",
+  },
+  {
+    code: "SAVE_ERROR",
+    count: 2,
+    traceIds: ["ERR-9XYZ1234"],
+    path: "/api/contribution/save",
+    lastSeen: "vor 13 Min",
+  },
+];
+
 export default function AdminErrorLog() {
   return (
     <div className="p-6 space-y-6 max-w-5xl mx-auto">

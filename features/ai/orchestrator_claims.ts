@@ -12,7 +12,12 @@ export async function orchestrateClaim(text: string): Promise<ClaimOut> {
     text
   ].join("\n");
 
-  const { text: out } = await callOpenAI(prompt, { forceJsonMode: true, maxOutputTokens: 500, timeoutMs: 20000 });
+  const { text: out } = await callOpenAI({
+    prompt,
+    asJson: true,
+    maxOutputTokens: 500,
+    signal: undefined,
+  });
   try {
     const j = JSON.parse(out || "{}");
     if (j?.ok) return { ok: true, text: j?.claim?.text ?? "" , json: j };

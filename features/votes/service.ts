@@ -2,6 +2,7 @@ import { ObjectId } from "@core/db/triMongo";
 import { voteDraftsCol, feedStatementsCol } from "@features/feeds/db";
 import type { VoteDraftDoc } from "@features/feeds/types";
 import { ensureUserMeetsVerificationLevel } from "@features/auth/verificationAccess";
+import type { VerificationLevel } from "@core/auth/verificationTypes";
 
 export interface PublicVoteSummary {
   id: string;
@@ -44,8 +45,8 @@ export async function listPublicVotes({
     claimCount: row.claims?.length ?? 0,
     status: row.status,
     pipeline: row.pipeline ?? "feeds_to_statementCandidate",
-    regionCode: row.regionCode ?? null,
-    regionLabel: row.regionCode ?? null,
+    regionCode: row.regionCode ? String(row.regionCode) : null,
+    regionLabel: row.regionCode ? String(row.regionCode) : null,
     sourceUrl: row.sourceUrl ?? null,
     createdAt: row.publishedAt?.toISOString() ?? row.createdAt.toISOString(),
   }));
@@ -69,7 +70,8 @@ export interface PublicVoteDetail {
 export async function getPublicVoteDetail(id: string, userId?: string | null) {
   const result = await ensureUserMeetsVerificationLevel(userId ?? null, "email");
   if (!result.ok) {
-    return { ok: false as const, error: result.error, level: result.level };
+    const failure = result as { ok: false; level: VerificationLevel; error: "login_required" | "user_not_found" | "insufficient_level" };
+    return { ok: false as const, error: failure.error, level: failure.level };
   }
   const objectId = new ObjectId(id);
   const drafts = await voteDraftsCol();

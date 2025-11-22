@@ -4,9 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
-  if (!ObjectId.isValid(params.id))
+  const { id } = await context.params;
+  if (!ObjectId.isValid(id))
     return NextResponse.json({ error: "bad_id" }, { status: 400 });
   const { reaction } = await req.json().catch(() => ({}));
   if (!["agree", "neutral", "disagree"].includes(reaction)) {
@@ -20,7 +21,7 @@ export async function POST(
       "Content-Type": "application/json",
       "x-user-id": req.cookies.get("u_id")?.value || "",
     },
-    body: JSON.stringify({ statementId: params.id, value: reaction }),
+    body: JSON.stringify({ statementId: id, value: reaction }),
     cache: "no-store",
   });
   const j = await r.json().catch(() => ({}));
