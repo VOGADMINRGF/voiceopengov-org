@@ -64,6 +64,8 @@
     "@prisma/client": "6.16.3",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@upstash/redis": "^1.35.4",
+    "@vog/tri-mongo": "workspace:*",
+    "@vog/ui": "workspace:*",
     "ajv": "^8.17.1",
     "arangojs": "^10.1.2",
     "axios": "^1.12.2",

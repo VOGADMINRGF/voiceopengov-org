@@ -80,7 +80,7 @@ export const DEFAULT_ROUTE_POLICIES: RoutePolicy[] = [
     pathPattern: "/statements/new",
     label: "Statement Wizard",
     defaultGroups: ["citizenBasic", "citizenPremium", "institutionBasic", "institutionPremium", "staff"],
-    allowAnonymous: false,
+    allowAnonymous: true,
     locked: false,
   },
   {

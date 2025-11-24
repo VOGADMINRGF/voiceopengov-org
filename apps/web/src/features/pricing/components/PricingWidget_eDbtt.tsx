@@ -1,7 +1,9 @@
 "use client";
 
 import { ACCESS_TIER_CONFIG } from "../config";
+import { applyVogMembershipDiscount } from "../discount";
 import type { AccessTier } from "../types";
+import type { PricingContext } from "../discount";
 
 const CURRENCY = new Intl.NumberFormat("de-DE", {
   style: "currency",
@@ -17,7 +19,9 @@ const ORDER: AccessTier[] = [
   "institutionPremium",
 ];
 
-export function PricingWidget_eDbtt() {
+type PricingWidgetProps = Partial<PricingContext>;
+
+export function PricingWidget_eDbtt({ hasVogMembership = false }: PricingWidgetProps) {
   return (
     <section className="space-y-6">
       <header className="space-y-2">
@@ -46,11 +50,28 @@ export function PricingWidget_eDbtt() {
               </div>
 
               {cfg.monthlyFeeCents ? (
-                <div className="text-xl font-bold text-indigo-600">
-                  {CURRENCY.format(cfg.monthlyFeeCents / 100)}{" "}
-                  <span className="text-sm font-normal text-slate-500">
-                    / Monat
-                  </span>
+                <div className="space-y-1">
+                  <div className="flex items-baseline gap-2">
+                    {hasVogMembership && (
+                      <span className="text-sm text-slate-400 line-through">
+                        {CURRENCY.format(cfg.monthlyFeeCents / 100)}
+                      </span>
+                    )}
+                    <div className="text-xl font-bold text-indigo-600">
+                      {CURRENCY.format(
+                        applyVogMembershipDiscount(cfg.monthlyFeeCents, hasVogMembership) /
+                          100,
+                      )}{" "}
+                      <span className="text-sm font-normal text-slate-500">
+                        / Monat
+                      </span>
+                    </div>
+                  </div>
+                  {hasVogMembership && (
+                    <p className="text-xs font-semibold text-emerald-700">
+                      VOG-Mitgliedsrabatt –25 %
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div className="text-xl font-bold text-emerald-600">

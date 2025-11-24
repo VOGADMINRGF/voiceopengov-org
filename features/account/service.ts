@@ -114,6 +114,7 @@ export async function getAccountOverview(userId: string): Promise<AccountOvervie
   const preferredLocale = normalizeLocale(doc.settings?.preferredLocale ?? doc.profile?.locale);
   const stats = deriveStats(doc);
   const verification = ensureVerificationDefaults(doc.verification as any);
+  const hasVogMembership = doc.membership?.status === "active";
 
   return {
     userId: String(doc._id),
@@ -123,6 +124,7 @@ export async function getAccountOverview(userId: string): Promise<AccountOvervie
     roles,
     groups,
     vogMembershipStatus: doc.membership?.status ?? "none",
+    hasVogMembership,
     pricingTier: derivePricingTier(doc, accessTier),
     stats,
     preferredLocale,

@@ -36,10 +36,24 @@ export type SwipeUsageSnapshot = {
   nextCreditIn: number;
 };
 
+export type RegisterSwipeErrorCode =
+  | "INVALID_DIRECTION"
+  | "STATEMENT_REQUIRED"
+  | "USER_NOT_FOUND"
+  | "GUEST_LIMIT_REACHED"
+  | "UNAUTHENTICATED"
+  | "FORBIDDEN"
+  | "UNKNOWN";
+
 export type RegisterSwipeResult =
   | { ok: true; stats?: SwipeUsageSnapshot; guest?: { nextCount: number; limit: number } }
-  | { ok: false; error: "INVALID_DIRECTION" | "STATEMENT_REQUIRED" | "USER_NOT_FOUND"; guest?: undefined }
-  | { ok: false; error: "GUEST_LIMIT_REACHED"; guest: { count: number; limit: number } };
+  | {
+      ok: false;
+      error: RegisterSwipeErrorCode;
+      limit?: number;
+      nextAllowedAt?: string;
+      count?: number;
+    };
 
 type RegisterSwipeInput = {
   statementId: string;
@@ -66,7 +80,13 @@ export async function registerSwipeForUser(
     const used = input.guestSwipesUsed ?? 0;
     const limit = input.guestLimit ?? 3;
     if (used >= limit) {
-      return { ok: false, error: "GUEST_LIMIT_REACHED", guest: { count: used, limit } };
+      return {
+        ok: false,
+        error: "GUEST_LIMIT_REACHED",
+        limit,
+        count: used,
+        nextAllowedAt: undefined,
+      };
     }
     return { ok: true, guest: { nextCount: used + 1, limit } };
   }

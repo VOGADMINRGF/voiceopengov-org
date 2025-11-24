@@ -45,6 +45,7 @@ export type AccountOverview = {
   roles: string[];
   groups: string[];
   vogMembershipStatus: MembershipStatus;
+  hasVogMembership: boolean;
   pricingTier: PricingTier;
   stats: AccountStats;
   preferredLocale: SupportedLocale;
