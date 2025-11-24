@@ -3,7 +3,12 @@
 
 import * as React from "react";
 import Link from "next/link";
-import type { AnalyzeResult } from "@features/analyze/schemas";
+import type {
+  AnalyzeResult,
+  ConsequenceRecord,
+  ResponsibilityRecord,
+  ResponsibilityPath,
+} from "@features/analyze/schemas";
 import {
   HighlightedTextarea,
 } from "@/app/(components)/HighlightedTextarea";
@@ -54,6 +59,25 @@ const levelOptions = [
   { id: 1 as 1 | 2, label_de: "Level 1 – Basis", label_en: "Level 1 – basic" },
   { id: 2 as 1 | 2, label_de: "Level 2 – Mehr Fakten", label_en: "Level 2 – more facts" },
 ];
+
+const CONSEQUENCE_SCOPE_LABELS: Record<string, string> = {
+  local_short: "Lokal (kurzfristig)",
+  local_long: "Lokal (langfristig)",
+  national: "National",
+  global: "Global",
+  systemic: "Systemisch",
+};
+
+const RESPONSIBILITY_LEVEL_LABELS: Record<string, string> = {
+  municipality: "Gemeinde",
+  district: "Kreis",
+  state: "Land",
+  federal: "Bund",
+  eu: "EU",
+  ngo: "NGO",
+  private: "Privat",
+  unknown: "Unbekannt",
+};
 
 const analyzeButtonTexts = {
   running_de: "Analyse läuft …",
@@ -210,6 +234,9 @@ export default function ContributionNewPage() {
   const [questions, setQuestions] = React.useState<QuestionCard[]>([]);
   const [knots, setKnots] = React.useState<KnotCard[]>([]);
   const [statements, setStatements] = React.useState<StatementCard[]>([]);
+  const [consequences, setConsequences] = React.useState<ConsequenceRecord[]>([]);
+  const [responsibilities, setResponsibilities] = React.useState<ResponsibilityRecord[]>([]);
+  const [responsibilityPaths, setResponsibilityPaths] = React.useState<ResponsibilityPath[]>([]);
 
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -369,6 +396,27 @@ export default function ContributionNewPage() {
       setKnots(mappedKnots);
       setStatements(mappedStatements);
 
+      const consequenceBundle = (result as any)?.consequences;
+      const mappedConsequences: ConsequenceRecord[] = Array.isArray(
+        consequenceBundle?.consequences,
+      )
+        ? consequenceBundle.consequences
+        : [];
+      const mappedResponsibilities: ResponsibilityRecord[] = Array.isArray(
+        consequenceBundle?.responsibilities,
+      )
+        ? consequenceBundle.responsibilities
+        : [];
+      const mappedPaths: ResponsibilityPath[] = Array.isArray(
+        (result as any)?.responsibilityPaths,
+      )
+        ? (result as any).responsibilityPaths
+        : [];
+
+      setConsequences(mappedConsequences);
+      setResponsibilities(mappedResponsibilities);
+      setResponsibilityPaths(mappedPaths);
+
       if (mappedStatements.length === 0) {
         setLastStatus("empty");
         setInfo(
@@ -390,6 +438,9 @@ export default function ContributionNewPage() {
       setQuestions([]);
       setKnots([]);
       setStatements([]);
+      setConsequences([]);
+      setResponsibilities([]);
+      setResponsibilityPaths([]);
       setLastStatus("error");
       setMetaEditingId(null);
     } finally {
@@ -403,6 +454,9 @@ export default function ContributionNewPage() {
     setQuestions([]);
     setKnots([]);
     setStatements([]);
+    setConsequences([]);
+    setResponsibilities([]);
+    setResponsibilityPaths([]);
     setError(null);
     setInfo(null);
     setSaveInfo(null);
@@ -844,6 +898,16 @@ export default function ContributionNewPage() {
                 )}
               </div>
             </div>
+
+            <ConsequencesPanel
+              consequences={consequences}
+              responsibilities={responsibilities}
+            />
+
+            <ResponsibilityNavigatorPanel
+              responsibilities={responsibilities}
+              paths={responsibilityPaths}
+            />
           </div>
 
           {/* Rechts: Fragen & Knoten (nur Level 2) */}
@@ -914,6 +978,170 @@ export default function ContributionNewPage() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+type ConsequencesPanelProps = {
+  consequences: ConsequenceRecord[];
+  responsibilities: ResponsibilityRecord[];
+};
+
+function ConsequencesPanel({ consequences, responsibilities }: ConsequencesPanelProps) {
+  const grouped = React.useMemo(() => {
+    return consequences.reduce<Record<string, ConsequenceRecord[]>>((acc, cons) => {
+      if (!acc[cons.scope]) acc[cons.scope] = [];
+      acc[cons.scope].push(cons);
+      return acc;
+    }, {});
+  }, [consequences]);
+
+  const hasData = consequences.length > 0 || responsibilities.length > 0;
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white/95 p-4 shadow-sm">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-slate-800">Folgen & Zuständigkeiten</h2>
+        <Link href="/admin/responsibility" className="text-xs text-sky-600 underline">
+          Directory öffnen
+        </Link>
+      </div>
+      {!hasData ? (
+        <p className="mt-2 text-sm text-slate-500">
+          Noch keine strukturierte Folgenabschätzung verfügbar. Sobald der Orchestrator
+          Consequences/Responsibilities liefert oder manuell gepflegt wurden, erscheinen
+          sie hier.
+        </p>
+      ) : (
+        <div className="mt-3 space-y-4">
+          {Object.entries(grouped).map(([scope, list]) => (
+            <div key={scope}>
+              <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                {CONSEQUENCE_SCOPE_LABELS[scope] ?? scope} ({list.length})
+              </div>
+              <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-700">
+                {list.map((item) => (
+                  <li key={item.id}>
+                    {item.text}
+                    {typeof item.confidence === "number" && (
+                      <span className="text-xs text-slate-500">
+                        {" "}
+                        · Sicherheit {(item.confidence * 100).toFixed(0)}%
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+
+          {responsibilities.length > 0 && (
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Zuständigkeiten ({responsibilities.length})
+              </div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {responsibilities.map((entry) => (
+                  <span
+                    key={entry.id}
+                    className="inline-flex flex-col rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 shadow-sm"
+                  >
+                    <strong className="text-slate-900">
+                      {entry.actor || RESPONSIBILITY_LEVEL_LABELS[entry.level] || entry.level}
+                    </strong>
+                    <span>{entry.text}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+type ResponsibilityNavigatorPanelProps = {
+  responsibilities: ResponsibilityRecord[];
+  paths: ResponsibilityPath[];
+};
+
+function ResponsibilityNavigatorPanel({
+  responsibilities,
+  paths,
+}: ResponsibilityNavigatorPanelProps) {
+  const [showDetails, setShowDetails] = React.useState(false);
+  const firstPath = paths[0];
+  const hasNavigatorData = responsibilities.length > 0 || (firstPath?.nodes?.length ?? 0) > 0;
+
+  const levelGroups = React.useMemo(() => {
+    return responsibilities.reduce<Record<string, ResponsibilityRecord[]>>((acc, entry) => {
+      if (!acc[entry.level]) acc[entry.level] = [];
+      acc[entry.level].push(entry);
+      return acc;
+    }, {});
+  }, [responsibilities]);
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white/95 p-4 shadow-sm">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-slate-800">Responsibility Navigator</h2>
+        <button
+          type="button"
+          onClick={() => setShowDetails((prev) => !prev)}
+          className="text-xs font-semibold text-sky-600 underline"
+        >
+          {showDetails ? "Details verstecken" : "Details anzeigen"}
+        </button>
+      </div>
+
+      {!hasNavigatorData ? (
+        <p className="mt-2 text-sm text-slate-500">
+          Noch keine Responsibility-Pfade erfasst. Du kannst sie im Admin-Bereich anlegen
+          oder die KI-Vorschläge später ergänzen.
+        </p>
+      ) : (
+        <div className="mt-3 space-y-3">
+          {Object.entries(levelGroups).map(([level, list]) => (
+            <div key={level} className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2">
+              <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                {RESPONSIBILITY_LEVEL_LABELS[level] ?? level} ({list.length})
+              </div>
+              <ul className="mt-1 list-disc space-y-1 pl-4 text-sm text-slate-700">
+                {list.map((entry) => (
+                  <li key={entry.id}>
+                    <span className="font-semibold">{entry.actor || entry.text}</span>
+                    <span className="text-slate-600"> – {entry.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+
+          {showDetails && firstPath && (
+            <div className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2">
+              <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Pfad zu Statement {firstPath.statementId}
+              </div>
+              <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-slate-700">
+                {firstPath.nodes.map((node, idx) => (
+                  <li key={`${firstPath.id ?? firstPath.statementId}-${idx}`}>
+                    <span className="font-semibold">
+                      {node.displayName} ({RESPONSIBILITY_LEVEL_LABELS[node.level] ?? node.level})
+                    </span>
+                    {typeof node.relevance === "number" && (
+                      <span className="text-xs text-slate-500">
+                        {" "}
+                        · Relevanz {(node.relevance * 100).toFixed(0)}%
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

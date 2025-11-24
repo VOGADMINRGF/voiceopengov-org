@@ -12,15 +12,34 @@
  * liefert „nur“ Roh-JSON-Text zurück (plus Meta-Informationen).
  */
 
-import { callOpenAIJson } from "@features/ai";
+import { recordAiTelemetry } from "@features/ai/telemetry";
 import { logAiUsage } from "@core/telemetry/aiUsage";
 import type { AiPipelineName } from "@core/telemetry/aiUsageTypes";
+import { callOpenAI as askOpenAI } from "@features/ai/providers/openai";
+import { callAnthropic as askAnthropic } from "@features/ai/providers/anthropic";
+import { callMistral as askMistral } from "@features/ai/providers/mistral";
+import { callGemini as askGemini } from "@features/ai/providers/gemini";
+import { healthScore } from "@features/ai/orchestrator";
 
 /* ------------------------------------------------------------------------- */
 /* Typen                                                                     */
 /* ------------------------------------------------------------------------- */
 
-export type E150ProviderName = "openai"; // Platzhalter – später z.B. "anthropic"
+export type E150ProviderName = "openai" | "anthropic" | "mistral" | "gemini";
+
+type ProviderCallArgs = {
+  prompt: string;
+  signal: AbortSignal;
+  maxTokens: number;
+};
+
+type ProviderCallResult = {
+  text: string;
+  modelName?: string;
+  tokensIn?: number;
+  tokensOut?: number;
+  costEur?: number;
+};
 
 export type E150OrchestratorArgs = {
   systemPrompt: string;
@@ -41,12 +60,24 @@ export type E150OrchestratorArgs = {
   };
 };
 
+type ProviderRole =
+  | "structure"
+  | "context"
+  | "questions"
+  | "knots"
+  | "mixed";
+
 type ProviderProfile = {
   name: E150ProviderName;
   label: string;
+  role: ProviderRole;
   weight: number;
-  defaultMaxTokens: number;
-  defaultTimeoutMs: number;
+  maxTokens: number;
+  timeoutMs: number;
+  enabled: () => boolean;
+  call: (args: ProviderCallArgs) => Promise<ProviderCallResult>;
+  metricId?: string;
+  promptHint?: string;
 };
 
 type ProviderSuccess = {
@@ -110,12 +141,113 @@ const PROVIDERS: ProviderProfile[] = [
   {
     name: "openai",
     label: "OpenAI (E150 contrib analyzer)",
+    role: "mixed",
     weight: 1,
-    defaultMaxTokens: 1_800,
-    defaultTimeoutMs: OPENAI_TIMEOUT_DEFAULT,
+    maxTokens: 1_800,
+    timeoutMs: OPENAI_TIMEOUT_DEFAULT,
+    metricId: "openai",
+    promptHint:
+      "Deliver a balanced mix of claims, context notes, questions, and knots while keeping everything grounded in the source text.",
+    enabled: () => Boolean(process.env.OPENAI_API_KEY),
+    call: async ({ prompt, signal, maxTokens }) => {
+      const { text } = await askOpenAI({
+        prompt,
+        asJson: true,
+        maxOutputTokens: maxTokens,
+        signal,
+      });
+      return {
+        text,
+        modelName: process.env.OPENAI_MODEL ?? "gpt-4.1",
+      };
+    },
   },
-  // Später: Anthropic, Mistral, Gemini etc. hier ergänzen.
+  {
+    name: "anthropic",
+    label: "Anthropic Claude",
+    role: "context",
+    weight: 0.9,
+    maxTokens: 1_500,
+    timeoutMs: Number(process.env.ANTHROPIC_TIMEOUT_MS ?? 20_000),
+    metricId: "anthropic",
+    promptHint:
+      "Extract rich background/context sections (facts, stakeholders, assumptions). Prioritize clarity and neutrality.",
+    enabled: () => Boolean(process.env.ANTHROPIC_API_KEY),
+    call: async ({ prompt, signal, maxTokens }) => {
+      const { text, model, tokensIn, tokensOut } = await askAnthropic({
+        prompt,
+        maxOutputTokens: maxTokens,
+        signal,
+      });
+      return {
+        text,
+        modelName: model ?? process.env.ANTHROPIC_MODEL ?? "claude",
+        tokensIn,
+        tokensOut,
+      };
+    },
+  },
+  {
+    name: "mistral",
+    label: "Mistral Large",
+    role: "structure",
+    weight: 0.8,
+    maxTokens: 1_200,
+    timeoutMs: Number(process.env.MISTRAL_TIMEOUT_MS ?? 18_000),
+    metricId: "mistral",
+    promptHint:
+      "Split the text into concise, testable claims (max one assertion per claim). Highlight responsibilities/topics clearly.",
+    enabled: () => Boolean(process.env.MISTRAL_API_KEY),
+    call: async ({ prompt, signal, maxTokens }) => {
+      const { text, model, tokensIn, tokensOut } = await askMistral({
+        prompt,
+        maxOutputTokens: maxTokens,
+        signal,
+      });
+      return {
+        text,
+        modelName: model ?? process.env.MISTRAL_MODEL ?? "mistral-large-latest",
+        tokensIn,
+        tokensOut,
+      };
+    },
+  },
+  {
+    name: "gemini",
+    label: "Gemini Pro",
+    role: "questions",
+    weight: 0.75,
+    maxTokens: 1_400,
+    timeoutMs: Number(process.env.GEMINI_TIMEOUT_MS ?? 18_000),
+    metricId: "gemini",
+    promptHint:
+      "Focus on investigative, critical questions (finance, legal, impact). Each question must be grounded in the provided text.",
+    enabled: () => Boolean(process.env.GEMINI_API_KEY),
+    call: async ({ prompt, signal, maxTokens }) => {
+      const { text, model, tokensIn, tokensOut } = await askGemini({
+        prompt,
+        maxOutputTokens: maxTokens,
+        signal,
+      });
+      return {
+        text,
+        modelName: model ?? process.env.GEMINI_MODEL ?? "gemini-1.5-pro",
+        tokensIn,
+        tokensOut,
+      };
+    },
+  },
 ];
+
+function activeProviders(): ProviderProfile[] {
+  return PROVIDERS.filter((profile) => {
+    try {
+      return profile.enabled();
+    } catch {
+      return false;
+    }
+  });
+}
 
 /* ------------------------------------------------------------------------- */
 /* Hilfsfunktionen                                                           */
@@ -164,8 +296,9 @@ function scoreCandidate(
   const jsonBonus = jsonOk ? 0.5 : 0;
   const speedBonus =
     durationMs > 0 ? Math.min(0.5, Math.max(0, 8_000 - durationMs) / 8_000) : 0;
+  const healthBoost = provider.metricId ? healthScore(provider.metricId) * 0.2 : 0;
 
-  return base + jsonBonus + speedBonus;
+  return base + jsonBonus + speedBonus + healthBoost;
 }
 
 async function runProvider(
@@ -174,43 +307,89 @@ async function runProvider(
 ): Promise<ProviderResult> {
   const started = Date.now();
 
-  const maxTokens = Math.min(
-    args.maxTokens ?? profile.defaultMaxTokens,
-    profile.defaultMaxTokens,
-  );
-  const timeoutMs = args.timeoutMs ?? profile.defaultTimeoutMs;
+  const maxTokens = Math.min(args.maxTokens ?? profile.maxTokens, profile.maxTokens);
+  const timeoutMs = args.timeoutMs ?? profile.timeoutMs;
+  const prompt = buildPrompt(args.systemPrompt, args.userPrompt, profile);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const coreCall = callOpenAIJson({
-      system: args.systemPrompt,
-      user: args.userPrompt,
-      max_tokens: maxTokens,
+    const callPromise = profile.call({
+      prompt,
+      signal: controller.signal,
+      maxTokens,
     });
-
-    const { text } = await withTimeout(coreCall, timeoutMs, profile.label);
+    const result = await withTimeout(callPromise, timeoutMs + 1_000, profile.label);
 
     const durationMs = Date.now() - started;
     return {
       ok: true,
       provider: profile.name,
-      rawText: text,
+      rawText: result.text,
       durationMs,
-      modelName: "gpt-4.1",
-      tokensIn: maxTokens,
-      tokensOut: Math.round(maxTokens * 0.4),
-      costEur: 0,
+      modelName: result.modelName,
+      tokensIn: result.tokensIn,
+      tokensOut: result.tokensOut,
+      costEur: result.costEur,
     };
   } catch (err: any) {
     const durationMs = Date.now() - started;
+    const message =
+      err?.name === "AbortError"
+        ? `${profile.label} timed out nach ${timeoutMs}ms`
+        : typeof err?.message === "string"
+          ? err.message
+          : `Unbekannter Fehler bei ${profile.label}`;
     return {
       ok: false,
       provider: profile.name,
-      error:
-        typeof err?.message === "string"
-          ? err.message
-          : `Unbekannter Fehler bei ${profile.label}`,
+      error: message,
       durationMs,
     };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function buildPrompt(
+  system: string | undefined,
+  user: string | undefined,
+  profile: ProviderProfile,
+): string {
+  const sections: string[] = [];
+  if (system?.trim()) sections.push(system.trim());
+  const roleGuidance = buildRoleGuidance(profile.role, profile.promptHint);
+  if (roleGuidance) sections.push("", roleGuidance);
+  if (user?.trim()) sections.push("", user.trim());
+  sections.push("", "Return ONLY valid JSON (RFC8259). No Markdown, no commentary.");
+  return sections.join("\n");
+}
+
+function buildRoleGuidance(role: ProviderRole, promptHint?: string): string | null {
+  if (promptHint) return promptHint;
+  switch (role) {
+    case "structure":
+      return [
+        "Focus on extracting atomic, testable claims.",
+        "Ensure each claim contains one responsibility/topic so voting later is possible.",
+      ].join(" ");
+    case "context":
+      return [
+        "Prioritize contextual notes that explain background, stakeholders, facts.",
+        "Highlight contradictions or missing data only if grounded in the source.",
+      ].join(" ");
+    case "questions":
+      return [
+        "Surface critical questions citizens should ask (finance, legal, impact).",
+        "Avoid opinionated language; keep questions concise.",
+      ].join(" ");
+    case "knots":
+      return [
+        "Identify conflict knots / trade-offs.",
+        "Each knot should name the tension and describe it in 1-2 sentences.",
+      ].join(" ");
+    default:
+      return null;
   }
 }
 
@@ -227,13 +406,19 @@ async function runProvider(
 export async function callE150Orchestrator(
   args: E150OrchestratorArgs,
 ): Promise<E150OrchestratorResult> {
+  const profiles = activeProviders();
+  if (!profiles.length) {
+    throw new Error("E150-Orchestrator: Kein aktiver Provider konfiguriert");
+  }
+
   const results = await Promise.allSettled(
-    PROVIDERS.map((profile) => runProvider(profile, args)),
+    profiles.map((profile) => runProvider(profile, args)),
   );
 
   const candidates: E150OrchestratorCandidate[] = [];
+  const providerOutcomes: ProviderResult[] = [];
   const timings = Object.fromEntries(
-    PROVIDERS.map((p) => [p.name, null]),
+    profiles.map((p) => [p.name, null]),
   ) as Record<E150ProviderName, number | null>;
 
   const failedProviders: { provider: E150ProviderName; error: string }[] = [];
@@ -242,16 +427,23 @@ export async function callE150Orchestrator(
     const profile = PROVIDERS[idx];
 
     if (settled.status !== "fulfilled") {
-      failedProviders.push({
+      const failure: ProviderFailure = {
+        ok: false,
         provider: profile.name,
         error:
-          settled.reason?.message ??
-          `Unbekannter Fehler bei ${profile.label}`,
+          settled.reason?.message ?? `Unbekannter Fehler bei ${profile.label}`,
+        durationMs: 0,
+      };
+      providerOutcomes.push(failure);
+      failedProviders.push({
+        provider: profile.name,
+        error: failure.error,
       });
       return;
     }
 
     const r = settled.value;
+    providerOutcomes.push(r);
     timings[r.provider] = r.durationMs;
 
     if (r.ok) {
@@ -310,12 +502,31 @@ export async function callE150Orchestrator(
     console.error("[E150] logAiUsage failed", err);
   });
 
+  const telemetryEvents = providerOutcomes.map((outcome) => {
+    const success = outcome.ok ? (outcome as ProviderSuccess) : null;
+    const failure = outcome.ok ? null : (outcome as ProviderFailure);
+    return recordAiTelemetry({
+      task: "orchestrator:e150",
+      pipeline: pipelineName,
+      provider: outcome.provider,
+      model: success?.modelName,
+      success: outcome.ok,
+      retries: 0,
+      durationMs: outcome.durationMs,
+      tokensIn: success?.tokensIn,
+      tokensOut: success?.tokensOut,
+      fallbackUsed: success ? success.provider !== best.provider : true,
+      errorKind: failure?.error ?? null,
+    }).catch(() => {});
+  });
+  await Promise.all(telemetryEvents);
+
   return {
     rawText: best.rawText,
     best,
     candidates,
     meta: {
-      usedProviders: PROVIDERS.map((p) => p.name),
+      usedProviders: profiles.map((p) => p.name),
       failedProviders,
       timings,
     },

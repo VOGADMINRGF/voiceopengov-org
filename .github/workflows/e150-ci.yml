@@ -29,15 +29,17 @@ jobs:
           NEO4J_dbms_security_procedures_allowlist: "apoc.* , gds.*"
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.1
 
       - name: Use Node 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: pnpm
           cache-dependency-path: |
-            package-lock.json
-            **/package-lock.json
+            pnpm-lock.yaml
 
       - name: Env
         run: |
@@ -48,20 +50,20 @@ jobs:
           echo "JWT_SECRET=$(openssl rand -hex 16)" >> .env
           echo "NEO4J_URL=bolt://localhost:7687" >> .env
 
-      - name: npm ci (root)
-        run: npm ci
+      - name: pnpm install (root)
+        run: pnpm install --frozen-lockfile
 
       - name: Typecheck
-        run: npm run typecheck --workspaces --if-present
+        run: pnpm run typecheck
 
       - name: Lint
-        run: npm run lint --workspaces --if-present
+        run: pnpm run lint
 
       - name: Unit tests (coverage≥85%)
-        run: npm run test:ci --workspaces --if-present
+        run: pnpm run --if-present test:ci
 
       - name: Build web
-        run: npm run build --workspace=apps/web
+        run: pnpm --filter @vog/web run build
 
       - name: SAST (semgrep)
         uses: returntocorp/semgrep-action@v1

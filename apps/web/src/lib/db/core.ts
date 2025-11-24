@@ -1,7 +1,20 @@
 import * as tri from "@core/db/triMongo";
-export const coreConn = asFn<any>(
-  (tri as any).coreConn || (tri as any).getCoreConn || (tri as any).core,
-);
+
+const asFn = <T>(value: unknown): (() => T) => {
+  if (typeof value === "function") {
+    return value as () => T;
+  }
+  if (value === undefined) {
+    throw new Error("[db/core] Missing coreConn implementation");
+  }
+  return () => value as T;
+};
+
+const coreConnSource =
+  (tri as Record<string, unknown>).coreConn ??
+  ((tri as Record<string, unknown>).default as Record<string, unknown> | undefined)?.coreConn;
+
+export const coreConn = asFn<any>(coreConnSource);
 export const coreDb = () => (coreConn() as any).db ?? (coreConn() as any);
 export const coreCol = (name: string) =>
   typeof (tri as any).coreCol === "function"

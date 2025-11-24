@@ -1,15 +1,11 @@
 // apps/web/src/lib/logger.ts
 import pino from "pino";
+import { PII_REDACT_PATHS } from "@core/pii/redact";
 
 export const logger = pino({
   level: process.env.LOG_LEVEL || "info",
   redact: {
-    paths: [
-      "req.headers.authorization",
-      "req.body.password",
-      "req.body.totp",
-      "user.mfaSecret",
-    ],
+    paths: [...PII_REDACT_PATHS, "user.mfaSecret"],
     censor: "***",
   },
   transport:

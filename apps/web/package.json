@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "prisma:generate": "node ./scripts/prisma-generate-all.mjs",
     "postinstall": "pnpm run prisma:generate",
-    "lint": "next lint'"
+    "lint": "next lint"
   },
   "dependencies": {
     "framer-motion": "^12.23.22",

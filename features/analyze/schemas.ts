@@ -44,6 +44,62 @@ export const KnotRecordSchema = z.object({
 });
 export type KnotRecord = z.infer<typeof KnotRecordSchema>;
 
+const responsibilityLevelEnum = z.enum([
+  "municipality",
+  "district",
+  "state",
+  "federal",
+  "eu",
+  "ngo",
+  "private",
+  "unknown",
+]);
+
+export const ConsequenceRecordSchema = z.object({
+  id: z.string(),
+  scope: z.enum(["local_short", "local_long", "national", "global", "systemic"]),
+  statementIndex: z.number().int().min(0),
+  text: z.string(),
+  confidence: z.number().min(0).max(1).optional(),
+});
+export type ConsequenceRecord = z.infer<typeof ConsequenceRecordSchema>;
+
+export const ResponsibilityRecordSchema = z.object({
+  id: z.string(),
+  level: responsibilityLevelEnum,
+  actor: z.string().nullable().optional(),
+  text: z.string(),
+  relevance: z.number().min(0).max(1),
+});
+export type ResponsibilityRecord = z.infer<typeof ResponsibilityRecordSchema>;
+
+export const ResponsibilityPathNodeSchema = z.object({
+  level: responsibilityLevelEnum,
+  actorKey: z.string(),
+  displayName: z.string(),
+  description: z.string().nullable().optional(),
+  contactUrl: z.string().nullable().optional(),
+  processHint: z.string().nullable().optional(),
+  relevance: z.number().min(0).max(1).optional(),
+});
+export type ResponsibilityPathNode = z.infer<typeof ResponsibilityPathNodeSchema>;
+
+export const ResponsibilityPathSchema = z.object({
+  id: z.string(),
+  statementId: z.string(),
+  locale: z.string(),
+  nodes: z.array(ResponsibilityPathNodeSchema),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
+export type ResponsibilityPath = z.infer<typeof ResponsibilityPathSchema>;
+
+export const ConsequenceBundleSchema = z.object({
+  consequences: z.array(ConsequenceRecordSchema),
+  responsibilities: z.array(ResponsibilityRecordSchema),
+});
+export type ConsequenceBundle = z.infer<typeof ConsequenceBundleSchema>;
+
 /* ---------- AnalyzeResult ---------- */
 
 export const AnalyzeResultSchema = z.object({
@@ -54,6 +110,8 @@ export const AnalyzeResultSchema = z.object({
   notes: z.array(NoteRecordSchema),
   questions: z.array(QuestionRecordSchema),
   knots: z.array(KnotRecordSchema),
+  consequences: ConsequenceBundleSchema.optional(),
+  responsibilityPaths: z.array(ResponsibilityPathSchema).optional(),
 });
 
 export type AnalyzeResult = z.infer<typeof AnalyzeResultSchema>;
@@ -134,6 +192,102 @@ export const ANALYZE_JSON_SCHEMA = {
             description: { type: "string" },
           },
           required: ["id", "label", "description"],
+        },
+      },
+      consequences: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          consequences: {
+            type: "array",
+            items: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                id: { type: "string" },
+                scope: {
+                  type: "string",
+                  enum: ["local_short", "local_long", "national", "global", "systemic"],
+                },
+                statementIndex: { type: "integer", minimum: 0 },
+                text: { type: "string" },
+                confidence: { type: "number", minimum: 0, maximum: 1 },
+              },
+              required: ["id", "scope", "statementIndex", "text"],
+            },
+          },
+          responsibilities: {
+            type: "array",
+            items: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                id: { type: "string" },
+                level: {
+                  type: "string",
+                  enum: [
+                    "municipality",
+                    "district",
+                    "state",
+                    "federal",
+                    "eu",
+                    "ngo",
+                    "private",
+                    "unknown",
+                  ],
+                },
+                actor: { type: "string", nullable: true },
+                text: { type: "string" },
+                relevance: { type: "number", minimum: 0, maximum: 1 },
+              },
+              required: ["id", "level", "text", "relevance"],
+            },
+          },
+        },
+        required: ["consequences", "responsibilities"],
+      },
+      responsibilityPaths: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            id: { type: "string" },
+            statementId: { type: "string" },
+            locale: { type: "string" },
+            nodes: {
+              type: "array",
+              items: {
+                type: "object",
+                additionalProperties: false,
+                properties: {
+                  level: {
+                    type: "string",
+                    enum: [
+                      "municipality",
+                      "district",
+                      "state",
+                      "federal",
+                      "eu",
+                      "ngo",
+                      "private",
+                      "unknown",
+                    ],
+                  },
+                  actorKey: { type: "string" },
+                  displayName: { type: "string" },
+                  description: { type: "string", nullable: true },
+                  contactUrl: { type: "string", nullable: true },
+                  processHint: { type: "string", nullable: true },
+                  relevance: { type: "number", minimum: 0, maximum: 1 },
+                },
+                required: ["level", "actorKey", "displayName"],
+              },
+            },
+            createdAt: { type: "string", nullable: true },
+            updatedAt: { type: "string", nullable: true },
+          },
+          required: ["id", "statementId", "locale", "nodes"],
         },
       },
     },

@@ -6,6 +6,58 @@ import { modelOn } from "@/lib/db/modelOn";
 import { MediaItemSchema, type MediaItem } from "./MediaItem";
 
 // --- Subschemas ---
+const VotingRuleSchema = new Schema(
+  {
+    type: { type: String, default: "simple-majority", trim: true },
+    description: { type: String, trim: true },
+    weightMap: Schema.Types.Mixed,
+    minQuorum: Number,
+  },
+  { _id: false },
+);
+
+const RegionObjSchema = new Schema(
+  {
+    ags: { type: String, trim: true },
+    nuts1: { type: String, trim: true },
+    nuts2: { type: String, trim: true },
+    nuts3: { type: String, trim: true },
+    iso: { type: String, trim: true },
+    name: { type: String, required: true, trim: true },
+    type: { type: String, trim: true },
+    population: { type: Number, min: 0 },
+    areaKm2: { type: Number, min: 0 },
+  },
+  { _id: false },
+);
+
+const ReportChartSchema = new Schema(
+  {
+    type: { type: String, required: true, trim: true },
+    data: { type: Schema.Types.Mixed, required: true },
+    title: { type: String, trim: true },
+    description: { type: String, trim: true },
+    source: { type: String, trim: true },
+    colorscheme: { type: String, trim: true },
+  },
+  { _id: false },
+);
+
+const RegionalVoiceSchema = new Schema(
+  {
+    region: { type: String, trim: true },
+    author: { type: String, trim: true },
+    role: { type: String, trim: true },
+    medium: { type: String, trim: true },
+    verified: { type: Boolean, default: false },
+    statement: { type: String, trim: true },
+    impactAssessment: Schema.Types.Mixed,
+    submittedAt: Date,
+    redaktionFreigabe: { type: Boolean, default: false },
+  },
+  { _id: false },
+);
+
 // --- Hauptschema ---
 const ReportSchema = new Schema(
   {
@@ -152,4 +204,5 @@ export interface IReport extends Document {
 }
 
 // Export an coreConn binden
+const conn = coreConn();
 export default modelOn<IReport>(conn, "Report", ReportSchema, "reports");

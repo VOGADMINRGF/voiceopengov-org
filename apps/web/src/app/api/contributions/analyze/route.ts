@@ -1,6 +1,16 @@
 // apps/web/src/app/api/contributions/analyze/route.ts
 import { NextRequest } from "next/server";
-import { analyzeContribution } from "@features/analyze/analyzeContribution";
+import {
+  analyzeContribution,
+  type AnalyzeResultWithMeta,
+} from "@features/analyze/analyzeContribution";
+import { deriveContextNotes } from "@features/analyze/context";
+import {
+  deriveCriticalQuestions,
+  deriveKnots,
+} from "@features/analyze/questionizers";
+import { syncAnalyzeResultToGraph } from "@core/graph";
+import crypto from "node:crypto";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -31,6 +41,12 @@ type AnalyzeBody = {
   maxClaims?: number;
   stream?: boolean;
   live?: boolean;
+};
+
+type AnalyzeJobInput = {
+  text: string;
+  locale: string;
+  maxClaims: number;
 };
 
 function sanitizeLocale(locale?: string): string {
@@ -71,28 +87,23 @@ export async function POST(req: NextRequest): Promise<Response> {
 
   const locale = sanitizeLocale(body.locale);
   const maxClaims = sanitizeMaxClaims(body.maxClaims);
-  const text = body.text;
+  const text = body.text.trim();
+  const analyzeInput: AnalyzeJobInput = { text, locale, maxClaims };
 
   if (wantsSse(req, body)) {
-    return startAnalyzeSseStream(req);
+    return startAnalyzeSseStream(analyzeInput);
   }
 
   try {
-    const result = await analyzeContribution({
-      text,
-      locale,
-      maxClaims,
+    const result = await runAnalyzeJob(analyzeInput);
+    const sourceId = crypto.createHash("sha1").update(text).digest("hex").slice(0, 32);
+    syncAnalyzeResultToGraph({ result, sourceId, locale }).catch((err) => {
+      console.error("[E150] graph sync failed", err);
     });
-
     return ok({ result }, 200);
-  } catch (e: any) {
-    console.error("[E150] /api/contributions/analyze error", e);
-    const msg = String(e?.message ?? "");
-    const normalized =
-      msg.includes("KI-Antwort war kein gültiges JSON")
-        ? "AnalyzeContribution: KI-Antwort war kein gültiges JSON. Bitte später erneut versuchen."
-        : "AnalyzeContribution: Fehler im Analyzer. Bitte später erneut versuchen.";
-    return err(normalized, 500);
+  } catch (error) {
+    console.error("[E150] /api/contributions/analyze error", error);
+    return err(normalizeAnalyzerError(error), 500);
   }
 }
 
@@ -108,26 +119,98 @@ function wantsSse(req: NextRequest, body: AnalyzeBody | null): boolean {
   return accept.includes("text/event-stream");
 }
 
-/**
- * Platzhalter für künftigen SSE-Modus (progress events, Zwischenschritte).
- * TODO: Echte Implementierung nachziehen, sobald Orchestrator Zwischenschritte liefert.
- */
-function startAnalyzeSseStream(_req: NextRequest): Response {
+function startAnalyzeSseStream(input: AnalyzeJobInput): Response {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
-    start(controller) {
-      const notImplemented = {
-        event: "error",
-        data: "Server-Sent Events sind noch nicht implementiert.",
+    async start(controller) {
+      const sendEvent = (event: string, data: unknown) => {
+        controller.enqueue(
+          encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`),
+        );
       };
-      controller.enqueue(
-        encoder.encode(`event: ${notImplemented.event}\ndata: ${JSON.stringify({ reason: notImplemented.data })}\n\n`)
-      );
-      controller.close();
+
+      const sendProgress = (stage: string, pct: number) =>
+        sendEvent("progress", { stage, pct });
+
+      try {
+        sendProgress("init", 5);
+        sendProgress("dispatch", 15);
+
+        sendProgress("analyzing", 35);
+        const result = await runAnalyzeJob(input);
+
+        sendProgress("finalizing", 85);
+        sendEvent("result", { result });
+        sendProgress("complete", 100);
+        controller.close();
+      } catch (error) {
+        console.error("[E150] SSE analyze error", error);
+        sendEvent("error", { reason: normalizeAnalyzerError(error) });
+        controller.close();
+      }
     },
   });
+
   return new Response(stream, {
-    status: 501,
+    status: 200,
     headers: SSE_HEADERS,
   });
+}
+
+async function runAnalyzeJob(input: AnalyzeJobInput): Promise<AnalyzeResultWithMeta> {
+  const analyzed = await analyzeContribution({
+    text: input.text,
+    locale: input.locale,
+    maxClaims: input.maxClaims,
+  });
+  return finalizeAnalyzeResult(analyzed);
+}
+
+function finalizeAnalyzeResult(
+  result: AnalyzeResultWithMeta
+): AnalyzeResultWithMeta {
+  const notes = hasEntries(result.notes)
+    ? result.notes
+    : deriveContextNotes(result);
+  const questions = hasEntries(result.questions)
+    ? result.questions
+    : deriveCriticalQuestions(result);
+  const knots = hasEntries(result.knots) ? result.knots : deriveKnots(result);
+  const consequencesBundle = result.consequences ?? {
+    consequences: [],
+    responsibilities: [],
+  };
+  const responsibilityPaths = Array.isArray(result.responsibilityPaths)
+    ? result.responsibilityPaths
+    : [];
+
+  return {
+    ...result,
+    notes,
+    questions,
+    knots,
+    consequences: {
+      consequences: consequencesBundle.consequences ?? [],
+      responsibilities: consequencesBundle.responsibilities ?? [],
+    },
+    responsibilityPaths,
+  };
+}
+
+function hasEntries<T>(value?: T[] | null): value is T[] {
+  return Array.isArray(value) && value.length > 0;
+}
+
+function normalizeAnalyzerError(error: unknown): string {
+  const message =
+    typeof error === "object" && error !== null && "message" in error
+      ? String((error as { message?: unknown }).message ?? "")
+      : typeof error === "string"
+        ? error
+        : "";
+
+  if (message.includes("KI-Antwort war kein gültiges JSON")) {
+    return "AnalyzeContribution: KI-Antwort war kein gültiges JSON. Bitte später erneut versuchen.";
+  }
+  return "AnalyzeContribution: Fehler im Analyzer. Bitte später erneut versuchen.";
 }

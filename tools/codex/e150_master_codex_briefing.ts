@@ -1,5 +1,31 @@
 /**
- * VoiceOpenGov / eDebatte
+ * Zusätzliche Spezifikation (Markdown-Dokumente, NICHT importieren):
+ *
+ *  - docs/E150/Part00_Foundations_PII_Security.md
+ *  - docs/E150/Part01_Systemvision_Mission_Governance.md
+ *  - docs/E150/Part02_Roles_Levels_XP_Gamification.md
+ *  - docs/E150/Part03_AccessTiers_Pricing_B2C.md
+ *  - docs/E150/Part04_B2G_B2B_Models.md
+ *  - docs/E150/Part05_Orchestrator_E150_Core.md
+ *  - docs/E150/Part06_Consequences_Fairness.md
+ *  - docs/E150/Part07_Graph_Reports_StructuredKnowledge.md
+ *  - docs/E150/Part08_Eventualities_DecisionTrees.md
+ *  - docs/E150/Part09_KnowledgeGraph.md
+ *  - docs/E150/Part10_Community_Research_Workflow.md
+ *  - docs/E150/Part11_Streams_Brennende_Buerger.md
+ *  - docs/E150/Part12_Campaigns_Admin_Telemetry.md
+ *  - docs/E150/Part13_I18N_A11y_Community_Social.md
+ *
+ * WICHTIG:
+ * - Codex soll diese Dateien als konzeptionelle Referenz lesen,
+ *   aber KEINEN Code daraus generieren oder importieren.
+ * - Diese Datei (e150_master_codex_briefing.ts) bleibt der operative
+ *   Leitfaden mit Kurzfassung, zentralen Typen und Do/Don'ts.
+ */
+
+/**
+
+* VoiceOpenGov / eDebatte
  * E150 – Master-Briefing für Codex (VS Code)
  *
  * Zweck dieser Datei
