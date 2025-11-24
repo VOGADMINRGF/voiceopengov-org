@@ -21,7 +21,6 @@
     "AI_CORE_READER_DB_NAME",
     "AI_CORE_READER_MONGODB_URI",
 
-
     "NEO4J_URI",
     "NEO4J_USER",
     "NEO4J_PASSWORD",
@@ -31,11 +30,30 @@
     "ARANGO_ROOT_PASSWORD",
 
     "MEMGRAPH_URI",
-    "OPENAI_MODEL"
+    "OPENAI_MODEL",
+
+    "MAIL_FROM",
+    "SMTP_FROM",
+    "SMTP_HOST",
+    "SMTP_PORT",
+    "SMTP_SECURE",
+    "SMTP_USER",
+    "SMTP_PASS",
+
+    "EDITOR_TOKEN",
+    "BCRYPT_ROUNDS",
+    "SESSION_TTL_DAYS"
   ],
   "tasks": {
-    "dev": { "cache": false, "persistent": true, "dependsOn": ["^dev"] },
-    "build": { "dependsOn": ["^build"], "outputs": [".next/**", "dist/**"] },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^dev"]
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "dist/**"]
+    },
     "lint": {
       "outputs": [".eslintcache"],
       "inputs": ["src/**/*", "apps/web/eslint.config.js", "package.json"]
