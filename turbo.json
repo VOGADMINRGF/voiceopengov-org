@@ -12,9 +12,28 @@
     "PII_MONGODB_URI",
     "PUBLIC_BASE_URL",
     "WEB_BASE_URL",
-    "JWT_SECRET"
+    "JWT_SECRET",
+
+    "CORE_DB_NAME",
+    "VOTES_DB_NAME",
+    "PII_DB_NAME",
+
+    "AI_CORE_READER_DB_NAME",
+    "AI_CORE_READER_MONGODB_URI",
+
+
+    "NEO4J_URI",
+    "NEO4J_USER",
+    "NEO4J_PASSWORD",
+    "ARANGO_URL",
+    "ARANGO_DB",
+    "ARANGO_USER",
+    "ARANGO_ROOT_PASSWORD",
+
+    "MEMGRAPH_URI",
+    "OPENAI_MODEL"
   ],
-  "tasks": {
+  "pipeline": {
     "dev": { "cache": false, "persistent": true, "dependsOn": ["^dev"] },
     "build": { "dependsOn": ["^build"], "outputs": [".next/**", "dist/**"] },
     "lint": {
