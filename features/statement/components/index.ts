@@ -10,3 +10,4 @@ export { default as StatementListDisplay } from "./StatementListDisplay";
 export * from "./StatementListDisplay";
 export { default as StatementMiniChart } from "./StatementMiniChart";
 export * from "./StatementMiniChart";
+export * from "./StatementImpactPreview";

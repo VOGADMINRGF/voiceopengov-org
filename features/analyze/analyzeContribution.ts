@@ -84,9 +84,17 @@ function buildUserPrompt(
       "   - Zeige Spannungsfelder oder harte Zielkonflikte.",
       "   - Jeder Knoten: { id, label, description } – label kurz (z.B. „Tierwohl vs. Kosten“), description mit 1–2 Sätzen.",
       "",
-      "   Wichtig: Erfinde nichts, bleibe streng beim Text. Wenn wirklich keine Hinweise existieren, darf ein Array leer bleiben – kennzeichne das aber nicht speziell.",
+      "   Wichtig: Erfinde keine Inhalte – nur was im Beitrag angelegt ist.",
       "",
-      "6) Gib das Ergebnis ausschließlich als JSON mit diesem Shape zurück (keine Markdown-Formatierung, keine ```-Blöcke):",
+      "6) Eventualitäten & Entscheidungsbäume (Part08, falls im Text Hinweise enthalten sind):",
+      "   - Baue für jede relevante Aussage einen DecisionTree mit den drei Optionen pro/neutral/contra.",
+      "   - DecisionTree: { rootStatementId, createdAt (ISO), options: { pro, neutral?, contra } }.",
+      "   - Jede Option ist ein EventualityNode: { id, statementId, label, narrative, stance, consequences[], responsibilities[], children[] }.",
+      "   - Konsequenzen spiegeln regionale Tragweiten (local_short, local_long, national, global, systemic) wider; Zuständigkeiten nutzen Part06/10-Level.",
+      "   - Zusätzliche What-if-Hinweise, die nicht direkt in die drei Optionen passen, gehen in `eventualities` (freistehende EventualityNodes).",
+      "   - Wenn es keine Hinweise auf Eventualitäten gibt, liefere leere Arrays für decisionTrees/eventualities.",
+      "",
+      "7) Gib das Ergebnis ausschließlich als JSON mit diesem Shape zurück (keine Markdown-Formatierung, keine ```-Blöcke):",
       "   {",
       '     "mode": "E150",',
       '     "sourceText": "...",',
@@ -94,47 +102,50 @@ function buildUserPrompt(
       '     "claims": [ { "id": "...", "title": "...", "text": "...", "responsibility": "Bund" } ],',
       '     "notes": [ { "id": "...", "kind": "Faktenlage", "text": "..." } ],',
       '     "questions": [ { "id": "...", "dimension": "Finanzen", "text": "..." } ],',
-      '     "knots": [ { "id": "...", "label": "...", "description": "..." } ]',
+      '     "knots": [ { "id": "...", "label": "...", "description": "..." } ],',
+      '     "decisionTrees": [ { "rootStatementId": "...", "createdAt": "ISO", "options": { "pro": { ...EventualityNode }, "neutral": { ... }, "contra": { ... } } } ],',
+      '     "eventualities": [ { "id": "...", "statementId": "...", "label": "...", "narrative": "..." } ]',
       "   }",
       "",
-      "7) Gib NUR den JSON-Text zurück – keine Erklärungen, keine Kommentare, keine Markdown-Formatierung.",
+      "8) Gib NUR den JSON-Text zurück – keine Erklärungen, keine Kommentare, keine Markdown-Formatierung.",
       "",
       "BEITRAG:",
       text,
     ].join("\n");
   }
 
-  // EN-Variante analog, lasse ich der Kürze halber weg;
-  // hier kannst du 1:1 an deine bisherige englische Version anlehnen
-  // und ebenfalls title/responsibility beschreiben.
   return [
     "TASK:",
     `1) Split the contribution into at most ${maxClaims} atomic statements (claims). Each claim:`,
     "   - is a single, verifiable sentence;",
-    "   - has exactly one core demand or assertion;",
-    "   - is phrased so people could later agree or disagree.",
-    "   - is phrased as a positive, constructive statement whenever possible.",
-    "   - avoids duplicates: merge closely related content into ONE claim.",
+    "   - contains exactly one actionable demand or assertion;",
+    "   - can later receive a pro/neutral/contra vote;",
+    "   - avoids duplicates by merging near-identical content.",
     "",
-    "   Aim for about 3–8 distinct core claims rather than many small variations.",
+    "   Target 3–8 distinct core claims rather than dozens of small variations.",
     "",
-    "2) For each claim you must also provide (if possible):",
-    '   - title: a very short label (max. 6–8 words).',
-    '   - responsibility: one of "EU", "Bund", "Land", "Kommune", "privat", "unbestimmt" or leave it empty.',
+    "2) For each claim also provide (when possible):",
+    '   - title: concise label (≤8 words).',
+    '   - responsibility: one of "EU", "Bund", "Land", "Kommune", "privat", "unbestimmt".',
     "",
-    "3) Context notes (at least 2, up to 5):",
-    "   - Highlight key sections of the text as { id, kind, text }.",
-    "   - kind is a short label such as “FACTS”, “EXAMPLE”, “MOTIVATION”.",
+    "3) Context notes (≥2, ≤5):",
+    "   - { id, kind, text } with kind such as FACTS / EXAMPLE / MOTIVATION.",
     "",
-    "4) Critical questions (2–4 entries):",
-    "   - Surface gaps or checks the community should clarify.",
-    "   - Shape: { id, dimension, text } where dimension is a domain like “Finance”, “Legal”, “Impact”.",
+    "4) Critical questions (2–4 items):",
+    "   - highlight gaps or checks citizens should raise; payload { id, dimension, text }.",
     "",
-    "5) Knots / topic hotspots (at least 1):",
-    "   - Describe tensions or trade-offs (label + 1–2 sentence description).",
-    "   - All entries must remain grounded in the given text; leave an array empty only if there is truly no signal.",
+    "5) Knots / topic hotspots (≥1):",
+    "   - describe tensions/trade-offs in 1–2 sentences.",
+    "   - stay strictly grounded in the provided text (never invent facts).",
     "",
-    "6) Return ONLY raw JSON with this shape (no markdown, no ``` blocks):",
+    "6) Eventualities & Decision Trees (Part08, optional but preferred when hints exist):",
+    "   - Build `decisionTrees` for each vote-relevant claim with options pro/neutral/contra.",
+    "   - Each tree: { rootStatementId, createdAt (ISO string), options: { pro, neutral?, contra } }.",
+    "   - Each option is an EventualityNode describing the narrative, consequences[], responsibilities[], and child branches.",
+    "   - Additional what-if branches outside the triad go into `eventualities` (array of EventualityNodes).",
+    "   - Use empty arrays when the source text contains no scenario information.",
+    "",
+    "7) Return ONLY raw JSON (no markdown fences) using:",
     "   {",
     '     "mode": "E150",',
     '     "sourceText": "...",',
@@ -142,7 +153,9 @@ function buildUserPrompt(
     '     "claims": [ { "id": "...", "title": "...", "text": "...", "responsibility": "Bund" } ],',
     '     "notes": [ { "id": "...", "kind": "FACTS", "text": "..." } ],',
     '     "questions": [ { "id": "...", "dimension": "Finance", "text": "..." } ],',
-    '     "knots": [ { "id": "...", "label": "...", "description": "..." } ]',
+    '     "knots": [ { "id": "...", "label": "...", "description": "..." } ],',
+    '     "decisionTrees": [ { "rootStatementId": "...", "createdAt": "ISO", "options": { "pro": { ... }, "neutral": { ... }, "contra": { ... } } } ],',
+    '     "eventualities": [ { "id": "...", "statementId": "...", "label": "...", "narrative": "..." } ]',
     "   }",
     "",
     "CONTRIBUTION:",
@@ -161,6 +174,9 @@ export type AnalyzeResultWithMeta = AnalyzeResult & {
     tokensOutput?: number;
     costEur?: number;
     pipeline?: AiPipelineName;
+    contributionId?: string;
+    eventualitiesReviewed?: boolean;
+    eventualitiesReviewedAt?: string | null;
   };
 };
 
@@ -221,6 +237,12 @@ export async function analyzeContribution(
   const rawNotes = Array.isArray(raw?.notes) ? raw.notes : [];
   const rawQuestions = Array.isArray(raw?.questions) ? raw.questions : [];
   const rawKnots = Array.isArray(raw?.knots) ? raw.knots : [];
+  const rawEventualities = Array.isArray(raw?.eventualities) ? raw.eventualities : [];
+  const rawDecisionTrees = Array.isArray(raw?.decisionTrees) ? raw.decisionTrees : [];
+  const rawConsequenceBundle = raw?.consequences;
+  const rawResponsibilityPaths = Array.isArray(raw?.responsibilityPaths)
+    ? raw.responsibilityPaths
+    : [];
 
   const normalizedRawClaims: StatementRecord[] = rawClaims
     .map((c: any, idx: number) =>
@@ -238,6 +260,10 @@ export async function analyzeContribution(
     notes: rawNotes,
     questions: rawQuestions,
     knots: rawKnots,
+    consequences: rawConsequenceBundle,
+    responsibilityPaths: rawResponsibilityPaths,
+    eventualities: rawEventualities,
+    decisionTrees: rawDecisionTrees,
   } as any);
 
   if (!parsed.success) {
@@ -250,7 +276,15 @@ export async function analyzeContribution(
     );
   }
 
-  const base: AnalyzeResult = parsed.data;
+  const base: AnalyzeResult = {
+    ...parsed.data,
+    consequences: ensureConsequenceBundle(parsed.data.consequences),
+    responsibilityPaths: Array.isArray(parsed.data.responsibilityPaths)
+      ? parsed.data.responsibilityPaths
+      : [],
+    eventualities: parsed.data.eventualities ?? [],
+    decisionTrees: parsed.data.decisionTrees ?? [],
+  };
 
   const meta = {
     provider: orchestration.best?.provider,
@@ -268,6 +302,20 @@ export async function analyzeContribution(
     notes: base.notes ?? [],
     questions: base.questions ?? [],
     knots: base.knots ?? [],
+    eventualities: base.eventualities ?? [],
+    decisionTrees: base.decisionTrees ?? [],
     _meta: meta,
+  };
+}
+
+function ensureConsequenceBundle(
+  bundle: AnalyzeResult["consequences"] | undefined,
+): AnalyzeResult["consequences"] {
+  if (!bundle) {
+    return { consequences: [], responsibilities: [] };
+  }
+  return {
+    consequences: Array.isArray(bundle.consequences) ? bundle.consequences : [],
+    responsibilities: Array.isArray(bundle.responsibilities) ? bundle.responsibilities : [],
   };
 }

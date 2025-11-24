@@ -85,6 +85,18 @@ export function maskName(name?: string | null): string | null {
   return `${trimmed[0]}${REDACTED}`;
 }
 
+export function maskUserId(userId?: string | null): string | null {
+  if (!userId) return null;
+  const cleaned = userId.trim();
+  if (!cleaned) return null;
+  if (cleaned.length <= 4) {
+    return `u_${cleaned[0]}${REDACTED}`;
+  }
+  const prefix = cleaned.slice(0, 4);
+  const suffix = cleaned.slice(-2);
+  return `u_${prefix}${REDACTED}${suffix}`;
+}
+
 export function safeUserSummary(user?: UserLike | null): SafeUserSummary | null {
   if (!user) return null;
   const id = toStringId(user.id ?? user._id);

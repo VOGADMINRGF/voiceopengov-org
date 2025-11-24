@@ -334,6 +334,34 @@ Mechanismen für „Frage bereits in Arbeit“ anzeigen,
 
 Unklarheiten nicht einfach verwerfen.
 
+## 9.5 Offene Aufgaben / Phase 2
+
+Die erste Implementierungsrunde (Part09 – Phase 1) deckt Domain-Modelle, Admin-UI,
+User-Board und XP-Awarding ab. Folgende Punkte bleiben explizit offen:
+
+1. Seeding „Key Research Tasks“
+   - Aus offenen Questions/Knots/Eventualities werden initiale ResearchTasks erzeugt.
+   - Ziel: Navigator- und Impact-Daten praktisch nutzbar machen, ohne manuelle Erfassung.
+
+2. Research Board – Filter & Sortierung
+   - Filter nach Level (Beginner/Intermediate/Expert), Tags, Topic, Region.
+   - Sortierung z.B. nach „neueste“, „dringend“, „meiste offenen Contributions“.
+
+3. Feedback für Contributors
+   - Review-Status + Review-Notizen für eingereichte Contributions sichtbar machen.
+   - Leichte Benachrichtigungen (z.B. Badge, Hinweis im Profil oder einfache Notification-Liste).
+
+4. Rückfluss in Statements & Graph
+   - Akzeptierte ResearchContributions sollen:
+     - an Statements/Eventualities angehängt werden (z.B. zusätzliche Quellen, Fakten),
+     - in den Graph (Knowledge/Impact) einfließen für spätere Reports.
+
+5. Anti-Spam / Abuse-Schutz
+   - Rate Limits oder Cooldowns pro User/Task.
+   - Evtl. Mindest-Engagement-Level für bestimmte Task-Level.
+   - Eindeutige Audit-Logs für Moderation.
+
+
 10. B2G/B2B-Anbindung (Part04)
 10.1 Gemeinden
 können Tasks markieren als:

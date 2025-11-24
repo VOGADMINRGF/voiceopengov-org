@@ -328,3 +328,14 @@ Wenn du einen neuen „Großlauf“ startest, reicht z.B.:
 
 Damit muss **nicht jedes Mal alles neu bestätigt werden**, und Codex weiß trotzdem genau,
 wo er weiterzumachen hat.
+
+### Block R2 – Research Workflow, Phase 2 (Part09.5)
+
+Status: Phase 1 umgesetzt (Tasks, Contributions, XP, Admin + Board).
+
+Offen:
+- R2.1: Seeding aus Questions/Knots/Eventualities
+- R2.2: Filter/Sortierung Research Board (Level, Tags, Neueste)
+- R2.3: Contributor-Feedback (Status + Review-Notizen, einfache Notifications)
+- R2.4: Rückfluss in Statements/Graph (akzeptierte Contributions → Knowledge/Impact)
+- R2.5: Anti-Spam-Maßnahmen (Rate Limits, Cooldowns, min. Engagement-Level)

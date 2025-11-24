@@ -106,6 +106,96 @@ const KnotSchema = z
   })
   .passthrough();
 
+const ResponsibilityLevelEnum = z.enum([
+  "municipality",
+  "district",
+  "state",
+  "federal",
+  "eu",
+  "ngo",
+  "private",
+  "unknown",
+]);
+
+const ConsequenceSchema = z
+  .object({
+    id: z.string().optional(),
+    scope: z.string().optional(),
+    statementIndex: z.number().optional(),
+    text: z.string().optional(),
+    confidence: z.number().optional(),
+  })
+  .passthrough();
+
+const ResponsibilitySchema = z
+  .object({
+    id: z.string().optional(),
+    level: ResponsibilityLevelEnum.optional(),
+    actor: z.string().optional(),
+    text: z.string().optional(),
+    relevance: z.number().optional(),
+  })
+  .passthrough();
+
+const ResponsibilityPathNodeSchema = z
+  .object({
+    level: ResponsibilityLevelEnum.optional(),
+    actorKey: z.string().optional(),
+    displayName: z.string().optional(),
+    description: z.string().optional(),
+    contactUrl: z.string().optional(),
+    processHint: z.string().optional(),
+    relevance: z.number().optional(),
+  })
+  .passthrough();
+
+const ResponsibilityPathSchema = z
+  .object({
+    id: z.string().optional(),
+    statementId: z.string().optional(),
+    locale: z.string().optional(),
+    nodes: z.array(ResponsibilityPathNodeSchema).optional(),
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
+  })
+  .passthrough();
+
+const ScenarioOptionEnum = z.enum(["pro", "neutral", "contra"]);
+
+const EventualityNodeSchema: z.ZodType<any> = z.lazy(() =>
+  z
+    .object({
+      id: z.string().optional(),
+      statementId: z.string().optional(),
+      label: z.string().optional(),
+      narrative: z.string().optional(),
+      stance: ScenarioOptionEnum.nullable().optional(),
+      likelihood: z.number().optional(),
+      impact: z.number().optional(),
+      consequences: z.array(z.any()).optional(),
+      responsibilities: z.array(z.any()).optional(),
+      children: z.array(EventualityNodeSchema).optional(),
+    })
+    .passthrough(),
+);
+
+const DecisionTreeSchema = z
+  .object({
+    id: z.string().optional(),
+    rootStatementId: z.string().optional(),
+    locale: z.string().optional(),
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
+    options: z
+      .object({
+        pro: EventualityNodeSchema.optional(),
+        neutral: EventualityNodeSchema.optional(),
+        contra: EventualityNodeSchema.optional(),
+      })
+      .passthrough(),
+  })
+  .passthrough();
+
 export const AnalyzeResultSchema = z
   .object({
     mode: z.string().optional(),
@@ -119,6 +209,19 @@ export const AnalyzeResultSchema = z
     notes: z.array(z.union([NoteSchema, z.string()])).optional(),
     questions: z.array(z.union([QuestionSchema, z.string()])).optional(),
     knots: z.array(z.union([KnotSchema, z.string()])).optional(),
+    consequences: z
+      .object({
+        consequences: z
+          .array(z.union([ConsequenceSchema, z.string(), z.record(z.string(), z.any())]))
+          .optional(),
+        responsibilities: z
+          .array(z.union([ResponsibilitySchema, z.string(), z.record(z.string(), z.any())]))
+          .optional(),
+      })
+      .optional(),
+    responsibilityPaths: z.array(ResponsibilityPathSchema).optional(),
+    eventualities: z.array(EventualityNodeSchema).optional(),
+    decisionTrees: z.array(DecisionTreeSchema).optional(),
   })
   .passthrough();
 
@@ -144,6 +247,13 @@ export type AnalyzeResult = {
   notes: any[];
   questions: any[];
   knots: any[];
+  consequences?: {
+    consequences?: any[];
+    responsibilities?: any[];
+  };
+  responsibilityPaths?: any[];
+  eventualities?: any[];
+  decisionTrees?: any[];
 };
 
 // Für alte Importe

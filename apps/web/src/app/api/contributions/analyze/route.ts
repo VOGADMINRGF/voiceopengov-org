@@ -10,6 +10,7 @@ import {
   deriveKnots,
 } from "@features/analyze/questionizers";
 import { syncAnalyzeResultToGraph } from "@core/graph";
+import { persistEventualitiesSnapshot } from "@core/eventualities";
 import crypto from "node:crypto";
 
 export const runtime = "nodejs";
@@ -41,12 +42,15 @@ type AnalyzeBody = {
   maxClaims?: number;
   stream?: boolean;
   live?: boolean;
+  contributionId?: string;
 };
 
 type AnalyzeJobInput = {
   text: string;
   locale: string;
   maxClaims: number;
+  contributionId: string;
+  userId?: string | null;
 };
 
 function sanitizeLocale(locale?: string): string {
@@ -88,7 +92,15 @@ export async function POST(req: NextRequest): Promise<Response> {
   const locale = sanitizeLocale(body.locale);
   const maxClaims = sanitizeMaxClaims(body.maxClaims);
   const text = body.text.trim();
-  const analyzeInput: AnalyzeJobInput = { text, locale, maxClaims };
+  const userId = req.cookies.get("u_id")?.value ?? null;
+  const contributionId = resolveContributionId(body.contributionId, text);
+  const analyzeInput: AnalyzeJobInput = {
+    text,
+    locale,
+    maxClaims,
+    contributionId,
+    userId,
+  };
 
   if (wantsSse(req, body)) {
     return startAnalyzeSseStream(analyzeInput);
@@ -96,10 +108,7 @@ export async function POST(req: NextRequest): Promise<Response> {
 
   try {
     const result = await runAnalyzeJob(analyzeInput);
-    const sourceId = crypto.createHash("sha1").update(text).digest("hex").slice(0, 32);
-    syncAnalyzeResultToGraph({ result, sourceId, locale }).catch((err) => {
-      console.error("[E150] graph sync failed", err);
-    });
+    await finalizeResultPayload(result, analyzeInput);
     return ok({ result }, 200);
   } catch (error) {
     console.error("[E150] /api/contributions/analyze error", error);
@@ -138,6 +147,7 @@ function startAnalyzeSseStream(input: AnalyzeJobInput): Response {
 
         sendProgress("analyzing", 35);
         const result = await runAnalyzeJob(input);
+        await finalizeResultPayload(result, input);
 
         sendProgress("finalizing", 85);
         sendEvent("result", { result });
@@ -166,9 +176,41 @@ async function runAnalyzeJob(input: AnalyzeJobInput): Promise<AnalyzeResultWithM
   return finalizeAnalyzeResult(analyzed);
 }
 
-function finalizeAnalyzeResult(
-  result: AnalyzeResultWithMeta
-): AnalyzeResultWithMeta {
+async function finalizeResultPayload(
+  result: AnalyzeResultWithMeta,
+  input: AnalyzeJobInput,
+) {
+  const snapshot = await persistEventualitiesSnapshot({
+    result,
+    contributionId: input.contributionId,
+    locale: input.locale,
+    userId: input.userId,
+  }).catch((err) => {
+    console.error("[E150] eventuality persistence failed", err);
+    return null;
+  });
+
+  result._meta = {
+    ...(result._meta ?? {}),
+    contributionId: input.contributionId,
+    eventualitiesReviewed: snapshot?.reviewed ?? false,
+    eventualitiesReviewedAt: snapshot?.reviewedAt
+      ? snapshot.reviewedAt.toISOString()
+      : null,
+  };
+
+  syncAnalyzeResultToGraph({
+    result,
+    sourceId: input.contributionId,
+    locale: input.locale,
+  }).catch((err) => {
+    console.error("[E150] graph sync failed", err);
+  });
+
+  return result;
+}
+
+function finalizeAnalyzeResult(result: AnalyzeResultWithMeta): AnalyzeResultWithMeta {
   const notes = hasEntries(result.notes)
     ? result.notes
     : deriveContextNotes(result);
@@ -176,12 +218,15 @@ function finalizeAnalyzeResult(
     ? result.questions
     : deriveCriticalQuestions(result);
   const knots = hasEntries(result.knots) ? result.knots : deriveKnots(result);
-  const consequencesBundle = result.consequences ?? {
-    consequences: [],
-    responsibilities: [],
-  };
+  const consequencesBundle = normalizeConsequenceBundle(result.consequences);
   const responsibilityPaths = Array.isArray(result.responsibilityPaths)
     ? result.responsibilityPaths
+    : [];
+  const eventualities = Array.isArray(result.eventualities)
+    ? result.eventualities
+    : [];
+  const decisionTrees = Array.isArray(result.decisionTrees)
+    ? result.decisionTrees
     : [];
 
   return {
@@ -194,11 +239,22 @@ function finalizeAnalyzeResult(
       responsibilities: consequencesBundle.responsibilities ?? [],
     },
     responsibilityPaths,
+    eventualities,
+    decisionTrees,
   };
 }
 
 function hasEntries<T>(value?: T[] | null): value is T[] {
   return Array.isArray(value) && value.length > 0;
+}
+
+function normalizeConsequenceBundle(
+  bundle: AnalyzeResultWithMeta["consequences"],
+): NonNullable<AnalyzeResultWithMeta["consequences"]> {
+  return {
+    consequences: Array.isArray(bundle?.consequences) ? bundle!.consequences : [],
+    responsibilities: Array.isArray(bundle?.responsibilities) ? bundle!.responsibilities : [],
+  };
 }
 
 function normalizeAnalyzerError(error: unknown): string {
@@ -213,4 +269,14 @@ function normalizeAnalyzerError(error: unknown): string {
     return "AnalyzeContribution: KI-Antwort war kein gültiges JSON. Bitte später erneut versuchen.";
   }
   return "AnalyzeContribution: Fehler im Analyzer. Bitte später erneut versuchen.";
+}
+
+function resolveContributionId(rawId: unknown, text: string): string {
+  if (typeof rawId === "string") {
+    const trimmed = rawId.trim();
+    if (trimmed.length >= 8) {
+      return trimmed.slice(0, 64);
+    }
+  }
+  return crypto.createHash("sha1").update(text).digest("hex").slice(0, 32);
 }

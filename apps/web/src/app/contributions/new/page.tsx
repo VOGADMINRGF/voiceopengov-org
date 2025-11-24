@@ -8,6 +8,8 @@ import type {
   ConsequenceRecord,
   ResponsibilityRecord,
   ResponsibilityPath,
+  DecisionTree,
+  EventualityNode,
 } from "@features/analyze/schemas";
 import {
   HighlightedTextarea,
@@ -20,6 +22,8 @@ import { useLocale } from "@/context/LocaleContext";
 import { resolveLocalizedField } from "@/lib/localization/getLocalizedField";
 import type { VerificationLevel } from "@core/auth/verificationTypes";
 import { VERIFICATION_REQUIREMENTS, meetsVerificationLevel } from "@features/auth/verificationRules";
+import type { AccountOverview } from "@features/account/types";
+import type { AccessTier } from "@features/pricing/types";
 
 /* ---------- Types ---------- */
 
@@ -87,6 +91,15 @@ const analyzeButtonTexts = {
   start_de: "Analyse starten",
   start_en: "Start analysis",
 };
+
+type GateState =
+  | { status: "loading" }
+  | { status: "anon" }
+  | { status: "allowed"; overview: AccountOverview }
+  | { status: "blocked"; overview: AccountOverview };
+
+const PREMIUM_ACCESS: AccessTier[] = ["citizenPremium", "citizenPro", "citizenUltra", "staff"];
+const hasUnlimitedAccess = (tier: AccessTier) => PREMIUM_ACCESS.includes(tier);
 
 /* ---------- AI → UI Mapping (nur 1:1, keine Heuristik) ---------- */
 
@@ -223,6 +236,12 @@ export default function ContributionNewPage() {
   const { locale } = useLocale();
   const [verificationLevel, setVerificationLevel] = React.useState<VerificationLevel>("none");
   const [levelStatus, setLevelStatus] = React.useState<"loading" | "ok" | "login_required" | "error">("loading");
+  const [gate, setGate] = React.useState<GateState>(() => {
+    if (typeof document !== "undefined" && document.cookie.includes("u_id=")) {
+      return { status: "loading" };
+    }
+    return { status: "anon" };
+  });
   const textContent = React.useCallback(
     (entry: Record<string, any>, key: string) => resolveLocalizedField(entry, key, locale),
     [locale],
@@ -237,6 +256,8 @@ export default function ContributionNewPage() {
   const [consequences, setConsequences] = React.useState<ConsequenceRecord[]>([]);
   const [responsibilities, setResponsibilities] = React.useState<ResponsibilityRecord[]>([]);
   const [responsibilityPaths, setResponsibilityPaths] = React.useState<ResponsibilityPath[]>([]);
+  const [eventualities, setEventualities] = React.useState<EventualityNode[]>([]);
+  const [decisionTrees, setDecisionTrees] = React.useState<DecisionTree[]>([]);
 
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -251,22 +272,35 @@ export default function ContributionNewPage() {
 
   React.useEffect(() => {
     let ignore = false;
+    const hasSession = typeof document !== "undefined" && document.cookie.includes("u_id=");
+    if (!hasSession) {
+      setLevelStatus("login_required");
+      setGate({ status: "anon" });
+      return;
+    }
+
     async function loadLevel() {
       try {
         const res = await fetch("/api/account/overview", { cache: "no-store" });
-        if (!res.ok) {
-          if (!ignore) {
-            setLevelStatus(res.status === 401 ? "login_required" : "error");
-          }
+        const body = await res.json().catch(() => ({}));
+        if (ignore) return;
+        if (!res.ok || !body?.overview) {
+          const unauthorized = res.status === 401;
+          setLevelStatus(unauthorized ? "login_required" : "error");
+          setGate(unauthorized ? { status: "anon" } : { status: "blocked", overview: body?.overview });
           return;
         }
-        const body = await res.json().catch(() => ({}));
-        if (!ignore && body?.overview) {
-          setVerificationLevel(body.overview.verificationLevel ?? "none");
-          setLevelStatus("ok");
-        }
+        const overview = body.overview as AccountOverview;
+        setVerificationLevel(overview.verificationLevel ?? "none");
+        setLevelStatus("ok");
+        const allowed =
+          hasUnlimitedAccess(overview.accessTier) ||
+          (overview.stats?.contributionCredits ?? 0) > 0;
+        setGate({ status: allowed ? "allowed" : "blocked", overview });
       } catch {
-        if (!ignore) setLevelStatus("error");
+        if (ignore) return;
+        setLevelStatus("error");
+        setGate({ status: "anon" });
       }
     }
     loadLevel();
@@ -290,6 +324,30 @@ export default function ContributionNewPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (gate.status === "loading") {
+    return (
+      <main className="mx-auto max-w-4xl px-4 py-12 text-center text-slate-500">
+        Lade dein Profil …
+      </main>
+    );
+  }
+  if (gate.status === "anon") {
+    return (
+      <ContributionGate
+        variant="anon"
+        overview={undefined}
+      />
+    );
+  }
+  if (gate.status === "blocked") {
+    return (
+      <ContributionGate
+        variant="blocked"
+        overview={gate.overview}
+      />
+    );
+  }
 
   const updateNote = (id: string, body: string) =>
     setNotes((prev) => prev.map((n) => (n.id === id ? { ...n, body } : n)));
@@ -416,6 +474,8 @@ export default function ContributionNewPage() {
       setConsequences(mappedConsequences);
       setResponsibilities(mappedResponsibilities);
       setResponsibilityPaths(mappedPaths);
+      setEventualities(Array.isArray(result.eventualities) ? result.eventualities : []);
+      setDecisionTrees(Array.isArray(result.decisionTrees) ? result.decisionTrees : []);
 
       if (mappedStatements.length === 0) {
         setLastStatus("empty");
@@ -441,6 +501,8 @@ export default function ContributionNewPage() {
       setConsequences([]);
       setResponsibilities([]);
       setResponsibilityPaths([]);
+      setEventualities([]);
+      setDecisionTrees([]);
       setLastStatus("error");
       setMetaEditingId(null);
     } finally {
@@ -457,6 +519,8 @@ export default function ContributionNewPage() {
     setConsequences([]);
     setResponsibilities([]);
     setResponsibilityPaths([]);
+    setEventualities([]);
+    setDecisionTrees([]);
     setError(null);
     setInfo(null);
     setSaveInfo(null);
@@ -899,6 +963,12 @@ export default function ContributionNewPage() {
               </div>
             </div>
 
+            <EventualitiesPanel
+              statements={statements}
+              decisionTrees={decisionTrees}
+              fallbackNodes={eventualities}
+            />
+
             <ConsequencesPanel
               consequences={consequences}
               responsibilities={responsibilities}
@@ -1142,6 +1212,276 @@ function ResponsibilityNavigatorPanel({
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+type ScenarioOptionKey = "pro" | "neutral" | "contra";
+type ScenarioBuckets = Record<ScenarioOptionKey | "other", EventualityNode[]>;
+
+type EventualitiesPanelProps = {
+  statements: StatementCard[];
+  decisionTrees: DecisionTree[];
+  fallbackNodes: EventualityNode[];
+};
+
+const SCENARIO_LABELS: Record<ScenarioOptionKey, string> = {
+  pro: "Pro-Szenario",
+  neutral: "Neutral",
+  contra: "Contra-Szenario",
+};
+
+function EventualitiesPanel({ statements, decisionTrees, fallbackNodes }: EventualitiesPanelProps) {
+  const treeByStatement = React.useMemo(() => {
+    const m = new Map<string, DecisionTree>();
+    decisionTrees.forEach((tree) => {
+      if (tree?.rootStatementId) {
+        m.set(tree.rootStatementId, tree);
+      }
+    });
+    return m;
+  }, [decisionTrees]);
+
+  const fallbackByStatement = React.useMemo(() => groupEventualitiesByStatement(fallbackNodes), [fallbackNodes]);
+
+  const relevantStatements = React.useMemo(
+    () =>
+      statements.filter((statement) => {
+        const tree = treeByStatement.get(statement.id);
+        const fallback = fallbackByStatement.get(statement.id);
+        return Boolean(tree || hasScenarioBuckets(fallback));
+      }),
+    [statements, treeByStatement, fallbackByStatement],
+  );
+
+  if (relevantStatements.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white/95 p-4 shadow-sm">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold text-slate-800">Was-wäre-wenn · Szenario-Matrix</h2>
+        <p className="text-[11px] text-slate-500">Pro/Neutral/Contra laut aktueller Analyse</p>
+      </div>
+
+      <div className="space-y-4">
+        {relevantStatements.map((statement) => (
+          <div key={statement.id} className="rounded-lg border border-slate-100 bg-slate-50/60 p-3">
+            <div className="mb-2">
+              <div className="text-[11px] uppercase tracking-wide text-slate-400">
+                Statement #{statement.index + 1}
+              </div>
+              <div className="text-sm font-semibold text-slate-800">
+                {statement.title?.trim().length ? statement.title : statement.text.slice(0, 96)}
+              </div>
+            </div>
+            <ScenarioGrid
+              tree={treeByStatement.get(statement.id)}
+              fallback={fallbackByStatement.get(statement.id)}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+type ScenarioGridProps = {
+  tree?: DecisionTree;
+  fallback?: ScenarioBuckets;
+};
+
+const SCENARIO_ORDER: ScenarioOptionKey[] = ["pro", "neutral", "contra"];
+
+function ScenarioGrid({ tree, fallback }: ScenarioGridProps) {
+  return (
+    <div className="grid gap-3 md:grid-cols-3">
+      {SCENARIO_ORDER.map((option) => {
+        const node = tree?.options?.[option];
+        const fallbackNodes = fallback ? fallback[option] : [];
+        if (!node && fallbackNodes.length === 0) {
+          return (
+            <div
+              key={option}
+              className="rounded-lg border border-dashed border-slate-200 bg-white/40 p-3 text-xs text-slate-400"
+            >
+              {SCENARIO_LABELS[option]} – noch keine Angaben
+            </div>
+          );
+        }
+
+        return (
+          <div key={option} className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm space-y-2">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+              {SCENARIO_LABELS[option]}
+            </div>
+            {node && <ScenarioCard node={node} />}
+            {fallbackNodes.length > 0 && <FallbackList nodes={fallbackNodes} />}
+          </div>
+        );
+      })}
+
+      {fallback?.other?.length ? (
+        <div className="md:col-span-3 rounded-lg border border-slate-100 bg-slate-50 p-3">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+            Weitere Szenarien
+          </div>
+          <FallbackList nodes={fallback.other} />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function ScenarioCard({ node }: { node: EventualityNode }) {
+  const consequenceSnippets = (node.consequences ?? []).slice(0, 2);
+  const responsibilitySnippets = (node.responsibilities ?? []).slice(0, 2);
+
+  return (
+    <div className="space-y-2 text-sm text-slate-700">
+      <p className="text-slate-800">{node.narrative}</p>
+      {consequenceSnippets.length > 0 && (
+        <div className="text-[11px] text-slate-500">
+          Folgen:
+          <ul className="mt-1 list-disc space-y-1 pl-4">
+            {consequenceSnippets.map((cons) => (
+              <li key={cons.id}>{cons.text}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {responsibilitySnippets.length > 0 && (
+        <div className="text-[11px] text-slate-500">
+          Zuständigkeiten:
+          <ul className="mt-1 list-disc space-y-1 pl-4">
+            {responsibilitySnippets.map((resp) => (
+              <li key={resp.id}>{resp.actor || resp.text}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FallbackList({ nodes }: { nodes: EventualityNode[] }) {
+  const items = nodes.slice(0, 3);
+  return (
+    <ul className="list-disc space-y-1 pl-4 text-[11px] text-slate-500">
+      {items.map((entry) => (
+        <li key={entry.id}>{entry.narrative}</li>
+      ))}
+    </ul>
+  );
+}
+
+function groupEventualitiesByStatement(nodes: EventualityNode[]): Map<string, ScenarioBuckets> {
+  const buckets = new Map<string, ScenarioBuckets>();
+  nodes.forEach((node) => {
+    if (!node?.statementId) return;
+    if (!buckets.has(node.statementId)) {
+      buckets.set(node.statementId, {
+        pro: [],
+        neutral: [],
+        contra: [],
+        other: [],
+      });
+    }
+    const entry = buckets.get(node.statementId)!;
+    const stance = normalizeScenarioKey(node.stance);
+    if (stance) entry[stance].push(node);
+    else entry.other.push(node);
+  });
+  return buckets;
+}
+
+function normalizeScenarioKey(value?: string | null): ScenarioOptionKey | null {
+  if (!value) return null;
+  const normalized = value.toLowerCase();
+  if (normalized === "pro" || normalized === "neutral" || normalized === "contra") {
+    return normalized as ScenarioOptionKey;
+  }
+  return null;
+}
+
+function hasScenarioBuckets(buckets?: ScenarioBuckets): boolean {
+  if (!buckets) return false;
+  return (
+    buckets.pro.length > 0 ||
+    buckets.neutral.length > 0 ||
+    buckets.contra.length > 0 ||
+    buckets.other.length > 0
+  );
+}
+
+type ContributionGateProps = {
+  variant: "anon" | "blocked";
+  overview?: AccountOverview;
+};
+
+function ContributionGate({ variant, overview }: ContributionGateProps) {
+  const stats = overview?.stats;
+  const tier = overview?.accessTier ?? "citizenBasic";
+  const swipes = stats?.swipeCountTotal ?? 0;
+  const credits = stats?.contributionCredits ?? 0;
+  const xp = stats?.xp ?? 0;
+  const levelLabel = (stats?.engagementLevel ?? "interessiert").toString();
+  const nextCreditIn = stats?.nextCreditIn ?? 100;
+
+  const title =
+    variant === "anon"
+      ? "Registriere dich für deinen ersten E150-Beitrag"
+      : "Du brauchst einen Contribution-Credit oder citizenPremium+";
+  const description =
+    variant === "anon"
+      ? "Mit einem kostenlosen citizenBasic-Konto sammelst du XP, swipes und erhältst nach 100 Swipes einen Contribution-Credit (1 Beitrag mit bis zu 3 Statements)."
+      : `Free-Plan: 1 Beitrag pro Credit. Du hast ${swipes} Swipes gesammelt – dir fehlen noch ${nextCreditIn} bis zum nächsten Credit oder du wechselst auf citizenPremium, citizenPro oder citizenUltra.`;
+
+  return (
+    <main className="mx-auto max-w-4xl px-4 py-12">
+      <div className="space-y-6 rounded-4xl border border-slate-200 bg-white/95 p-8 shadow-xl">
+        <div>
+          <p className="text-xs uppercase tracking-wide text-slate-500">Citizen Core Journey</p>
+          <h1 className="mt-2 text-3xl font-semibold text-slate-900">{title}</h1>
+          <p className="mt-3 text-base text-slate-600">{description}</p>
+          <p className="mt-2 text-sm text-slate-500">
+            Beim Abschicken eines Beitrags im Free-Plan wird genau 1 Contribution-Credit verbraucht.
+          </p>
+        </div>
+
+        {stats && (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <StatBox label="Plan" value={tier} hint="citizenPremium+ erlaubt unbegrenzt Contributions" />
+            <StatBox label="Contribution-Credits" value={credits} hint="1 Credit = 1 Beitrag mit bis zu 3 Statements" />
+            <StatBox label="XP & Level" value={`${xp} XP · ${levelLabel}`} hint="Swipes geben XP & steigern dein Level" />
+            <StatBox label="Swipes" value={`${swipes} total`} hint={`Noch ${nextCreditIn} bis zum nächsten Credit`} />
+          </div>
+        )}
+
+        <div className="flex flex-col gap-3 md:flex-row">
+          <a
+            href="/swipe"
+            className="flex-1 rounded-full bg-brand-grad px-5 py-3 text-center text-white font-semibold shadow-lg"
+          >
+            Weiter swipen
+          </a>
+          <a
+            href="/mitglied-werden"
+            className="flex-1 rounded-full border border-slate-200 px-5 py-3 text-center font-semibold text-slate-700"
+          >
+            Mehr erfahren
+          </a>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function StatBox({ label, value, hint }: { label: string; value: string | number; hint?: string }) {
+  return (
+    <div className="rounded-3xl border border-slate-100 bg-slate-50/80 p-4">
+      <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
+      <p className="text-xl font-semibold text-slate-900">{value}</p>
+      {hint && <p className="text-xs text-slate-500">{hint}</p>}
     </div>
   );
 }

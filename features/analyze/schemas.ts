@@ -100,6 +100,53 @@ export const ConsequenceBundleSchema = z.object({
 });
 export type ConsequenceBundle = z.infer<typeof ConsequenceBundleSchema>;
 
+/* ---------- Eventualities & Decision Trees ---------- */
+
+const ScenarioOptionEnum = z.enum(["pro", "neutral", "contra"]);
+export type ScenarioOption = z.infer<typeof ScenarioOptionEnum>;
+
+export type EventualityNode = {
+  id: string;
+  statementId: string;
+  label: string;
+  narrative: string;
+  stance?: ScenarioOption | null;
+  likelihood?: number;
+  impact?: number;
+  consequences: ConsequenceRecord[];
+  responsibilities: ResponsibilityRecord[];
+  children: EventualityNode[];
+};
+
+export const EventualityNodeSchema: z.ZodType<EventualityNode> = z.lazy(() =>
+  z.object({
+    id: z.string(),
+    statementId: z.string(),
+    label: z.string(),
+    narrative: z.string(),
+    stance: ScenarioOptionEnum.nullable().optional(),
+    likelihood: z.number().min(0).max(1).optional(),
+    impact: z.number().min(0).max(1).optional(),
+    consequences: z.array(ConsequenceRecordSchema).default([]),
+    responsibilities: z.array(ResponsibilityRecordSchema).default([]),
+    children: z.array(EventualityNodeSchema).default([]),
+  })
+);
+
+export const DecisionTreeSchema = z.object({
+  id: z.string().optional(),
+  rootStatementId: z.string(),
+  locale: z.string().optional(),
+  createdAt: z.string().default(() => new Date().toISOString()),
+  updatedAt: z.string().optional(),
+  options: z.object({
+    pro: EventualityNodeSchema,
+    neutral: EventualityNodeSchema.optional(),
+    contra: EventualityNodeSchema,
+  }),
+});
+export type DecisionTree = z.infer<typeof DecisionTreeSchema>;
+
 /* ---------- AnalyzeResult ---------- */
 
 export const AnalyzeResultSchema = z.object({
@@ -112,6 +159,8 @@ export const AnalyzeResultSchema = z.object({
   knots: z.array(KnotRecordSchema),
   consequences: ConsequenceBundleSchema.optional(),
   responsibilityPaths: z.array(ResponsibilityPathSchema).optional(),
+  eventualities: z.array(EventualityNodeSchema).optional(),
+  decisionTrees: z.array(DecisionTreeSchema).optional(),
 });
 
 export type AnalyzeResult = z.infer<typeof AnalyzeResultSchema>;
@@ -288,6 +337,107 @@ export const ANALYZE_JSON_SCHEMA = {
             updatedAt: { type: "string", nullable: true },
           },
           required: ["id", "statementId", "locale", "nodes"],
+        },
+      },
+      eventualities: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            id: { type: "string" },
+            statementId: { type: "string" },
+            label: { type: "string" },
+            narrative: { type: "string" },
+            stance: {
+              type: "string",
+              enum: ["pro", "neutral", "contra"],
+              nullable: true,
+            },
+            likelihood: { type: "number", minimum: 0, maximum: 1 },
+            impact: { type: "number", minimum: 0, maximum: 1 },
+            consequences: {
+              type: "array",
+              items: {
+                type: "object",
+                additionalProperties: false,
+                properties: {
+                  id: { type: "string" },
+                  scope: {
+                    type: "string",
+                    enum: [
+                      "local_short",
+                      "local_long",
+                      "national",
+                      "global",
+                      "systemic",
+                    ],
+                  },
+                  statementIndex: { type: "integer", minimum: 0 },
+                  text: { type: "string" },
+                  confidence: { type: "number", minimum: 0, maximum: 1 },
+                },
+                required: ["id", "scope", "statementIndex", "text"],
+              },
+            },
+            responsibilities: {
+              type: "array",
+              items: {
+                type: "object",
+                additionalProperties: false,
+                properties: {
+                  id: { type: "string" },
+                  level: {
+                    type: "string",
+                    enum: [
+                      "municipality",
+                      "district",
+                      "state",
+                      "federal",
+                      "eu",
+                      "ngo",
+                      "private",
+                      "unknown",
+                    ],
+                  },
+                  actor: { type: "string", nullable: true },
+                  text: { type: "string" },
+                  relevance: { type: "number", minimum: 0, maximum: 1 },
+                },
+                required: ["id", "level", "text", "relevance"],
+              },
+            },
+            children: {
+              type: "array",
+              items: { $ref: "#/properties/eventualities/items" },
+            },
+          },
+          required: ["id", "statementId", "label", "narrative"],
+        },
+      },
+      decisionTrees: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            id: { type: "string", nullable: true },
+            rootStatementId: { type: "string" },
+            locale: { type: "string", nullable: true },
+            createdAt: { type: "string" },
+            updatedAt: { type: "string", nullable: true },
+            options: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                pro: { $ref: "#/properties/eventualities/items" },
+                neutral: { $ref: "#/properties/eventualities/items", nullable: true },
+                contra: { $ref: "#/properties/eventualities/items" },
+              },
+              required: ["pro", "contra"],
+            },
+          },
+          required: ["rootStatementId", "createdAt", "options"],
         },
       },
     },

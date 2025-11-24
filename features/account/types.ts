@@ -1,6 +1,7 @@
 import type { AccessTier } from "@features/pricing/types";
 import type { SupportedLocale } from "@core/locale/locales";
 import type { IdentityMethod, VerificationLevel } from "@core/auth/verificationTypes";
+import type { EngagementLevel } from "@features/user/engagement";
 
 export type MembershipStatus = "none" | "active" | "cancelled" | "pending";
 
@@ -17,6 +18,12 @@ export type AccountStats = {
   swipesThisMonth: number;
   remainingPostsLevel1: number;
   remainingPostsLevel2: number;
+  swipeCountTotal: number;
+  xp: number;
+  contributionCredits: number;
+  engagementLevel: EngagementLevel;
+  nextCreditIn: number;
+  lastSwipeAt?: string | null;
 };
 
 export type AccountPaymentProfile = {

@@ -11,6 +11,7 @@ import type {
   MembershipStatus,
   PricingTier,
 } from "./types";
+import { getEngagementLevel, swipesUntilNextCredit } from "@features/user/engagement";
 
 type UserDoc = {
   _id: ObjectId;
@@ -36,6 +37,10 @@ type UserDoc = {
   };
   usage?: {
     swipesThisMonth?: number;
+    swipeCountTotal?: number;
+    xp?: number;
+    contributionCredits?: number;
+    lastSwipeAt?: Date | string | null;
     remainingPosts?: {
       level1?: number;
       level2?: number;
@@ -43,6 +48,10 @@ type UserDoc = {
   };
   stats?: {
     swipesThisMonth?: number;
+    swipeCountTotal?: number;
+    xp?: number;
+    contributionCredits?: number;
+    lastSwipeAt?: Date | string | null;
     remainingPostsLevel1?: number;
     remainingPostsLevel2?: number;
   };
@@ -236,10 +245,32 @@ function deriveGroups(doc: UserDoc, tier: AccessTier, roles: string[]): string[]
 function deriveStats(doc: UserDoc): AccountStats {
   const usage = doc.usage ?? {};
   const stats = doc.stats ?? {};
+  const swipeCountTotal =
+    usage.swipeCountTotal ??
+    stats.swipeCountTotal ??
+    0;
+  const xp = usage.xp ?? stats.xp ?? 0;
+  const contributionCredits =
+    usage.contributionCredits ??
+    stats.contributionCredits ??
+    0;
+  const rawLastSwipe = usage.lastSwipeAt ?? stats.lastSwipeAt ?? null;
+  const lastSwipeAt =
+    rawLastSwipe instanceof Date
+      ? rawLastSwipe.toISOString()
+      : typeof rawLastSwipe === "string"
+        ? rawLastSwipe
+        : null;
   return {
     swipesThisMonth: usage.swipesThisMonth ?? stats.swipesThisMonth ?? 0,
     remainingPostsLevel1: usage.remainingPosts?.level1 ?? stats.remainingPostsLevel1 ?? 0,
     remainingPostsLevel2: usage.remainingPosts?.level2 ?? stats.remainingPostsLevel2 ?? 0,
+    swipeCountTotal,
+    xp,
+    contributionCredits,
+    engagementLevel: getEngagementLevel(xp),
+    nextCreditIn: swipesUntilNextCredit(swipeCountTotal),
+    lastSwipeAt,
   };
 }
 
