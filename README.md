@@ -1,72 +1,73 @@
-# VoiceOpenGov / e-Debatte – Monorepo
+# VoiceOpenGov / eDbtt – Monorepo
 
-Willkommen beim VOG / eDbtt Workspace. Dieses Repository enthält alle Apps (Next.js), Core-Packages, Features und Migrationstools für den E150-Standard.
+eDbtt bündelt die VoiceOpenGov-Apps (Next.js 15 App Router), die Domain-Logik und die KI-Orchestrierung für den E150-Standard. Ziel ist eine transparente Plattform für demokratische Beteiligung mit klarer Trennung von Kern-, Votes- und PII-Daten.
 
-## Schnellstart
+## Architektur-Überblick
 
-1. **Voraussetzungen**
-   - Node.js 20.x (LTS)
-   - pnpm 10.17+ (`npm i -g pnpm@10.17.1`)
-   - Docker (optional, für CI-Parität)
-2. **Installation**
+- **apps/web** – Next.js 15 Frontend (App Router) inkl. Admin-Tools.
+- **core** – Domain-Logik (Tri-Mongo, Identity/Verification, Telemetrie, Orchestrator).
+- **features** – Wiederverwendbare UI- und Domain-Module.
+- **packages/tri-mongo** – DB-Abstraktion für `core`, `votes`, `pii`, `ai_reader`.
+- **packages/ui** u. a. – gemeinsame UI-Bausteine.
+
+## Tech-Stack
+
+- Node.js 20, pnpm 10.x
+- Next.js 15 (App Router)
+- MongoDB (Tri-Mongo), Redis; optional Neo4j / Graph-Komponenten
+- KI-Orchestrierung mit mehreren Providern (OpenAI, Anthropic, Gemini, Mistral, You.com)
+
+## Getting Started
+
+1) Abhängigkeiten installieren
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm run prisma:gen
-pnpm --filter @vog/web run dev
 ```
 
-3. **Qualitätssicherung**
+2) ENV vorbereiten (siehe `apps/web/.env.example` als Referenz)
 
 ```bash
-pnpm run lint
-pnpm run typecheck
-pnpm --filter @vog/web run build
+cp apps/web/.env.example apps/web/.env.local
+# Werte anpassen (keine Secrets ins Repo committen)
 ```
 
-## Datenschutz & PII-Zonen
-
-Der Umgang mit personenbezogenen Daten wird in `docs/PII_ZONES_E150.md` beschrieben. Wichtige Punkte:
-
-- PII darf ausschließlich in ausgewiesenen Modulen verarbeitet werden (`core/pii/**`, Auth-/Identity-APIs, dedizierte DB-Verbindungen).
-- Logger (core + apps) nutzen gemeinsame Redaktionspfade (`@core/pii/redact`). Für manuelle Logs stehen `safeUserSummary`, `logSafeUser`, `maskEmail` u. a. bereit.
-- Features/UI/Telemetry erhalten **nur** IDs, Masken oder Aggregationen.
-
-## Orphan-Scanner (VPM25-Aufräumen)
-
-Ein CLI-Report hilft beim Identifizieren ungenutzter Features/Routen:
+3) Dev-Server starten
 
 ```bash
-pnpm exec tsx scripts/orphan-scanner.mts
+pnpm -C apps/web dev
 ```
 
-Das Script durchsucht alle `features/*`-Module nach Imports (`@features/<name>`) und listet deaktivierte Routen (`_disabled`, `legacy`, `deprecated`). Ergebnisse können in `ORPHAN_FEATURES_VPM25.md` dokumentiert werden.
+## Qualität & Builds
+
+- `pnpm -C apps/web exec tsc --noEmit` – TypeScript-Check für die Web-App
+- `pnpm -C apps/web run lint` – ESLint
+- `pnpm -C apps/web run build` – Next.js Production-Build
+
+## CI-Überblick (`.github/workflows/e150-ci.yml`)
+
+- Läuft auf Ubuntu mit Node 20 + pnpm 10.17
+- Services: MongoDB, Redis, Neo4j
+- Schritte: Install, Typecheck, Lint, optionale Tests (`test:ci`), Web-Build, Semgrep, Gitleaks, Docker Build + Trivy, ZAP-Baseline-Scan
+
+## Orphan-Scanner (VPM25)
+
+Markdown-Report per Script:
+
+```bash
+pnpm exec tsx scripts/orphan_features_scan.ts
+```
+
+Die Ergebnisse können in `docs/ORPHAN_FEATURES_VPM25.md` eingetragen werden.
 
 ## Admin-Dashboards
 
-- **Identity Funnel** – `/admin/identity`
-  - Aggregierte Zahlen zu Registrierung, E-Mail-Verifikation, Onboarding und 2FA (PII-frei).
-- **AI Telemetry** – `/admin/telemetry/ai/dashboard`
-  - Zeigt Provider-Health, Erfolgsquoten, Durchschnittslaufzeiten sowie die letzten Orchestrator-Events.
-- **AI Orchestrator Smoke** – `/admin/telemetry/ai/orchestrator`
-  - Manuelle Provider-Checks (bestehende Ansicht).
+- Identity-Funnel: `/admin/telemetry/identity`
+- AI-Usage: `/admin/telemetry/ai/usage`
+- Orchestrator-Smoke: `/admin/telemetry/ai/orchestrator`
 
-Alle Admin-Routen prüfen `u_role=admin` via Cookies; API-Endpunkte liegen unter `apps/web/src/app/api/admin/**`.
+Alle Admin-APIs prüfen die Rolle via `u_role`-Cookie; Endpunkte liegen unter `apps/web/src/app/api/admin/**`.
 
-## CI / Automatisierung
+## Datenschutz & PII
 
-- Hauptpipeline: `.github/workflows/e150-ci.yml`
-  - Läuft auf Node 20 + pnpm 10, installiert Abhängigkeiten via `pnpm install --frozen-lockfile`.
-  - Schritte: Prisma-Setup, Typecheck, Lint, optionale Unit-Tests (`test:ci`), Web-Build, Semgrep, Gitleaks, Docker Build + Trivy, ZAP Baseline.
-- Lokale Mirror-Befehle:
-  - `pnpm run build` (UI + Web)
-  - `pnpm --filter @vog/web run build`
-
-## Nützliche Scripts
-
-- `pnpm dev:web` – Next.js Dev-Server
-- `pnpm build:web` – Production-Build
-- `pnpm lint:clean` – automatische Lint-Fixes (Repo-weit)
-- `pnpm tc:web` – TypeScript Check für Web-App
-
-Weitere Details findest du in den jeweiligen Feature-/Package-READMEs sowie in `tools/codex/e150_master_codex_briefing.ts`.
+Die Trennung von PII und Nicht-PII ist in `docs/PII_ZONES_E150.md` dokumentiert. PII darf nur über die ausgewiesenen Core-Helper (`core/db/pii/**`) angesprochen werden.

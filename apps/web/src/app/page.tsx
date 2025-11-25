@@ -14,47 +14,87 @@ export default function Home() {
         id="hero"
         className="border-b border-slate-200/60 bg-gradient-to-b from-[var(--brand-from)] to-[var(--brand-to)]"
       >
-        <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 pb-14 pt-14 lg:flex-row lg:items-start">
-          <div className="flex-1">
-            <div className="mb-4 flex flex-wrap gap-2">
-              {strings.heroChips.map((chip) => (
-                <span
-                  key={chip}
-                  className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
+        <div className="mx-auto max-w-6xl px-4 pb-14 pt-14">
+          {/* Kopfbereich: Headline + Video */}
+          <div className="lg:grid lg:grid-cols-[minmax(0,2.1fr)_minmax(0,1.4fr)] lg:items-start lg:gap-10">
+            <div>
+              <div className="mb-4 flex flex-wrap gap-2">
+                {strings.heroChips.map((chip) => (
+                  <span
+                    key={chip}
+                    className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
+                    style={{
+                      border: `1px solid ${"var(--chip-border)"}`,
+                      background: "var(--chip-bg)",
+                      color: "var(--chip-text)",
+                    }}
+                  >
+                    {chip}
+                  </span>
+                ))}
+              </div>
+              <h1 className="text-4xl font-extrabold leading-tight text-slate-900 md:text-5xl">
+                {strings.heroHeadline.lines.map((line) => (
+                  <span key={line}>
+                    {line}
+                    <br />
+                  </span>
+                ))}
+                <span className="bg-brand-grad bg-clip-text text-transparent">
+                  {strings.heroHeadline.accent} {strings.heroHeadline.suffix}
+                </span>
+              </h1>
+            </div>
+
+            {/* Video-Platzhalter später in Originalgröße */}
+            <div className="mt-8 w-full lg:mt-0">
+              <div className="aspect-video overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
+                <div
+                  className="grid h-full w-full place-items-center"
                   style={{
-                    border: `1px solid ${"var(--chip-border)"}`,
-                    background: "var(--chip-bg)",
-                    color: "var(--chip-text)",
+                    background:
+                      "linear-gradient(135deg,var(--panel-from),var(--panel-to))",
                   }}
                 >
-                  {chip}
-                </span>
-              ))}
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white/85 px-4 py-2 text-sm text-slate-700 shadow-sm backdrop-blur"
+                  >
+                    ▶︎ Video (bald verfügbar)
+                  </button>
+                </div>
+              </div>
+              <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
+                <span>{strings.heroVideoNote}</span>
+                <Link
+                  href="/faq"
+                  className="font-medium text-slate-700 underline"
+                >
+                  {strings.heroVideoLink}
+                </Link>
+              </div>
             </div>
-            <h1 className="text-4xl font-extrabold leading-tight text-slate-900 md:text-5xl">
-              {strings.heroHeadline.lines.map((line) => (
-                <span key={line}>
-                  {line}
-                  <br />
-                </span>
-              ))}
-              <span className="bg-brand-grad bg-clip-text text-transparent">{strings.heroHeadline.accent}</span>{" "}
-              {strings.heroHeadline.suffix}
-            </h1>
+          </div>
+
+          {/* Textabschnitt & Kacheln auf breiterer Zeile */}
+          <div className="mt-6 max-w-3xl">
             <p
-              className="mt-5 text-lg text-slate-700 md:text-xl"
+              className="text-lg text-slate-700 md:text-xl"
               dangerouslySetInnerHTML={{ __html: strings.heroIntro }}
             />
-            <ul className="mt-4 list-disc pl-5 text-base text-slate-700 space-y-1">
+            <ul className="mt-4 list-disc space-y-1 pl-5 text-base text-slate-700">
               {strings.heroBullets.map((item) => (
                 <li key={item} dangerouslySetInnerHTML={{ __html: item }} />
               ))}
             </ul>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/statements/new" className="btn btn-primary bg-brand-grad text-white">
+              <Link
+                href="/statements/new"
+                className="btn btn-primary bg-brand-grad text-white"
+              >
                 {strings.heroCtas.primary}
               </Link>
-              <Link
+            <Link
                 href="/contributions/new"
                 className="btn border border-slate-300 bg-white/80 hover:bg-white"
               >
@@ -67,21 +107,30 @@ export default function Home() {
                 {strings.heroCtas.tertiary}
               </Link>
             </div>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {strings.heroCards.map((card) => (
-                <article key={card.title} className="rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm">
-                  <h3 className="text-sm font-semibold text-slate-900">{card.title}</h3>
-                  <p className="mt-2 text-sm text-slate-600">{card.body}</p>
-                </article>
-              ))}
-            </div>
-            <div className="mt-6 rounded-2xl border border-slate-200 bg-brand-grad p-4 text-white shadow-soft">
+          </div>
+
+          <div className="mt-6 grid max-w-3xl gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:max-w-none">
+            {strings.heroCards.map((card) => (
+              <article
+                key={card.title}
+                className="rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm"
+              >
+                <h3 className="text-sm font-semibold text-slate-900">
+                  {card.title}
+                </h3>
+                <p className="mt-2 text-sm text-slate-600">{card.body}</p>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-6 max-w-3xl lg:max-w-none">
+            <div className="rounded-2xl border border-slate-200 bg-brand-grad p-4 text-white shadow-soft">
               <div className="flex flex-col gap-4 md:flex-row md:items-center">
                 <div className="flex-1">
                   <h3 className="text-base font-semibold">
                     {strings.membershipHighlight.title}
                   </h3>
-                  <p className="opacity-90 text-sm">
+                  <p className="text-sm opacity-90">
                     {strings.membershipHighlight.body}
                   </p>
                 </div>
@@ -94,33 +143,10 @@ export default function Home() {
               </div>
             </div>
           </div>
-
-          <div className="w-full lg:w-[38%]">
-            <div className="aspect-video overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
-              <div
-                className="grid h-full w-full place-items-center"
-                style={{
-                  background: "linear-gradient(135deg,var(--panel-from),var(--panel-to))",
-                }}
-              >
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white/85 px-4 py-2 text-sm text-slate-700 shadow-sm backdrop-blur"
-                >
-                  ▶︎ Video (90s)
-                </button>
-              </div>
-            </div>
-            <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
-              <span>{strings.heroVideoNote}</span>
-              <Link href="/faq" className="font-medium text-slate-700 underline">
-                {strings.heroVideoLink}
-              </Link>
-            </div>
-          </div>
         </div>
       </section>
 
+      {/* USP-Kacheln über Container-Breite */}
       <section className="mx-auto mt-12 max-w-6xl px-4">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {strings.uspItems.map((item) => (
@@ -130,19 +156,49 @@ export default function Home() {
             >
               <div
                 className="mb-3 h-0.5 w-16 rounded-full"
-                style={{ background: "linear-gradient(90deg,var(--brand-accent-1),var(--brand-accent-2))" }}
+                style={{
+                  background:
+                    "linear-gradient(90deg,var(--brand-accent-1),var(--brand-accent-2))",
+                }}
               />
-              <h3 className="text-base font-semibold text-slate-900">{item.title}</h3>
+              <h3 className="text-base font-semibold text-slate-900">
+                {item.title}
+              </h3>
               <p className="mt-2 text-sm text-slate-600">{item.body}</p>
             </article>
           ))}
         </div>
       </section>
 
+      {/* Mehrheit entscheidet – bewusst und informiert */}
       <section className="mx-auto mt-12 max-w-6xl px-4">
         <div className="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
-          <h2 className="text-2xl font-bold text-slate-900">{strings.qualitySection.title}</h2>
-          <p className="mt-3 text-sm text-slate-700">{strings.qualitySection.body}</p>
+          <h2 className="text-2xl font-bold text-slate-900">
+            {strings.majoritySection.title}
+          </h2>
+          <p className="mt-3 text-sm text-slate-700">
+            {strings.majoritySection.lead}
+          </p>
+          <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-slate-700">
+            {strings.majoritySection.bullets.map((line: string) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+          <p className="mt-4 text-sm font-medium text-slate-800">
+            {strings.majoritySection.closing}
+          </p>
+        </div>
+      </section>
+
+      {/* Qualitätsanspruch */}
+      <section className="mx-auto mt-12 max-w-6xl px-4">
+        <div className="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
+          <h2 className="text-2xl font-bold text-slate-900">
+            {strings.qualitySection.title}
+          </h2>
+          <p className="mt-3 text-sm text-slate-700">
+            {strings.qualitySection.body}
+          </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <Link
               href="/reports"
@@ -150,7 +206,10 @@ export default function Home() {
             >
               {strings.qualitySection.ctaReports}
             </Link>
-            <Link href="/mitglied-werden" className="btn btn-primary bg-brand-grad text-white">
+            <Link
+              href="/mitglied-werden"
+              className="btn btn-primary bg-brand-grad text-white"
+            >
               {strings.qualitySection.ctaMembers}
             </Link>
           </div>

@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 
 const NAV_LINKS = [
-  { href: "/howtoworks/bewegung", label: "Die Bewegung" },
-  { href: "/howtoworks/edebatte", label: "eDebatte" },
-  { href: "/swipe", label: "Zum Swipe" },
-  { href: "/statements/new", label: "Beitrag verfassen" },
-  { href: "/evidence/global", label: "Evidence" },
+  //{ href: "/howtoworks/bewegung", label: "Die Bewegung" },
+  //{ href: "/howtoworks/edebatte", label: "eDebatte" },
+  //{ href: "/swipe", label: "Zum Swipe" },
+  //{ href: "/statements/new", label: "Beitrag verfassen" },
+  //{ href: "/evidence/global", label: "Evidence" },
 ];
 
 export function SiteHeader() {

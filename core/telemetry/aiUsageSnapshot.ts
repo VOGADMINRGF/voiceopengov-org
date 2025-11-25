@@ -50,6 +50,28 @@ export interface UsageSnapshotOptions {
   region?: string | null;
 }
 
+export interface AiUsageBreakdownRow {
+  key: string;
+  label: string;
+  tokens: number;
+  costEur: number;
+  calls: number;
+  errors: number;
+}
+
+export interface AiUsageBreakdownSnapshot {
+  fromDate: string;
+  toDate: string;
+  totals: {
+    tokens: number;
+    costEur: number;
+    calls: number;
+    errors: number;
+  };
+  byProvider: AiUsageBreakdownRow[];
+  byPipeline: AiUsageBreakdownRow[];
+}
+
 const COLLECTION_USAGE = "ai_usage";
 const COLLECTION_DAILY = "ai_usage_daily";
 const MONTHLY_BUDGET_EUR = 150;
@@ -307,4 +329,63 @@ function pickTopRegion(rows: AiUsageDailyRow[]) {
 
 function startOfDay(date: Date) {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+}
+
+export async function getAiUsageSnapshot(
+  rangeDays = 30,
+  region?: string | null,
+): Promise<AiUsageBreakdownSnapshot> {
+  const today = new Date();
+  const toDateIso = today.toISOString().slice(0, 10);
+  const fromDate = new Date(today.getTime() - (Math.max(1, rangeDays) - 1) * DAY_MS);
+  const fromDateIso = fromDate.toISOString().slice(0, 10);
+
+  const dailyCol = await coreCol<AiUsageDailyRow>(COLLECTION_DAILY);
+  const match: Record<string, any> = { date: { $gte: fromDateIso, $lte: toDateIso } };
+  if (typeof region === "string" && region.trim()) {
+    match.region = region.trim();
+  }
+
+  const rows = await dailyCol.find(match).toArray();
+
+  const totals = {
+    tokens: sumRows(rows, (row) => row.tokensTotal),
+    costEur: sumRows(rows, (row) => row.costTotalEur),
+    calls: sumRows(rows, (row) => row.callsTotal),
+    errors: sumRows(rows, (row) => row.callsError),
+  };
+
+  const byProvider: AiUsageBreakdownRow[] = PROVIDERS.map((provider) => {
+    const subset = rows.filter((row) => row.provider === provider);
+    return {
+      key: provider,
+      label: PROVIDER_LABELS[provider],
+      tokens: sumRows(subset, (row) => row.tokensTotal),
+      costEur: sumRows(subset, (row) => row.costTotalEur),
+      calls: sumRows(subset, (row) => row.callsTotal),
+      errors: sumRows(subset, (row) => row.callsError),
+    };
+  });
+
+  const byPipeline: AiUsageBreakdownRow[] = Object.entries(PIPELINE_LABELS).map(
+    ([pipeline, label]) => {
+      const subset = rows.filter((row) => row.pipeline === pipeline);
+      return {
+        key: pipeline,
+        label,
+        tokens: sumRows(subset, (row) => row.tokensTotal),
+        costEur: sumRows(subset, (row) => row.costTotalEur),
+        calls: sumRows(subset, (row) => row.callsTotal),
+        errors: sumRows(subset, (row) => row.callsError),
+      };
+    },
+  );
+
+  return {
+    fromDate: fromDate.toISOString(),
+    toDate: today.toISOString(),
+    totals,
+    byProvider,
+    byPipeline,
+  };
 }
