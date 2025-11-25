@@ -1,14 +1,15 @@
 "use client";
+import type React from "react";
 import { useState } from "react";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const [tab, setTab] = useState<"pwd" | "magic" | "passkey">("pwd");
+  const [tab, setTab] = useState<"pwd" | "passkey">("pwd");
   return (
     <div className="mx-auto max-w-md p-6">
       <h1 className="text-2xl font-semibold mb-4">Login</h1>
       <div className="flex gap-2 mb-4">
-        {["pwd", "magic", "passkey"].map((t) => (
+        {["pwd", "passkey"].map((t) => (
           <button
             key={t}
             onClick={() => setTab(t as any)}
@@ -23,7 +24,6 @@ export default function LoginPage() {
         ))}
       </div>
       {tab === "pwd" && <PwdForm />}
-      {tab === "magic" && <MagicForm />}
       {tab === "passkey" && <PasskeyForm />}
       <p className="text-sm mt-4">
         Noch kein Konto?{" "}
@@ -77,42 +77,11 @@ function PwdForm() {
   );
 }
 
-function MagicForm() {
-  const [email, setEmail] = useState("");
-  const [msg, setMsg] = useState<string>();
-  async function send(e: React.FormEvent) {
-    e.preventDefault();
-    setMsg(undefined);
-    const r = await fetch("/api/auth/magic/request", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-    setMsg(r.ok ? "Link gesendet (Postfach prüfen)." : "Fehler beim Senden.");
-  }
-  return (
-    <form onSubmit={send} className="space-y-3">
-      <input
-        className="w-full border rounded px-3 py-2"
-        type="email"
-        required
-        placeholder="E-Mail"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      {msg && <p className="text-sm">{msg}</p>}
-      <button className="bg-black text-white rounded px-4 py-2">
-        Magic-Link senden
-      </button>
-    </form>
-  );
-}
-
 function PasskeyForm() {
   return (
     <div className="text-sm text-neutral-600">
       Passkey-Login wird vorbereitet (WebAuthn). Für jetzt bitte E-Mail/Passwort
-      oder Magic-Link nutzen.
+      nutzen.
     </div>
   );
 }
