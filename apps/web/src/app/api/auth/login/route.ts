@@ -7,6 +7,7 @@ import { verifyPassword } from "@/utils/password";
 import { sendMail } from "@/utils/mailer";
 import { buildTwoFactorCodeMail } from "@/utils/emailTemplates";
 import { logAuthEvent } from "@core/telemetry/authEvents";
+import { ensureBasicPiiProfile } from "@core/pii/userProfileService";
 import {
   applySessionCookies,
   CREDENTIAL_COLLECTION,
@@ -140,6 +141,10 @@ export async function POST(req: NextRequest) {
   }
 
   maybeBackfillCredentials(user, credentials ?? null, identifier);
+  ensureBasicPiiProfile(user._id, {
+    email: user.email || credentials?.email || identifier,
+    displayName: user.name || (user as any)?.profile?.displayName || null,
+  }).catch((err) => console.warn("[auth.login] failed to sync PII profile", err));
 
   const twoFactorMethod = resolveTwoFactorMethod(credentials, user);
   const twoFactorEnabled = credentials?.twoFactorEnabled || user.verification?.twoFA?.enabled;

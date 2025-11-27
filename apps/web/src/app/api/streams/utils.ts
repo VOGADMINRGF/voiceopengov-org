@@ -53,7 +53,7 @@ export async function requireCreatorContext(
   };
 }
 
-export async function enforceStreamHost(ctx: CreatorContext): Promise<NextResponse | null> {
+export async function enforceStreamHost(ctx: CreatorContext): Promise<Response | null> {
   try {
     const hostContext = await buildStreamHostContext(ctx.userId, {
       isVerified: ctx.isVerified,

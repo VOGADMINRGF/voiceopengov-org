@@ -79,12 +79,12 @@ export default async function StatementPage({
 
       <ResponsibilityPreviewCard
         responsibilities={responsibilities}
-        paths={responsibilityPaths}
+        paths={responsibilityPaths as any}
         showPathOverlay
       />
 
       <ResponsibilityNavigator
-        paths={responsibilityPaths}
+        paths={responsibilityPaths as any}
         actors={actors}
         statementTitle={doc.title}
       />

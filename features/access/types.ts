@@ -29,6 +29,8 @@ export type RoutePolicy = {
   allowAnonymous: boolean;
   locked?: boolean;
   matchMode?: RouteMatchMode;
+  /** Wenn gesetzt, reicht ein beliebiger eingeloggter User – Gruppen werden ignoriert. */
+  loginOnly?: boolean;
 };
 
 export type UserRouteOverrideMode = "allow" | "deny";
@@ -74,6 +76,7 @@ export const DEFAULT_ROUTE_POLICIES: RoutePolicy[] = [
     defaultGroups: ["citizenBasic", "citizenPremium", "institutionBasic", "institutionPremium", "staff"],
     allowAnonymous: false,
     locked: false,
+    loginOnly: true,
   },
   {
     routeId: "statements_new",

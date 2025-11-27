@@ -9,6 +9,7 @@ import { hashPassword } from "@/utils/password";
 import { logIdentityEvent } from "@core/telemetry/identityEvents";
 import { sendMail } from "@/utils/mailer";
 import { buildVerificationMail } from "@/utils/emailTemplates";
+import { ensureBasicPiiProfile } from "@core/pii/userProfileService";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -105,6 +106,7 @@ export async function POST(req: NextRequest) {
   );
 
   const { rawToken } = await createEmailVerificationToken(userId, email);
+  await ensureBasicPiiProfile(userId, { email, displayName: body.name });
   await logIdentityEvent("identity_register", {
     userId: String(userId),
     meta: { email },

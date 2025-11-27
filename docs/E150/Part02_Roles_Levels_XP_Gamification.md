@@ -336,3 +336,10 @@ Codex SOLL:
    - ab bestimmten XP/Events automatische Ernennung.
 
 Part 02 bildet das Fundament für Pricing (Part 03), B2B/B2G (Part 04), sowie Streams (Part 11).
+
+## Citizen Core Journey – aktualisierter Stand
+
+- `/contributions/new` nutzt jetzt dieselbe SiteShell wie `/statements/new` und keine JSON-Antworten mehr.
+- Die Route bleibt hinter Login, Middleware liefert nur noch Redirects auf `/login?next=/contributions/new`.
+- Credits/Gating werden clientseitig auf Basis von `AccountOverview` angezeigt (Citizen Gate inkl. XP/Swipes).
+- Anonyme User sehen weiterhin den Citizen-Core-Text mit CTA auf Login/Mitgliedschaft.

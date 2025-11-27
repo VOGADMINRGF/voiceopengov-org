@@ -17,6 +17,10 @@ export function canViewRouteEdge(routeId: RouteId, user: AccessUser | null): Edg
 
   if (!user?.id) return { allowed: false, requireLogin: true };
 
+  if (policy.loginOnly) {
+    return { allowed: true, requireLogin: false };
+  }
+
   const groups = deriveGroups(user);
   if (policy.defaultGroups.some((group) => groups.has(group))) {
     return { allowed: true, requireLogin: false };

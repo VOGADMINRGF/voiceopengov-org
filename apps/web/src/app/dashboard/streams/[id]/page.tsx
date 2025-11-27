@@ -22,6 +22,8 @@ export default function StreamCockpitPage() {
   const [error, setError] = useState<string | null>(null);
   const [question, setQuestion] = useState("");
   const [pollOptions, setPollOptions] = useState("Ja\nNein");
+  const [autofilling, setAutofilling] = useState(false);
+  const [autofillError, setAutofillError] = useState<string | null>(null);
 
   useEffect(() => {
     let ignore = false;
@@ -84,6 +86,26 @@ export default function StreamCockpitPage() {
     });
   }
 
+  async function autofillAgenda() {
+    setAutofilling(true);
+    setAutofillError(null);
+    try {
+      const res = await fetch(`/api/streams/sessions/${params.id}/agenda/autofill`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok || !body?.ok) {
+        throw new Error(body?.error || res.statusText);
+      }
+      setItems(body.agenda ?? []);
+    } catch (err: any) {
+      setAutofillError(err?.message ?? "Autofill nicht möglich. Bitte später erneut versuchen.");
+    } finally {
+      setAutofilling(false);
+    }
+  }
+
   return (
     <main className="flex flex-col gap-6 px-4 py-8">
       <header>
@@ -98,7 +120,19 @@ export default function StreamCockpitPage() {
 
       <div className="grid gap-4 lg:grid-cols-3">
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
-          <h2 className="text-sm font-semibold text-slate-900">Agenda</h2>
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-sm font-semibold text-slate-900">Agenda</h2>
+            <button
+              className="rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold"
+              onClick={autofillAgenda}
+              disabled={autofilling}
+            >
+              {autofilling ? "Agenda wird gefüllt…" : "Agenda aus Thema füllen"}
+            </button>
+          </div>
+          {autofillError && (
+            <p className="text-xs text-rose-600">{autofillError}</p>
+          )}
           {loading ? (
             <p className="text-sm text-slate-500">Lädt …</p>
           ) : (
