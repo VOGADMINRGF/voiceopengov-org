@@ -15,7 +15,7 @@ import type {
   StreamSessionStatus,
 } from "@features/stream/types";
 import { resolveSessionStatus } from "@features/stream/types";
-import { requireCreatorContext } from "../../../utils";
+import { enforceStreamHost, requireCreatorContext } from "../../../utils";
 
 async function loadSession(sessionId: string) {
   const col = await streamSessionsCol();
@@ -65,6 +65,8 @@ export async function POST(
 ) {
   const ctx = await requireCreatorContext(req);
   if (!ctx) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+  const gating = await enforceStreamHost(ctx);
+  if (gating) return gating;
   const ip = (req.headers.get("x-forwarded-for") || "local").split(",")[0].trim();
   const rl = await rateLimit(`stream:agenda:add:${ctx.userId}:${ip}`, 30, 60 * 60 * 1000, {
     salt: "stream-agenda",
@@ -125,6 +127,8 @@ export async function PATCH(
 ) {
   const ctx = await requireCreatorContext(req);
   if (!ctx) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+  const gating = await enforceStreamHost(ctx);
+  if (gating) return gating;
   const ip = (req.headers.get("x-forwarded-for") || "local").split(",")[0].trim();
   const rl = await rateLimit(`stream:agenda:update:${ctx.userId}:${ip}`, 60, 60 * 60 * 1000, {
     salt: "stream-agenda",

@@ -7,7 +7,7 @@ import { rateLimit } from "@/utils/rateLimit";
 import { streamSessionsCol } from "@features/stream/db";
 import type { StreamSessionDoc, StreamVisibility } from "@features/stream/types";
 import { resolveSessionStatus } from "@features/stream/types";
-import { requireCreatorContext } from "../utils";
+import { enforceStreamHost, requireCreatorContext } from "../utils";
 
 export async function GET(req: NextRequest) {
   const ctx = await requireCreatorContext(req);
@@ -38,6 +38,8 @@ export async function POST(req: NextRequest) {
   if (!ctx) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
+  const gating = await enforceStreamHost(ctx);
+  if (gating) return gating;
 
   const ip = (req.headers.get("x-forwarded-for") || "local").split(",")[0].trim();
   const rl = await rateLimit(`stream:create:${ctx.userId}:${ip}`, 10, 60 * 60 * 1000, {

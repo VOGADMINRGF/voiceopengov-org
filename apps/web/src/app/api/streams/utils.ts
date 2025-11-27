@@ -1,5 +1,7 @@
 import { getCookie } from "@/lib/http/typedCookies";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { assertStreamHostAllowed, buildStreamHostContext } from "@core/streams/access";
 
 const CREATOR_ROLES = new Set([
   "admin",
@@ -25,6 +27,8 @@ export interface CreatorContext {
   userId: string;
   role: string;
   isStaff: boolean;
+  tier?: string | null;
+  isVerified: boolean;
 }
 
 export async function requireCreatorContext(
@@ -43,6 +47,24 @@ export async function requireCreatorContext(
   return {
     userId,
     role,
+    tier: tier ?? null,
+    isVerified: verified === "1",
     isStaff: isStaffRole,
   };
+}
+
+export async function enforceStreamHost(ctx: CreatorContext): Promise<NextResponse | null> {
+  try {
+    const hostContext = await buildStreamHostContext(ctx.userId, {
+      isVerified: ctx.isVerified,
+      accessTier: ctx.tier,
+    });
+    await assertStreamHostAllowed(hostContext);
+    return null;
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: "STREAM_HOST_NOT_ALLOWED" },
+      { status: 403 },
+    );
+  }
 }
