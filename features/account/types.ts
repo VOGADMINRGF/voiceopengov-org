@@ -72,6 +72,7 @@ export type AccountOverview = {
   publicFlags?: ProfilePublicFlags;
   topTopics?: ProfileTopTopic[];
   accessTier: AccessTier;
+  planSlug?: string | null;
   roles: string[];
   groups: string[];
   vogMembershipStatus: MembershipStatus;

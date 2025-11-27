@@ -66,7 +66,13 @@ export function useLoginFlow(opts?: { redirectTo?: string }) {
         }
         window.location.href = body.redirectUrl || redirectUrl || "/";
       } catch (e: any) {
-        setError(mapVerifyError(e?.message));
+        const codeVal = e?.message as string | undefined;
+        setError(mapVerifyError(codeVal));
+        if (codeVal === "challenge_missing" || codeVal === "method_mismatch") {
+          setStep("credentials");
+          setMethod(null);
+          setExpiresAt(null);
+        }
       } finally {
         setLoading(false);
       }
@@ -105,6 +111,12 @@ function mapVerifyError(code?: string) {
       return "Der Code ist falsch oder abgelaufen.";
     case "challenge_expired":
       return "Der Code ist abgelaufen. Bitte erneut einloggen.";
+    case "challenge_missing":
+      return "Keine offene 2FA-Anfrage gefunden – bitte erneut einloggen.";
+    case "method_mismatch":
+      return "Dieser Code passt nicht zur gewählten 2FA-Methode.";
+    case "user_not_found":
+      return "Nutzerkonto nicht gefunden. Bitte neu anmelden.";
     case "rate_limited":
       return "Zu viele Codes eingegeben – bitte kurz warten.";
     default:

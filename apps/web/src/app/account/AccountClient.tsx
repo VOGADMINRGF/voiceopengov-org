@@ -13,6 +13,8 @@ import {
   EXTENDED_LOCALES,
   type SupportedLocale,
 } from "@/config/locales";
+import { LIMITS } from "@/config/limits";
+import { B2C_PLANS } from "@/config/plans";
 import { VERIFICATION_LEVEL_DESCRIPTIONS } from "@features/auth/verificationRules";
 import { TOPIC_CHOICES, type TopicKey } from "@features/interests/topics";
 import { canEditTopTopics, canUseProfileStyles } from "@features/account/capabilities";
@@ -22,6 +24,7 @@ import {
   canUserCreateStream,
   canUserHostStream,
 } from "@/utils/accessTiers";
+import { useCurrentUser } from "@/hooks/auth";
 
 const LOCALE_OPTIONS = [...CORE_LOCALES, ...EXTENDED_LOCALES];
 type Props = {
@@ -55,12 +58,17 @@ export function AccountClient({ initialData }: Props) {
   const [paymentMessage, setPaymentMessage] = useState<string | null>(null);
   const [signatureSaving, setSignatureSaving] = useState(false);
   const [signatureMessage, setSignatureMessage] = useState<string | null>(null);
+  const [planSaving, setPlanSaving] = useState<string | null>(null);
+  const [planMessage, setPlanMessage] = useState<string | null>(null);
+  const { refresh: refreshAuth } = useCurrentUser();
   const profilePackage = data.profilePackage ?? getProfilePackageForAccessTier(data.accessTier);
   const accessContext = {
     accessTier: data.accessTier,
     engagementXp: data.stats.xp,
     engagementLevel: data.stats.engagementLevel,
   };
+  const currentPlan = data.planSlug ?? data.accessTier;
+  const currentPlanLimit = LIMITS[data.accessTier]?.contributionsPerMonth ?? 0;
 
   function toggleTopic(key: TopicKey) {
     setTopTopics((prev) => {
@@ -188,6 +196,29 @@ export function AccountClient({ initialData }: Props) {
       setPaymentMessage(err?.message ?? "Fehler beim Speichern");
     } finally {
       setPaymentSaving(false);
+    }
+  }
+
+  async function handlePlanChange(planId: string) {
+    setPlanSaving(planId);
+    setPlanMessage(null);
+    try {
+      const res = await fetch("/api/account/plan", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ planId }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok || !body?.ok) {
+        throw new Error(body?.error || "Planwechsel fehlgeschlagen");
+      }
+      await reloadOverview();
+      await refreshAuth?.();
+      setPlanMessage("Plan aktualisiert.");
+    } catch (err: any) {
+      setPlanMessage(err?.message ?? "Planwechsel fehlgeschlagen");
+    } finally {
+      setPlanSaving(null);
     }
   }
 
@@ -627,6 +658,55 @@ export function AccountClient({ initialData }: Props) {
         </div>
       </section>
 
+      <section className="mt-8 space-y-4 rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-slate-500">Plan & Limits</p>
+            <h3 className="text-lg font-semibold text-slate-900">
+              Dein aktueller Plan: {currentPlan ?? "unbekannt"}
+            </h3>
+            <p className="text-sm text-slate-600">
+              {data.stats.xp} XP · Level {data.stats.engagementLevel} · {data.stats.contributionCredits} Credits · Monatslimit{" "}
+              {currentPlanLimit}
+            </p>
+          </div>
+          {planMessage && <span className="text-xs text-slate-600">{planMessage}</span>}
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {B2C_PLANS.map((plan) => {
+            const isCurrent = plan.id === currentPlan;
+            const limit = LIMITS[plan.id as keyof typeof LIMITS]?.contributionsPerMonth ?? 0;
+            const price =
+              typeof plan.monthlyFeeCents === "number"
+                ? `${(plan.monthlyFeeCents / 100).toFixed(2)} € / Monat`
+                : "Kostenlos";
+            return (
+              <div
+                key={plan.id}
+                className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 shadow-inner"
+              >
+                <p className="text-xs uppercase tracking-wide text-slate-500">{plan.id}</p>
+                <h4 className="text-lg font-semibold text-slate-900">{plan.label}</h4>
+                <p className="text-sm text-slate-600">{plan.description}</p>
+                <p className="mt-2 text-sm font-semibold text-slate-900">{price}</p>
+                <p className="text-xs text-slate-500">Monatslimit Beiträge: {limit}</p>
+                <p className="text-xs text-slate-500">
+                  Inklusive Credits: {(plan.includedPerMonth.level1 ?? 0) + (plan.includedPerMonth.level2 ?? 0)}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => handlePlanChange(plan.id)}
+                  disabled={isCurrent || planSaving !== null}
+                  className="mt-3 w-full rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+                >
+                  {isCurrent ? "Aktueller Plan" : planSaving === plan.id ? "Wechsle …" : "Plan wählen"}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
       <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm">
           <p className="text-xs uppercase tracking-wide text-slate-500">Streams & Teilnahme</p>
@@ -638,6 +718,11 @@ export function AccountClient({ initialData }: Props) {
             type="button"
             disabled={!canUserCreateStream(accessContext)}
             className="mt-4 w-full rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+            title={
+              canUserCreateStream(accessContext)
+                ? undefined
+                : "Erfordert Engagement-Level 'Brennend' und einen Tier mit Stream-Rechten."
+            }
           >
             {canUserCreateStream(accessContext)
               ? "Stream jetzt erstellen"

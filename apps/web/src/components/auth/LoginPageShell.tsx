@@ -85,8 +85,8 @@ export function LoginPageShell({ redirectTo }: { redirectTo?: string }) {
         <form onSubmit={handleTwoFactorSubmit} className="space-y-4">
           <div className="rounded-lg bg-slate-50 p-3 text-sm text-slate-700">
             {method === "email"
-              ? "Wir haben dir einen 6-stelligen Code per E-Mail gesendet."
-              : "Gib den Code aus deiner Authenticator-App ein."}
+              ? "Wir haben dir einen 6-stelligen Code per E-Mail gesendet. Bitte Posteingang/Spam prüfen."
+              : "Öffne deine Authenticator-App und gib den aktuellen 6-stelligen Code ein."}
             {expiresInMinutes ? ` (gültig für ca. ${expiresInMinutes} Min.)` : null}
           </div>
           <div className="space-y-2">

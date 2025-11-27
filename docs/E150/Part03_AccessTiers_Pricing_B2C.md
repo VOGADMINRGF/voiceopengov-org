@@ -60,6 +60,12 @@ Im B2C existieren die folgenden Tiers:
 
 Alle Preise sind über Config steuerbar.
 
+**Canon (Run B2C, Code-Stand):**
+- Plan/Tier-IDs = `citizenBasic`, `citizenPremium`, `citizenPro` (plus `citizenUltra`, Staff/Institution).
+- Limits per Config (`features/pricing/limits`): Beiträge/Monat aktuell 2 / 10 / 20 / 50 (Basic → Ultra).
+- Feature-Matrix & Gates via `features/pricing/featureMatrix` (re-export in `apps/web/src/config/*`).
+- Plan-Slug in Session/API: `planSlug` = `b2cPlanId` = Tier-ID.
+
 ---
 
 ## 4. Free Plan – citizenBasic

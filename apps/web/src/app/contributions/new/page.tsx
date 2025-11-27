@@ -24,6 +24,7 @@ import type { VerificationLevel } from "@core/auth/verificationTypes";
 import { VERIFICATION_REQUIREMENTS, meetsVerificationLevel } from "@features/auth/verificationRules";
 import type { AccountOverview } from "@features/account/types";
 import type { AccessTier } from "@features/pricing/types";
+import { LIMITS } from "@/config/limits";
 
 /* ---------- Types ---------- */
 
@@ -293,10 +294,13 @@ export default function ContributionNewPage() {
         const overview = body.overview as AccountOverview;
         setVerificationLevel(overview.verificationLevel ?? "none");
         setLevelStatus("ok");
+        const tierLimit = LIMITS[overview.accessTier]?.contributionsPerMonth ?? 0;
+        const hasCredits = (overview.stats?.contributionCredits ?? 0) > 0;
+        const hasAllowance = hasUnlimitedAccess(overview.accessTier) || tierLimit > 0;
         const allowed =
           hasUnlimitedAccess(overview.accessTier) ||
-          (overview.stats?.contributionCredits ?? 0) > 0;
-        setGate({ status: allowed ? "allowed" : "blocked", overview });
+          (tierLimit > 0 && hasCredits);
+        setGate({ status: allowed && hasAllowance ? "allowed" : "blocked", overview });
       } catch {
         if (ignore) return;
         setLevelStatus("error");
@@ -1426,6 +1430,7 @@ function ContributionGate({ variant, overview }: ContributionGateProps) {
   const xp = stats?.xp ?? 0;
   const levelLabel = (stats?.engagementLevel ?? "interessiert").toString();
   const nextCreditIn = stats?.nextCreditIn ?? 100;
+  const tierLimit = LIMITS[tier]?.contributionsPerMonth ?? 0;
 
   const title =
     variant === "anon"
@@ -1434,7 +1439,7 @@ function ContributionGate({ variant, overview }: ContributionGateProps) {
   const description =
     variant === "anon"
       ? "Mit einem kostenlosen citizenBasic-Konto sammelst du XP, swipes und erhältst nach 100 Swipes einen Contribution-Credit (1 Beitrag mit bis zu 3 Statements)."
-      : `Free-Plan: 1 Beitrag pro Credit. Du hast ${swipes} Swipes gesammelt – dir fehlen noch ${nextCreditIn} bis zum nächsten Credit oder du wechselst auf citizenPremium, citizenPro oder citizenUltra.`;
+      : `Freie Pläne erlauben ${tierLimit || 0} Beiträge/Monat. Du hast ${swipes} Swipes gesammelt – dir fehlen noch ${nextCreditIn} bis zum nächsten Credit oder du wechselst auf citizenPremium, citizenPro oder citizenUltra.`;
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-12">
@@ -1450,10 +1455,11 @@ function ContributionGate({ variant, overview }: ContributionGateProps) {
 
         {stats && (
           <div className="grid gap-4 sm:grid-cols-2">
-            <StatBox label="Plan" value={tier} hint="citizenPremium+ erlaubt unbegrenzt Contributions" />
-            <StatBox label="Contribution-Credits" value={credits} hint="1 Credit = 1 Beitrag mit bis zu 3 Statements" />
-            <StatBox label="XP & Level" value={`${xp} XP · ${levelLabel}`} hint="Swipes geben XP & steigern dein Level" />
-            <StatBox label="Swipes" value={`${swipes} total`} hint={`Noch ${nextCreditIn} bis zum nächsten Credit`} />
+          <StatBox label="Plan" value={tier} hint="citizenPremium+ erlaubt unbegrenzt Contributions" />
+          <StatBox label="Contribution-Credits" value={credits} hint="1 Credit = 1 Beitrag mit bis zu 3 Statements" />
+          <StatBox label="XP & Level" value={`${xp} XP · ${levelLabel}`} hint="Swipes geben XP & steigern dein Level" />
+          <StatBox label="Swipes" value={`${swipes} total`} hint={`Noch ${nextCreditIn} bis zum nächsten Credit`} />
+          <StatBox label="Monatslimit" value={tierLimit} hint="Beiträge pro Monat laut aktuellem Tier" />
           </div>
         )}
 

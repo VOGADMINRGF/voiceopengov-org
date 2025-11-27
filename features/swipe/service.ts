@@ -4,6 +4,16 @@ import { applySwipeForCredits } from "@features/user/credits";
 import { getEngagementLevel } from "@features/user/engagement";
 import type { EngagementLevel } from "@features/user/engagement";
 
+type SwipeTelemetry = {
+  _id?: ObjectId;
+  userId: ObjectId;
+  statementId: string;
+  direction: SwipeDirection;
+  createdAt: Date;
+  xpAfter: number;
+  contributionCredits: number;
+};
+
 export type SwipeDirection = "pro" | "neutral" | "contra";
 
 type SwipeDoc = {
@@ -129,9 +139,24 @@ export async function registerSwipeForUser(
     { _id: oid },
     {
       $inc: incOps,
-      $set: { "usage.lastSwipeAt": now },
+      $set: {
+        "usage.lastSwipeAt": now,
+        "stats.swipeCountTotal": creditResult.swipeCountTotal,
+        "stats.xp": creditResult.xp,
+        "stats.contributionCredits": creditResult.contributionCredits,
+      },
     },
   );
+
+  const Telemetry = await getCol<SwipeTelemetry>("swipe_events");
+  await Telemetry.insertOne({
+    userId: oid,
+    statementId: input.statementId,
+    direction,
+    createdAt: now,
+    xpAfter: creditResult.xp,
+    contributionCredits: creditResult.contributionCredits,
+  });
 
   return {
     ok: true,

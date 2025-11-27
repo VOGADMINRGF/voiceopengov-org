@@ -86,8 +86,8 @@ export function HeaderLoginInline({ redirectTo }: { redirectTo?: string }) {
             <form onSubmit={handleCode} className="space-y-3">
               <p className="text-slate-700">
                 {method === "email"
-                  ? "Code per E-Mail gesendet."
-                  : "Code aus Authenticator-App eingeben."}
+                  ? "Wir haben dir einen 6-stelligen Code per E-Mail gesendet."
+                  : "Bitte Code aus deiner Authenticator-App eingeben."}
               </p>
               <input
                 className="w-full rounded-md border border-slate-300 px-3 py-2"

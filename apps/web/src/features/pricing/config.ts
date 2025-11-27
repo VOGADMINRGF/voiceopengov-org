@@ -77,3 +77,5 @@ export const ACCESS_TIER_CONFIG: Record<AccessTier, AccessTierConfig> = {
     includedPerMonth: included(9999, 9999),
   },
 };
+
+export type { AccessTier, AccessTierConfig, ContributionLevel, EarnRule } from "./types";

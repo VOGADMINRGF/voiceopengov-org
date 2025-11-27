@@ -365,6 +365,7 @@ Wichtig:
   - `config/limits.ts`
   - `config/engagement.ts`
   - `config/credits.ts`
+- **Kanonische Tier-IDs im Code (Stand Run B2C)**: `public`, `citizenBasic`, `citizenPremium`, `citizenPro`, `citizenUltra`, `institutionBasic`, `institutionPremium`, `staff`. Quelle: `features/pricing/{accessTiers,featureMatrix,limits}`; in `apps/web/src/config/*` nur Re-Exports.
 - PII-Daten niemals in Logs oder Telemetrie.
 - Alle Telemetrie-Events benutzen nur Core-IDs (keine E-Mails, keine Klar-Namen).
 - E150-/E200-Qualität: neue Features müssen:

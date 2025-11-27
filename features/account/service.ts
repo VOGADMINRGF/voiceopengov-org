@@ -44,6 +44,7 @@ type UserDoc = {
   activeRole?: number;
   premium?: boolean;
   accessTier?: AccessTier;
+  b2cPlanId?: string | null;
   tier?: AccessTier;
   groups?: string[];
   profile?: {
@@ -113,6 +114,7 @@ export async function getAccountOverview(userId: string): Promise<AccountOvervie
         premium: 1,
         accessTier: 1,
         tier: 1,
+        b2cPlanId: 1,
         groups: 1,
         profile: 1,
         publicFlags: 1,
@@ -156,6 +158,7 @@ export async function getAccountOverview(userId: string): Promise<AccountOvervie
     publicFlags: profile.publicFlags,
     topTopics: profile.topTopics,
     accessTier,
+    planSlug: doc.b2cPlanId ?? accessTier ?? null,
     roles,
     groups,
     vogMembershipStatus: doc.membership?.status ?? "none",
