@@ -1,10 +1,9 @@
-name: E150 CI
+name: E150 CI (Legacy)
 
+# Legacy workflow for frühere E150-Pipeline. Läuft aktuell nicht automatisch;
+# Vercel übernimmt Deploy/Build. Bei Bedarf manuell starten.
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build-test-scan:

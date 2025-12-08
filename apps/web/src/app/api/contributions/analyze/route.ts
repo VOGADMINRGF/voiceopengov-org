@@ -412,7 +412,7 @@ function buildFallbackResult(
   reason: string,
 ): AnalyzeResultWithMeta {
   const sentences = input.text
-    .split(/[\n\r\.!?]+/)
+    .split(/[\n\r.!?]+/)
     .map((s) => s.trim())
     .filter(Boolean);
 
