@@ -8,10 +8,10 @@ const infoLinks = [
 ];
 
 const platformLinks = [
-  { href: "/swipe", label: "Swipe" },
-  { href: "/statements/new", label: "Statement verfassen" },
-  { href: "/reports", label: "Reports" },
-  { href: "/streams", label: "Streams & Events" },
+  { href: "/mitglied-werden", label: "Swipe" },
+  { href: "/mitglied-werden", label: "Statement verfassen" },
+  { href: "/mitglied-werden", label: "Reports" },
+  { href: "/mitglied-werden", label: "Streams & Events" },
 ];
 
 const legalLinks = [

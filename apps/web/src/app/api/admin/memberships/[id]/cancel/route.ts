@@ -14,9 +14,7 @@ async function requireAdmin(): Promise<Response | null> {
   return null;
 }
 
-type Params = { id: string };
-
-export async function POST(req: NextRequest, { params }: { params: Params }) {
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const guard = await requireAdmin();
   if (guard) return guard;
 
