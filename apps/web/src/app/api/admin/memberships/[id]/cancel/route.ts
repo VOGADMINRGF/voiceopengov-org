@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { ObjectId, coreCol } from "@core/db/triMongo";
 import type { MembershipApplication } from "@core/memberships/types";
@@ -14,7 +14,7 @@ async function requireAdmin(): Promise<Response | null> {
   return null;
 }
 
-export async function POST(req: NextRequest, context: { params: { id: string } }) {
+export async function POST(_req: Request, context: { params: { id: string } }) {
   const guard = await requireAdmin();
   if (guard) return guard;
 
