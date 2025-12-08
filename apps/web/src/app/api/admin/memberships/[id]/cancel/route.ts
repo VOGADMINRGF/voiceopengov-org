@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { ObjectId, coreCol } from "@core/db/triMongo";
 import type { MembershipApplication } from "@core/memberships/types";
@@ -14,7 +14,7 @@ async function requireAdmin(): Promise<Response | null> {
   return null;
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: Request, { params }: { params: { id: string } }) {
   const guard = await requireAdmin();
   if (guard) return guard;
 
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ ok: false, error: "invalid_id" }, { status: 400 });
   }
 
-  const payload = await req.json().catch(() => ({}));
+  const payload = await request.json().catch(() => ({}));
   const reason = typeof payload?.reason === "string" ? payload.reason.slice(0, 240) : "admin_cancelled";
 
   const Applications = await coreCol<MembershipApplication>("membership_applications");
