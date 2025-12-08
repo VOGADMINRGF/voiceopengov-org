@@ -160,6 +160,29 @@ exports.Prisma.AnswerOptionScalarFieldEnum = {
   meta: 'meta'
 };
 
+exports.Prisma.PlanScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  name: 'name',
+  type: 'type',
+  monthlyPriceCents: 'monthlyPriceCents',
+  features: 'features',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SubscriptionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  planId: 'planId',
+  status: 'status',
+  billingCycle: 'billingCycle',
+  discountType: 'discountType',
+  discountUntil: 'discountUntil',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -167,6 +190,10 @@ exports.Prisma.SortOrder = {
 
 exports.Prisma.NullableJsonNullValueInput = {
   DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
@@ -218,6 +245,29 @@ exports.Locale = exports.$Enums.Locale = {
   ar: 'ar'
 };
 
+exports.PlanType = exports.$Enums.PlanType = {
+  B2C: 'B2C',
+  B2B: 'B2B',
+  STAFF: 'STAFF'
+};
+
+exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
+  active: 'active',
+  pending: 'pending',
+  canceled: 'canceled',
+  expired: 'expired'
+};
+
+exports.BillingCycle = exports.$Enums.BillingCycle = {
+  monthly: 'monthly',
+  annual: 'annual'
+};
+
+exports.DiscountType = exports.$Enums.DiscountType = {
+  NONE: 'NONE',
+  VOG_MEMBER_25_6M: 'VOG_MEMBER_25_6M'
+};
+
 exports.Prisma.ModelName = {
   Region: 'Region',
   Topic: 'Topic',
@@ -225,7 +275,9 @@ exports.Prisma.ModelName = {
   TopicTag: 'TopicTag',
   ItemTag: 'ItemTag',
   ContentItem: 'ContentItem',
-  AnswerOption: 'AnswerOption'
+  AnswerOption: 'AnswerOption',
+  Plan: 'Plan',
+  Subscription: 'Subscription'
 };
 /**
  * Create the Client
@@ -238,7 +290,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/workspace/eDbtt/packages/db-web/src/generated",
+      "value": "/Users/RF/Arbeitsmappe/LandingeDbtt/packages/db-web/src/generated",
       "fromEnvVar": null
     },
     "config": {
@@ -247,12 +299,12 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "debian-openssl-3.0.x",
+        "value": "darwin-arm64",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/workspace/eDbtt/prisma/web/schema.prisma",
+    "sourceFilePath": "/Users/RF/Arbeitsmappe/LandingeDbtt/prisma/web/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -274,13 +326,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// prisma/web/schema.prisma\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../../packages/db-web/src/generated\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"WEB_DATABASE_URL\")\n}\n\n//\n// ---------- ENUMS ----------\nenum ContentKind {\n  SWIPE\n  EVENT\n  SUNDAY_POLL\n}\n\nenum PublishStatus {\n  draft\n  review\n  published\n  archived\n}\n\nenum RegionMode {\n  AUTO\n  MANUAL\n}\n\nenum Locale {\n  de\n  en\n  fr\n  it\n  es\n  pl\n  uk\n  ru\n  tr\n  hi\n  zh\n  ar\n}\n\n//\n// ---------- REGION ----------\nmodel Region {\n  id    String @id @default(cuid())\n  code  String @unique\n  name  String\n  level Int\n\n  // Back-Relations zu ContentItem (benannte Relationen)\n  manualItems    ContentItem[] @relation(\"ContentItemRegionManual\")\n  effectiveItems ContentItem[] @relation(\"ContentItemRegionEffective\")\n\n  @@index([code])\n}\n\n//\n// ---------- CONTENT / TOPIC / TAG ----------\nmodel Topic {\n  id          String   @id @default(cuid())\n  slug        String   @unique\n  title       String\n  description String?\n  locale      Locale   @default(de)\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n\n  items ContentItem[]\n  tags  TopicTag[]\n\n  @@index([locale])\n  @@index([createdAt])\n}\n\nmodel Tag {\n  id     String     @id @default(cuid())\n  slug   String     @unique\n  label  String\n  topics TopicTag[]\n  items  ItemTag[]\n}\n\nmodel TopicTag {\n  id      String @id @default(cuid())\n  topicId String\n  tagId   String\n\n  topic Topic @relation(fields: [topicId], references: [id], onDelete: Restrict, onUpdate: Cascade)\n  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: Restrict, onUpdate: Cascade)\n\n  @@unique([topicId, tagId])\n  @@index([topicId])\n  @@index([tagId])\n}\n\nmodel ItemTag {\n  id     String @id @default(cuid())\n  itemId String\n  tagId  String\n\n  item ContentItem @relation(fields: [itemId], references: [id], onDelete: Restrict, onUpdate: Cascade)\n  tag  Tag         @relation(fields: [tagId], references: [id], onDelete: Restrict, onUpdate: Cascade)\n\n  @@unique([itemId, tagId])\n  @@index([itemId])\n  @@index([tagId])\n}\n\nmodel ContentItem {\n  id   String      @id @default(cuid())\n  kind ContentKind\n\n  topicId String\n  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Restrict, onUpdate: Cascade)\n\n  locale    Locale  @default(de)\n  title     String?\n  text      String\n  richText  String?\n  sortOrder Int     @default(0) @map(\"order\") // statt \"order\"\n\n  status     PublishStatus @default(draft)\n  authorName String?\n  createdAt  DateTime      @default(now())\n  updatedAt  DateTime      @updatedAt\n\n  publishAt DateTime?\n  expireAt  DateTime?\n\n  regionMode        RegionMode @default(AUTO)\n  regionManualId    String?\n  regionEffectiveId String?\n  regionAuto        Json?\n\n  // --- benannte Relationen zu Region ---\n  regionManual    Region? @relation(\"ContentItemRegionManual\", fields: [regionManualId], references: [id], onDelete: SetNull, onUpdate: Cascade)\n  regionEffective Region? @relation(\"ContentItemRegionEffective\", fields: [regionEffectiveId], references: [id], onDelete: SetNull, onUpdate: Cascade)\n\n  validation Json?\n  meta       Json?\n\n  answerOptions AnswerOption[]\n  tags          ItemTag[]\n\n  @@index([kind, status, locale])\n  @@index([publishAt])\n  @@index([topicId])\n  @@index([createdAt])\n  @@index([regionManualId])\n  @@index([regionEffectiveId])\n}\n\nmodel AnswerOption {\n  id        String      @id @default(cuid())\n  itemId    String\n  item      ContentItem @relation(fields: [itemId], references: [id], onDelete: Cascade, onUpdate: Cascade)\n  label     String\n  value     String\n  sortOrder Int         @default(0) @map(\"order\")\n  exclusive Boolean     @default(false)\n  meta      Json?\n\n  @@unique([itemId, sortOrder])\n  @@unique([itemId, value])\n}\n",
-  "inlineSchemaHash": "72a10dbf8efb9c8cca4d0cba0cf116ac3a2c3200371114d838f69c11c82e7a3b",
+  "inlineSchema": "// prisma/web/schema.prisma\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../../packages/db-web/src/generated\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"WEB_DATABASE_URL\")\n}\n\n//\n// ---------- ENUMS ----------\nenum ContentKind {\n  SWIPE\n  EVENT\n  SUNDAY_POLL\n}\n\nenum PublishStatus {\n  draft\n  review\n  published\n  archived\n}\n\nenum RegionMode {\n  AUTO\n  MANUAL\n}\n\nenum Locale {\n  de\n  en\n  fr\n  it\n  es\n  pl\n  uk\n  ru\n  tr\n  hi\n  zh\n  ar\n}\n\nenum PlanType {\n  B2C\n  B2B\n  STAFF\n}\n\nenum SubscriptionStatus {\n  active\n  pending\n  canceled\n  expired\n}\n\nenum BillingCycle {\n  monthly\n  annual\n}\n\nenum DiscountType {\n  NONE\n  VOG_MEMBER_25_6M\n}\n\n//\n// ---------- REGION ----------\nmodel Region {\n  id    String @id @default(cuid())\n  code  String @unique\n  name  String\n  level Int\n\n  // Back-Relations zu ContentItem (benannte Relationen)\n  manualItems    ContentItem[] @relation(\"ContentItemRegionManual\")\n  effectiveItems ContentItem[] @relation(\"ContentItemRegionEffective\")\n\n  @@index([code])\n}\n\n//\n// ---------- CONTENT / TOPIC / TAG ----------\nmodel Topic {\n  id          String   @id @default(cuid())\n  slug        String   @unique\n  title       String\n  description String?\n  locale      Locale   @default(de)\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n\n  items ContentItem[]\n  tags  TopicTag[]\n\n  @@index([locale])\n  @@index([createdAt])\n}\n\nmodel Tag {\n  id     String     @id @default(cuid())\n  slug   String     @unique\n  label  String\n  topics TopicTag[]\n  items  ItemTag[]\n}\n\nmodel TopicTag {\n  id      String @id @default(cuid())\n  topicId String\n  tagId   String\n\n  topic Topic @relation(fields: [topicId], references: [id], onDelete: Restrict, onUpdate: Cascade)\n  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: Restrict, onUpdate: Cascade)\n\n  @@unique([topicId, tagId])\n  @@index([topicId])\n  @@index([tagId])\n}\n\nmodel ItemTag {\n  id     String @id @default(cuid())\n  itemId String\n  tagId  String\n\n  item ContentItem @relation(fields: [itemId], references: [id], onDelete: Restrict, onUpdate: Cascade)\n  tag  Tag         @relation(fields: [tagId], references: [id], onDelete: Restrict, onUpdate: Cascade)\n\n  @@unique([itemId, tagId])\n  @@index([itemId])\n  @@index([tagId])\n}\n\nmodel ContentItem {\n  id   String      @id @default(cuid())\n  kind ContentKind\n\n  topicId String\n  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Restrict, onUpdate: Cascade)\n\n  locale    Locale  @default(de)\n  title     String?\n  text      String\n  richText  String?\n  sortOrder Int     @default(0) @map(\"order\") // statt \"order\"\n\n  status     PublishStatus @default(draft)\n  authorName String?\n  createdAt  DateTime      @default(now())\n  updatedAt  DateTime      @updatedAt\n\n  publishAt DateTime?\n  expireAt  DateTime?\n\n  regionMode        RegionMode @default(AUTO)\n  regionManualId    String?\n  regionEffectiveId String?\n  regionAuto        Json?\n\n  // --- benannte Relationen zu Region ---\n  regionManual    Region? @relation(\"ContentItemRegionManual\", fields: [regionManualId], references: [id], onDelete: SetNull, onUpdate: Cascade)\n  regionEffective Region? @relation(\"ContentItemRegionEffective\", fields: [regionEffectiveId], references: [id], onDelete: SetNull, onUpdate: Cascade)\n\n  validation Json?\n  meta       Json?\n\n  answerOptions AnswerOption[]\n  tags          ItemTag[]\n\n  @@index([kind, status, locale])\n  @@index([publishAt])\n  @@index([topicId])\n  @@index([createdAt])\n  @@index([regionManualId])\n  @@index([regionEffectiveId])\n}\n\nmodel AnswerOption {\n  id        String      @id @default(cuid())\n  itemId    String\n  item      ContentItem @relation(fields: [itemId], references: [id], onDelete: Cascade, onUpdate: Cascade)\n  label     String\n  value     String\n  sortOrder Int         @default(0) @map(\"order\")\n  exclusive Boolean     @default(false)\n  meta      Json?\n\n  @@unique([itemId, sortOrder])\n  @@unique([itemId, value])\n}\n\nmodel Plan {\n  id                String   @id @default(cuid())\n  slug              String   @unique\n  name              String\n  type              PlanType\n  monthlyPriceCents Int\n  features          Json\n  createdAt         DateTime @default(now())\n  updatedAt         DateTime @updatedAt\n\n  subscriptions Subscription[]\n}\n\nmodel Subscription {\n  id            String             @id @default(cuid())\n  userId        String\n  planId        String\n  status        SubscriptionStatus @default(pending)\n  billingCycle  BillingCycle       @default(monthly)\n  discountType  DiscountType       @default(NONE)\n  discountUntil DateTime?\n  createdAt     DateTime           @default(now())\n  updatedAt     DateTime           @updatedAt\n\n  plan Plan @relation(fields: [planId], references: [id], onDelete: Restrict, onUpdate: Cascade)\n\n  @@unique([userId])\n  @@index([userId])\n  @@index([planId])\n}\n",
+  "inlineSchemaHash": "1353014cb601a6bbedfb354951c42090b251ee8b7ab112883d320c45d7f431c3",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Region\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"level\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"manualItems\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"ContentItemRegionManual\"},{\"name\":\"effectiveItems\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"ContentItemRegionEffective\"}],\"dbName\":null},\"Topic\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"slug\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"locale\",\"kind\":\"enum\",\"type\":\"Locale\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"items\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"ContentItemToTopic\"},{\"name\":\"tags\",\"kind\":\"object\",\"type\":\"TopicTag\",\"relationName\":\"TopicToTopicTag\"}],\"dbName\":null},\"Tag\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"slug\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"label\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topics\",\"kind\":\"object\",\"type\":\"TopicTag\",\"relationName\":\"TagToTopicTag\"},{\"name\":\"items\",\"kind\":\"object\",\"type\":\"ItemTag\",\"relationName\":\"ItemTagToTag\"}],\"dbName\":null},\"TopicTag\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topicId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tagId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topic\",\"kind\":\"object\",\"type\":\"Topic\",\"relationName\":\"TopicToTopicTag\"},{\"name\":\"tag\",\"kind\":\"object\",\"type\":\"Tag\",\"relationName\":\"TagToTopicTag\"}],\"dbName\":null},\"ItemTag\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"itemId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tagId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"item\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"ContentItemToItemTag\"},{\"name\":\"tag\",\"kind\":\"object\",\"type\":\"Tag\",\"relationName\":\"ItemTagToTag\"}],\"dbName\":null},\"ContentItem\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"kind\",\"kind\":\"enum\",\"type\":\"ContentKind\"},{\"name\":\"topicId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topic\",\"kind\":\"object\",\"type\":\"Topic\",\"relationName\":\"ContentItemToTopic\"},{\"name\":\"locale\",\"kind\":\"enum\",\"type\":\"Locale\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"text\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"richText\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sortOrder\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"order\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"PublishStatus\"},{\"name\":\"authorName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"publishAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"expireAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"regionMode\",\"kind\":\"enum\",\"type\":\"RegionMode\"},{\"name\":\"regionManualId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"regionEffectiveId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"regionAuto\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"regionManual\",\"kind\":\"object\",\"type\":\"Region\",\"relationName\":\"ContentItemRegionManual\"},{\"name\":\"regionEffective\",\"kind\":\"object\",\"type\":\"Region\",\"relationName\":\"ContentItemRegionEffective\"},{\"name\":\"validation\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"meta\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"answerOptions\",\"kind\":\"object\",\"type\":\"AnswerOption\",\"relationName\":\"AnswerOptionToContentItem\"},{\"name\":\"tags\",\"kind\":\"object\",\"type\":\"ItemTag\",\"relationName\":\"ContentItemToItemTag\"}],\"dbName\":null},\"AnswerOption\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"itemId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"item\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"AnswerOptionToContentItem\"},{\"name\":\"label\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sortOrder\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"order\"},{\"name\":\"exclusive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"meta\",\"kind\":\"scalar\",\"type\":\"Json\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Region\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"level\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"manualItems\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"ContentItemRegionManual\"},{\"name\":\"effectiveItems\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"ContentItemRegionEffective\"}],\"dbName\":null},\"Topic\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"slug\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"locale\",\"kind\":\"enum\",\"type\":\"Locale\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"items\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"ContentItemToTopic\"},{\"name\":\"tags\",\"kind\":\"object\",\"type\":\"TopicTag\",\"relationName\":\"TopicToTopicTag\"}],\"dbName\":null},\"Tag\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"slug\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"label\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topics\",\"kind\":\"object\",\"type\":\"TopicTag\",\"relationName\":\"TagToTopicTag\"},{\"name\":\"items\",\"kind\":\"object\",\"type\":\"ItemTag\",\"relationName\":\"ItemTagToTag\"}],\"dbName\":null},\"TopicTag\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topicId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tagId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topic\",\"kind\":\"object\",\"type\":\"Topic\",\"relationName\":\"TopicToTopicTag\"},{\"name\":\"tag\",\"kind\":\"object\",\"type\":\"Tag\",\"relationName\":\"TagToTopicTag\"}],\"dbName\":null},\"ItemTag\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"itemId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tagId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"item\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"ContentItemToItemTag\"},{\"name\":\"tag\",\"kind\":\"object\",\"type\":\"Tag\",\"relationName\":\"ItemTagToTag\"}],\"dbName\":null},\"ContentItem\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"kind\",\"kind\":\"enum\",\"type\":\"ContentKind\"},{\"name\":\"topicId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topic\",\"kind\":\"object\",\"type\":\"Topic\",\"relationName\":\"ContentItemToTopic\"},{\"name\":\"locale\",\"kind\":\"enum\",\"type\":\"Locale\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"text\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"richText\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sortOrder\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"order\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"PublishStatus\"},{\"name\":\"authorName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"publishAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"expireAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"regionMode\",\"kind\":\"enum\",\"type\":\"RegionMode\"},{\"name\":\"regionManualId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"regionEffectiveId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"regionAuto\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"regionManual\",\"kind\":\"object\",\"type\":\"Region\",\"relationName\":\"ContentItemRegionManual\"},{\"name\":\"regionEffective\",\"kind\":\"object\",\"type\":\"Region\",\"relationName\":\"ContentItemRegionEffective\"},{\"name\":\"validation\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"meta\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"answerOptions\",\"kind\":\"object\",\"type\":\"AnswerOption\",\"relationName\":\"AnswerOptionToContentItem\"},{\"name\":\"tags\",\"kind\":\"object\",\"type\":\"ItemTag\",\"relationName\":\"ContentItemToItemTag\"}],\"dbName\":null},\"AnswerOption\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"itemId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"item\",\"kind\":\"object\",\"type\":\"ContentItem\",\"relationName\":\"AnswerOptionToContentItem\"},{\"name\":\"label\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sortOrder\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"order\"},{\"name\":\"exclusive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"meta\",\"kind\":\"scalar\",\"type\":\"Json\"}],\"dbName\":null},\"Plan\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"slug\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"PlanType\"},{\"name\":\"monthlyPriceCents\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"features\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"subscriptions\",\"kind\":\"object\",\"type\":\"Subscription\",\"relationName\":\"PlanToSubscription\"}],\"dbName\":null},\"Subscription\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"planId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"SubscriptionStatus\"},{\"name\":\"billingCycle\",\"kind\":\"enum\",\"type\":\"BillingCycle\"},{\"name\":\"discountType\",\"kind\":\"enum\",\"type\":\"DiscountType\"},{\"name\":\"discountUntil\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"plan\",\"kind\":\"object\",\"type\":\"Plan\",\"relationName\":\"PlanToSubscription\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

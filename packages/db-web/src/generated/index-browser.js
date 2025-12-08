@@ -188,6 +188,29 @@ exports.Prisma.AnswerOptionScalarFieldEnum = {
   meta: 'meta'
 };
 
+exports.Prisma.PlanScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  name: 'name',
+  type: 'type',
+  monthlyPriceCents: 'monthlyPriceCents',
+  features: 'features',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SubscriptionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  planId: 'planId',
+  status: 'status',
+  billingCycle: 'billingCycle',
+  discountType: 'discountType',
+  discountUntil: 'discountUntil',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -195,6 +218,10 @@ exports.Prisma.SortOrder = {
 
 exports.Prisma.NullableJsonNullValueInput = {
   DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
@@ -246,6 +273,29 @@ exports.RegionMode = exports.$Enums.RegionMode = {
   MANUAL: 'MANUAL'
 };
 
+exports.PlanType = exports.$Enums.PlanType = {
+  B2C: 'B2C',
+  B2B: 'B2B',
+  STAFF: 'STAFF'
+};
+
+exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
+  active: 'active',
+  pending: 'pending',
+  canceled: 'canceled',
+  expired: 'expired'
+};
+
+exports.BillingCycle = exports.$Enums.BillingCycle = {
+  monthly: 'monthly',
+  annual: 'annual'
+};
+
+exports.DiscountType = exports.$Enums.DiscountType = {
+  NONE: 'NONE',
+  VOG_MEMBER_25_6M: 'VOG_MEMBER_25_6M'
+};
+
 exports.Prisma.ModelName = {
   Region: 'Region',
   Topic: 'Topic',
@@ -253,7 +303,9 @@ exports.Prisma.ModelName = {
   TopicTag: 'TopicTag',
   ItemTag: 'ItemTag',
   ContentItem: 'ContentItem',
-  AnswerOption: 'AnswerOption'
+  AnswerOption: 'AnswerOption',
+  Plan: 'Plan',
+  Subscription: 'Subscription'
 };
 
 /**
