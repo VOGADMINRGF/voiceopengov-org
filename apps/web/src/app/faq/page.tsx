@@ -144,7 +144,7 @@ const faqCategories: FaqCategory[] = [
         id: "datenschutz-3",
         question: "Wo finde ich den Transparenzbericht?",
         answer:
-          "Auf der Seite /transparenzbericht veröffentlichen wir regelmäßig eine Übersicht über Einnahmen, Ausgaben, offene Punkte und Risiken. In der Aufbauphase beschreiben wir dort außerdem das geschätzte Entwicklungs-Minus und die Prioritäten für den Einsatz der ersten Gelder.",
+          "Schau im Footer (im Unteren rechten Rand nach Transparenzbericht - dort veröffentlichen wir regelmäßig eine Übersicht über Einnahmen, Ausgaben, offene Punkte und Risiken. In der Aufbauphase beschreiben wir dort außerdem das geschätzte Entwicklungs-Minus und die Prioritäten für den Einsatz der ersten Gelder.",
       },
     ],
   },
@@ -177,13 +177,12 @@ export default function FaqPage() {
               FAQ & How it works
             </p>
             <h1 className="text-3xl font-extrabold leading-tight text-slate-900 md:text-4xl">
-              Wie VoiceOpenGov funktioniert – kurz erklärt
+              VoiceOpenGov – kurz erklärt
             </h1>
             <p className="text-sm leading-relaxed text-slate-700 md:text-base">
-              Hier findest du eine neutrale Übersicht: Was VoiceOpenGov ist, wie Abstimmungen
+              Hier erfährst Du, was VoiceOpenGov ist, wie Abstimmungen auf eDebatte
               ablaufen, wer mitmachen kann und wie wir mit Daten und Finanzierung umgehen.
-              Ergänzende Detailseiten wie /vote können später auf diesen Kern verweisen oder
-              entfallen.
+              
             </p>
           </header>
 
@@ -331,14 +330,7 @@ export default function FaqPage() {
               >
                 Kontaktformular
               </Link>{" "}
-              oder trag dich auf{" "}
-              <Link
-                href="/updates"
-                className="font-semibold text-emerald-700 underline underline-offset-4"
-              >
-                der Updates-Seite
-              </Link>{" "}
-              für Neuigkeiten ein.
+              oder trag dich in den Newsletter dort ein. 
             </p>
           </section>
         </div>

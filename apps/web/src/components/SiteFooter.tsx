@@ -1,24 +1,24 @@
 import Link from "next/link";
 
 const infoLinks = [
-  { href: "/ueber-uns", label: "Über uns" },
-  { href: "/vision", label: "Vision & Mission" },
+  { href: "/ueber-uns", label: "Über Uns" },
   { href: "/satzung", label: "Satzung (Entwurf)" },
-  { href: "/faq", label: "FAQ" },
+  { href: "/faq", label: "FAQ & Hilfe" },
+  { href: "/transparenzbericht", label: "Transparenzbericht" },
 ];
 
 const platformLinks = [
   { href: "/mitglied-werden", label: "Swipe" },
   { href: "/mitglied-werden", label: "Statement verfassen" },
-  { href: "/mitglied-werden", label: "Reports" },
   { href: "/mitglied-werden", label: "Streams & Events" },
+  { href: "/mitglied-werden", label: "Reportings" },
 ];
 
 const legalLinks = [
   { href: "/kontakt", label: "Kontakt" },
   { href: "/impressum", label: "Impressum" },
   { href: "/datenschutz", label: "Datenschutz" },
-  { href: "/transparenzbericht", label: "Transparenzbericht" },
+  { href: "/widerspruch", label: "Widerspruchserklärung" },
 ];
 
 const currentYear = new Date().getFullYear();
@@ -80,8 +80,7 @@ export default function SiteFooter() {
         <div className="mt-8 border-t border-slate-200/70 pt-6 text-xs text-slate-500 md:flex md:items-center md:justify-between">
           <p>© {currentYear} VoiceOpenGov</p>
           <p className="mt-2 text-[11px] text-slate-500 md:mt-0">
-            Beta-Version – wir entwickeln diese Infrastruktur gemeinsam weiter.
-          </p>
+powerd by Ricky G. Fleischer           </p>
         </div>
       </div>
     </footer>
@@ -100,7 +99,7 @@ function FooterNav({ title, ariaLabel, links }: FooterNavProps) {
       <p className="text-sm font-semibold text-slate-900">{title}</p>
       <ul className="mt-3 space-y-2 text-sm text-slate-600">
         {links.map((link) => (
-          <li key={link.href}>
+          <li key={`${link.href}-${link.label}`}>
             <Link
               href={link.href}
               className="transition hover:text-slate-900 hover:underline hover:underline-offset-4"

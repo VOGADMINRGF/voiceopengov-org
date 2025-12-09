@@ -7,14 +7,14 @@ type LocaleValue<T> = Record<"de", T> & Partial<Record<SupportedLocale, T>>;
  * HERO / INTRO
  */
 
-const HERO_CHIPS = ["Direktdemokratisch", "Lokal", "National", "Global"];
+const HERO_CHIPS = ["Demokratisch", "Transparent", "Faktenbasiert", "Inklusiv"];
 
-const HERO_LINES = ["Unser Auftrag."]; // zweite Zeile kommt als Accent
-const HERO_ACCENT = "Direkte Demokratie";
+const HERO_LINES = ["Weil die Sache zählt,"];
+const HERO_ACCENT = "nicht die Schlagzeile";
 const HERO_SUFFIX = "– lokal, national und global.";
 
 const HERO_INTRO =
-  "Politische Entscheidungen betreffen unseren Alltag überall auf der Welt – doch oft werden wir nur selten gefragt. VoiceOpenGov ergänzt Parlamente um eine digitale Ebene der Mitbestimmung: Menschen können Themen einbringen, fundierte Argumente sehen und gemeinsam Entscheidungen treffen – in Städten, Gemeinden, Regionen und darüber hinaus. Wir verbinden Bürger:innen, Verwaltungen, Medien und Wissenschaft aus unterschiedlichen Regionen und Kulturen und machen jeden Schritt des Verfahrens offen nachvollziehbar – mit Blick auf soziale Gerechtigkeit und ökologische Zukunftsfähigkeit.";
+"Gesellschaftliche Interessen sind vielfältig – und oft schwer unter einen Hut zu bringen. Auf VoiceOpenGov steht das gemeinsame Interesse im Mittelpunkt: Entscheidungen folgen dem Mehrheitsprinzip und dem Grundsatz „eine Person, eine Stimme“. Hier zählt die Sache – nicht, wie gut sie sich vermarkten lässt. Ihr habt mehr als ein bloßes Vetorecht: Ihr könnt eigene Vorschläge und Eventualitäten einbringen, Varianten gegeneinander abwägen und jeden Schritt offen nachvollziehen – ohne Parteibuch, ohne Hinterzimmer. Alles ist transparent, überprüfbar und auf soziale Gerechtigkeit sowie eine lebenswerte, ökologische Zukunft ausgerichtet.";
 
 const HERO_BULLETS = [
   "<strong>Direkt beteiligt:</strong> Themen einreichen, Argumente prüfen und mitentscheiden – vom Handy oder Laptop, alleine oder gemeinsam mit deiner Community.",

@@ -1,6 +1,12 @@
 import Link from "next/link";
 
-export default function KontaktPage() {
+export default function KontaktPage({
+  searchParams,
+}: {
+  searchParams?: { sent?: string; error?: string };
+}) {
+  const sent = searchParams?.sent === "1";
+  const error = searchParams?.error;
   return (
     <main className="min-h-screen bg-gradient-to-b from-[var(--brand-from)] via-white to-white pb-16">
       <section className="mx-auto max-w-5xl px-4 pt-14">
@@ -59,6 +65,16 @@ export default function KontaktPage() {
             <p className="mt-1 text-center text-xs text-slate-600">
               Wir routen dein Anliegen intern an die passende Stelle.
             </p>
+            {sent && (
+              <p className="mt-3 text-center text-sm font-semibold text-emerald-600">
+                Danke! Deine Nachricht ist bei uns angekommen.
+              </p>
+            )}
+            {error && (
+              <p className="mt-3 text-center text-sm font-semibold text-rose-600">
+                Konnte nicht gesendet. Bitte prüfe die Felder oder schreibe direkt an kontakt@voiceopengov.org.
+              </p>
+            )}
 
             <form className="mt-5 space-y-4 relative" action="/api/contact" method="POST">
               {/* Honeypot / „Spy-Captcha“ – von Menschen unsichtbar, Bots füllen es oft aus */}

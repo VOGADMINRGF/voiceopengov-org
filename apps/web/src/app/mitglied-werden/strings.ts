@@ -24,19 +24,24 @@ const STRINGS = {
     ],
   } as LocaleStringArray,
 
-  tiersTitle: { de: "Orientierung für Mitgliedsstufen" } as LocaleString,
-tiersIntro: {
-  de: "Du kannst jeden anderen Beitrag wählen – diese Stufen dienen nur als Orientierung, was dein Beitrag ungefähr ermöglicht.",
-} as LocaleString,
-tiersList: {
-  de: [
-    "<strong>5,63 €</strong> – Basis: Newsletter, Mitgliederverzeichnis und bis zu 25 % Nachlass auf eDebatte-Pakete und Merchandise.",
-    "<strong>10 €</strong> – Aktiv: vertiefende Infos, ausgewählte Themen und Materialien, auf Wunsch auch per Post.",
-    "<strong>25 €</strong> – Engagement (regional): Einladungen zu Betas, Tests und Formaten, damit eDebatte in deiner Region sichtbar wird.",
-    "<strong>50 €+</strong> – Solidarisch: Unabhängigkeit stärken, niedrigere Beiträge für andere ermöglichen und Team & Infrastruktur langfristig sichern.",
-  ],
-} as LocaleStringArray,
-
+  tiersTitle: {
+    de: "Orientierung für Mitgliedsstufen",
+  } as LocaleString,
+  
+  tiersIntro: {
+    de: "Du entscheidest selbst, welchen Beitrag du geben möchtest. Uns ist wichtig, dass du dich damit wohlfühlst. Diese Stufen zeigen dir, was dein Beitrag heute ermöglicht.",
+  } as LocaleString,
+  
+  tiersList: {
+    de: [
+      "<strong>5,63 €</strong> – Unser Basisbeitrag: Hilft uns, Server, Sicherheit und Grundbetrieb zu sichern.",
+      "<strong>10 €</strong> – Danke für deine Unterstützung: Macht stabile Weiterentwicklung möglich.",
+      "<strong>25 €</strong> – Für alle, die uns stärker tragen möchten: Sichert Planung und Priorisierung.",
+      "<strong>50 €+</strong> – Echte Solidarität: Ermöglicht niedrigere Beiträge für andere und stärkt Team & Infrastruktur.",
+      "Ganz gleich, welchen Betrag du wählst – <strong>wir freuen uns sehr, wenn du Teil von VoiceOpenGov wirst.</strong>",
+    ],
+  } as LocaleStringArray,
+  
 
   calculatorTitle: { de: "Beitrag berechnen – VoiceOpenGov" } as LocaleString,
   calculatorIntro: {
