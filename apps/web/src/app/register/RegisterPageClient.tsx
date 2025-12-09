@@ -23,10 +23,10 @@ function RegisterPageClient({ personCount = 1, searchParams }: RegisterPageClien
     return Number.isFinite(n) && n > 0 ? Math.floor(n) : personCount;
   })();
 
-  const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [birthDate, setBirthDate] = useState("");
+  const [email, setEmail] = useState(searchParams?.email ? String(searchParams.email) : "");
+  const [firstName, setFirstName] = useState(searchParams?.firstName ? String(searchParams.firstName) : "");
+  const [lastName, setLastName] = useState(searchParams?.lastName ? String(searchParams.lastName) : "");
+  const [birthDate, setBirthDate] = useState(searchParams?.birthDate ? String(searchParams.birthDate) : "");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [errMsg, setErrMsg] = useState<string>();
@@ -166,6 +166,7 @@ function RegisterPageClient({ personCount = 1, searchParams }: RegisterPageClien
             value={birthDate}
             onChange={(e) => setBirthDate(e.target.value)}
             required
+            pattern="\\d{4}-\\d{2}-\\d{2}"
             disabled={busy}
           />
           <p className="text-[11px] text-slate-500">Für faire Citizen Votes: Teilnahme ab 16 Jahren.</p>

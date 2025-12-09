@@ -12,20 +12,37 @@ export function buildVerificationMail({ verifyUrl, displayName }: VerificationTe
   const buttonStyle =
     "display:inline-flex;padding:12px 20px;border-radius:999px;background:#0f172a;color:#fff;text-decoration:none;font-weight:700;letter-spacing:0.3px;font-size:15px;";
 
+  const cleanToken = (() => {
+    const tokenPart = verifyUrl.split("token=").pop() ?? verifyUrl;
+    return tokenPart.split("&email")[0];
+  })();
+
   const html = `
-    <p>${greeting},</p>
-    <p>schön, dass du dich registrierst! Bitte bestätige deine E-Mail-Adresse, damit wir dein Konto anlegen können.</p>
-    <p>
-      <a href="${verifyUrl}" style="${buttonStyle}">
-        E-Mail jetzt bestätigen
-      </a>
-    </p>
-    <p>Alternativ kannst du den Code kopieren und im Browser eingeben:</p>
-    <p style="font-size:18px;font-weight:700;letter-spacing:1px;background:#f8fafc;border-radius:12px;padding:12px 16px;display:inline-block;">
-      ${verifyUrl.split("token=").pop() ?? verifyUrl}
-    </p>
-    <p>Falls du kein Konto angelegt hast, kannst du diese Nachricht ignorieren.</p>
-    <p>Wir freuen uns, dass du dabei bist.<br/>– Dein VoiceOpenGov Team</p>
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color:#0f172a;">
+      <tr><td style="padding:12px 0;">${greeting},</td></tr>
+      <tr><td style="padding:6px 0 12px 0; font-size:15px; line-height:1.5;">
+        schön, dass du dich registrierst! Bitte bestätige deine E-Mail-Adresse, damit wir dein Konto anlegen können.
+      </td></tr>
+      <tr><td style="padding:12px 0;">
+        <a href="${verifyUrl}" style="${buttonStyle}">
+          E-Mail jetzt bestätigen
+        </a>
+      </td></tr>
+      <tr><td style="padding:10px 0 6px 0; font-size:14px; color:#334155;">
+        Alternativ kannst du den Code kopieren und im Browser eingeben:
+      </td></tr>
+      <tr><td>
+        <div style="font-size:18px;font-weight:800;letter-spacing:1px;background:#f8fafc;border-radius:14px;padding:14px 16px;display:inline-block;border:1px solid #e2e8f0;">
+          ${cleanToken}
+        </div>
+      </td></tr>
+      <tr><td style="padding:14px 0 0 0; font-size:14px; color:#334155;">
+        Falls du kein Konto angelegt hast, kannst du diese Nachricht ignorieren.
+      </td></tr>
+      <tr><td style="padding:10px 0 0 0; font-size:14px; color:#0f172a; font-weight:600;">
+        Wir freuen uns, dass du dabei bist.<br/>– Dein VoiceOpenGov Team
+      </td></tr>
+    </table>
   `;
 
   const text = `${greeting},

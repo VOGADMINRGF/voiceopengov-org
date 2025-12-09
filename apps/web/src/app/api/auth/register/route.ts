@@ -18,10 +18,7 @@ const schema = z.object({
   name: z.string().min(2).max(120),
   firstName: z.string().min(1).max(120).optional(),
   lastName: z.string().min(1).max(160).optional(),
-  birthDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/)
-    .optional(),
+  birthDate: z.string().optional(), // Sanitizing unten
   email: z.string().email(),
   password: z.string().min(12),
   preferredLocale: z.string().optional(),
@@ -40,7 +37,7 @@ export async function POST(req: NextRequest) {
   const locale = normalizeLocale(body.preferredLocale);
   const givenName = body.firstName?.trim() || undefined;
   const familyName = body.lastName?.trim() || undefined;
-  const birthDate = body.birthDate?.trim() || undefined;
+  const birthDate = normalizeBirthDate(body.birthDate);
   const displayName = body.name.trim();
 
   if (!isPasswordStrong(body.password)) {
@@ -187,4 +184,35 @@ function isPasswordStrong(value: string) {
 function normalizeLocale(locale?: string) {
   if (locale && isSupportedLocale(locale)) return locale;
   return DEFAULT_LOCALE;
+}
+
+function normalizeBirthDate(raw?: string | null): string | undefined {
+  if (!raw) return undefined;
+  const trimmed = raw.trim();
+  if (!trimmed) return undefined;
+
+  // akzeptiere YYYY-MM-DD oder DD.MM.YYYY
+  const isoMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const deMatch = trimmed.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+
+  let yyyy: string | null = null;
+  let mm: string | null = null;
+  let dd: string | null = null;
+
+  if (isoMatch) {
+    [, yyyy, mm, dd] = isoMatch;
+  } else if (deMatch) {
+    [, dd, mm, yyyy] = deMatch;
+  }
+
+  if (!yyyy || !mm || !dd) {
+    throw NextResponse.json({ error: "birthdate_invalid" }, { status: 400 });
+  }
+
+  const normalized = `${yyyy}-${mm}-${dd}`;
+  const ts = Date.parse(normalized);
+  if (Number.isNaN(ts)) {
+    throw NextResponse.json({ error: "birthdate_invalid" }, { status: 400 });
+  }
+  return normalized;
 }

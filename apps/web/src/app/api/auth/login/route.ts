@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
   const body = (await req.json().catch(() => ({}))) as LoginBody;
   const identifier = normalizeIdentifier(body.identifier || body.email);
   const password = body.password?.trim();
-  const redirectUrl = sanitizeRedirect(body.next || "/mitglied-antrag");
+  const redirectUrl = sanitizeRedirect(body.next || "/mitglied-werden");
 
   if (!identifier || !password) {
     return NextResponse.json({ error: "invalid_input" }, { status: 400 });

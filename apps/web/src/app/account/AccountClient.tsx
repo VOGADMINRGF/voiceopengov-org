@@ -186,7 +186,7 @@ export function AccountClient({ initialData, membershipNotice }: Props) {
         body: JSON.stringify({
           iban: ibanInput,
           bic: bicInput || undefined,
-          holderName: holderNameInput || displayName || data.email,
+          holderName: holderNameInput || [displayName, data.email].filter(Boolean).join(" / "),
         }),
       });
       const body = await res.json().catch(() => ({}));

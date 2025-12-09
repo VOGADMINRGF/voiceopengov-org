@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { authenticator } from "otplib";
 import { coreCol, piiCol, ObjectId } from "@core/db/triMongo";
 import { rateLimit } from "@/utils/rateLimit";
 import { logAuthEvent } from "@core/telemetry/authEvents";
@@ -16,6 +15,7 @@ import {
   TwoFactorMethod,
   clearPendingTwoFactorCookie,
 } from "../sharedAuth";
+import { verifyTotpToken } from "../totp/totpHelpers";
 
 export const runtime = "nodejs";
 
@@ -55,7 +55,10 @@ export async function POST(req: NextRequest) {
     }
 
     if (challenge.expiresAt < new Date()) {
-      await challenges.deleteOne({ _id: challenge._id });
+      await challenges.updateOne(
+        { _id: challenge._id },
+        { $set: { consumedAt: new Date(), status: "expired" } },
+      );
       await clearPendingTwoFactorCookie();
       return NextResponse.json({ error: "challenge_expired" }, { status: 400 });
     }
@@ -80,22 +83,34 @@ export async function POST(req: NextRequest) {
     const credentials = await creds.findOne({ coreUserId: challenge.userId });
 
     if (!user) {
-      await challenges.deleteOne({ _id: challenge._id });
+      await challenges.updateOne(
+        { _id: challenge._id },
+        { $set: { consumedAt: new Date(), status: "user_missing" } },
+      );
       await clearPendingTwoFactorCookie();
       return NextResponse.json({ error: "user_not_found" }, { status: 404 });
     }
 
-    if (!body.code && body.code !== 0) {
+    const codeStr =
+      typeof body.code === "string" || typeof body.code === "number"
+        ? String(body.code).trim()
+        : "";
+    if (!codeStr) {
       return NextResponse.json({ error: "code_required" }, { status: 400 });
     }
 
     let valid = false;
     if (method === "email") {
-      const hashed = sha256(String(body.code).trim());
+      const hashed = sha256(codeStr);
       valid = challenge.codeHash === hashed;
     } else {
-      const secret = credentials?.otpSecret || user.verification?.twoFA?.secret;
-      valid = secret ? authenticator.check(String(body.code), String(secret)) : false;
+      const secret = (credentials?.otpSecret || user.verification?.twoFA?.secret)?.toString().trim();
+      if (!secret || secret.length < 6) {
+        await challenges.deleteOne({ _id: challenge._id });
+        await clearPendingTwoFactorCookie();
+        return NextResponse.json({ error: "totp_not_setup" }, { status: 400 });
+      }
+      valid = verifyTotpToken(codeStr, secret);
     }
 
     if (!valid) {
@@ -107,7 +122,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "invalid_code" }, { status: 401 });
     }
 
-    await challenges.deleteOne({ _id: challenge._id });
+    const now = new Date();
+    await challenges.updateOne(
+      { _id: challenge._id },
+      { $set: { consumedAt: now, status: "used" } },
+    );
     await clearPendingTwoFactorCookie();
     await applySessionCookies(user);
 

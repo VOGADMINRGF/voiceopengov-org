@@ -11,8 +11,10 @@ const encodeMailParam = (value: string) => encodeURIComponent(value);
 export default function WiderspruchPage() {
   const [selfAction, setSelfAction] = useState<SelfServiceAction>("cancel_membership");
   const [note, setNote] = useState("");
+  const [password, setPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
+  const [ack, setAck] = useState(false);
 
   const subjectCancel = encodeMailParam(
     "Kündigung / Widerspruch – VoiceOpenGov"
@@ -141,8 +143,8 @@ export default function WiderspruchPage() {
               Direkt hier erledigen (eingeloggt)
             </h2>
             <p className="text-sm text-slate-600">
-              Wenn du eingeloggt bist, kannst du hier sofort kündigen oder eine Datenlöschung anstoßen.
-              Wir stufen dein Konto zurück und informieren das Team automatisch.
+              Wenn du eingeloggt bist, kannst du hier dein Konto herunterstufen oder zur Löschung vormerken.
+              Bei der Löschung fragen wir dein Passwort ab und melden dich danach ab.
             </p>
           </div>
 
@@ -152,11 +154,21 @@ export default function WiderspruchPage() {
               e.preventDefault();
               setStatus("pending");
               setMessage(null);
+              if (!ack) {
+                setStatus("error");
+                setMessage("Bitte bestätige kurz, dass du den Vorgang verstanden hast.");
+                return;
+              }
+              if (selfAction === "delete_account" && !password.trim()) {
+                setStatus("error");
+                setMessage("Bitte Passwort eingeben, um die Löschung zu bestätigen.");
+                return;
+              }
               try {
                 const res = await fetch("/api/account/self-service", {
                   method: "POST",
                   headers: { "content-type": "application/json" },
-                  body: JSON.stringify({ action: selfAction, note }),
+                  body: JSON.stringify({ action: selfAction, note, password: password || undefined }),
                 });
                 const body = await res.json().catch(() => ({}));
                 if (!res.ok) {
@@ -166,8 +178,13 @@ export default function WiderspruchPage() {
                 setMessage(
                   selfAction === "cancel_membership"
                     ? "Mitgliedschaft wird beendet. Wir bestätigen per E-Mail."
-                    : "Löschanfrage ist eingegangen. Wir kümmern uns zeitnah."
+                    : "Löschung angestoßen – wir melden dich ab."
                 );
+                if (body?.next) {
+                  setTimeout(() => {
+                    window.location.href = body.next;
+                  }, 800);
+                }
               } catch (err: any) {
                 setStatus("error");
                 setMessage(err?.message ?? "Aktion fehlgeschlagen");
@@ -185,7 +202,7 @@ export default function WiderspruchPage() {
                   className="mt-1 h-4 w-4 text-sky-600"
                 />
                 <div>
-                  <p className="font-semibold text-slate-900">Mitgliedschaft kündigen</p>
+                  <p className="font-semibold text-slate-900">Mitgliedschaft beenden</p>
                   <p className="text-xs text-slate-600">
                     Status wird beendet, Beiträge gestoppt, Haushalt gesperrt.
                   </p>
@@ -204,11 +221,43 @@ export default function WiderspruchPage() {
                 <div>
                   <p className="font-semibold text-slate-900">Account-Löschung anstoßen</p>
                   <p className="text-xs text-slate-600">
-                    Kündigt ebenfalls und markiert dein Konto zur Löschung.
+                    Markiert dein Konto zur Löschung (inkl. Kündigung von Paketen) – wir melden dich danach ab.
                   </p>
                 </div>
               </label>
             </div>
+
+            {selfAction === "delete_account" && (
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-slate-700" htmlFor="deletePassword">
+                  Passwort zur Bestätigung
+                </label>
+                <input
+                  id="deletePassword"
+                  type="password"
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Passwort eingeben"
+                  required
+                  autoComplete="current-password"
+                  disabled={status === "pending"}
+                />
+              </div>
+            )}
+
+            <label className="flex items-start gap-2 rounded-2xl border border-slate-200 bg-slate-50/70 p-3 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={ack}
+                onChange={(e) => setAck(e.target.checked)}
+                className="mt-0.5 h-4 w-4 text-sky-600"
+              />
+              <span>
+                Ich bestätige, dass ich die Konsequenzen verstanden habe (Beendigung bzw. Löschung). Dieser Schritt ersetzt
+                eine gesonderte Bestätigung per E-Mail.
+              </span>
+            </label>
 
             <div className="space-y-1">
               <label className="block text-xs font-semibold text-slate-700">

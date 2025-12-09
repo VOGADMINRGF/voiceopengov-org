@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { z } from "zod";
 import { coreCol, ObjectId } from "@core/db/triMongo";
+import { piiCol } from "@core/db/db/triMongo";
 import { sendMail } from "@/utils/mailer";
+import { verifyPassword } from "@/utils/password";
+import { clearSession } from "@/utils/session";
+import { CREDENTIAL_COLLECTION } from "../../auth/sharedAuth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,6 +14,7 @@ export const dynamic = "force-dynamic";
 const schema = z.object({
   action: z.enum(["cancel_membership", "delete_account"]),
   note: z.string().max(1000).optional(),
+  password: z.string().min(8).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -26,7 +31,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "invalid_input" }, { status: 400 });
   }
 
-  const { action, note } = parsed.data;
+  const { action, note, password } = parsed.data;
   const oid = new ObjectId(userId);
   const Users = await coreCol("users");
   const user = await Users.findOne(
@@ -57,6 +62,19 @@ export async function POST(req: NextRequest) {
       },
     );
   } else {
+    if (!password) {
+      return NextResponse.json({ ok: false, error: "password_required" }, { status: 400 });
+    }
+    const credsCol = await piiCol(CREDENTIAL_COLLECTION);
+    const creds = await credsCol.findOne({ coreUserId: oid }, { projection: { passwordHash: 1 } });
+    if (!creds?.passwordHash) {
+      return NextResponse.json({ ok: false, error: "credentials_missing" }, { status: 400 });
+    }
+    const pwdOk = await verifyPassword(password, String(creds.passwordHash));
+    if (!pwdOk) {
+      return NextResponse.json({ ok: false, error: "invalid_password" }, { status: 401 });
+    }
+
     await Users.updateOne(
       { _id: oid },
       {
@@ -86,7 +104,7 @@ export async function POST(req: NextRequest) {
     },
   );
 
-  const to = process.env.CONTACT_INBOX || "kontakt@voiceopengov.org";
+  const to = process.env.CONTACT_INBOX || "members@voiceopengov.org";
   const safeName = (user as any)?.profile?.displayName || (user as any)?.name || "Unbekannt";
   const safeEmail = (user as any)?.email || "unbekannt";
   const html = `
@@ -100,9 +118,13 @@ export async function POST(req: NextRequest) {
 
   await sendMail({
     to,
-    subject: `[Self-Service] ${action === "cancel_membership" ? "Kündigung" : "Account-Löschung"} angefordert`,
+    subject: `[Self-Service] ${action === "cancel_membership" ? "Mitgliedschaft beenden" : "Account-Löschung"} angefordert`,
     html,
   });
+
+  if (action === "delete_account") {
+    await clearSession();
+  }
 
   return NextResponse.json({
     ok: true,
