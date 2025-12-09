@@ -9,28 +9,34 @@ type VerificationTemplateInput = {
 
 export function buildVerificationMail({ verifyUrl, displayName }: VerificationTemplateInput) {
   const greeting = displayName ? `Hallo ${displayName}` : "Hallo";
+  const buttonStyle =
+    "display:inline-flex;padding:12px 20px;border-radius:999px;background:#0f172a;color:#fff;text-decoration:none;font-weight:700;letter-spacing:0.3px;font-size:15px;";
+
   const html = `
     <p>${greeting},</p>
-    <p>bitte bestätige deine E-Mail-Adresse, um mit dem Login abzuschließen.</p>
+    <p>schön, dass du dich registrierst! Bitte bestätige deine E-Mail-Adresse, damit wir dein Konto anlegen können.</p>
     <p>
-      <a href="${verifyUrl}" style="display:inline-flex;padding:10px 18px;border-radius:999px;background:#111;color:#fff;text-decoration:none;font-weight:600;">
-        E-Mail bestätigen
+      <a href="${verifyUrl}" style="${buttonStyle}">
+        E-Mail jetzt bestätigen
       </a>
     </p>
-    <p>Oder kopiere diesen Link in deinen Browser:<br />
-      <a href="${verifyUrl}">${verifyUrl}</a>
+    <p>Alternativ kannst du den Code kopieren und im Browser eingeben:</p>
+    <p style="font-size:18px;font-weight:700;letter-spacing:1px;background:#f8fafc;border-radius:12px;padding:12px 16px;display:inline-block;">
+      ${verifyUrl.split("token=").pop() ?? verifyUrl}
     </p>
     <p>Falls du kein Konto angelegt hast, kannst du diese Nachricht ignorieren.</p>
-    <p>– Das Team von VoiceOpenGov sagt Danke für deine Zeit der Sichtung.</p>
+    <p>Wir freuen uns, dass du dabei bist.<br/>– Dein VoiceOpenGov Team</p>
   `;
+
   const text = `${greeting},
 
-bitte bestätige deine E-Mail-Adresse:
+schön, dass du dich registrierst! Bitte bestätige deine E-Mail-Adresse:
 ${verifyUrl}
 
 Falls du kein Konto angelegt hast, kannst du diese Nachricht ignorieren.
 
-– VoiceOpenGov`;
+Wir freuen uns, dass du dabei bist.
+– VoiceOpenGov Team`;
 
   return { subject: "Bitte bestätige deine E-Mail-Adresse", html, text };
 }

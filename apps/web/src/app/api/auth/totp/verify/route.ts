@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
     };
     await applySessionCookies(sessionUser);
 
-    return NextResponse.json({ ok: true, next: "/account" });
+    return NextResponse.json({ ok: true, next: "/mitglied-antrag" });
   } catch (e: any) {
     console.error("TOTP verify failed", e);
     return NextResponse.json(

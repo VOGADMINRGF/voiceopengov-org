@@ -66,14 +66,14 @@ export default function KontaktPage({
               Wir routen dein Anliegen intern an die passende Stelle.
             </p>
             {sent && (
-              <p className="mt-3 text-center text-sm font-semibold text-emerald-600">
-                Danke! Deine Nachricht ist bei uns angekommen.
-              </p>
+              <div className="mt-3 rounded-xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-800">
+                Danke! Deine Nachricht ist bei uns angekommen. Wir freuen uns über jedes Feedback und melden uns zeitnah.
+              </div>
             )}
             {error && (
-              <p className="mt-3 text-center text-sm font-semibold text-rose-600">
+              <div className="mt-3 rounded-xl border border-rose-100 bg-rose-50/80 px-4 py-3 text-sm text-rose-700">
                 Konnte nicht gesendet. Bitte prüfe die Felder oder schreibe direkt an kontakt@voiceopengov.org.
-              </p>
+              </div>
             )}
 
             <form className="mt-5 space-y-4 relative" action="/api/contact" method="POST">

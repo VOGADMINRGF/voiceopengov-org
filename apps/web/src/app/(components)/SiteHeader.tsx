@@ -142,7 +142,7 @@ export function SiteHeader() {
                   onClick={() => setMobileOpen(false)}
                   className="rounded-full border border-slate-200 bg-white px-4 py-2 text-center text-sm font-semibold text-slate-700 hover:border-sky-400 hover:text-sky-600"
                 >
-                  Konto
+                  Abmeldung
                 </Link>
               ) : (
                 <Link
@@ -150,7 +150,7 @@ export function SiteHeader() {
                   onClick={() => setMobileOpen(false)}
                   className="rounded-full border border-slate-200 bg-white px-4 py-2 text-center text-sm font-semibold text-slate-700 hover:border-sky-400 hover:text-sky-600"
                 >
-                  Login
+                  Login / Registrierung
                 </Link>
               )}
             </nav>

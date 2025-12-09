@@ -1,12 +1,9 @@
 // apps/web/src/app/profile/page.tsx
-"use client";
+import { redirect } from "next/navigation";
 
-import UserProfile from "@/components/profile/UserProfile";
+export const dynamic = "force-dynamic";
 
 export default function ProfilePage() {
-  return (
-    <main className="p-6 max-w-3xl mx-auto">
-      <UserProfile />
-    </main>
-  );
+  // Harmonisiert: /profile leitet auf den zentralen Account-Bereich
+  redirect("/account");
 }

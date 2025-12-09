@@ -1,10 +1,19 @@
 // apps/web/src/app/widerspruch/page.tsx
+"use client";
+
+import { useState } from "react";
 
 const CONTACT_MAIL = "kontakt@voiceopengov.org";
+type SelfServiceAction = "cancel_membership" | "delete_account";
 
 const encodeMailParam = (value: string) => encodeURIComponent(value);
 
 export default function WiderspruchPage() {
+  const [selfAction, setSelfAction] = useState<SelfServiceAction>("cancel_membership");
+  const [note, setNote] = useState("");
+  const [status, setStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
+  const [message, setMessage] = useState<string | null>(null);
+
   const subjectCancel = encodeMailParam(
     "Kündigung / Widerspruch – VoiceOpenGov"
   );
@@ -117,6 +126,125 @@ export default function WiderspruchPage() {
               </span>
             </a>
           </div>
+        </section>
+
+        {/* Selbst erledigen (systemseitig) */}
+        <section
+          aria-labelledby="self-service-heading"
+          className="bg-white/95 border border-slate-100 rounded-3xl p-5 md:p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)] space-y-4"
+        >
+          <div className="flex flex-col gap-2">
+            <h2
+              id="self-service-heading"
+              className="text-base font-semibold text-slate-900"
+            >
+              Direkt hier erledigen (eingeloggt)
+            </h2>
+            <p className="text-sm text-slate-600">
+              Wenn du eingeloggt bist, kannst du hier sofort kündigen oder eine Datenlöschung anstoßen.
+              Wir stufen dein Konto zurück und informieren das Team automatisch.
+            </p>
+          </div>
+
+          <form
+            className="space-y-3"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setStatus("pending");
+              setMessage(null);
+              try {
+                const res = await fetch("/api/account/self-service", {
+                  method: "POST",
+                  headers: { "content-type": "application/json" },
+                  body: JSON.stringify({ action: selfAction, note }),
+                });
+                const body = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                  throw new Error(body?.error || "Aktion fehlgeschlagen");
+                }
+                setStatus("success");
+                setMessage(
+                  selfAction === "cancel_membership"
+                    ? "Mitgliedschaft wird beendet. Wir bestätigen per E-Mail."
+                    : "Löschanfrage ist eingegangen. Wir kümmern uns zeitnah."
+                );
+              } catch (err: any) {
+                setStatus("error");
+                setMessage(err?.message ?? "Aktion fehlgeschlagen");
+              }
+            }}
+          >
+            <div className="grid gap-3 md:grid-cols-2">
+              <label className="flex items-start gap-2 rounded-2xl border border-slate-200 bg-slate-50/60 p-3 text-sm text-slate-700">
+                <input
+                  type="radio"
+                  name="selfAction"
+                  value="cancel_membership"
+                  checked={selfAction === "cancel_membership"}
+                  onChange={() => setSelfAction("cancel_membership")}
+                  className="mt-1 h-4 w-4 text-sky-600"
+                />
+                <div>
+                  <p className="font-semibold text-slate-900">Mitgliedschaft kündigen</p>
+                  <p className="text-xs text-slate-600">
+                    Status wird beendet, Beiträge gestoppt, Haushalt gesperrt.
+                  </p>
+                </div>
+              </label>
+
+              <label className="flex items-start gap-2 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
+                <input
+                  type="radio"
+                  name="selfAction"
+                  value="delete_account"
+                  checked={selfAction === "delete_account"}
+                  onChange={() => setSelfAction("delete_account")}
+                  className="mt-1 h-4 w-4 text-sky-600"
+                />
+                <div>
+                  <p className="font-semibold text-slate-900">Account-Löschung anstoßen</p>
+                  <p className="text-xs text-slate-600">
+                    Kündigt ebenfalls und markiert dein Konto zur Löschung.
+                  </p>
+                </div>
+              </label>
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-xs font-semibold text-slate-700">
+                Optionaler Hinweis
+              </label>
+              <textarea
+                className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                rows={3}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Optionaler Kommentar, falls wir etwas beachten sollen."
+              />
+            </div>
+
+            {message && (
+              <p
+                className={`text-sm ${
+                  status === "error" ? "text-rose-600" : "text-emerald-600"
+                }`}
+              >
+                {message}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+              disabled={status === "pending"}
+            >
+              {status === "pending"
+                ? "Wird ausgeführt …"
+                : selfAction === "cancel_membership"
+                  ? "Mitgliedschaft beenden"
+                  : "Löschanfrage stellen"}
+            </button>
+          </form>
         </section>
 
         {/* Erläuterungen in einfacher Sprache */}

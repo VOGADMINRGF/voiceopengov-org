@@ -74,5 +74,22 @@ export async function POST(req: NextRequest) {
     html,
   });
 
+  // Freundliche Empfangsbestätigung an Absender:in
+  await sendMail({
+    to: email,
+    subject: "Danke für deine Nachricht an VoiceOpenGov",
+    html: `
+      <p>Hi ${escapeHtml(name)},</p>
+      <p>danke für deine Nachricht – wir freuen uns über jedes Feedback und melden uns so schnell wie möglich.</p>
+      <p><strong>Zusammenfassung:</strong></p>
+      <ul>
+        <li><strong>Thema:</strong> ${escapeHtml(category)}</li>
+        ${safeSubject ? `<li><strong>Betreff:</strong> ${escapeHtml(safeSubject)}</li>` : ""}
+        <li><strong>Nachricht:</strong><br/>${escapeHtml(message).replace(/\n/g, "<br/>")}</li>
+      </ul>
+      <p>Viele Grüße<br/>dein VoiceOpenGov Team</p>
+    `,
+  });
+
   return redirect("sent=1");
 }
