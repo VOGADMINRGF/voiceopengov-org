@@ -1,923 +1,1236 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import type {
-  AccountOverview,
-  AccountProfile,
-  ProfilePublicFlags,
-  ProfileTopTopic,
-} from "@features/account/types";
-import {
-  CORE_LOCALES,
-  EXTENDED_LOCALES,
-  type SupportedLocale,
-} from "@/config/locales";
-import { LIMITS } from "@/config/limits";
-import { B2C_PLANS } from "@/config/plans";
-import { VERIFICATION_LEVEL_DESCRIPTIONS } from "@features/auth/verificationRules";
-import { TOPIC_CHOICES, type TopicKey } from "@features/interests/topics";
-import { canEditTopTopics, canUseProfileStyles } from "@features/account/capabilities";
-import { getProfilePackageForAccessTier } from "@features/account/profilePackages";
-import {
-  canUserChatPublic,
-  canUserCreateStream,
-  canUserHostStream,
-} from "@/utils/accessTiers";
-import { useCurrentUser } from "@/hooks/auth";
 
-const LOCALE_OPTIONS = [...CORE_LOCALES, ...EXTENDED_LOCALES];
-type Props = {
-  initialData: AccountOverview;
-  membershipNotice?: boolean;
+// Konsistente Button-Styles im VOG-Gradient-CI
+const primaryButtonClass =
+  "inline-flex items-center justify-center rounded-full bg-gradient-to-r from-sky-500 via-cyan-500 to-emerald-500 px-4 py-2 text-xs font-semibold text-white shadow-[0_10px_30px_rgba(14,116,144,0.35)] transition hover:brightness-105 focus:outline-none focus:ring-2 focus:ring-sky-200";
+
+const primaryButtonSmallClass =
+  "inline-flex items-center justify-center rounded-full bg-gradient-to-r from-sky-500 via-cyan-500 to-emerald-500 px-3 py-1.5 text-[11px] font-semibold text-white shadow-[0_8px_22px_rgba(14,116,144,0.32)] transition hover:brightness-105 focus:outline-none focus:ring-2 focus:ring-sky-200";
+
+const secondaryLightButtonClass =
+  "inline-flex items-center justify-center rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold text-slate-800 shadow-sm ring-1 ring-slate-200 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-sky-200";
+
+const ghostDarkButtonClass =
+  "inline-flex items-center justify-center rounded-full bg-slate-900/90 px-3 py-1.5 text-[11px] font-semibold text-slate-50 shadow-sm transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500";
+
+const subtleLinkClass =
+  "text-[11px] font-medium text-slate-500 underline-offset-2 hover:text-slate-900 hover:underline";
+
+/**
+ * Typen – können bei Bedarf mit getAccountOverview harmonisiert werden.
+ */
+
+export type ProfileData = {
+  id: string;
+  displayName: string;
+  email: string;
+  preferredLocale: string;
+  newsletterOptIn: boolean;
+  avatarUrl?: string | null;
+  coverUrl?: string | null;
 };
 
-export function AccountClient({ initialData, membershipNotice }: Props) {
-  const [data, setData] = useState<AccountOverview>(initialData);
-  const [displayName, setDisplayName] = useState(initialData.displayName ?? "");
-  const [headline, setHeadline] = useState(initialData.profile?.headline ?? "");
-  const [bio, setBio] = useState(initialData.profile?.bio ?? "");
-  const [avatarStyle, setAvatarStyle] = useState<AccountProfile["avatarStyle"]>(
-    initialData.profile?.avatarStyle ?? "initials",
-  );
-  const [topTopics, setTopTopics] = useState<ProfileTopTopic[]>(initialData.profile?.topTopics ?? []);
-  const [publicFlags, setPublicFlags] = useState<ProfilePublicFlags>(
-    initialData.profile?.publicFlags ?? {},
-  );
-  const [preferredLocale, setPreferredLocale] = useState<SupportedLocale>(
-    initialData.preferredLocale as SupportedLocale,
-  );
-  const [newsletterOptIn, setNewsletterOptIn] = useState(!!initialData.newsletterOptIn);
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [profileSaving, setProfileSaving] = useState(false);
-  const [profileMessage, setProfileMessage] = useState<string | null>(null);
-  const [ibanInput, setIbanInput] = useState("");
-  const [bicInput, setBicInput] = useState("");
-  const [holderNameInput, setHolderNameInput] = useState(initialData.displayName ?? "");
-  const [paymentSaving, setPaymentSaving] = useState(false);
-  const [paymentMessage, setPaymentMessage] = useState<string | null>(null);
-  const [signatureSaving, setSignatureSaving] = useState(false);
-  const [signatureMessage, setSignatureMessage] = useState<string | null>(null);
-  const [planSaving, setPlanSaving] = useState<string | null>(null);
-  const [planMessage, setPlanMessage] = useState<string | null>(null);
-  const { refresh: refreshAuth } = useCurrentUser();
-  const profilePackage = data.profilePackage ?? getProfilePackageForAccessTier(data.accessTier);
-  const accessContext = {
-    accessTier: data.accessTier,
-    engagementXp: data.stats.xp,
-    engagementLevel: data.stats.engagementLevel,
-  };
-  const currentPlan = data.planSlug ?? data.accessTier;
-  const currentPlanLimit = LIMITS[data.accessTier]?.contributionsPerMonth ?? 0;
-  const membership = data.membershipSnapshot;
-  const membershipStatus = membership?.status ?? data.vogMembershipStatus;
+export type PublicProfileData = {
+  city?: string | null;
+  region?: string | null;
+  countryCode?: string | null;
+  bio?: string | null;
+  tagline?: string | null;
+  avatarStyle?: "initials" | "photo";
+  topTopics?: string[];
+  showRealName: boolean;
+  showCity: boolean;
+  showStats: boolean;
+  showMembership: boolean;
+};
 
-  function toggleTopic(key: TopicKey) {
-    setTopTopics((prev) => {
-      const exists = prev.find((topic) => topic.key === key);
-      if (exists) return prev.filter((topic) => topic.key !== key);
-      if (prev.length >= 3) return prev;
-      const choice = TOPIC_CHOICES.find((topic) => topic.key === key);
-      if (!choice) return prev;
-      return [...prev, { key, title: choice.label, statement: "" }];
-    });
-  }
+export type EDebattePackage = "basis" | "start" | "pro" | "none";
 
-  function updateTopicStatement(key: TopicKey, value: string) {
-    setTopTopics((prev) =>
-      prev.map((topic) =>
-        topic.key === key
-          ? { ...topic, statement: value.slice(0, 140) }
-          : topic,
-      ),
-    );
-  }
+export type EDebattePackageInfo = {
+  package: EDebattePackage;
+  status: "none" | "preorder" | "active" | "canceled";
+  billingInterval?: "monthly" | "yearly";
+  nextBillingDate?: string | null;
+  validFrom?: string | null;
+  validTo?: string | null;
+};
 
-  function updatePublicFlag(key: keyof ProfilePublicFlags, value: boolean) {
-    setPublicFlags((prev) => ({ ...prev, [key]: value }));
-  }
+export type UsageInfo = {
+  swipesThisMonth: number;
+  swipeLimit?: number | null;
+  xpLevelLabel?: string | null;
+};
 
-  function syncFromOverview(overview: AccountOverview) {
-    setData(overview);
-    setDisplayName(overview.displayName ?? "");
-    setPreferredLocale(overview.preferredLocale as SupportedLocale);
-    setNewsletterOptIn(!!overview.newsletterOptIn);
-    setHeadline(overview.profile?.headline ?? "");
-    setBio(overview.profile?.bio ?? "");
-    setAvatarStyle(overview.profile?.avatarStyle ?? "initials");
-    setTopTopics(overview.profile?.topTopics ?? []);
-    setPublicFlags(overview.profile?.publicFlags ?? {});
-  }
+export type MembershipInfo = {
+  isMember: boolean;
+  label?: string;
+  statusLabel?: string;
+  contributionLabel?: string;
+};
 
-  async function reloadOverview() {
-    const res = await fetch("/api/account/overview", { cache: "no-store" });
-    const body = await res.json().catch(() => ({}));
-    if (res.ok && body?.overview) {
-      syncFromOverview(body.overview);
-    }
-  }
+export type RoleInfo = {
+  id: string;
+  label: string;
+  description?: string;
+  badge?: string;
+};
 
-  async function handleSave() {
-    setSaving(true);
-    setMessage(null);
+export type SecurityInfo = {
+  emailVerified: boolean;
+  twoFactorEnabled: boolean;
+  lastLoginAt?: string | null;
+  loginHint?: string | null;
+};
+
+export type PaymentInfo = {
+  ibanMasked?: string | null;
+  bic?: string | null;
+  accountHolder?: string | null;
+  note?: string | null;
+};
+
+export type SignatureInfo = {
+  hasSignature: boolean;
+  updatedAt?: string | null;
+};
+
+export type FeatureFlags = {
+  streamsEnabled: boolean;
+  hostRightsEnabled: boolean;
+  chatEnabled: boolean;
+};
+
+export type AccountOverview = {
+  profile: ProfileData;
+  publicProfile: PublicProfileData;
+  edebatte: EDebattePackageInfo;
+  usage: UsageInfo;
+  membership: MembershipInfo;
+  roles: RoleInfo[];
+  security: SecurityInfo;
+  payment: PaymentInfo;
+  signature: SignatureInfo;
+  features: FeatureFlags;
+};
+
+type NormalizedOverview = AccountOverview;
+
+export type AccountClientProps = {
+  initialData: any;
+  membershipNotice: boolean;
+};
+
+export function AccountClient({ initialData, membershipNotice }: AccountClientProps) {
+  const [data, setData] = useState<NormalizedOverview>(normalizeOverview(initialData));
+
+  async function refreshOverview() {
     try {
-      const res = await fetch("/api/account/settings", {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          displayName,
-          preferredLocale,
-          newsletterOptIn,
-        }),
-      });
+      const res = await fetch("/api/account/overview", { cache: "no-store" });
       const body = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(body?.error || "Speichern fehlgeschlagen");
-      if (body?.overview) {
-        syncFromOverview(body.overview);
+      if (res.ok && body?.overview) {
+        setData(normalizeOverview(body.overview));
       }
-      setMessage("Einstellungen aktualisiert");
-    } catch (err: any) {
-      setMessage(err?.message ?? "Fehler beim Speichern");
-    } finally {
-      setSaving(false);
+    } catch (err) {
+      console.warn("[account] refresh overview failed", err);
     }
   }
-
-  async function handleProfileSave() {
-    setProfileSaving(true);
-    setProfileMessage(null);
-    try {
-      const res = await fetch("/api/account/profile", {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          headline,
-          bio,
-          avatarStyle,
-          topTopics: topTopics.map((topic) => ({
-            key: topic.key,
-            statement: (topic.statement ?? "").trim() || null,
-          })),
-          publicFlags,
-        }),
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(body?.error || "Speichern fehlgeschlagen");
-      if (body?.overview) {
-        syncFromOverview(body.overview);
-      }
-      setProfileMessage("Profil aktualisiert");
-    } catch (err: any) {
-      setProfileMessage(err?.message ?? "Fehler beim Speichern");
-    } finally {
-      setProfileSaving(false);
-    }
-  }
-
-  async function handlePaymentProfile(e: React.FormEvent) {
-    e.preventDefault();
-    setPaymentSaving(true);
-    setPaymentMessage(null);
-    try {
-      const res = await fetch("/api/account/payment-profile", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          iban: ibanInput,
-          bic: bicInput || undefined,
-          holderName: holderNameInput || [displayName, data.email].filter(Boolean).join(" / "),
-        }),
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(body?.error || "Speichern fehlgeschlagen");
-      setPaymentMessage("Bankprofil aktualisiert.");
-      setIbanInput("");
-      setBicInput("");
-      await reloadOverview();
-    } catch (err: any) {
-      setPaymentMessage(err?.message ?? "Fehler beim Speichern");
-    } finally {
-      setPaymentSaving(false);
-    }
-  }
-
-  async function handlePlanChange(planId: string) {
-    setPlanSaving(planId);
-    setPlanMessage(null);
-    try {
-      const res = await fetch("/api/account/plan", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ planId }),
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok || !body?.ok) {
-        throw new Error(body?.error || "Planwechsel fehlgeschlagen");
-      }
-      await reloadOverview();
-      await refreshAuth?.();
-      setPlanMessage("Plan aktualisiert.");
-    } catch (err: any) {
-      setPlanMessage(err?.message ?? "Planwechsel fehlgeschlagen");
-    } finally {
-      setPlanSaving(null);
-    }
-  }
-
-  async function handleSignature(kind: "digital" | "id_document" = "digital") {
-    setSignatureSaving(true);
-    setSignatureMessage(null);
-    try {
-      const res = await fetch("/api/account/signature", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ kind }),
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(body?.error || "Aktion fehlgeschlagen");
-      setSignatureMessage("Unterschrift hinterlegt.");
-      await reloadOverview();
-    } catch (err: any) {
-      setSignatureMessage(err?.message ?? "Aktion fehlgeschlagen");
-    } finally {
-      setSignatureSaving(false);
-    }
-  }
-
-  const previewName = displayName || data.displayName || data.email || "Unbekannt";
-  const initials = (previewName || "?")
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-  const topicsEditable = canEditTopTopics(data.stats.engagementLevel);
-  const stylesEnabled = canUseProfileStyles(data.stats.engagementLevel, profilePackage);
 
   return (
-    <div className="space-y-6">
-      {membershipNotice && (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-          <p className="font-semibold">Mitgliedsantrag eingegangen</p>
-          <p className="mt-1">
-            Danke für deinen Antrag. Falls du Zahlungsinformationen brauchst, findest du sie in der
-            Bestätigungs-Mail. Sobald der Beitrag eingegangen ist, bestätigen wir deine Mitgliedschaft.
-          </p>
-        </div>
-      )}
-      <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-600">
-        <span className="rounded-full bg-slate-100 px-3 py-1">
-          Mitgliedschaft: {membershipLabel(membershipStatus)}
-        </span>
-        <span className="rounded-full bg-slate-100 px-3 py-1">
-          App-Nutzung: {currentPlan ?? "unbekannt"}
-        </span>
-      </div>
+    <div className="flex flex-col gap-10">
+      {membershipNotice && <MembershipBanner />}
 
-        <section className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-900 text-xl font-semibold text-white">
-              {initials || "?"}
-            </div>
-            <div className="flex-1">
-              <p className="text-xs uppercase tracking-wide text-slate-500">Profil</p>
-              <h2 className="text-2xl font-semibold text-slate-900">{previewName}</h2>
-              <p className="text-sm text-slate-500">{data.email}</p>
-            </div>
-          </div>
+      <ProfileAndPackageSection profile={data.profile} edebatte={data.edebatte} usage={data.usage} onRefresh={refreshOverview} />
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <label className="text-sm font-semibold text-slate-700">
-            Anzeigename
-            <input
-              className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-2 text-sm"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Name für öffentliche Bereiche"
-            />
-          </label>
-          <label className="text-sm font-semibold text-slate-700">
-            Bevorzugte Sprache
-            <select
-              className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-2 text-sm"
-              value={preferredLocale}
-              onChange={(e) =>
-                setPreferredLocale(e.target.value as SupportedLocale)
-              }
-            >
-              {LOCALE_OPTIONS.map((loc) => (
-                <option key={loc} value={loc}>
-                  {loc.toUpperCase()}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="text-sm font-semibold text-slate-700">
-            Newsletter & Updates
-            <div className="mt-2 flex items-center gap-2 text-sm text-slate-600">
-              <input
-                id="newsletter"
-                type="checkbox"
-                checked={newsletterOptIn}
-                onChange={(e) => setNewsletterOptIn(e.target.checked)}
-              />
-              <span>Ich möchte Updates zur Plattform erhalten.</span>
-            </div>
-          </label>
-        </div>
+      <PublicProfileSection publicProfile={data.publicProfile} onRefresh={refreshOverview} />
 
-        <div className="mt-4 flex flex-wrap items-center gap-4">
-          <button
-            onClick={handleSave}
-            className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white disabled:opacity-60"
-            disabled={saving}
-          >
-            {saving ? "Speichert …" : "Änderungen speichern"}
-          </button>
-          {message && <span className="text-sm text-slate-500">{message}</span>}
-        </div>
-      </section>
+      <MembershipAndRolesSection membership={data.membership} roles={data.roles} />
 
-      <section className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500">Profil & Privatsphäre</p>
-            <h2 className="text-xl font-semibold text-slate-900">Öffentliche Angaben</h2>
-            <p className="text-xs text-slate-500">Profil-Paket: {profilePackage}</p>
-          </div>
-          {profileMessage && <span className="text-sm text-slate-500">{profileMessage}</span>}
-        </div>
+      <SecurityAndPaymentSection security={data.security} payment={data.payment} signature={data.signature} />
 
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <label className="text-sm font-semibold text-slate-700">
-            Überschrift
-            <input
-              className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-2 text-sm"
-              value={headline}
-              onChange={(e) => setHeadline(e.target.value)}
-              placeholder="z.B. Bürger:in aus Berlin, Fokus Klima"
-            />
-          </label>
-          <label className="text-sm font-semibold text-slate-700">
-            Bio
-            <textarea
-              className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-2 text-sm"
-              rows={3}
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              placeholder="Kurzbeschreibung für dein öffentliches Profil"
-            />
-          </label>
-          <label className="text-sm font-semibold text-slate-700">
-            Avatar-Stil
-            <select
-              className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-2 text-sm"
-              value={avatarStyle ?? "initials"}
-              onChange={(e) => setAvatarStyle(e.target.value as AccountProfile["avatarStyle"])}
-              disabled={!stylesEnabled}
-            >
-              <option value="initials">Initialen</option>
-              <option value="abstract">Abstrakt</option>
-              <option value="emoji">Emoji</option>
-            </select>
-            {!stylesEnabled && (
-              <p className="mt-1 text-xs text-slate-500">
-                Erweiterte Styles ab Level „begeistert“ und Profil-Paket Pro/Premium.
-              </p>
-            )}
-          </label>
-        </div>
-
-        <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4 text-sm">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="font-semibold text-slate-900">Top-Themen (max. 3)</p>
-            {!topicsEditable && (
-              <span className="text-xs font-semibold text-amber-700">
-                Top-Themen ab Level „engagiert“ freigeschaltet
-              </span>
-            )}
-          </div>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {TOPIC_CHOICES.map((topic) => {
-              const selected = topTopics.some((item) => item.key === topic.key);
-              const disabled = !topicsEditable || (!selected && topTopics.length >= 3);
-              return (
-                <button
-                  key={topic.key}
-                  type="button"
-                  onClick={() => toggleTopic(topic.key)}
-                  disabled={disabled}
-                  className={`rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${
-                    selected
-                      ? "bg-slate-900 text-white"
-                      : "bg-white text-slate-700 border border-slate-200"
-                  } ${disabled ? "opacity-50" : ""}`}
-                >
-                  {topic.label}
-                </button>
-              );
-            })}
-          </div>
-          {topTopics.length > 0 && (
-            <div className="mt-3 space-y-3">
-              {topTopics.map((topic) => (
-                <div key={topic.key} className="rounded-xl border border-slate-200 bg-white/80 p-3">
-                  <p className="text-xs uppercase tracking-wide text-slate-500">{topic.title}</p>
-                  <input
-                    className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                    value={topic.statement ?? ""}
-                    onChange={(e) => updateTopicStatement(topic.key, e.target.value)}
-                    placeholder="Warum ist dir dieses Thema wichtig? (max. 140 Zeichen)"
-                    maxLength={140}
-                    disabled={!topicsEditable}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
-          <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-            <input
-              type="checkbox"
-              checked={publicFlags.showRealName ?? false}
-              onChange={(e) => updatePublicFlag("showRealName", e.target.checked)}
-            />
-            Realname anzeigen
-          </label>
-          <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-            <input
-              type="checkbox"
-              checked={publicFlags.showCity ?? false}
-              onChange={(e) => updatePublicFlag("showCity", e.target.checked)}
-            />
-            Stadt anzeigen
-          </label>
-          <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-            <input
-              type="checkbox"
-              checked={publicFlags.showJoinDate ?? false}
-              onChange={(e) => updatePublicFlag("showJoinDate", e.target.checked)}
-            />
-            Mitglied seit … anzeigen
-          </label>
-          <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-            <input
-              type="checkbox"
-              checked={publicFlags.showEngagementLevel ?? false}
-              onChange={(e) => updatePublicFlag("showEngagementLevel", e.target.checked)}
-            />
-            Engagement-Level anzeigen
-          </label>
-          <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-            <input
-              type="checkbox"
-              checked={publicFlags.showStats ?? false}
-              onChange={(e) => updatePublicFlag("showStats", e.target.checked)}
-            />
-            Statistiken anzeigen
-          </label>
-        </div>
-
-        <div className="mt-4 flex flex-wrap items-center gap-4">
-          <button
-            onClick={handleProfileSave}
-            className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white disabled:opacity-60"
-            disabled={profileSaving}
-          >
-            {profileSaving ? "Speichert …" : "Profil speichern"}
-          </button>
-        </div>
-      </section>
-
-      <section className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Rollen & Zugänge</p>
-          <h3 className="text-lg font-semibold text-slate-900">Aktive Rollen</h3>
-          <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-slate-700">
-            <span className="rounded-full bg-slate-100 px-3 py-1">Tier: {data.accessTier}</span>
-            {data.roles.map((role) => (
-              <span key={role} className="rounded-full bg-sky-100 px-3 py-1 text-sky-700">
-                {role}
-              </span>
-            ))}
-            {data.groups.map((group) => (
-              <span key={group} className="rounded-full bg-emerald-100 px-3 py-1 text-emerald-700">
-                Gruppe: {group}
-              </span>
-            ))}
-          </div>
-          <p className="mt-4 text-sm text-slate-600">
-            Diese Rollen bestimmen, welche Bereiche der Plattform du nutzen kannst. Anpassungen erfolgen durch das
-            Access-Center oder unser Team.
-          </p>
-        </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Nutzung & Limits</p>
-          <h3 className="text-lg font-semibold text-slate-900">Dein monatlicher Status</h3>
-          <dl className="mt-4 grid grid-cols-2 gap-4 text-sm text-slate-700">
-            <div>
-              <dt className="text-xs uppercase tracking-wide text-slate-400">Swipes (Monat)</dt>
-              <dd className="text-xl font-semibold text-slate-900">{data.stats.swipesThisMonth}</dd>
-            </div>
-            <div>
-              <dt className="text-xs uppercase tracking-wide text-slate-400">Beiträge Level 1</dt>
-              <dd className="text-xl font-semibold text-slate-900">{data.stats.remainingPostsLevel1}</dd>
-            </div>
-            <div>
-              <dt className="text-xs uppercase tracking-wide text-slate-400">Beiträge Level 2</dt>
-              <dd className="text-xl font-semibold text-slate-900">{data.stats.remainingPostsLevel2}</dd>
-            </div>
-          </dl>
-          <Link href="/nutzungsmodell" className="mt-4 inline-flex text-sm font-semibold text-sky-600 underline">
-            Nutzungsmodell ansehen
-          </Link>
-        </div>
-      </section>
-
-      <section className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Mitgliedschaft</p>
-          <h3 className="text-lg font-semibold text-slate-900">VoiceOpenGov</h3>
-          <div className="mt-3 space-y-2 text-sm text-slate-700">
-            <p>
-              Status:{" "}
-              <span className="font-semibold text-slate-900">
-                {membershipLabel(membershipStatus)}
-              </span>
-            </p>
-            {membership?.amountPerMonth ? (
-              <p>
-                Beitrag:{" "}
-                <span className="font-semibold text-slate-900">
-                  {formatEuro(membership.amountPerMonth)}{" "}
-                  {membership.rhythm === "once"
-                    ? "(einmalig)"
-                    : membership.rhythm === "yearly"
-                      ? "/ Jahr"
-                      : "/ Monat"}
-                </span>
-                {membership.householdSize ? ` · Haushalt: ${membership.householdSize}` : null}
-              </p>
-            ) : (
-              <p className="text-slate-600">
-                Noch kein Beitrag hinterlegt. Starte deinen Mitgliedsantrag, um die Bewegung zu
-                unterstützen.
-              </p>
-            )}
-            {membership?.edebatte?.enabled && membership.edebatte.finalPricePerMonth ? (
-              <p>
-                eDebatte-Vorbestellung:{" "}
-                <span className="font-semibold">
-                  {membership.edebatte.planKey ?? "Paket"} ·{" "}
-                  {formatEuro(membership.edebatte.finalPricePerMonth)} / Monat
-                </span>
-              </p>
-            ) : null}
-            {membership?.paymentInfo && membershipStatus === "waiting_payment" && (
-              <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-                <p className="font-semibold">Zahlung ausstehend</p>
-                <p>
-                  Bitte überweise deinen Beitrag an {membership.paymentInfo.bankRecipient}{" "}
-                  {membership.paymentInfo.bankName ? `(${membership.paymentInfo.bankName})` : ""}.
-                </p>
-                <p>
-                  IBAN: <span className="font-semibold">{membership.paymentInfo.bankIbanMasked}</span>{" "}
-                  {membership.paymentInfo.bankBic ? `· BIC ${membership.paymentInfo.bankBic}` : ""}
-                </p>
-                <p>
-                  Verwendungszweck:{" "}
-                  <span className="font-semibold">{membership.paymentInfo.reference}</span>
-                </p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => navigator?.clipboard?.writeText?.(membership.paymentInfo.bankIbanMasked)}
-                    className="rounded-full border border-amber-300 px-3 py-1 font-semibold text-amber-900 hover:border-amber-400"
-                  >
-                    IBAN kopieren
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => navigator?.clipboard?.writeText?.(membership.paymentInfo.reference)}
-                    className="rounded-full border border-amber-300 px-3 py-1 font-semibold text-amber-900 hover:border-amber-400"
-                  >
-                    Verwendungszweck kopieren
-                  </button>
-                </div>
-                <p className="mt-1 text-[11px] text-amber-900">
-                  Aufbauphase {membership.paymentInfo.accountMode === "private_preUG" ? "Privatkonto" : "Org-Konto"}; keine Spendenquittung, i.d.R. nicht absetzbar.
-                  <span
-                    className="ml-1 cursor-help text-amber-700"
-                    title="Beiträge fließen aktuell in Entwicklung, Server/Produktion, Lebensunterhalt in der Aufbauphase und Rücklagen für die Gründung der gUG/UG."
-                  >
-                    ℹ︎
-                  </span>
-                </p>
-              </div>
-            )}
-            {membershipStatus === "active" && membership?.amountPerMonth && (
-              <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-900">
-                Aktive Mitgliedschaft – {formatEuro(membership.amountPerMonth)}{" "}
-                {membership.rhythm === "yearly" ? "/ Jahr" : membership.rhythm === "once" ? "(einmalig)" : "/ Monat"}
-                {membership.householdSize ? ` · ${membership.householdSize} Personen` : ""}. Zahlung läuft als Dauerüberweisung auf das hinterlegte Konto.
-                <span
-                  className="ml-1 cursor-help text-emerald-700"
-                  title="Mittelverwendung: Entwicklung, Betrieb/Server, Produktionskosten, Lebensunterhalt in der Aufbauphase, Rücklagen für gUG/UG."
-                >
-                  ℹ︎
-                </span>
-              </div>
-            )}
-            {["cancelled", "household_locked"].includes(membershipStatus) && (
-              <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
-                <p className="font-semibold text-slate-900">
-                  Mitgliedschaft aktuell inaktiv / Haushalt gesperrt.
-                </p>
-                <p className="mt-1">
-                  Du kannst jederzeit neu beantragen, wenn du die Mitgliedschaft reaktivieren möchtest.
-                </p>
-                <Link
-                  href="/mitglied-werden"
-                  className="mt-2 inline-flex rounded-full bg-sky-600 px-3 py-1 font-semibold text-white"
-                >
-                  Neu beantragen
-                </Link>
-              </div>
-            )}
-          </div>
-          <div className="mt-4 flex flex-wrap gap-3 text-sm">
-            <Link
-              href="/unterstuetzen"
-              className="rounded-full border border-slate-300 px-4 py-1 font-semibold"
-            >
-              Unterstützen
-            </Link>
-            <Link
-              href="/mitglied-werden"
-              className="rounded-full bg-emerald-500 px-4 py-1 font-semibold text-white"
-            >
-              Mitglied werden
-            </Link>
-            {membershipStatus === "waiting_payment" && (
-              <Link
-                href="/mitglied-antrag"
-                className="rounded-full border border-emerald-300 px-4 py-1 font-semibold text-emerald-700"
-              >
-                Zahlungsinfos ansehen
-              </Link>
-            )}
-          </div>
-        </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Sicherheit & Login</p>
-          <h3 className="text-lg font-semibold text-slate-900">Aktueller Zustand</h3>
-          <ul className="mt-4 space-y-2 text-sm text-slate-700">
-            <li>
-              <span className="font-semibold">E-Mail:</span>{" "}
-              {data.emailVerified ? "bestätigt" : "noch nicht bestätigt"}
-            </li>
-            <li>
-              <span className="font-semibold">Verifizierungs-Level:</span> {data.verificationLevel}
-            </li>
-            <li>
-              <span className="font-semibold">Methoden:</span>{" "}
-              {data.verificationMethods.length > 0
-                ? data.verificationMethods.join(", ")
-                : "keine"}
-            </li>
-          </ul>
-          <p className="mt-4 text-sm text-slate-600">
-            Dein Login basiert aktuell auf Benutzername/E-Mail &amp; Passwort. Weitere Identitätsmethoden folgen in den nächsten Releases.
-          </p>
-          <p className="mt-4 text-xs text-slate-400">
-            Zuletzt angemeldet:{" "}
-            {data.lastLoginAt ? new Date(data.lastLoginAt).toLocaleString("de-DE") : "n/a"}
-          </p>
-          {!data.emailVerified && (
-            <a
-              href="/register/verify-email"
-              className="mt-3 inline-flex text-sm font-semibold text-sky-600 underline"
-            >
-              E-Mail jetzt bestätigen
-            </a>
-          )}
-          {["none", "email"].includes(data.verificationLevel) && (
-            <a
-              href="/register/identity"
-              className="mt-2 inline-flex text-sm font-semibold text-emerald-600 underline"
-            >
-              Identität bestätigen
-            </a>
-          )}
-          <div className="mt-3 space-y-1 rounded-2xl border border-slate-100 bg-white/70 p-3 text-xs text-slate-500">
-            {(["none", "email", "soft", "strong"] as const).map((level) => (
-              <p key={level}>
-                <span className="font-semibold text-slate-700">{level.toUpperCase()} · </span>
-                {VERIFICATION_LEVEL_DESCRIPTIONS[level]}
-              </p>
-            ))}
-          </div>
-          <div className="mt-4 space-y-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4 text-sm">
-            <div>
-              <p className="font-semibold text-slate-900">Bankprofil</p>
-              <p className="text-slate-600">
-                {data.paymentProfile
-                  ? `${data.paymentProfile.ibanMasked} (${data.paymentProfile.holderName})`
-                  : "Noch nicht hinterlegt"}
-              </p>
-            </div>
-            <form className="space-y-2" onSubmit={handlePaymentProfile}>
-              <label className="flex flex-col text-xs font-semibold text-slate-600">
-                Kontoinhaber:in
-                <input
-                  className="mt-1 rounded-xl border border-slate-200 px-3 py-1.5 text-sm"
-                  value={holderNameInput}
-                  onChange={(e) => setHolderNameInput(e.target.value)}
-                />
-              </label>
-              <label className="flex flex-col text-xs font-semibold text-slate-600">
-                IBAN
-                <input
-                  className="mt-1 rounded-xl border border-slate-200 px-3 py-1.5 text-sm"
-                  value={ibanInput}
-                  onChange={(e) => setIbanInput(e.target.value)}
-                  placeholder="DE89..."
-                  required
-                />
-              </label>
-              <label className="flex flex-col text-xs font-semibold text-slate-600">
-                BIC (optional)
-                <input
-                  className="mt-1 rounded-xl border border-slate-200 px-3 py-1.5 text-sm"
-                  value={bicInput}
-                  onChange={(e) => setBicInput(e.target.value)}
-                  placeholder="BANKDEFFXXX"
-                />
-              </label>
-              <button
-                type="submit"
-                className="rounded-full bg-slate-900 px-4 py-1.5 text-white disabled:opacity-60"
-                disabled={paymentSaving}
-              >
-                {paymentSaving ? "Speichere …" : "Zahlungsmethode speichern"}
-              </button>
-              {paymentMessage && <p className="text-xs text-slate-500">{paymentMessage}</p>}
-            </form>
-          </div>
-          <div className="mt-4 space-y-2 rounded-2xl border border-slate-100 bg-slate-50/70 p-4 text-sm">
-            <div>
-              <p className="font-semibold text-slate-900">Digitale Unterschrift</p>
-              <p className="text-slate-600">
-                {data.signature
-                  ? `Hinterlegt am ${new Date(data.signature.storedAt).toLocaleDateString("de-DE")}`
-                  : "Noch nicht hinterlegt"}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => handleSignature("digital")}
-              className="rounded-full bg-emerald-500 px-4 py-1.5 font-semibold text-white disabled:opacity-60"
-              disabled={signatureSaving}
-            >
-              {signatureSaving ? "Aktualisiere …" : "Digitale Unterschrift hinterlegen"}
-            </button>
-            {signatureMessage && <p className="text-xs text-slate-500">{signatureMessage}</p>}
-          </div>
-        </div>
-      </section>
-
-      <section className="mt-8 space-y-4 rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500">App-Nutzung & Limits</p>
-            <h3 className="text-lg font-semibold text-slate-900">
-              Dein aktueller Plan: {currentPlan ?? "unbekannt"}
-            </h3>
-            <p className="text-sm text-slate-600">
-              {data.stats.xp} XP · Level {data.stats.engagementLevel} · {data.stats.contributionCredits} Credits · Monatslimit{" "}
-              {currentPlanLimit}
-            </p>
-          </div>
-          {planMessage && <span className="text-xs text-slate-600">{planMessage}</span>}
-        </div>
-        <div className="grid gap-4 md:grid-cols-3">
-          {B2C_PLANS.map((plan) => {
-            const isCurrent = plan.id === currentPlan;
-            const limit = LIMITS[plan.id as keyof typeof LIMITS]?.contributionsPerMonth ?? 0;
-            const price =
-              typeof plan.monthlyFeeCents === "number"
-                ? `${(plan.monthlyFeeCents / 100).toFixed(2)} € / Monat`
-                : "Kostenlos";
-            return (
-              <div
-                key={plan.id}
-                className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 shadow-inner"
-              >
-                <p className="text-xs uppercase tracking-wide text-slate-500">{plan.id}</p>
-                <h4 className="text-lg font-semibold text-slate-900">{plan.label}</h4>
-                <p className="text-sm text-slate-600">{plan.description}</p>
-                <p className="mt-2 text-sm font-semibold text-slate-900">{price}</p>
-                <p className="text-xs text-slate-500">Monatslimit Beiträge: {limit}</p>
-                <p className="text-xs text-slate-500">
-                  Inklusive Credits: {(plan.includedPerMonth.level1 ?? 0) + (plan.includedPerMonth.level2 ?? 0)}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => handlePlanChange(plan.id)}
-                  disabled={isCurrent || planSaving !== null}
-                  className="mt-3 w-full rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
-                >
-                  {isCurrent ? "Aktueller Plan" : planSaving === plan.id ? "Wechsle …" : "Plan wählen"}
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Streams & Teilnahme</p>
-          <h3 className="text-lg font-semibold text-slate-900">Stream erstellen</h3>
-          <p className="mt-2 text-sm text-slate-600">
-            Du brauchst mindestens Engagement-Level "Brennend" und einen Tier mit Stream-Rechten.
-          </p>
-          <button
-            type="button"
-            disabled={!canUserCreateStream(accessContext)}
-            className="mt-4 w-full rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
-            title={
-              canUserCreateStream(accessContext)
-                ? undefined
-                : "Erfordert Engagement-Level 'Brennend' und einen Tier mit Stream-Rechten."
-            }
-          >
-            {canUserCreateStream(accessContext)
-              ? "Stream jetzt erstellen"
-              : "Stream-Erstellung aktuell gesperrt"}
-          </button>
-        </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Streaming</p>
-          <h3 className="text-lg font-semibold text-slate-900">Host-Rechte</h3>
-          <p className="mt-2 text-sm text-slate-600">
-            Hosting erfordert Engagement-Level "Inspirierend" oder höher sowie Pro/Ultra oder Staff.
-          </p>
-          <p className="mt-3 text-sm font-semibold text-slate-900">
-            {canUserHostStream(accessContext)
-              ? "Du kannst Streams hosten."
-              : "Hosting aktuell nicht freigeschaltet."}
-          </p>
-        </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Public Chat</p>
-          <h3 className="text-lg font-semibold text-slate-900">Chat-Berechtigung</h3>
-          <p className="mt-2 text-sm text-slate-600">
-            Öffentlich schreiben ist für Organisationstiers deaktiviert. Citizen-Tiers mit Chat-Flag können sofort
-            mitdiskutieren.
-          </p>
-          <p className="mt-3 text-sm font-semibold text-slate-900">
-            {canUserChatPublic(accessContext)
-              ? "Chatting freigeschaltet"
-              : "Chat aktuell gesperrt"}
-          </p>
-        </div>
-      </section>
+      <AdvancedFeaturesSection features={data.features} />
     </div>
   );
 }
 
-function membershipLabel(status: AccountOverview["vogMembershipStatus"]) {
-  switch (status) {
-    case "submitted":
-      return "Eingereicht";
-    case "active":
-      return "Aktiv";
-    case "pending":
-      return "In Prüfung";
-    case "waiting_payment":
-      return "Zahlung ausstehend";
-    case "cancelled":
-      return "Beendet";
-    case "household_locked":
-      return "Haushalt gesperrt";
+export default AccountClient;
+
+function normalizeOverview(src: any): AccountOverview {
+  const profile: ProfileData = {
+    id: src?.profile?.id ?? src?.id ?? "",
+    displayName: src?.profile?.displayName ?? src?.displayName ?? "Dein Anzeigename",
+    email: src?.profile?.email ?? src?.email ?? "",
+    preferredLocale: src?.profile?.preferredLocale ?? src?.preferredLocale ?? "de",
+    newsletterOptIn: Boolean(src?.profile?.newsletterOptIn ?? src?.newsletterOptIn),
+    avatarUrl: src?.profile?.avatarUrl ?? null,
+    coverUrl: src?.profile?.coverUrl ?? null,
+  };
+
+  const publicProfile: PublicProfileData = {
+    city: src?.publicProfile?.city ?? null,
+    region: src?.publicProfile?.region ?? null,
+    countryCode: src?.publicProfile?.countryCode ?? null,
+    bio: src?.publicProfile?.bio ?? "",
+    tagline: src?.publicProfile?.tagline ?? "",
+    avatarStyle: src?.publicProfile?.avatarStyle ?? "initials",
+    topTopics: src?.publicProfile?.topTopics ?? [],
+    showRealName: Boolean(src?.publicProfile?.showRealName),
+    showCity: Boolean(src?.publicProfile?.showCity),
+    showStats: Boolean(src?.publicProfile?.showStats),
+    showMembership: Boolean(src?.publicProfile?.showMembership),
+  };
+
+  const edebatte: EDebattePackageInfo = {
+    package: src?.edebatte?.package ?? "none",
+    status: src?.edebatte?.status ?? "none",
+    billingInterval: src?.edebatte?.billingInterval,
+    nextBillingDate: src?.edebatte?.nextBillingDate ?? null,
+    validFrom: src?.edebatte?.validFrom ?? null,
+    validTo: src?.edebatte?.validTo ?? null,
+  };
+
+  const usage: UsageInfo = {
+    swipesThisMonth: src?.usage?.swipesThisMonth ?? 0,
+    swipeLimit: src?.usage?.swipeLimit ?? null,
+    xpLevelLabel: src?.usage?.xpLevelLabel ?? null,
+  };
+
+  const membership: MembershipInfo = {
+    isMember: Boolean(src?.membership?.isMember),
+    label: src?.membership?.label,
+    statusLabel: src?.membership?.statusLabel,
+    contributionLabel: src?.membership?.contributionLabel,
+  };
+
+  const roles: RoleInfo[] = Array.isArray(src?.roles)
+    ? src.roles
+    : [];
+
+  const security: SecurityInfo = {
+    emailVerified: Boolean(src?.security?.emailVerified),
+    twoFactorEnabled: Boolean(src?.security?.twoFactorEnabled),
+    lastLoginAt: src?.security?.lastLoginAt ?? null,
+    loginHint: src?.security?.loginHint ?? null,
+  };
+
+  const payment: PaymentInfo = {
+    ibanMasked: src?.payment?.ibanMasked ?? null,
+    bic: src?.payment?.bic ?? null,
+    accountHolder: src?.payment?.accountHolder ?? null,
+    note: src?.payment?.note ?? null,
+  };
+
+  const signature: SignatureInfo = {
+    hasSignature: Boolean(src?.signature?.hasSignature),
+    updatedAt: src?.signature?.updatedAt ?? null,
+  };
+
+  const features: FeatureFlags = {
+    streamsEnabled: Boolean(src?.features?.streamsEnabled),
+    hostRightsEnabled: Boolean(src?.features?.hostRightsEnabled),
+    chatEnabled: Boolean(src?.features?.chatEnabled),
+  };
+
+  return {
+    profile,
+    publicProfile,
+    edebatte,
+    usage,
+    membership,
+    roles,
+    security,
+    payment,
+    signature,
+    features,
+  };
+}
+
+/* -------------------------------------------------------
+ * Banner nach erfolgreicher eDebatte-Bestellung
+ * ---------------------------------------------------- */
+
+function MembershipBanner() {
+  return (
+    <section
+      aria-label="Bestätigung eDebatte-Paket"
+      className="rounded-3xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-900 shadow-sm"
+    >
+      <p className="font-medium">Vielen Dank für deine Vorbestellung von eDebatte!</p>
+      <p className="mt-1 text-xs text-emerald-800">
+        Dein eDebatte-Paket ist in deinem Konto hinterlegt. Sobald die App startet, erhältst du eine separate Bestätigung mit allen Details per
+        E-Mail.
+      </p>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------
+ * Section A: Profil & eDebatte-Paket
+ * ---------------------------------------------------- */
+
+type ProfileAndPackageSectionProps = {
+  profile: ProfileData;
+  edebatte: EDebattePackageInfo;
+  usage: UsageInfo;
+  onRefresh: () => void;
+};
+
+function ProfileAndPackageSection({ profile, edebatte, usage, onRefresh }: ProfileAndPackageSectionProps) {
+  return (
+    <section aria-labelledby="account-core-heading" className="space-y-4">
+      <div className="flex flex-col gap-1">
+        <h2 id="account-core-heading" className="text-sm font-semibold tracking-tight text-slate-900">
+          Profil &amp; eDebatte-Paket
+        </h2>
+        <p className="text-xs text-slate-500">Passe dein Profil an und behalte dein gewähltes eDebatte-Paket im Blick.</p>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,2.1fr)_minmax(0,1.6fr)]">
+        <ProfileCard profile={profile} onRefresh={onRefresh} />
+        <EDebattePackageCard edebatte={edebatte} usage={usage} onRefresh={onRefresh} />
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------
+ * Profilkarte mit Avatar & Cover à la LinkedIn/Facebook
+ * ---------------------------------------------------- */
+
+type ProfileCardProps = {
+  profile: ProfileData;
+  onRefresh: () => void;
+};
+
+function ProfileCard({ profile, onRefresh }: ProfileCardProps) {
+  const [draft, setDraft] = useState<ProfileData>(profile);
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState<string | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
+  const coverInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFieldChange = (patch: Partial<ProfileData>) => {
+    setDraft((prev) => ({ ...prev, ...patch }));
+  };
+
+  const handleAvatarClick = () => {
+    avatarInputRef.current?.click();
+  };
+
+  const handleCoverClick = () => {
+    coverInputRef.current?.click();
+  };
+
+  const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // TODO: An API zum Upload anbinden.
+    const previewUrl = URL.createObjectURL(file);
+    setDraft((prev) => ({ ...prev, avatarUrl: previewUrl }));
+  };
+
+  const handleCoverChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // TODO: An API zum Upload anbinden.
+    const previewUrl = URL.createObjectURL(file);
+    setDraft((prev) => ({ ...prev, coverUrl: previewUrl }));
+  };
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    setSaving(true);
+    setSaveMsg(null);
+    fetch("/api/account/settings", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        displayName: draft.displayName,
+        preferredLocale: draft.preferredLocale,
+        newsletterOptIn: draft.newsletterOptIn,
+      }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Speichern fehlgeschlagen");
+        setSaveMsg("Gespeichert");
+        onRefresh();
+      })
+      .catch((err) => {
+        console.warn("[account] settings update failed", err);
+        setSaveMsg("Speichern fehlgeschlagen");
+      })
+      .finally(() => setSaving(false));
+  };
+
+  const initials =
+    draft.displayName
+      ?.split(" ")
+      .filter(Boolean)
+      .map((part) => part[0]?.toUpperCase())
+      .slice(0, 2)
+      .join("") || "VOG";
+
+  return (
+    <form onSubmit={handleSubmit} className="overflow-hidden rounded-3xl bg-white/95 shadow-[0_22px_65px_rgba(15,23,42,0.10)] ring-1 ring-slate-100">
+      {/* Cover / Hintergrund */}
+      <div className="relative h-28 w-full bg-gradient-to-r from-sky-500 via-cyan-500 to-emerald-500">
+        {draft.coverUrl && <Image src={draft.coverUrl} alt="Profil-Hintergrundbild" fill sizes="100vw" className="object-cover" />}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
+
+        <div className="absolute right-4 bottom-3">
+          <button
+            type="button"
+            onClick={handleCoverClick}
+            className="pointer-events-auto inline-flex items-center rounded-full bg-black/35 px-3 py-1 text-[11px] font-medium text-white backdrop-blur-sm transition hover:bg-black/50"
+          >
+            Titelbild ändern
+          </button>
+          <input ref={coverInputRef} type="file" accept="image/*" className="sr-only" onChange={handleCoverChange} />
+        </div>
+      </div>
+
+      {/* Inhalt */}
+      <div className="px-5 pb-5 pt-0 sm:px-6 sm:pb-6">
+        {/* Avatar + Name */}
+        <div className="-mt-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex items-end gap-3">
+            <button
+              type="button"
+              onClick={handleAvatarClick}
+              className="relative inline-flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-slate-100 text-lg font-semibold text-slate-700 shadow-[0_12px_35px_rgba(15,23,42,0.25)] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
+              aria-label="Profilfoto ändern"
+            >
+              {draft.avatarUrl ? (
+                <Image src={draft.avatarUrl} alt={draft.displayName || "Profilfoto"} fill sizes="80px" className="rounded-full object-cover" />
+              ) : (
+                <span>{initials}</span>
+              )}
+              <span className="pointer-events-none absolute bottom-0 right-0 inline-flex h-6 w-6 items-center justify-center rounded-full bg-sky-500 text-[11px] font-bold text-white ring-2 ring-white">
+                +
+              </span>
+            </button>
+            <input ref={avatarInputRef} type="file" accept="image/*" className="sr-only" onChange={handleAvatarChange} />
+
+            <div className="mt-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Profil</p>
+              <h3 className="text-lg font-semibold text-slate-900">{draft.displayName || "Dein Anzeigename"}</h3>
+              <p className="text-xs text-slate-500">{draft.email}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Form-Felder */}
+        <div className="mt-6 space-y-4">
+          <div className="space-y-1">
+            <label htmlFor="displayName" className="text-xs font-medium text-slate-700">
+              Anzeigename
+            </label>
+            <input
+              id="displayName"
+              name="displayName"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 shadow-inner focus:border-sky-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-100"
+              value={draft.displayName}
+              onChange={(event) => handleFieldChange({ displayName: event.target.value })}
+            />
+            <p className="text-[11px] text-slate-400">So wirst du in der Plattform und in öffentlichen Profilen angezeigt.</p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1">
+              <span className="text-xs font-medium text-slate-700">E-Mail-Adresse</span>
+              <p className="truncate text-sm text-slate-700">{draft.email}</p>
+              <p className="text-[11px] text-slate-400">Änderungen der E-Mail-Adresse sind aus Sicherheitsgründen nur über den Support möglich.</p>
+            </div>
+
+            <div className="space-y-1">
+              <label htmlFor="preferredLocale" className="text-xs font-medium text-slate-700">
+                Bevorzugte Sprache
+              </label>
+              <select
+                id="preferredLocale"
+                name="preferredLocale"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2 text-sm text-slate-900 focus:border-sky-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-100"
+                value={draft.preferredLocale}
+                onChange={(event) => handleFieldChange({ preferredLocale: event.target.value })}
+              >
+                <option value="de">Deutsch</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+          </div>
+
+          <label className="inline-flex items-start gap-2 rounded-2xl bg-slate-50/80 px-3 py-2 text-xs text-slate-700">
+            <input
+              type="checkbox"
+              className="mt-[2px] h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+              checked={draft.newsletterOptIn}
+              onChange={(event) => handleFieldChange({ newsletterOptIn: event.target.checked })}
+            />
+            <span>Ich möchte gelegentlich Updates zur Plattform, neuen Funktionen und Einladungen zu Streams erhalten.</span>
+          </label>
+        </div>
+
+        <div className="mt-5 flex justify-end">
+          <button type="submit" className={primaryButtonClass} disabled={saving}>
+            {saving ? "Speichert …" : "Änderungen speichern"}
+          </button>
+          {saveMsg && <p className="ml-3 text-xs text-slate-500">{saveMsg}</p>}
+        </div>
+      </div>
+    </form>
+  );
+}
+
+/* -------------------------------------------------------
+ * eDebatte-Paket-Karte
+ * ---------------------------------------------------- */
+
+type EDebattePackageCardProps = {
+  edebatte: EDebattePackageInfo;
+  usage: UsageInfo;
+  onRefresh: () => void;
+};
+
+function getEDebatteLabel(pkg: EDebattePackage): string {
+  switch (pkg) {
+    case "basis":
+      return "eDebatte Basis";
+    case "start":
+      return "eDebatte Start";
+    case "pro":
+      return "eDebatte Pro";
+    case "none":
     default:
-      return "Kein aktiver Plan";
+      return "Noch kein eDebatte-Paket";
   }
 }
 
-function formatEuro(value: number | null | undefined) {
-  if (value === null || value === undefined) return "";
-  return new Intl.NumberFormat("de-DE", {
-    style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 2,
-  }).format(value);
+function getEDebatteStatusLabel(info: EDebattePackageInfo): string {
+  switch (info.status) {
+    case "preorder":
+      return "Vorbestellt – Abrechnung startet erst zum Launch.";
+    case "active":
+      return "Aktiv";
+    case "canceled":
+      return "Beendet – Zugriff läuft zum angegebenen Datum aus.";
+    case "none":
+    default:
+      return "Du kannst jederzeit ein eDebatte-Paket wählen.";
+  }
+}
+
+function EDebattePackageCard({ edebatte, usage, onRefresh }: EDebattePackageCardProps) {
+  const [showModal, setShowModal] = useState(false);
+
+  const isNone = edebatte.status === "none";
+
+  const label = getEDebatteLabel(edebatte.package);
+  const statusLabel = getEDebatteStatusLabel(edebatte);
+
+  const swipeLimitText =
+    typeof usage.swipeLimit === "number"
+      ? `${usage.swipesThisMonth} / ${usage.swipeLimit} Swipes in diesem Monat`
+      : `${usage.swipesThisMonth} Swipes in diesem Monat`;
+
+  const primaryCtaLabel = isNone ? "Paket auswählen" : "Paket wechseln";
+
+  return (
+    <>
+      <section className="flex h-full flex-col justify-between rounded-3xl bg-slate-900 text-slate-50 shadow-[0_22px_65px_rgba(15,23,42,0.65)] ring-1 ring-slate-800">
+        <div className="flex flex-1 flex-col gap-4 px-5 pb-5 pt-4 sm:px-6 sm:pt-5">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-400">eDebatte-Paket</p>
+              <h3 className="mt-1 text-lg font-semibold text-white">{isNone ? "Noch kein eDebatte-Paket" : label}</h3>
+            </div>
+
+            <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-3 py-1 text-[11px] font-medium text-emerald-200 ring-1 ring-emerald-400/40">
+              {isNone
+                ? "Noch nicht aktiviert"
+                : edebatte.status === "preorder"
+                ? "Vorbestellt"
+                : edebatte.status === "active"
+                ? "Aktiv"
+                : "Gekündigt"}
+            </span>
+          </div>
+
+          <p className="text-xs text-slate-300">
+            {isNone ? "Du kannst jederzeit ein eDebatte-Paket wählen – vom kostenlosen Einstieg (Basis) bis zum Pro-Paket." : statusLabel}
+          </p>
+
+          <div className="mt-3 rounded-2xl bg-slate-800/70 p-3 text-xs">
+            {isNone ? (
+              <p className="text-slate-200">Sobald du startest, siehst du hier deine Swipes, Limits und dein Engagement-Level.</p>
+            ) : (
+              <>
+                <p className="text-slate-200">{swipeLimitText}</p>
+                {usage.xpLevelLabel && (
+                  <p className="mt-1 text-[11px] text-slate-400">
+                    Engagement-Level: <span className="font-semibold">{usage.xpLevelLabel}</span>
+                  </p>
+                )}
+              </>
+            )}
+
+            {!isNone && (edebatte.nextBillingDate || edebatte.validFrom || edebatte.validTo) && (
+              <p className="mt-2 text-[11px] text-slate-400">
+                {edebatte.validFrom && (
+                  <>
+                    gültig ab <span className="font-medium">{edebatte.validFrom}</span>
+                  </>
+                )}
+                {edebatte.validTo && (
+                  <>
+                    {" · "}endet spätestens am <span className="font-medium">{edebatte.validTo}</span>
+                  </>
+                )}
+                {edebatte.nextBillingDate && (
+                  <>
+                    {" · "}nächste Abrechnung: <span className="font-medium">{edebatte.nextBillingDate}</span>
+                  </>
+                )}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-800/80 px-5 py-3 sm:px-6">
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => setShowModal(true)} className={primaryButtonSmallClass}>
+              {primaryCtaLabel}
+            </button>
+          <Link href="/faq#edebatte" className={secondaryLightButtonClass}>
+            Mehr zu eDebatte
+          </Link>
+        </div>
+
+        <Link href="/faq#edebatte" className={secondaryLightButtonClass}>
+          Details zu eDebatte
+        </Link>
+      </div>
+    </section>
+
+      {showModal && <EDebattePackageModal currentPackage={edebatte} onClose={() => setShowModal(false)} />}
+    </>
+  );
+}
+
+type EDebattePackageModalProps = {
+  currentPackage: EDebattePackageInfo;
+  onClose: () => void;
+};
+
+type EDebatteChoice = {
+  id: EDebattePackage;
+  name: string;
+  priceLabel: string;
+  description: string;
+};
+
+const EDEBATTE_CHOICES: EDebatteChoice[] = [
+  {
+    id: "basis",
+    name: "eDebatte Basis",
+    priceLabel: "0,00 € / Monat",
+    description: "Kostenfreier Einstieg: Inhalte ansehen, swipen, Community kennenlernen.",
+  },
+  {
+    id: "start",
+    name: "eDebatte Start",
+    priceLabel: "9,90 € / Monat",
+    description: "Für alle, die regelmäßig mitbestimmen und eigene Vorschläge einbringen wollen.",
+  },
+  {
+    id: "pro",
+    name: "eDebatte Pro",
+    priceLabel: "29,00 € / Monat",
+    description: "Für Vielnutzer:innen, Initiativen und Organisationen mit erweiterten Kontingenten.",
+  },
+];
+
+function EDebattePackageModal({ currentPackage, onClose }: EDebattePackageModalProps) {
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
+
+  const handleSelect = (choiceId: EDebattePackage) => {
+    fetch("/api/edebatte/package", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ package: choiceId }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json().catch(() => ({}));
+      })
+      .then(() => {
+        onClose();
+      })
+      .catch((err) => {
+        console.warn("[edebatte] paketwahl fehlgeschlagen", err);
+      });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="w-full max-w-lg rounded-3xl bg-white/98 p-5 shadow-[0_32px_90px_rgba(15,23,42,0.45)] ring-1 ring-slate-200 sm:p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <header className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-600">eDebatte-Paket wählen</p>
+            <h3 className="mt-1 text-sm font-semibold text-slate-900">Welches Paket möchtest du nutzen?</h3>
+            <p className="mt-1 text-[11px] text-slate-500">
+              Hier siehst du, welche Pakete bereits beauftragt sind, was vorbestellt ist und was du zusätzlich buchen kannst.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-500 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-200"
+            aria-label="Auswahl schließen"
+          >
+            ✕
+          </button>
+        </header>
+
+        <div className="mt-4 space-y-3">
+          {EDEBATTE_CHOICES.map((choice) => {
+            const isCurrent = currentPackage.package === choice.id && (currentPackage.status === "active" || currentPackage.status === "preorder");
+            const isCanceled = currentPackage.package === choice.id && currentPackage.status === "canceled";
+
+            let statusText: string | null = null;
+            let statusClass =
+              "inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-600";
+
+            if (isCurrent && currentPackage.status === "active") {
+              statusText = "Aktuelles Paket";
+              statusClass = "inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-700 ring-1 ring-emerald-200";
+            } else if (isCurrent && currentPackage.status === "preorder") {
+              statusText = "Vorbestellt";
+              statusClass = "inline-flex items-center rounded-full bg-sky-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-700 ring-1 ring-sky-200";
+            } else if (isCanceled) {
+              statusText = "Zuletzt gekündigt";
+              statusClass = "inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-700 ring-1 ring-amber-200";
+            }
+
+            const disabled = isCurrent;
+
+            return (
+              <article key={choice.id} className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50/80 px-3 py-3 ring-1 ring-slate-100 sm:px-4">
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-slate-900">{choice.name}</p>
+                  <p className="text-[11px] text-slate-500">{choice.description}</p>
+                  <p className="text-[11px] font-medium text-slate-800">{choice.priceLabel}</p>
+                  {statusText && (
+                    <div className="mt-1">
+                      <span className={statusClass}>{statusText}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => !disabled && handleSelect(choice.id)}
+                    disabled={disabled}
+                    className={
+                      disabled
+                        ? "inline-flex items-center justify-center rounded-full bg-slate-200 px-3 py-1.5 text-[11px] font-semibold text-slate-500 cursor-default"
+                        : primaryButtonSmallClass
+                    }
+                  >
+                    {disabled ? "Ausgewählt" : "Dieses Paket wählen"}
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+        <footer className="mt-5 flex justify-end">
+          <button type="button" onClick={onClose} className={secondaryLightButtonClass}>
+            Auswahl schließen
+          </button>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------
+ * Section B: Öffentliches Profil
+ * ---------------------------------------------------- */
+
+type PublicProfileSectionProps = {
+  publicProfile: PublicProfileData;
+  onRefresh: () => void;
+};
+
+function PublicProfileSection({ publicProfile, onRefresh }: PublicProfileSectionProps) {
+  return (
+    <section aria-labelledby="account-public-heading" className="space-y-4">
+      <div className="flex flex-col gap-1">
+        <h2 id="account-public-heading" className="text-sm font-semibold tracking-tight text-slate-900">
+          Öffentliches Profil &amp; Privatsphäre
+        </h2>
+        <p className="text-xs text-slate-500">Steuere, wie du in öffentlichen Übersichten, Diskussionen und Streams angezeigt wirst.</p>
+      </div>
+
+      <PublicProfileCard initial={publicProfile} onRefresh={onRefresh} />
+    </section>
+  );
+}
+
+type PublicProfileCardProps = {
+  initial: PublicProfileData;
+  onRefresh: () => void;
+};
+
+function PublicProfileCard({ initial, onRefresh }: PublicProfileCardProps) {
+  const [draft, setDraft] = useState<PublicProfileData>(initial);
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState<string | null>(null);
+
+  const handleFieldChange = (patch: Partial<PublicProfileData>) => {
+    setDraft((prev) => ({ ...prev, ...patch }));
+  };
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    setSaving(true);
+    setSaveMsg(null);
+    fetch("/api/account/profile", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        bio: draft.bio,
+        tagline: draft.tagline,
+        city: draft.city,
+        region: draft.region,
+        countryCode: draft.countryCode,
+        topTopics: draft.topTopics,
+        showRealName: draft.showRealName,
+        showCity: draft.showCity,
+        showStats: draft.showStats,
+        showMembership: draft.showMembership,
+      }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Speichern fehlgeschlagen");
+        setSaveMsg("Gespeichert");
+        onRefresh();
+      })
+      .catch((err) => {
+        console.warn("[account] public profile update failed", err);
+        setSaveMsg("Speichern fehlgeschlagen");
+      })
+      .finally(() => setSaving(false));
+  };
+
+  const location = [draft.city, draft.region, draft.countryCode].filter(Boolean).join(" · ");
+
+  return (
+    <form onSubmit={handleSubmit} className="rounded-3xl bg-white/95 p-5 shadow-[0_18px_55px_rgba(15,23,42,0.08)] ring-1 ring-slate-100 sm:p-6">
+      <div className="grid gap-5 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1.4fr)]">
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <label htmlFor="public-bio" className="text-xs font-medium text-slate-700">
+              Kurzbeschreibung für dein öffentliches Profil
+            </label>
+            <textarea
+              id="public-bio"
+              rows={4}
+              className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 focus:border-sky-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-100"
+              value={draft.bio ?? ""}
+              onChange={(event) => handleFieldChange({ bio: event.target.value })}
+              placeholder="Zum Beispiel: Engagiert mich für bezahlbaren Wohnraum und konsequenten Klimaschutz in meiner Stadt."
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label htmlFor="public-tagline" className="text-xs font-medium text-slate-700">
+              Optionaler Zusatz (z.B. Beruf, Rolle)
+            </label>
+            <input
+              id="public-tagline"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 focus:border-sky-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-100"
+              value={draft.tagline ?? ""}
+              onChange={(event) => handleFieldChange({ tagline: event.target.value })}
+              placeholder="z.B. Pflegekraft, Student, Kommunalpolitikerin"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-slate-700">Sichtbarkeit</p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <ToggleRow label="Realnamen in öffentlichen Profilen anzeigen" checked={draft.showRealName} onChange={(value) => handleFieldChange({ showRealName: value })} />
+              <ToggleRow label="Stadt / Region anzeigen" checked={draft.showCity} onChange={(value) => handleFieldChange({ showCity: value })} />
+              <ToggleRow label="Anonymisierte Statistiken anzeigen" checked={draft.showStats} onChange={(value) => handleFieldChange({ showStats: value })} />
+              <ToggleRow label="Mitgliedschaft bei VoiceOpenGov anzeigen" checked={draft.showMembership} onChange={(value) => handleFieldChange({ showMembership: value })} />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-slate-700">Ort (für öffentliche Anzeige)</p>
+            <p className="text-sm text-slate-800">{location || "Noch kein öffentlicher Ort hinterlegt."}</p>
+            <p className="text-[11px] text-slate-400">Die genaue Anschrift wird nie öffentlich angezeigt – nur Stadt, Region und Land, sofern du das möchtest.</p>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-slate-700">Top-Themen (Auszug)</p>
+            <div className="flex flex-wrap gap-1.5">
+              {draft.topTopics && draft.topTopics.length > 0 ? (
+                draft.topTopics.slice(0, 6).map((topic) => (
+                  <span key={topic} className="inline-flex items-center rounded-full bg-sky-50 px-2.5 py-1 text-[11px] font-medium text-sky-800 ring-1 ring-sky-100">
+                    {topic}
+                  </span>
+                ))
+              ) : (
+                <p className="text-[11px] text-slate-400">Deine Top-Themen werden angezeigt, sobald du dich aktiver mit Inhalten beschäftigst.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-5 flex justify-end">
+        <div className="flex items-center gap-3">
+          <button type="submit" className={primaryButtonClass} disabled={saving}>
+            {saving ? "Speichert …" : "Öffentliches Profil speichern"}
+          </button>
+          {saveMsg && <p className="text-xs text-slate-500">{saveMsg}</p>}
+        </div>
+      </div>
+    </form>
+  );
+}
+
+type ToggleRowProps = {
+  label: string;
+  checked: boolean;
+  onChange: (value: boolean) => void;
+};
+
+function ToggleRow({ label, checked, onChange }: ToggleRowProps) {
+  return (
+    <label className="inline-flex items-start gap-2 rounded-2xl bg-slate-50/80 px-3 py-2 text-[11px] text-slate-700">
+      <input
+        type="checkbox"
+        className="mt-[2px] h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+      />
+      <span>{label}</span>
+    </label>
+  );
+}
+
+/* -------------------------------------------------------
+ * Section C: Mitgliedschaft & Rollen
+ * ---------------------------------------------------- */
+
+type MembershipAndRolesSectionProps = {
+  membership: MembershipInfo;
+  roles: RoleInfo[];
+};
+
+function MembershipAndRolesSection({ membership, roles }: MembershipAndRolesSectionProps) {
+  return (
+    <section aria-labelledby="account-membership-heading" className="space-y-4">
+      <div className="flex flex-col gap-1">
+        <h2 id="account-membership-heading" className="text-sm font-semibold tracking-tight text-slate-900">
+          Mitgliedschaft &amp; Rollen
+        </h2>
+        <p className="text-xs text-slate-500">Überblick über deine Rolle bei VoiceOpenGov und deine Mitgliedschaft.</p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <VOGMembershipCard membership={membership} />
+        <RolesCard roles={roles} />
+      </div>
+    </section>
+  );
+}
+
+type VOGMembershipCardProps = {
+  membership: MembershipInfo;
+};
+
+function VOGMembershipCard({ membership }: VOGMembershipCardProps) {
+  const title = membership.label || "Mitgliedschaft VoiceOpenGov";
+  const status = membership.statusLabel || (membership.isMember ? "Aktiv" : "Noch nicht Mitglied");
+  const badgeClass = membership.isMember
+    ? "inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-700 ring-1 ring-emerald-200"
+    : "inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-700 ring-1 ring-amber-200";
+
+  return (
+    <section className="rounded-3xl bg-white/95 p-5 shadow-[0_18px_55px_rgba(15,23,42,0.08)] ring-1 ring-slate-100 sm:p-6">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-600">Mitgliedschaft</p>
+      <h3 className="mt-1 text-sm font-semibold text-slate-900">{title}</h3>
+      <div className="mt-1 flex items-center gap-2">
+        <span className="text-xs text-slate-500">{status}</span>
+        <span className={badgeClass}>{membership.isMember ? "aktiv" : "optional"}</span>
+      </div>
+      {membership.contributionLabel && <p className="mt-1 text-xs text-slate-700">Beitrag: {membership.contributionLabel}</p>}
+
+      <p className="mt-3 text-[11px] text-slate-400">
+        VoiceOpenGov finanziert sich unabhängig durch viele kleine Beiträge. Details findest du im Transparenzbericht.
+      </p>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Link href="/mitglied-werden" className={primaryButtonSmallClass}>
+          {membership.isMember ? "Mitgliedschaft verwalten" : "Mitglied werden"}
+        </Link>
+        <Link href="/transparenz" className={secondaryLightButtonClass}>
+          Transparenzbericht
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+type RolesCardProps = {
+  roles: RoleInfo[];
+};
+
+function RolesCard({ roles }: RolesCardProps) {
+  return (
+    <section className="rounded-3xl bg-white/95 p-5 shadow-[0_18px_55px_rgba(15,23,42,0.08)] ring-1 ring-slate-100 sm:p-6">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">Rollen &amp; Zugänge</p>
+      <h3 className="mt-1 text-sm font-semibold text-slate-900">Aktive Rollen</h3>
+
+      <div className="mt-3 space-y-2">
+        {roles && roles.length > 0 ? (
+          roles.map((role) => (
+            <div key={role.id} className="flex items-start justify-between gap-3 rounded-2xl bg-slate-50/80 px-3 py-2">
+              <div>
+                <p className="text-xs font-medium text-slate-800">{role.label}</p>
+                {role.description && <p className="text-[11px] text-slate-500">{role.description}</p>}
+              </div>
+              {role.badge && (
+                <span className="inline-flex items-center rounded-full bg-sky-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-700 ring-1 ring-sky-100">
+                  {role.badge}
+                </span>
+              )}
+            </div>
+          ))
+        ) : (
+          <p className="text-[11px] text-slate-400">Du nutzt VoiceOpenGov aktuell als Bürger:in ohne zusätzliche Sonderrolle.</p>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------
+ * Section D: Sicherheit & Zahlung
+ * ---------------------------------------------------- */
+
+type SecurityAndPaymentSectionProps = {
+  security: SecurityInfo;
+  payment: PaymentInfo;
+  signature: SignatureInfo;
+};
+
+function SecurityAndPaymentSection({ security, payment, signature }: SecurityAndPaymentSectionProps) {
+  return (
+    <section aria-labelledby="account-security-heading" className="space-y-4">
+      <div className="flex flex-col gap-1">
+        <h2 id="account-security-heading" className="text-sm font-semibold tracking-tight text-slate-900">
+          Sicherheit &amp; Zahlung
+        </h2>
+        <p className="text-xs text-slate-500">Login-Schutz, Zahlungsdaten und digitale Unterschrift im Überblick.</p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <SecurityCard security={security} />
+        <PaymentAndSignatureCard payment={payment} signature={signature} />
+      </div>
+    </section>
+  );
+}
+
+type SecurityCardProps = {
+  security: SecurityInfo;
+};
+
+function SecurityCard({ security }: SecurityCardProps) {
+  const identPilot = "Zusätzliche Ident (Bank-Check / eID) in Pilotphase – schalten wir bald frei.";
+  const emailOk = security.emailVerified === undefined ? true : security.emailVerified;
+  const twoFaOk = security.twoFactorEnabled === undefined ? true : security.twoFactorEnabled;
+  return (
+    <section className="rounded-3xl bg-white/95 p-5 shadow-[0_18px_55px_rgba(15,23,42,0.08)] ring-1 ring-slate-100 sm:p-6">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">Sicherheit</p>
+      <h3 className="mt-1 text-sm font-semibold text-slate-900">Aktueller Zustand</h3>
+
+      <div className="mt-3 space-y-2 text-xs">
+        <StatusRow label="E-Mail verifiziert" positive={emailOk} />
+        <StatusRow label="2-Faktor-Authentifizierung" positive={twoFaOk} />
+        {security.lastLoginAt && (
+          <p className="text-[11px] text-slate-500">
+            Letzter Login: <span className="font-medium">{security.lastLoginAt}</span>
+          </p>
+        )}
+        {security.loginHint && <p className="text-[11px] text-slate-400">{security.loginHint}</p>}
+        <p className="text-[11px] text-slate-400">{identPilot}</p>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Link href="/account/security" className={ghostDarkButtonClass}>
+          Sicherheitseinstellungen öffnen
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+type StatusRowProps = {
+  label: string;
+  positive: boolean;
+};
+
+function StatusRow({ label, positive }: StatusRowProps) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50/80 px-3 py-2">
+      <span className="text-[11px] text-slate-700">{label}</span>
+      <span
+        className={
+          positive
+            ? "inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-700 ring-1 ring-emerald-200"
+            : "inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-700 ring-1 ring-amber-200"
+        }
+      >
+        {positive ? "aktiv" : "empfohlen"}
+      </span>
+    </div>
+  );
+}
+
+type PaymentAndSignatureCardProps = {
+  payment: PaymentInfo;
+  signature: SignatureInfo;
+};
+
+function PaymentAndSignatureCard({ payment, signature }: PaymentAndSignatureCardProps) {
+  const hasIban = Boolean(payment.ibanMasked);
+
+  return (
+    <section className="rounded-3xl bg-white/95 p-5 shadow-[0_18px_55px_rgba(15,23,42,0.08)] ring-1 ring-slate-100 sm:p-6">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">Zahlung &amp; Unterschrift</p>
+      <h3 className="mt-1 text-sm font-semibold text-slate-900">Standardkonto &amp; digitale Unterschrift</h3>
+
+      <div className="mt-3 space-y-3 text-xs">
+        <div className="space-y-1 rounded-2xl bg-slate-50/80 px-3 py-2">
+          <p className="text-[11px] font-medium text-slate-700">Standardkonto für Beiträge</p>
+          <p className="text-[11px] text-slate-600">{hasIban ? `${payment.accountHolder ?? ""} · ${payment.ibanMasked}` : "Noch kein Konto hinterlegt."}</p>
+          {payment.note && <p className="text-[11px] text-slate-400">{payment.note}</p>}
+        </div>
+
+        <div className="space-y-1 rounded-2xl bg-slate-50/80 px-3 py-2">
+          <p className="text-[11px] font-medium text-slate-700">Digitale Unterschrift</p>
+          <p className="text-[11px] text-slate-600">
+            {signature.hasSignature ? `Hinterlegt · zuletzt aktualisiert am ${signature.updatedAt ?? "–"}` : "Noch keine digitale Unterschrift hinterlegt."}
+          </p>
+          <p className="text-[11px] text-slate-400">
+            Pilot: Auf Mobilgeräten kannst du deine Unterschrift direkt erfassen (Finger/Tablet). Für bestimmte Abstimmungen oder Mandatsvergaben kann sie hilfreich sein.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Link href="/account/payment" className={primaryButtonSmallClass}>
+          Zahlungsprofil bearbeiten
+        </Link>
+        <Link href="/account/signature" className={secondaryLightButtonClass}>
+          Digitale Unterschrift verwalten
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------
+ * Section E: Erweiterte Funktionen (Pilotphase)
+ * ---------------------------------------------------- */
+
+type AdvancedFeaturesSectionProps = {
+  features: FeatureFlags;
+};
+
+function AdvancedFeaturesSection({ features }: AdvancedFeaturesSectionProps) {
+  return (
+    <section aria-labelledby="account-advanced-heading" className="space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <h2 id="account-advanced-heading" className="text-sm font-semibold tracking-tight text-slate-900">
+          Erweiterte Funktionen (Pilotphase)
+        </h2>
+        <span className="inline-flex items-center rounded-full bg-slate-900 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-100">
+          Early Access
+        </span>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <FeatureCard
+          title="Streams &amp; Sessions"
+          description="Eigene Streams und thematische Sessions für deine Community – inklusive strukturierter Abstimmungen."
+          enabled={features.streamsEnabled}
+        />
+        <FeatureCard
+          title="Host-Rechte"
+          description="Moderations- und Host-Rechte für größere Runden oder wiederkehrende Formate."
+          enabled={features.hostRightsEnabled}
+        />
+        <FeatureCard
+          title="Chat &amp; Kollaboration"
+          description="Erweiterte Chat-Funktionen, Kollaborationsräume und begleitende Diskussionen zu Abstimmungen."
+          enabled={features.chatEnabled}
+        />
+      </div>
+    </section>
+  );
+}
+
+type FeatureCardProps = {
+  title: string;
+  description: string;
+  enabled: boolean;
+};
+
+function FeatureCard({ title, description, enabled }: FeatureCardProps) {
+  return (
+    <article className="flex h-full flex-col justify-between rounded-3xl bg-white/95 p-4 text-xs shadow-[0_18px_55px_rgba(15,23,42,0.08)] ring-1 ring-slate-100 sm:p-5">
+      <div className="space-y-2">
+        <p className="text-[11px] font-semibold text-slate-800">{title}</p>
+        <p className="text-[11px] text-slate-500">{description}</p>
+      </div>
+      <div className="mt-3 flex items-center justify-between gap-2">
+        <span
+          className={
+            enabled
+              ? "inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-700 ring-1 ring-emerald-200"
+              : "inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500 ring-1 ring-slate-200"
+          }
+        >
+          {enabled ? "freigeschaltet" : "Pilot / bald verfügbar"}
+        </span>
+        <Link href="/kontakt" className="text-[10px] font-semibold text-sky-700 underline-offset-2 hover:underline">
+          Interesse melden
+        </Link>
+      </div>
+    </article>
+  );
 }

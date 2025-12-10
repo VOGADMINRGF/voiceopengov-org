@@ -86,6 +86,12 @@ export function useCurrentUser(): AuthState {
   return { user: user ?? null, loading, error, refresh };
 }
 
+// Helfer, um den Client-Cache explizit zu leeren (z.B. nach Logout)
+export function clearCachedUser() {
+  cachedUser = undefined;
+  pending = null;
+}
+
 export function useAccessTier() {
   const { user, loading, error, refresh } = useCurrentUser();
   return { accessTier: user?.accessTier ?? null, loading, error, refresh };

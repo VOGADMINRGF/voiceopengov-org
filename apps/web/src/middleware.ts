@@ -7,6 +7,22 @@ import type { AccessTier } from "@features/pricing/types";
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
+
+  // Statics und Next-Interna durchlassen
+  if (pathname.startsWith("/_next") || pathname.startsWith("/favicon") || pathname.startsWith("/static")) {
+    return allowNext();
+  }
+
+  // Nur /api/* prüfen
+  if (!pathname.startsWith("/api")) {
+    return allowNext();
+  }
+
+  // Auth-Endpoints immer durchlassen
+  if (pathname.startsWith("/api/auth")) {
+    return allowNext();
+  }
+
   const routeId = matchRoute(pathname);
   if (!routeId) {
     return allowNext();
@@ -20,9 +36,7 @@ export async function middleware(req: NextRequest) {
   }
 
   if (decision.requireLogin) {
-    const loginUrl = new URL("/login", req.url);
-    loginUrl.searchParams.set("next", `${req.nextUrl.pathname}${req.nextUrl.search}`);
-    return NextResponse.redirect(loginUrl);
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   return NextResponse.json({ error: "forbidden" }, { status: 403 });
@@ -51,5 +65,5 @@ function extractUser(req: NextRequest): AccessUser | null {
 
 // Nur echte Seiten, keine statics
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/api/:path*"],
 };

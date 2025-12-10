@@ -2,8 +2,9 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useLocale } from "@/context/LocaleContext";
-import { useCurrentUser } from "@/hooks/auth";
+import { useCurrentUser, clearCachedUser } from "@/hooks/auth";
 
 type NavItem = {
   href: string;
@@ -38,15 +39,39 @@ const NAV_ITEMS: NavItem[] = [
   },
 ];
 
+function deriveInitials(value: string) {
+  const parts = value.trim().split(" ").filter(Boolean);
+  if (!parts.length) return "DU";
+  const first = parts[0]?.[0]?.toUpperCase() ?? "";
+  const second = parts[1]?.[0]?.toUpperCase() ?? "";
+  return `${first}${second}` || first || "DU";
+}
+
 export function SiteHeader() {
   const { locale } = useLocale();
   const { user } = useCurrentUser();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const localeLabel = useMemo(
     () => (locale || "de").toUpperCase(),
     [locale],
   );
+
+  const handleLogout = async () => {
+    try {
+      setLoggingOut(true);
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (err) {
+      console.warn("logout failed", err);
+    } finally {
+      clearCachedUser();
+      setLoggingOut(false);
+      setMobileOpen(false);
+      router.refresh();
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-100/80 bg-white/90 backdrop-blur-md">
@@ -66,8 +91,34 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        {/* Rechts: nur Hamburger, Locale-Badge erst im Drawer */}
-        <div className="flex items-center gap-2">
+        {/* Rechts: Avatar/Account + Hamburger */}
+        <div className="flex items-center gap-3">
+          {user ? (
+            <div className="flex items-center gap-2">
+              <Link
+                href="/account"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-700 shadow-sm hover:border-sky-300 hover:text-sky-700"
+                aria-label="Mein Konto öffnen"
+              >
+                {deriveInitials(user.name || user.email || "Du")}
+              </Link>
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="hidden sm:inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:border-rose-300 hover:text-rose-600 disabled:opacity-60"
+              >
+                {loggingOut ? "Abmelden …" : "Abmelden"}
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="hidden sm:inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:border-sky-400 hover:text-sky-600"
+            >
+              Login / Registrierung
+            </Link>
+          )}
           <button
             type="button"
             aria-label="Navigation öffnen"
@@ -137,13 +188,23 @@ export function SiteHeader() {
               </Link>
 
               {user ? (
-                <Link
-                  href="/account"
-                  onClick={() => setMobileOpen(false)}
-                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-center text-sm font-semibold text-slate-700 hover:border-sky-400 hover:text-sky-600"
-                >
-                  Abmeldung
-                </Link>
+                <div className="flex flex-col gap-2">
+                  <Link
+                    href="/account"
+                    onClick={() => setMobileOpen(false)}
+                    className="rounded-full border border-slate-200 bg-white px-4 py-2 text-center text-sm font-semibold text-slate-700 hover:border-sky-400 hover:text-sky-600"
+                  >
+                    Mein Konto
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    disabled={loggingOut}
+                    className="rounded-full border border-slate-200 bg-white px-4 py-2 text-center text-sm font-semibold text-slate-700 hover:border-rose-300 hover:text-rose-600 disabled:opacity-60"
+                  >
+                    {loggingOut ? "Abmelden …" : "Abmelden"}
+                  </button>
+                </div>
               ) : (
                 <Link
                   href="/login"

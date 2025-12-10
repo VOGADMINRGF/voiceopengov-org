@@ -26,13 +26,13 @@ export async function GET() {
   try {
     const sess = await readSession();
     if (!sess?.uid || !/^[0-9a-fA-F]{24}$/.test(sess.uid)) {
-      return NextResponse.json({ user: null }, noStore);
+      return NextResponse.json({ user: null }, { status: 401, ...noStore });
     }
 
     const users = await coreCol<UserDoc>("users");
     const doc = await users.findOne({ _id: new ObjectId(sess.uid) });
 
-    if (!doc) return NextResponse.json({ user: null }, noStore);
+    if (!doc) return NextResponse.json({ user: null }, { status: 401, ...noStore });
 
     const roles = Array.isArray(doc.roles)
       ? doc.roles.map((r: any) => (typeof r === "string" ? r : r?.role)).filter(Boolean)
