@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { IUserProfile } from "../../../apps/web/src/models/pii/UserProfile";
+import type { IUserProfile } from "@features/user/types/UserProfile";
 
 export type PermissionAction =
   | "writePost"

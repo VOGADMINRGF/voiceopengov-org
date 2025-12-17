@@ -1,5 +1,4 @@
-import Statement from "../../../apps/web/src/models/Statement.DBModel";
-import StatementVersion from "./StatementVersion";
+import Statement from "./Statement";
 
-export { Statement, StatementVersion };
+export { Statement };
 export default Statement;

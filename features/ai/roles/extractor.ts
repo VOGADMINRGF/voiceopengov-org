@@ -1,4 +1,4 @@
-import { runLLMJson } from "../providers";
+import { runLLMJson } from "../providers/index";
 import { EXTRACTOR_SYSTEM, EXTRACTOR_USER } from "../prompts/extractor";
 
 export async function extractCandidates(input: string, opts?:{timeoutMs?:number, model?:string}): Promise<string[]>{

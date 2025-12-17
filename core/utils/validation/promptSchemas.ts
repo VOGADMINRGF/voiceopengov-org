@@ -1,5 +1,5 @@
 // core/utils/validation/promptSchemas.ts
-// oder: apps/web/src/utils/validation/promptSchemas.ts
+
 import { z } from "zod";
 import safeJsonParse from "../jsonRepair";
 

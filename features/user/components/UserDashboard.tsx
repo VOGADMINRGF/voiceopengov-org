@@ -1,6 +1,6 @@
 // features/user/components/UserDashboard.tsx
 
-import { IUserProfile } from "../../../apps/web/src/models/pii/UserProfile";
+import type { IUserProfile } from "@features/user/types/UserProfile";
 import { getNextOnboardingStep, getOnboardingProgress } from "../utils/onboarding";
 import { usePermission } from "../hooks/usePermission";
 

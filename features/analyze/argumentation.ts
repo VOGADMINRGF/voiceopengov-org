@@ -1,4 +1,4 @@
-// apps/web/src/features/analyze/argumentation.ts
+
 export type Stance = "Pro" | "Contra" | "Neutral";
 
 const POS_VERBS = /\b(verbessert|senkt|reduziert|entlastet|beschleunigt|stärkt|schützt|fördert|erhöht\s+transparenz)\b/i;

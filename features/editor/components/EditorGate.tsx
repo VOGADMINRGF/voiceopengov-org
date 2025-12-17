@@ -1,4 +1,4 @@
-// apps/web/src/app/dashboard/editor/components/EditorGate.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";

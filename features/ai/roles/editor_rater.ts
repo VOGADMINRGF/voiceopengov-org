@@ -2,7 +2,7 @@
 // Kombi-BEST-Version: V2 bevorzugt (Single & Multi), V1 als Legacy/Fallback.
 // Einheitliche Multi-Rückgabe: Record<canonical_id, ScoreSet>
 
-import { runLLMJson } from "../providers";
+import { runLLMJson } from "../providers/index";
 import { runOpenAI } from "@features/ai/providers/openai";
 import {
   RATER_SYSTEM,

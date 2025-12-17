@@ -1,6 +1,6 @@
 
 
-import { IUserProfile } from "../../../apps/web/src/models/pii/UserProfile";
+import type { IUserProfile } from "@features/user/types/UserProfile";
 
 /**
  * Berechnet den TrustScore basierend auf verschiedenen Faktoren.

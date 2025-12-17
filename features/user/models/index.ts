@@ -1,2 +1,2 @@
-// features/user/models/index.ts
-export { default as UserProfile } from "../../../apps/web/src/models/pii/UserProfile";
+export { default as UserProfile } from "./UserProfile";
+export type { IUserProfile, RoleObject } from "../types/UserProfile";

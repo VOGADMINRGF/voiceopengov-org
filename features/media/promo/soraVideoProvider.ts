@@ -1,4 +1,4 @@
-// apps/web/src/features/media/promo/soraVideoProvider.ts
+
 import OpenAI from "openai";
 import path from "node:path";
 import fs from "node:fs/promises";

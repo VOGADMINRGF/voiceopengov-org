@@ -1,7 +1,7 @@
 // features/user/hooks/usePermission.ts
 
 import { useMemo } from "react";
-import type { IUserProfile } from "../../../apps/web/src/models/pii/UserProfile";
+import type { IUserProfile } from "@features/user/types/UserProfile";
 import { useAuth } from "./useAuth";
 
 /* ─────────────────────────────────────────────────────────────

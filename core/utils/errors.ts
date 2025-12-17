@@ -1,4 +1,4 @@
-// apps/web/src/utils/errors.ts
+
 export type FormattedError = {
     message: string;
     code?: string;

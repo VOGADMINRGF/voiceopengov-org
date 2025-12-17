@@ -1,4 +1,4 @@
-// apps/web/src/features/reports/mock.ts
+
 import type { RegionReportOverview, TopicReport } from "../reports/types";
 
 const MOCK_TOPICS: TopicReport[] = [

@@ -26,7 +26,7 @@ async function run() {
     await mongoose.connect(uri, { dbName, serverSelectionTimeoutMS: 8_000 });
 
     // RELATIVE Imports (kein "@/")
-    const { default: UserProfile }      = await import("../src/models/pii/UserProfile");
+    const { default: UserProfile }      = await import("../../../features/user/models/UserProfile");
     const { default: UserDemographics } = await import("../src/models/pii/UserDemographics");
 
     await Promise.all([

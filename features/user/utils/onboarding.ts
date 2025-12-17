@@ -1,6 +1,6 @@
 // features/user/utils/onboarding.ts
 
-import { IUserProfile } from "../../../apps/web/src/models/pii/UserProfile";
+import type { IUserProfile } from "@features/user/types/UserProfile";
 
 /**
  * Liefert den nächsten offenen Schritt im User-Onboarding-Prozess zurück.

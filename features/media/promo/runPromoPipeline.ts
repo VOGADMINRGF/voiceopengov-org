@@ -1,4 +1,4 @@
-// apps/web/src/features/media/promo/runPromoPipeline.ts
+
 import { db } from "@/lib/db";
 import { buildPromoScript } from "./buildPromoScript";
 import { createPromoVideoWithSora } from "./soraVideoProvider";

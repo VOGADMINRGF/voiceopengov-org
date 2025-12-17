@@ -2,7 +2,7 @@
 // Kombi-BEST-Version: V2 bevorzugt (Single & Multi), V1 als Legacy/Fallback.
 // Einheitliche Rückgabe bei Multi: Record<canonical_id, Perspectives>
 
-import { runLLMJson } from "../providers";
+import { runLLMJson } from "../providers/index";
 import { runOpenAI } from "@features/ai/providers/openai";
 import {
   PERSPECTIVES_SYSTEM,

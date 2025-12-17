@@ -1,8 +1,8 @@
-import { ask as askOpenAI } from "./providers/openai";
+import callOpenAI from "./providers/openai";
 
 export async function callOpenAIJson(prompt: string) {
   const full = `${prompt}\n\nGib NUR gültiges JSON (RFC8259) zurück.`;
-  const { text } = await askOpenAI({ prompt: full, asJson: true });
+  const { text } = await callOpenAI({ prompt: full, asJson: true });
   return { text };
 }
 

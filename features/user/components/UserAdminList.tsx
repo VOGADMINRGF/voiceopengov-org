@@ -2,7 +2,7 @@
 console.log("UserAdminList RENDERT");
 
 import { useEffect, useState, useMemo } from "react";
-import { IUserProfile } from "../../../apps/web/src/models/pii/UserProfile";
+import type { IUserProfile } from "@features/user/types/UserProfile";
 
 export default function UserAdminList({
   admin,

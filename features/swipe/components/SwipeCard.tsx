@@ -1,4 +1,4 @@
-// apps/web/src/components/SwipeCard.tsx
+
 "use client";
 
 import React, { useState, useMemo } from "react";
