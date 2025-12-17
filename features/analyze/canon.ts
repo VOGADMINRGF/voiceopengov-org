@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 
 /** Tier-1 Domains (stabil) */

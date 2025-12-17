@@ -1,4 +1,3 @@
-
 import { AnalyzeResultSchema } from "./schemas";
 import type { AnalyzeResult, StatementRecord } from "./schemas";
 import { normalizeStatementRecord } from "./normalizeClaim";

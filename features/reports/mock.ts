@@ -1,4 +1,3 @@
-
 import type { RegionReportOverview, TopicReport } from "../reports/types";
 
 const MOCK_TOPICS: TopicReport[] = [

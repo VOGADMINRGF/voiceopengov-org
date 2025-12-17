@@ -1,5 +1,4 @@
 
-
 export type RegionCode = string; // z.B. "DE-BB", "DE-BE", ...
 
 export type TopicDecisionSummary = {

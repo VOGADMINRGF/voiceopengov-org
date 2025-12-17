@@ -1,4 +1,3 @@
-
 import { db } from "@/lib/db";
 import { buildPromoScript } from "./buildPromoScript";
 import { createPromoVideoWithSora } from "./soraVideoProvider";

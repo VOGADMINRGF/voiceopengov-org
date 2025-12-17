@@ -1,4 +1,3 @@
-
 import type { ExtractOutputV4 } from "./wrapper";
 import { extractV4, findContradictions } from "./wrapper";
 import { stanceFor, DEMAND_MARKER, EVENTUALITY_MARKER, claimWeight } from "./argumentation";
