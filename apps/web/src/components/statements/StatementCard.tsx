@@ -13,6 +13,7 @@ export type StatementCardProps = {
   currentVote?: StatementVote | null;
   onVoteChange?: (vote: StatementVote) => void;
   showQualityMetrics?: boolean;
+  showVoteButtons?: boolean;
   quality?: {
     precision?: number;
     testability?: number;
@@ -57,6 +58,7 @@ export function StatementCard({
   badgeRight,
   metaRight,
   children,
+  showVoteButtons = true,
 }: StatementCardProps) {
   const voteButtons = useMemo(
     () => [
@@ -85,6 +87,7 @@ export function StatementCard({
             {mainCategory ?? "Statement"}
           </p>
           <h2 className="text-sm font-semibold text-slate-900">{title || text.slice(0, 80) || "Statement"}</h2>
+          <div className="h-0.5 w-10 rounded-full bg-gradient-to-r from-sky-400 via-cyan-400 to-emerald-400 opacity-70" />
           {topic && <p className="text-[11px] text-slate-500">{topic}</p>}
         </div>
         <div className="flex flex-col items-end gap-1 text-right">
@@ -124,36 +127,40 @@ export function StatementCard({
 
       {children}
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-2">
-          {voteButtons.map((opt) => {
-            const active = currentVote === opt.id || flashDecision === opt.id;
-            return (
-              <button
-                key={opt.id}
-                type="button"
-                onClick={() => onVoteChange?.(opt.id)}
-                className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-[12px] font-semibold shadow-sm transition ${
-                  active ? opt.activeClass : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-                }`}
-              >
-                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-xs">{opt.icon}</span>
-                <span>{opt.label}</span>
-              </button>
-            );
-          })}
-        </div>
+      {(showVoteButtons || onOpenEventualities) && (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {showVoteButtons && (
+            <div className="flex flex-wrap gap-2">
+              {voteButtons.map((opt) => {
+                const active = currentVote === opt.id || flashDecision === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => onVoteChange?.(opt.id)}
+                    className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-[12px] font-semibold shadow-sm transition ${
+                      active ? opt.activeClass : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                    }`}
+                  >
+                    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-xs">{opt.icon}</span>
+                    <span>{opt.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
-        {onOpenEventualities && (
-          <button
-            type="button"
-            onClick={onOpenEventualities}
-            className="text-[11px] font-semibold text-sky-700 underline-offset-2 hover:underline"
-          >
-            Varianten ansehen
-          </button>
-        )}
-      </div>
+          {onOpenEventualities && (
+            <button
+              type="button"
+              onClick={onOpenEventualities}
+              className="text-[11px] font-semibold text-sky-700 underline-offset-2 hover:underline"
+            >
+              Varianten ansehen
+            </button>
+          )}
+        </div>
+      )}
 
       {showQualityMetrics && quality && (
         <div className="mt-2 grid grid-cols-2 gap-1 text-[10px] text-slate-500">

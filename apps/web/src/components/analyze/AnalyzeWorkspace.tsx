@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { HighlightedTextarea } from "@/app/(components)/HighlightedTextarea";
 import { normalizeClaim, type NormalizedClaim } from "@/app/(components)/normalizeClaim";
-import StatementCard, { type StatementVote } from "@/components/statements/StatementCard";
+import StatementCard from "@/components/statements/StatementCard";
 import AnalyzeProgress from "@/components/contributions/AnalyzeProgress";
 import { ImpactSection, ResponsibilitySection } from "@/components/contributions/ImpactResponsibilitySection";
 import {
@@ -24,14 +24,77 @@ import { useLocale } from "@/context/LocaleContext";
 import { selectE150Questions } from "@features/e150/questions/catalog";
 import { VERIFICATION_REQUIREMENTS, meetsVerificationLevel } from "@features/auth/verificationRules";
 import type { VerificationLevel } from "@core/auth/verificationTypes";
+import VogVoteButtons, { type VoteValue } from "@features/vote/components/VogVoteButtons";
 
 const LEVEL_OPTIONS = [
-  { id: 1 as 1 | 2 | 3 | 4, label: "Level 1 – Kurz" },
-  { id: 2 as 1 | 2 | 3 | 4, label: "Level 2 – Statements" },
-  { id: 3 as 1 | 2 | 3 | 4, label: "Level 3 – Impact & Zuständigkeiten" },
-  { id: 4 as 1 | 2 | 3 | 4, label: "Level 4 – Deep" },
+  { id: 1 as 1 | 2 | 3 | 4, label: "Schnell adressieren" },
+  { id: 2 as 1 | 2 | 3 | 4, label: "Verstehen" },
+  { id: 3 as 1 | 2 | 3 | 4, label: "Verbinden" },
+  { id: 4 as 1 | 2 | 3 | 4, label: "Deep Dive" },
 ];
 const MAX_LEVEL1_STATEMENTS = 3;
+
+const JOURNEY_OPTIONS = [
+  {
+    id: "concern",
+    label: "Nur Anliegen",
+    defaultLevel: 1 as 1 | 2 | 3 | 4,
+    maxClaims: 3,
+    openPanels: {
+      notes: false,
+      questions: false,
+      knots: false,
+      eventualities: false,
+      consequences: false,
+      report: false,
+    },
+  },
+  {
+    id: "context",
+    label: "Einordnen",
+    defaultLevel: 2 as 1 | 2 | 3 | 4,
+    maxClaims: 8,
+    openPanels: {
+      notes: true,
+      questions: true,
+      knots: false,
+      eventualities: false,
+      consequences: false,
+      report: false,
+    },
+  },
+  {
+    id: "connect",
+    label: "Verbinden",
+    defaultLevel: 3 as 1 | 2 | 3 | 4,
+    maxClaims: 12,
+    openPanels: {
+      notes: true,
+      questions: true,
+      knots: true,
+      eventualities: true,
+      consequences: true,
+      report: false,
+    },
+  },
+  {
+    id: "stay",
+    label: "Dranbleiben",
+    defaultLevel: 4 as 1 | 2 | 3 | 4,
+    maxClaims: 12,
+    openPanels: {
+      notes: true,
+      questions: true,
+      knots: true,
+      eventualities: true,
+      consequences: true,
+      report: true,
+    },
+  },
+] as const;
+
+type JourneyId = (typeof JOURNEY_OPTIONS)[number]["id"];
+type PanelKey = keyof (typeof JOURNEY_OPTIONS)[number]["openPanels"];
 
 const analyzeButtonTexts = {
   running: "Analyse läuft …",
@@ -59,7 +122,7 @@ type StatementEntry = NormalizedClaim & {
     readability: number;
     balance: number;
   };
-  vote?: StatementVote | null;
+  vote?: VoteValue | null;
   locallyEdited?: boolean;
   flagged?: boolean;
 };
@@ -96,10 +159,10 @@ type AnalyzeWorkspaceProps = {
 
 const BASE_STEPS: AnalyzeStepState[] = [
   { key: "context", label: "Kontext", state: "empty" },
-  { key: "claims", label: "Statements", state: "empty" },
+  { key: "claims", label: "Kernaussagen", state: "empty" },
   { key: "questions", label: "Fragen", state: "empty" },
-  { key: "consequences", label: "Folgen", state: "empty" },
-  { key: "responsibility", label: "Zuständigkeiten", state: "empty" },
+  { key: "consequences", label: "Wirkung", state: "empty" },
+  { key: "responsibility", label: "Zuständigkeit", state: "empty" },
 ];
 
 type DraftStorage = {
@@ -238,6 +301,13 @@ function formatDateLabel(value?: string | null) {
   return date.toLocaleString();
 }
 
+function defaultJourneyForLevel(level?: number): JourneyId {
+  if (!level || level <= 1) return "concern";
+  if (level === 2) return "context";
+  if (level === 3) return "connect";
+  return "stay";
+}
+
 function hashLocalDraft(text: string) {
   let hash = 0;
   for (let i = 0; i < text.length; i += 1) {
@@ -310,7 +380,12 @@ export default function AnalyzeWorkspace({
 }: AnalyzeWorkspaceProps) {
   const router = useRouter();
   const { locale } = useLocale();
-  const [viewLevel, setViewLevel] = React.useState<1 | 2 | 3 | 4>(defaultLevel);
+  const initialJourney = defaultJourneyForLevel(defaultLevel);
+  const journeyConfig = JOURNEY_OPTIONS.find((opt) => opt.id === initialJourney) ?? JOURNEY_OPTIONS[0];
+  const [journey, setJourney] = React.useState<JourneyId>(journeyConfig.id);
+  const [viewLevel, setViewLevel] = React.useState<1 | 2 | 3 | 4>(journeyConfig.defaultLevel);
+  const [maxClaims, setMaxClaims] = React.useState<number>(journeyConfig.maxClaims);
+  const [openPanels, setOpenPanels] = React.useState<Record<PanelKey, boolean>>(journeyConfig.openPanels);
   const [text, setText] = React.useState("");
   const [notes, setNotes] = React.useState<NoteSection[]>([]);
   const [questions, setQuestions] = React.useState<QuestionCard[]>([]);
@@ -442,6 +517,21 @@ export default function AnalyzeWorkspace({
       ? `Für diese Ansicht benötigst du mindestens Verifizierungs-Level "${requiredLevel}".`
       : null;
 
+  const handleJourneyChange = (nextId: JourneyId) => {
+    const config = JOURNEY_OPTIONS.find((opt) => opt.id === nextId) ?? JOURNEY_OPTIONS[0];
+    setJourney(config.id);
+    setViewLevel(config.defaultLevel);
+    setMaxClaims(config.maxClaims);
+    setOpenPanels(config.openPanels);
+  };
+
+  const togglePanel = (key: PanelKey, isOpen?: boolean) => {
+    setOpenPanels((prev) => ({
+      ...prev,
+      [key]: typeof isOpen === "boolean" ? isOpen : !prev[key],
+    }));
+  };
+
   const saveDraftSnapshot = React.useCallback(async () => {
     if (!text.trim()) {
       setSaveInfo("Bitte zuerst einen Text eingeben.");
@@ -558,7 +648,7 @@ export default function AnalyzeWorkspace({
       const res = await fetch(analyzeEndpoint, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ text, locale }),
+        body: JSON.stringify({ text, locale, maxClaims }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data?.ok) {
@@ -678,7 +768,7 @@ export default function AnalyzeWorkspace({
         }),
       );
     }
-  }, [analyzeDisabled, analyzeEndpoint, locale, text, viewLevel]);
+  }, [analyzeDisabled, analyzeEndpoint, locale, maxClaims, text, viewLevel]);
 
   const toggleSelected = (id: string) => {
     setHasManualSelection(true);
@@ -705,351 +795,441 @@ export default function AnalyzeWorkspace({
 
   return (
     <div ref={workspaceRef} className="min-h-[calc(100vh-64px)] bg-[linear-gradient(180deg,#e9f6ff_0%,#c0f8ff_45%,#a4fcec_100%)]">
-      <div className="container-vog space-y-4 pb-24 pt-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="vog-head">
-              {mode === "statement" ? "Statement analysieren" : "Beitrag analysieren"}
-            </h1>
-            <p className="text-xs text-slate-500">
-              Level 1–4 liefern von Kurzfassung bis Deep Dive dieselbe Analyse in unterschiedlichen Detailgraden.
-            </p>
-          </div>
-          <div className="inline-flex items-center rounded-full bg-slate-100 p-1 text-xs">
-            {LEVEL_OPTIONS.map((lvl) => (
-              <button
-                key={lvl.id}
-                type="button"
-                onClick={() => setViewLevel(lvl.id)}
-                className={[
-                  "rounded-full px-3 py-1 transition",
-                  viewLevel === lvl.id ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900",
-                ].join(" ")}
-              >
-                {lvl.label}
-              </button>
-            ))}
+      <div className="container-vog max-w-6xl space-y-4 pb-24 pt-6">
+        <div className="space-y-2">
+          <h1 className="vog-head text-3xl sm:text-4xl">
+            {mode === "statement" ? (
+              <>
+                <span className="bg-gradient-to-r from-sky-500 via-cyan-500 to-emerald-500 bg-clip-text text-transparent">
+                  Statement
+                </span>{" "}
+                analysieren
+              </>
+            ) : (
+              <>
+                <span className="bg-gradient-to-r from-sky-500 via-cyan-500 to-emerald-500 bg-clip-text text-transparent">
+                  Beitrag
+                </span>{" "}
+                analysieren
+              </>
+            )}
+          </h1>
+          <p className="text-xs text-slate-600">
+            Klare Einordnung, nachvollziehbare Kernaussagen und ein Prüfplan – ohne externe Fakten.
+          </p>
+        </div>
+
+        <div className="sticky top-0 z-20 -mx-4 border-b border-slate-100 bg-white/90 px-4 py-3 backdrop-blur">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Ziel</span>
+              <div className="inline-flex flex-wrap items-center rounded-full bg-slate-100 p-1 text-[11px]">
+                {JOURNEY_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => handleJourneyChange(opt.id)}
+                    className={[
+                      "rounded-full px-3 py-1 transition",
+                      journey === opt.id ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900",
+                    ].join(" ")}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Detailgrad</span>
+              <div className="inline-flex flex-wrap items-center rounded-full bg-slate-100 p-1 text-[11px]">
+                {LEVEL_OPTIONS.map((lvl) => (
+                  <button
+                    key={lvl.id}
+                    type="button"
+                    onClick={() => setViewLevel(lvl.id)}
+                    className={[
+                      "rounded-full px-3 py-1 transition",
+                      viewLevel === lvl.id ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900",
+                    ].join(" ")}
+                  >
+                    {lvl.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-xs text-slate-600">
-          Entwurf: <span className="font-semibold text-slate-900">{buildDraftLabel(draftId, localDraftId)}</span> · zuletzt gespeichert:{" "}
-          <span className="font-semibold text-slate-900">{formatDateLabel(savedAt)}</span>
-        </div>
-
-        <AnalyzeProgress steps={steps} providerMatrix={providerMatrix} />
-
-        <div className="rounded-xl border border-slate-200 bg-white/95 p-4 shadow-sm">
-          <div className="mb-2 flex items-baseline justify-between gap-2">
-            <div>
-              <h2 className="text-sm font-semibold text-slate-800">Dein Text</h2>
-              <p className="text-[11px] text-slate-500">
-                Schreibe frei heraus. Die Analyse nutzt deinen Text als Basis fuer Statements, Fragen und Folgen.
-              </p>
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-xs text-slate-600 shadow-sm">
+              Entwurf: <span className="font-semibold text-slate-900">{buildDraftLabel(draftId, localDraftId)}</span> · zuletzt gespeichert:{" "}
+              <span className="font-semibold text-slate-900">{formatDateLabel(savedAt)}</span>
             </div>
-            <div className="text-[11px] text-slate-500">
-              Sprache: <span className="font-medium uppercase">{locale}</span>
+
+            <div className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm">
+              <div className="mb-2 flex items-baseline justify-between gap-2">
+                <div>
+                  <h2 className="text-sm font-semibold text-slate-800">Dein Text</h2>
+                  <p className="text-[11px] text-slate-500">
+                    Schreibe frei heraus. Die Analyse nutzt deinen Text als Basis fuer Kernaussagen, Fragen und Folgen.
+                  </p>
+                </div>
+                <div className="text-[11px] text-slate-500">
+                  Sprache: <span className="font-medium uppercase">{locale}</span>
+                </div>
+              </div>
+
+              <HighlightedTextarea value={text} onChange={setText} analyzing={analysisStatus === "running"} rows={12} />
+
+              <div className="mt-3 flex flex-col items-center gap-2 text-[11px] text-slate-500">
+                <span>{text.length} Zeichen</span>
+                <div className="inline-flex gap-2 flex-wrap justify-center">
+                  <button
+                    type="button"
+                    onClick={handleAnalyze}
+                    disabled={analyzeDisabled}
+                    className="rounded-full bg-gradient-to-r from-sky-500 via-cyan-500 to-emerald-500 px-5 py-2 text-xs font-semibold text-white shadow-md hover:brightness-105 focus:outline-none focus:ring-2 focus:ring-sky-200 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {analyzeButtonLabel}
+                  </button>
+                </div>
+                {gatingMessage && <p className="text-xs font-semibold text-rose-600">{gatingMessage}</p>}
+              </div>
+
+              {error && (
+                <div className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-[11px] text-rose-700 space-y-1">
+                  <p>{error}</p>
+                </div>
+              )}
+              {saveInfo && (
+                <p className="mt-2 rounded-lg bg-emerald-50 px-3 py-2 text-[11px] text-emerald-700">{saveInfo}</p>
+              )}
+              {info && (
+                <p className="mt-2 rounded-lg bg-slate-50 px-3 py-2 text-[11px] text-slate-700">{info}</p>
+              )}
             </div>
           </div>
 
-          <HighlightedTextarea value={text} onChange={setText} analyzing={analysisStatus === "running"} rows={12} />
+          <div className="space-y-4">
+            <AnalyzeProgress steps={steps} providerMatrix={providerMatrix} />
 
-          <div className="mt-3 flex flex-col items-center gap-2 text-[11px] text-slate-500">
-            <span>{text.length} Zeichen</span>
-            <div className="inline-flex gap-2 flex-wrap justify-center">
-              <button
-                type="button"
-                onClick={handleAnalyze}
-                disabled={analyzeDisabled}
-                className="rounded-full bg-sky-500 px-5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {analyzeButtonLabel}
-              </button>
-            </div>
-            {gatingMessage && <p className="text-xs font-semibold text-rose-600">{gatingMessage}</p>}
-          </div>
-
-          {error && (
-            <div className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-[11px] text-rose-700 space-y-1">
-              <p>{error}</p>
-            </div>
-          )}
-          {saveInfo && (
-            <p className="mt-2 rounded-lg bg-emerald-50 px-3 py-2 text-[11px] text-emerald-700">{saveInfo}</p>
-          )}
-          {info && (
-            <p className="mt-2 rounded-lg bg-slate-50 px-3 py-2 text-[11px] text-slate-700">{info}</p>
-          )}
-        </div>
-
-        {viewLevel <= 2 && (
-          <div className="rounded-xl border border-slate-200 bg-white/95 p-4 shadow-sm">
-            {viewLevel === 1 && (
-              <div className="mb-4 rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Kurzfassung</p>
-                {report?.summary ? (
-                  <p className="mt-1 text-sm text-slate-800">{report.summary}</p>
-                ) : (
-                  <p className="mt-1 text-sm text-slate-500">Noch keine Zusammenfassung vorhanden.</p>
+            {viewLevel <= 2 && (
+              <div className="rounded-xl border border-slate-200 bg-white/95 p-4 shadow-sm">
+                {viewLevel === 1 && (
+                  <div className="mb-4 rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Schnellblick</p>
+                    {report?.summary ? (
+                      <p className="mt-1 text-sm text-slate-800">{report.summary}</p>
+                    ) : (
+                      <p className="mt-1 text-sm text-slate-500">Noch keine Zusammenfassung vorhanden.</p>
+                    )}
+                  </div>
                 )}
+
+                <div className="mb-2 flex items-center justify-between">
+                  <h2 className="text-sm font-semibold text-slate-800">
+                    {viewLevel === 1 ? "Top-Kernaussagen" : "Alle Kernaussagen"}
+                  </h2>
+                  <div className="text-[11px] text-slate-500">
+                    {totalStatements > 0
+                      ? viewLevel === 1
+                        ? `${totalStatements} Statements gesamt (Top ${Math.min(MAX_LEVEL1_STATEMENTS, totalStatements)})`
+                        : `${totalStatements} Statements zu diesem Beitrag`
+                      : "Noch keine Statements – die Analyse muss zuerst erfolgreich durchlaufen."}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {levelStatements.map((s) => {
+                    const stanceLabel =
+                      s.stance === "pro"
+                        ? "pro"
+                        : s.stance === "contra"
+                        ? "contra"
+                        : s.stance === "neutral"
+                        ? "neutral"
+                        : null;
+                    const tags: string[] = [];
+                    if (stanceLabel) tags.push(`Haltung: ${stanceLabel}`);
+                    if (typeof s.importance === "number") tags.push(`Wichtigkeit: ${s.importance}/5`);
+
+                    return (
+                      <StatementCard
+                        key={s.id}
+                        variant="analyze"
+                        statementId={s.id}
+                        text={s.text}
+                        title={s.title && s.title.trim().length > 0 ? s.title : `Statement #${s.index + 1}`}
+                        mainCategory={s.title ?? `Statement #${s.index + 1}`}
+                        jurisdiction={s.responsibility || undefined}
+                        topic={s.topic || undefined}
+                        tags={tags}
+                        source="ai"
+                        showVoteButtons={false}
+                      >
+                        <div className="space-y-3">
+                          <InlineEditableText
+                            value={s.text}
+                            onChange={(val) =>
+                              setStatements((prev) =>
+                                prev.map((entry) => (entry.id === s.id ? { ...entry, text: val } : entry)),
+                              )
+                            }
+                          />
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <VogVoteButtons
+                              value={s.vote ?? null}
+                              size="sm"
+                              onChange={(next) =>
+                                setStatements((prev) =>
+                                  prev.map((entry) => (entry.id === s.id ? { ...entry, vote: next } : entry)),
+                                )
+                              }
+                            />
+                            <label className="inline-flex items-center gap-2 text-[11px] text-slate-600">
+                              <input
+                                type="checkbox"
+                                checked={selectedClaimIds.includes(s.id)}
+                                onChange={() => toggleSelected(s.id)}
+                                className="h-4 w-4 rounded border-slate-300 text-sky-600"
+                              />
+                              In Vorschlag uebernehmen
+                            </label>
+                          </div>
+                        </div>
+                      </StatementCard>
+                    );
+                  })}
+
+                  {!totalStatements && !info && (
+                    <p className="text-sm text-slate-500">
+                      Noch keine Statements vorhanden. Sie erscheinen nur, wenn die Analyse erfolgreich war.
+                    </p>
+                  )}
+                </div>
               </div>
             )}
 
-            <div className="mb-2 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-800">
-                {viewLevel === 1 ? "Top-Statements" : "Alle Statements"}
-              </h2>
-              <div className="text-[11px] text-slate-500">
-                {totalStatements > 0
-                  ? viewLevel === 1
-                    ? `${totalStatements} Statements gesamt (Top ${Math.min(MAX_LEVEL1_STATEMENTS, totalStatements)})`
-                    : `${totalStatements} Statements zu diesem Beitrag`
-                  : "Noch keine Statements – die Analyse muss zuerst erfolgreich durchlaufen."}
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {levelStatements.map((s) => {
-                const stanceLabel =
-                  s.stance === "pro" ? "pro" : s.stance === "contra" ? "contra" : s.stance === "neutral" ? "neutral" : null;
-                const tags: string[] = [];
-                if (stanceLabel) tags.push(`Haltung: ${stanceLabel}`);
-                if (typeof s.importance === "number") tags.push(`Wichtigkeit: ${s.importance}/5`);
-
-                return (
-                  <StatementCard
-                    key={s.id}
-                    variant="analyze"
-                    statementId={s.id}
-                    text={s.text}
-                    title={s.title && s.title.trim().length > 0 ? s.title : `Statement #${s.index + 1}`}
-                    mainCategory={s.title ?? `Statement #${s.index + 1}`}
-                    jurisdiction={s.responsibility || undefined}
-                    topic={s.topic || undefined}
-                    tags={tags}
-                    source="ai"
-                  >
-                    <div className="space-y-3">
-                      <InlineEditableText value={s.text} onChange={(val) =>
-                        setStatements((prev) => prev.map((entry) => (entry.id === s.id ? { ...entry, text: val } : entry)))
-                      } />
-                      <label className="inline-flex items-center gap-2 text-[11px] text-slate-600">
-                        <input
-                          type="checkbox"
-                          checked={selectedClaimIds.includes(s.id)}
-                          onChange={() => toggleSelected(s.id)}
-                          className="h-4 w-4 rounded border-slate-300 text-sky-600"
-                        />
-                        In Vorschlag uebernehmen
-                      </label>
+            {viewLevel === 3 && (
+              <div className="space-y-3">
+                <div className="grid gap-3 lg:grid-cols-2">
+                  <div className="rounded-xl border border-slate-200 bg-white/95 p-4 shadow-sm">
+                    <div className="mb-2 flex items-center justify-between">
+                      <h3 className="text-sm font-semibold text-slate-800">Moegliche Folgen</h3>
+                      {impactAndResponsibility.impacts?.length ? (
+                        <span className="text-[11px] text-slate-500">{impactAndResponsibility.impacts.length} Vorschlaege</span>
+                      ) : null}
                     </div>
-                  </StatementCard>
-                );
-              })}
-
-              {!totalStatements && !info && (
-                <p className="text-sm text-slate-500">
-                  Noch keine Statements vorhanden. Sie erscheinen nur, wenn die Analyse erfolgreich war.
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-
-        {viewLevel === 3 && (
-          <div className="space-y-3">
-            <div className="grid gap-3 lg:grid-cols-2">
-              <div className="rounded-xl border border-slate-200 bg-white/95 p-4 shadow-sm">
-                <div className="mb-2 flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-slate-800">Moegliche Folgen</h3>
-                  {impactAndResponsibility.impacts?.length ? (
-                    <span className="text-[11px] text-slate-500">{impactAndResponsibility.impacts.length} Vorschlaege</span>
-                  ) : null}
-                </div>
-                <ImpactSection
-                  impacts={impactAndResponsibility.impacts ?? []}
-                  onChange={(next) => setImpactAndResponsibility((prev) => ({ ...prev, impacts: next }))}
-                />
-              </div>
-              <div className="rounded-xl border border-slate-200 bg-white/95 p-4 shadow-sm">
-                <div className="mb-2 flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-slate-800">Wer waere zustaendig?</h3>
-                  {impactAndResponsibility.responsibleActors?.length ? (
-                    <span className="text-[11px] text-slate-500">
-                      {impactAndResponsibility.responsibleActors.length} Vorschlaege
-                    </span>
-                  ) : null}
-                </div>
-                <ResponsibilitySection
-                  actors={impactAndResponsibility.responsibleActors ?? []}
-                  onChange={(next) =>
-                    setImpactAndResponsibility((prev) => ({ ...prev, responsibleActors: next }))
-                  }
-                />
-              </div>
-            </div>
-
-            <ResponsibilityPreviewCard
-              responsibilities={responsibilities}
-              paths={responsibilityPaths}
-              showPathOverlay
-            />
-          </div>
-        )}
-
-        {viewLevel === 4 && (
-          <div className="space-y-3">
-            <details className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm">
-              <summary className="cursor-pointer text-sm font-semibold text-slate-800">Kontext (Notizen)</summary>
-              {notes.length === 0 ? (
-                <p className="mt-2 text-sm text-slate-500">Noch keine Notizen vorhanden.</p>
-              ) : (
-                <ul className="mt-2 space-y-2 text-sm text-slate-700">
-                  {notes.map((note, idx) => (
-                    <li key={note.id ?? `note-${idx}`} className="rounded-xl bg-slate-50 px-3 py-2">
-                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                        {note.title ?? `Notiz ${idx + 1}`}
-                      </p>
-                      <p className="text-sm text-slate-800">{note.body}</p>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </details>
-
-            <details className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm">
-              <summary className="cursor-pointer text-sm font-semibold text-slate-800">Fragen zum Weiterdenken</summary>
-              {questions.length === 0 ? (
-                <p className="mt-2 text-sm text-slate-500">Noch keine Fragen vorhanden.</p>
-              ) : (
-                <ul className="mt-2 space-y-2 text-sm text-slate-700">
-                  {questions.map((q, idx) => (
-                    <li key={q.id ?? `q-${idx}`} className="rounded-xl bg-slate-50 px-3 py-2">
-                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                        {q.label ?? `Frage ${idx + 1}`}
-                      </p>
-                      <p className="text-sm text-slate-800">{q.body}</p>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </details>
-
-            <details className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm">
-              <summary className="cursor-pointer text-sm font-semibold text-slate-800">Knoten (Themenschwerpunkte)</summary>
-              {knots.length === 0 ? (
-                <p className="mt-2 text-sm text-slate-500">Noch keine Knoten vorhanden.</p>
-              ) : (
-                <ul className="mt-2 space-y-2 text-sm text-slate-700">
-                  {knots.map((k, idx) => (
-                    <li key={k.id ?? `k-${idx}`} className="rounded-xl bg-slate-50 px-3 py-2">
-                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                        {k.title ?? `Knoten ${idx + 1}`}
-                      </p>
-                      <p className="text-sm text-slate-800">{k.body}</p>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </details>
-
-            <details className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm">
-              <summary className="cursor-pointer text-sm font-semibold text-slate-800">
-                Eventualitaeten &amp; Entscheidungsbaeume
-              </summary>
-              {eventualities.length === 0 && decisionTrees.length === 0 ? (
-                <p className="mt-2 text-sm text-slate-500">Noch keine Eventualitaeten oder Decision Trees vorhanden.</p>
-              ) : (
-                <div className="mt-2 space-y-3 text-sm text-slate-700">
-                  {eventualities.length > 0 && (
-                    <div>
-                      <p className="text-xs font-semibold uppercase text-slate-500">Eventualitaeten</p>
-                      <ul className="mt-1 list-disc space-y-1 pl-4">
-                        {eventualities.map((e, idx) => (
-                          <li key={e.id ?? `ev-${idx}`}>{e.narrative || e.label}</li>
-                        ))}
-                      </ul>
+                    <ImpactSection
+                      impacts={impactAndResponsibility.impacts ?? []}
+                      onChange={(next) => setImpactAndResponsibility((prev) => ({ ...prev, impacts: next }))}
+                    />
+                  </div>
+                  <div className="rounded-xl border border-slate-200 bg-white/95 p-4 shadow-sm">
+                    <div className="mb-2 flex items-center justify-between">
+                      <h3 className="text-sm font-semibold text-slate-800">Wer waere zustaendig?</h3>
+                      {impactAndResponsibility.responsibleActors?.length ? (
+                        <span className="text-[11px] text-slate-500">
+                          {impactAndResponsibility.responsibleActors.length} Vorschlaege
+                        </span>
+                      ) : null}
                     </div>
-                  )}
-                  {decisionTrees.length > 0 && (
-                    <div>
-                      <p className="text-xs font-semibold uppercase text-slate-500">Decision Trees</p>
-                      <ul className="mt-1 list-disc space-y-1 pl-4">
-                        {decisionTrees.map((d, idx) => (
-                          <li key={d.id ?? `dt-${idx}`}>Decision Tree fuer Statement {d.rootStatementId}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                    <ResponsibilitySection
+                      actors={impactAndResponsibility.responsibleActors ?? []}
+                      onChange={(next) =>
+                        setImpactAndResponsibility((prev) => ({ ...prev, responsibleActors: next }))
+                      }
+                    />
+                  </div>
                 </div>
-              )}
-            </details>
 
-            <details className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm">
-              <summary className="cursor-pointer text-sm font-semibold text-slate-800">Folgen &amp; Zustaendigkeiten</summary>
-              <div className="mt-3 space-y-3">
-                <ConsequencesPreviewCard consequences={consequences} responsibilities={responsibilities} />
                 <ResponsibilityPreviewCard
                   responsibilities={responsibilities}
                   paths={responsibilityPaths}
                   showPathOverlay
                 />
               </div>
-            </details>
+            )}
 
-            <details className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm">
-              <summary className="cursor-pointer text-sm font-semibold text-slate-800">Bericht</summary>
-              {report ? (
-                <div className="mt-3 space-y-3 text-sm text-slate-800">
-                  {report.summary && <p>{report.summary}</p>}
-                  {Array.isArray(report.keyConflicts) && report.keyConflicts.length > 0 && (
-                    <div>
-                      <p className="text-xs font-semibold uppercase text-slate-500">Konfliktlinien</p>
-                      <ul className="mt-1 list-disc space-y-1 pl-4">
-                        {report.keyConflicts.map((c: string, idx: number) => (
-                          <li key={`${c}-${idx}`}>{c}</li>
-                        ))}
-                      </ul>
+            {viewLevel === 4 && (
+              <div className="space-y-3">
+                <details
+                  open={openPanels.notes}
+                  onToggle={(event) => togglePanel("notes", (event.target as HTMLDetailsElement).open)}
+                  className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm"
+                >
+                  <summary className="cursor-pointer text-sm font-semibold text-slate-800">Kontext (Notizen)</summary>
+                  {notes.length === 0 ? (
+                    <p className="mt-2 text-sm text-slate-500">Noch keine Notizen vorhanden.</p>
+                  ) : (
+                    <ul className="mt-2 space-y-2 text-sm text-slate-700">
+                      {notes.map((note, idx) => (
+                        <li key={note.id ?? `note-${idx}`} className="rounded-xl bg-slate-50 px-3 py-2">
+                          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                            {note.title ?? `Notiz ${idx + 1}`}
+                          </p>
+                          <p className="text-sm text-slate-800">{note.body}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </details>
+
+                <details
+                  open={openPanels.questions}
+                  onToggle={(event) => togglePanel("questions", (event.target as HTMLDetailsElement).open)}
+                  className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm"
+                >
+                  <summary className="cursor-pointer text-sm font-semibold text-slate-800">Fragen zum Weiterdenken</summary>
+                  {questions.length === 0 ? (
+                    <p className="mt-2 text-sm text-slate-500">Noch keine Fragen vorhanden.</p>
+                  ) : (
+                    <ul className="mt-2 space-y-2 text-sm text-slate-700">
+                      {questions.map((q, idx) => (
+                        <li key={q.id ?? `q-${idx}`} className="rounded-xl bg-slate-50 px-3 py-2">
+                          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                            {q.label ?? `Frage ${idx + 1}`}
+                          </p>
+                          <p className="text-sm text-slate-800">{q.body}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </details>
+
+                <details
+                  open={openPanels.knots}
+                  onToggle={(event) => togglePanel("knots", (event.target as HTMLDetailsElement).open)}
+                  className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm"
+                >
+                  <summary className="cursor-pointer text-sm font-semibold text-slate-800">Knoten (Themenschwerpunkte)</summary>
+                  {knots.length === 0 ? (
+                    <p className="mt-2 text-sm text-slate-500">Noch keine Knoten vorhanden.</p>
+                  ) : (
+                    <ul className="mt-2 space-y-2 text-sm text-slate-700">
+                      {knots.map((k, idx) => (
+                        <li key={k.id ?? `k-${idx}`} className="rounded-xl bg-slate-50 px-3 py-2">
+                          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                            {k.title ?? `Knoten ${idx + 1}`}
+                          </p>
+                          <p className="text-sm text-slate-800">{k.body}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </details>
+
+                <details
+                  open={openPanels.eventualities}
+                  onToggle={(event) => togglePanel("eventualities", (event.target as HTMLDetailsElement).open)}
+                  className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm"
+                >
+                  <summary className="cursor-pointer text-sm font-semibold text-slate-800">
+                    Eventualitaeten &amp; Entscheidungsbaeume
+                  </summary>
+                  {eventualities.length === 0 && decisionTrees.length === 0 ? (
+                    <p className="mt-2 text-sm text-slate-500">Noch keine Eventualitaeten oder Decision Trees vorhanden.</p>
+                  ) : (
+                    <div className="mt-2 space-y-3 text-sm text-slate-700">
+                      {eventualities.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold uppercase text-slate-500">Eventualitaeten</p>
+                          <ul className="mt-1 list-disc space-y-1 pl-4">
+                            {eventualities.map((e, idx) => (
+                              <li key={e.id ?? `ev-${idx}`}>{e.narrative || e.label}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {decisionTrees.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold uppercase text-slate-500">Decision Trees</p>
+                          <ul className="mt-1 list-disc space-y-1 pl-4">
+                            {decisionTrees.map((d, idx) => (
+                              <li key={d.id ?? `dt-${idx}`}>Decision Tree fuer Statement {d.rootStatementId}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   )}
-                  {report.facts && (
-                    <div className="grid gap-3 md:grid-cols-2">
-                      <div>
-                        <p className="text-xs font-semibold uppercase text-slate-500">Fakten (lokal)</p>
-                        <ul className="mt-1 list-disc space-y-1 pl-4">
-                          {(report.facts.local ?? []).map((f: string, idx: number) => (
-                            <li key={`f-l-${idx}`}>{f}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase text-slate-500">Fakten (international)</p>
-                        <ul className="mt-1 list-disc space-y-1 pl-4">
-                          {(report.facts.international ?? []).map((f: string, idx: number) => (
-                            <li key={`f-i-${idx}`}>{f}</li>
-                          ))}
-                        </ul>
-                      </div>
+                </details>
+
+                <details
+                  open={openPanels.consequences}
+                  onToggle={(event) => togglePanel("consequences", (event.target as HTMLDetailsElement).open)}
+                  className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm"
+                >
+                  <summary className="cursor-pointer text-sm font-semibold text-slate-800">Folgen &amp; Zustaendigkeiten</summary>
+                  <div className="mt-3 space-y-3">
+                    <ConsequencesPreviewCard consequences={consequences} responsibilities={responsibilities} />
+                    <ResponsibilityPreviewCard
+                      responsibilities={responsibilities}
+                      paths={responsibilityPaths}
+                      showPathOverlay
+                    />
+                  </div>
+                </details>
+
+                <details
+                  open={openPanels.report}
+                  onToggle={(event) => togglePanel("report", (event.target as HTMLDetailsElement).open)}
+                  className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm"
+                >
+                  <summary className="cursor-pointer text-sm font-semibold text-slate-800">Bericht</summary>
+                  {report ? (
+                    <div className="mt-3 space-y-3 text-sm text-slate-800">
+                      {report.summary && <p>{report.summary}</p>}
+                      {Array.isArray(report.keyConflicts) && report.keyConflicts.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold uppercase text-slate-500">Konfliktlinien</p>
+                          <ul className="mt-1 list-disc space-y-1 pl-4">
+                            {report.keyConflicts.map((c: string, idx: number) => (
+                              <li key={`${c}-${idx}`}>{c}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {report.facts && (
+                        <div className="grid gap-3 md:grid-cols-2">
+                          <div>
+                            <p className="text-xs font-semibold uppercase text-slate-500">Fakten (lokal)</p>
+                            <ul className="mt-1 list-disc space-y-1 pl-4">
+                              {(report.facts.local ?? []).map((f: string, idx: number) => (
+                                <li key={`f-l-${idx}`}>{f}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold uppercase text-slate-500">Fakten (international)</p>
+                            <ul className="mt-1 list-disc space-y-1 pl-4">
+                              {(report.facts.international ?? []).map((f: string, idx: number) => (
+                                <li key={`f-i-${idx}`}>{f}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      )}
+                      {Array.isArray(report.takeaways) && report.takeaways.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold uppercase text-slate-500">Takeaways</p>
+                          <ul className="mt-1 list-disc space-y-1 pl-4">
+                            {report.takeaways.map((c: string, idx: number) => (
+                              <li key={`t-${idx}`}>{c}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
+                  ) : (
+                    <p className="mt-2 text-sm text-slate-500">Noch kein Bericht vorhanden.</p>
                   )}
-                  {Array.isArray(report.takeaways) && report.takeaways.length > 0 && (
-                    <div>
-                      <p className="text-xs font-semibold uppercase text-slate-500">Takeaways</p>
-                      <ul className="mt-1 list-disc space-y-1 pl-4">
-                        {report.takeaways.map((c: string, idx: number) => (
-                          <li key={`t-${idx}`}>{c}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <p className="mt-2 text-sm text-slate-500">Noch kein Bericht vorhanden.</p>
-              )}
-            </details>
+                </details>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
 
       <div ref={ctaRef} className="fixed bottom-4 left-0 right-0 z-30">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/95 px-4 py-3 shadow-[0_18px_45px_rgba(15,23,42,0.12)] ring-1 ring-slate-200">
@@ -1070,7 +1250,7 @@ export default function AnalyzeWorkspace({
               type="button"
               onClick={handleFinalize}
               disabled={!draftId || isFinalizing}
-              className="rounded-full bg-sky-600 px-5 py-2 text-xs font-semibold text-white shadow-sm hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-full bg-gradient-to-r from-sky-500 via-cyan-500 to-emerald-500 px-5 py-2 text-xs font-semibold text-white shadow-md hover:brightness-105 focus:outline-none focus:ring-2 focus:ring-sky-200 disabled:cursor-not-allowed disabled:opacity-60"
             >
               Als Vorschlag einreichen
             </button>

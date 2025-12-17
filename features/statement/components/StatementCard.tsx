@@ -98,6 +98,7 @@ export function StatementCard({ statement, index = 0 }: Props) {
         <p className="text-sm font-semibold text-slate-900">
           {core.text}
         </p>
+        <div className="h-0.5 w-10 rounded-full bg-gradient-to-r from-sky-400 via-cyan-400 to-emerald-400 opacity-70" />
       </header>
 
       {/* Evidence */}

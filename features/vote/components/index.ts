@@ -11,5 +11,8 @@ export type * from "./VoteBar";
 export { default as VoteButton } from "./VoteButton"; // ODER VoteButtons
 export type * from "./VoteButton";
 
+export { default as VogVoteButtons } from "./VogVoteButtons";
+export type * from "./VogVoteButtons";
+
 export { default as VotingRuleBadge } from "./VotingRuleBadge";
 export type * from "./VotingRuleBadge";
