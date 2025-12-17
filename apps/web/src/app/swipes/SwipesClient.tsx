@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import type { EDebattePackage, SwipeItem, Eventuality, SwipeDecision } from "@/features/swipes/types";
+import type { EDebattePackage, SwipeItem, Eventuality, SwipeDecision, SwipeFeedFilter } from "@/features/swipes/types";
+import StatementCard, { type StatementVote } from "@/components/statements/StatementCard";
 
 /** Fetch-Helper */
 
 async function fetchSwipeFeed(
-  filter: { topicQuery?: string; level?: "ALL" | "Bund" | "Land" | "Kommune" | "EU" },
+  filter: SwipeFeedFilter,
   cursor?: string | null,
 ): Promise<{ items: SwipeItem[]; nextCursor?: string | null }> {
   const res = await fetch("/api/swipes/feed", {
@@ -36,6 +37,18 @@ async function fetchEventualities(statementId: string): Promise<Eventuality[]> {
   return data.eventualities;
 }
 
+const mapDecisionToVote = (decision: SwipeDecision): StatementVote => {
+  if (decision === "agree") return "approve";
+  if (decision === "disagree") return "reject";
+  return "neutral";
+};
+
+const mapVoteToDecision = (vote: StatementVote): SwipeDecision => {
+  if (vote === "approve") return "agree";
+  if (vote === "reject") return "disagree";
+  return "neutral";
+};
+
 async function postSwipeVote(payload: { statementId: string; eventualityId?: string; decision: SwipeDecision }) {
   const res = await fetch("/api/swipes/vote", {
     method: "POST",
@@ -60,9 +73,6 @@ const secondaryChipClass =
 const subtleTextLinkClass =
   "text-[11px] font-medium text-slate-500 underline-offset-2 hover:text-slate-900 hover:underline";
 
-const decisionButtonBase =
-  "inline-flex min-w-[110px] items-center justify-center rounded-full border px-4 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-sky-200";
-
 /** ------------------------
  * Haupt-Component
  * ----------------------- */
@@ -70,10 +80,12 @@ const decisionButtonBase =
 type SwipesClientProps = {
   edebattePackage: EDebattePackage;
   initialTopic?: string;
+  focusStatementId?: string;
+  variant?: "full" | "solo";
 };
 
-export function SwipesClient({ edebattePackage, initialTopic = "" }: SwipesClientProps) {
-  const [topicQuery, setTopicQuery] = useState(initialTopic);
+export function SwipesClient({ edebattePackage, initialTopic = "", focusStatementId, variant = "full" }: SwipesClientProps) {
+  const [topicQuery, setTopicQuery] = useState(variant === "solo" ? "" : initialTopic);
   const [activeLevel, setActiveLevel] = useState<"ALL" | "Bund" | "Land" | "Kommune" | "EU">("ALL");
   const [selectedSwipe, setSelectedSwipe] = useState<SwipeItem | null>(null);
   const [eventualities, setEventualities] = useState<Eventuality[] | null>(null);
@@ -86,12 +98,20 @@ export function SwipesClient({ edebattePackage, initialTopic = "" }: SwipesClien
 
   const isBasic = edebattePackage === "basis" || edebattePackage === "none";
   const isStartOrPro = edebattePackage === "start" || edebattePackage === "pro";
+  const isSolo = variant === "solo";
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       setLoading(true);
-      const resp = await fetchSwipeFeed({ topicQuery, level: activeLevel }, null);
+      const resp = await fetchSwipeFeed(
+        {
+          topicQuery: variant === "solo" ? undefined : topicQuery,
+          level: activeLevel,
+          statementId: focusStatementId,
+        },
+        null,
+      );
       if (!cancelled) {
         setItems(resp.items);
         setActiveIndex(0);
@@ -102,7 +122,7 @@ export function SwipesClient({ edebattePackage, initialTopic = "" }: SwipesClien
     return () => {
       cancelled = true;
     };
-  }, [topicQuery, activeLevel]);
+  }, [topicQuery, activeLevel, focusStatementId, variant]);
 
   const filteredSwipes = useMemo(() => items, [items]);
 
@@ -178,7 +198,7 @@ export function SwipesClient({ edebattePackage, initialTopic = "" }: SwipesClien
   };
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 pt-10">
+    <div className={`mx-auto flex flex-col gap-6 px-4 pt-10 ${isSolo ? "max-w-3xl" : "max-w-6xl"}`}>
       {screenFlash && (
         <div
           className={`pointer-events-none fixed inset-0 z-40 transition-opacity duration-200 ${
@@ -190,13 +210,18 @@ export function SwipesClient({ edebattePackage, initialTopic = "" }: SwipesClien
           }`}
         />
       )}
-     
-           <SwipesHeader edebattePackage={edebattePackage} isBasic={isBasic} isStartOrPro={isStartOrPro} />
 
-      <SwipesToolbar topicQuery={topicQuery} onTopicChange={setTopicQuery} activeLevel={activeLevel} onLevelChange={setActiveLevel} isBasic={isBasic} />
+      {isSolo ? (
+        <SoloHeader statementId={focusStatementId} />
+      ) : (
+        <>
+          <SwipesHeader edebattePackage={edebattePackage} isBasic={isBasic} isStartOrPro={isStartOrPro} />
+          <SwipesToolbar topicQuery={topicQuery} onTopicChange={setTopicQuery} activeLevel={activeLevel} onLevelChange={setActiveLevel} isBasic={isBasic} />
+        </>
+      )}
 
-      <div className="grid gap-5 md:grid-cols-[minmax(0,2.1fr)_minmax(0,1.5fr)]">
-        <div className="space-y-3 relative">
+      {isSolo ? (
+        <div className="relative space-y-3">
           {lastAction && (
             <div className="flex justify-end">
               <button
@@ -211,27 +236,101 @@ export function SwipesClient({ edebattePackage, initialTopic = "" }: SwipesClien
           {loading ? (
             <div className="rounded-3xl bg-slate-50/80 p-4 text-sm text-slate-500 ring-1 ring-dashed ring-slate-200">Lade Swipes …</div>
           ) : filteredSwipes.length === 0 ? (
-            <EmptyState />
+            <EmptyState
+              message="Diese Swipe-Karte wurde nicht gefunden oder ist nicht freigeschaltet."
+              ctaHref="/swipes"
+              ctaLabel="Alle Swipes öffnen"
+            />
           ) : (
             filteredSwipes.map((item, idx) => (
-              <SwipeCard
+              <StatementCard
                 key={item.id}
-                item={item}
-                isBasic={isBasic}
+                variant="swipe"
+                statementId={item.id}
+                title={item.title}
+                text={
+                  item.title ??
+                  (item as any).summary ??
+                  (item as any).text ??
+                  (item as any).statement?.text ??
+                  (item as any).claim?.text ??
+                  (item as any).eventuality?.text ??
+                  ""
+                }
+                mainCategory={item.category}
+                jurisdiction={item.level}
+                topic={item.domainLabel}
+                tags={item.topicTags}
+                currentVote={flashDecision?.id === item.id ? mapDecisionToVote(flashDecision.decision) : null}
+                flashDecision={flashDecision?.id === item.id ? mapDecisionToVote(flashDecision.decision) : null}
+                onVoteChange={(vote) => handleDecision(item, mapVoteToDecision(vote))}
+                className={idx === activeIndex ? "ring-2 ring-sky-200" : ""}
                 isActive={idx === activeIndex}
-                flashDecision={flashDecision?.id === item.id ? flashDecision.decision : null}
-                onDecision={(decision) => handleDecision(item, decision)}
-                onActivate={() => setActiveIndex(idx)}
-                onOpenEventualities={handleOpenEventualities}
+                onOpenEventualities={
+                  item.hasEventualities && !isBasic ? () => handleOpenEventualities(item) : undefined
+                }
+                badgeRight={item.evidenceCount ? `${item.evidenceCount} Belege` : undefined}
               />
             ))
           )}
         </div>
+      ) : (
+        <div className="grid gap-5 md:grid-cols-[minmax(0,2.1fr)_minmax(0,1.5fr)]">
+          <div className="space-y-3 relative">
+            {lastAction && (
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleUndo}
+                  className="inline-flex items-center gap-1 rounded-full bg-slate-900 px-3 py-1.5 text-[11px] font-semibold text-white shadow-[0_10px_30px_rgba(15,23,42,0.35)] hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-200"
+                >
+                  ↩︎ Swipe rückgängig
+                </button>
+              </div>
+            )}
+            {loading ? (
+              <div className="rounded-3xl bg-slate-50/80 p-4 text-sm text-slate-500 ring-1 ring-dashed ring-slate-200">Lade Swipes …</div>
+            ) : filteredSwipes.length === 0 ? (
+              <EmptyState />
+            ) : (
+              filteredSwipes.map((item, idx) => (
+                <StatementCard
+                  key={item.id}
+                  variant="swipe"
+                  statementId={item.id}
+                  title={item.title}
+                  text={
+                    item.title ??
+                    (item as any).summary ??
+                    (item as any).text ??
+                    (item as any).statement?.text ??
+                    (item as any).claim?.text ??
+                    (item as any).eventuality?.text ??
+                    ""
+                  }
+                  mainCategory={item.category}
+                  jurisdiction={item.level}
+                  topic={item.domainLabel}
+                  tags={item.topicTags}
+                  currentVote={flashDecision?.id === item.id ? mapDecisionToVote(flashDecision.decision) : null}
+                  flashDecision={flashDecision?.id === item.id ? mapDecisionToVote(flashDecision.decision) : null}
+                  onVoteChange={(vote) => handleDecision(item, mapVoteToDecision(vote))}
+                  className={idx === activeIndex ? "ring-2 ring-sky-200" : ""}
+                  isActive={idx === activeIndex}
+                  onOpenEventualities={
+                    item.hasEventualities && !isBasic ? () => handleOpenEventualities(item) : undefined
+                  }
+                  badgeRight={item.evidenceCount ? `${item.evidenceCount} Belege` : undefined}
+                />
+              ))
+            )}
+          </div>
 
-        <div className="mt-3 hidden md:block">
-          <EventualitiesPanel selectedSwipe={selectedSwipe} eventualities={eventualities} isBasic={isBasic} />
+          <div className="mt-3 hidden md:block">
+            <EventualitiesPanel selectedSwipe={selectedSwipe} eventualities={eventualities} isBasic={isBasic} />
+          </div>
         </div>
-      </div>
+      )}
 
       {selectedSwipe && eventualities && (
         <MobileEventualitiesOverlay selectedSwipe={selectedSwipe} eventualities={eventualities} isBasic={isBasic} onClose={handleCloseEventualities} />
@@ -241,6 +340,17 @@ export function SwipesClient({ edebattePackage, initialTopic = "" }: SwipesClien
 }
 
 /** Header / Hero */
+
+function SoloHeader({ statementId }: { statementId?: string }) {
+  return (
+    <header className="flex items-center justify-between gap-3 rounded-3xl bg-white/95 px-4 py-3 shadow-[0_12px_40px_rgba(15,23,42,0.08)] ring-1 ring-slate-100">
+      <Link href="/swipes" className={secondaryChipClass}>
+        Alle Swipes anzeigen
+      </Link>
+      {statementId && <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Karte #{statementId}</span>}
+    </header>
+  );
+}
 
 type SwipesHeaderProps = {
   edebattePackage: EDebattePackage;
@@ -341,169 +451,6 @@ function SwipesToolbar({ topicQuery, onTopicChange, activeLevel, onLevelChange, 
         })}
       </div>
     </section>
-  );
-}
-
-/** Swipe-Karte */
-
-type SwipeCardProps = {
-  item: SwipeItem;
-  isBasic: boolean;
-  isActive: boolean;
-  flashDecision: SwipeDecision | null;
-  onDecision: (decision: SwipeDecision) => void;
-  onActivate: () => void;
-  onOpenEventualities: (item: SwipeItem) => void;
-};
-
-function SwipeCard({ item, isBasic, isActive, flashDecision, onDecision, onActivate, onOpenEventualities }: SwipeCardProps) {
-  const [dragX, setDragX] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const startXRef = useRef<number | null>(null);
-  const threshold = 80;
-
-  const resetDrag = () => {
-    setIsDragging(false);
-    startXRef.current = null;
-    setDragX(0);
-  };
-
-  const handlePointerDown = (event: ReactPointerEvent) => {
-    if ((event.target as HTMLElement).closest("button, a")) return;
-    onActivate();
-    startXRef.current = event.clientX;
-    setIsDragging(true);
-    (event.target as HTMLElement).setPointerCapture?.(event.pointerId);
-  };
-
-  const handlePointerMove = (event: ReactPointerEvent) => {
-    if (!isDragging || startXRef.current === null) return;
-    const deltaX = event.clientX - startXRef.current;
-    setDragX(deltaX);
-  };
-
-  const handlePointerUp = (event: ReactPointerEvent) => {
-    if (!isDragging || startXRef.current === null) {
-      resetDrag();
-      return;
-    }
-    const deltaX = event.clientX - startXRef.current;
-    if (deltaX > threshold) {
-      onDecision("agree");
-    } else if (deltaX < -threshold) {
-      onDecision("disagree");
-    } else {
-      resetDrag();
-      return;
-    }
-    resetDrag();
-  };
-
-  return (
-    <article
-      className={`flex flex-col gap-3 rounded-3xl bg-white/95 p-4 shadow-[0_18px_55px_rgba(15,23,42,0.08)] ring-1 ${
-        isActive ? "ring-sky-200 shadow-[0_20px_60px_rgba(14,116,144,0.25)]" : "ring-slate-100"
-      } transition-transform duration-150`}
-      style={{ transform: `translateX(${dragX}px) rotate(${dragX * 0.03}deg)`, touchAction: "pan-y" }}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={resetDrag}
-      onPointerLeave={() => {
-        if (isDragging) resetDrag();
-      }}
-    >
-      {isDragging && Math.abs(dragX) > 20 && (
-        <div
-          className={`pointer-events-none absolute inset-0 z-20 flex items-center justify-center text-5xl font-bold ${
-            dragX > 0 ? "text-emerald-500" : "text-rose-500"
-          }`}
-          style={{ opacity: Math.min(0.35, Math.abs(dragX) / 200) }}
-        >
-          {dragX > 0 ? "👍" : "👎"}
-        </div>
-      )}
-      <header className="flex items-start justify-between gap-3">
-        <div className="space-y-1">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">{item.category}</p>
-          <h2 className="text-sm font-semibold text-slate-900">{item.title}</h2>
-        </div>
-        <div className="flex flex-col items-end gap-1 text-right">
-          <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-700">
-            {item.level}
-          </span>
-          <p className="text-[10px] text-slate-400">{item.evidenceCount} Belege</p>
-        </div>
-      </header>
-
-      <div className="flex flex-wrap gap-1.5 text-[11px]">
-        <span className="inline-flex items-center rounded-full bg-sky-50 px-2.5 py-1 text-sky-800 ring-1 ring-sky-100">{item.domainLabel}</span>
-        {item.topicTags.map((tag) => (
-          <span key={tag} className="inline-flex items-center rounded-full bg-slate-50 px-2 py-1 text-slate-700 ring-1 ring-slate-100">
-            {tag}
-          </span>
-        ))}
-      </div>
-
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => onDecision("disagree")}
-            className={`${decisionButtonBase} ${
-              flashDecision === "disagree"
-                ? "border-rose-500/60 bg-rose-50 text-rose-800"
-                : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-            }`}
-          >
-            👎 Ablehnen
-          </button>
-          <button
-            type="button"
-            onClick={() => onDecision("neutral")}
-            className={`${decisionButtonBase} ${
-              flashDecision === "neutral"
-                ? "border-sky-400/70 bg-sky-50 text-sky-800"
-                : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-            }`}
-          >
-            😐 Neutral
-          </button>
-          <button
-            type="button"
-            onClick={() => onDecision("agree")}
-            className={`${decisionButtonBase} ${
-              flashDecision === "agree"
-                ? "border-emerald-500/60 bg-emerald-50 text-emerald-800"
-                : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-            }`}
-          >
-            👍 Zustimmen
-          </button>
-        </div>
-
-        <div className="flex flex-col items-end gap-1 text-right">
-          {item.hasEventualities ? (
-            isBasic ? (
-              <>
-                <span className="text-[11px] text-slate-500">{item.eventualitiesCount} Varianten verfügbar.</span>
-                <Link href="/mitglied-werden" className={subtleTextLinkClass}>
-                  Varianten in eDebatte Start ansehen
-                </Link>
-              </>
-            ) : (
-              <button type="button" onClick={() => onOpenEventualities(item)} className="text-[11px] font-semibold text-sky-700 underline-offset-2 hover:underline">
-                Eventualitäten ansehen ({item.eventualitiesCount})
-              </button>
-            )
-          ) : (
-            <span className="inline-flex items-center rounded-full bg-slate-50 px-2 py-1 text-[11px] font-medium text-slate-500 ring-1 ring-slate-100">
-              Noch keine Eventualitäten erfasst.
-            </span>
-          )}
-        </div>
-      </div>
-    </article>
   );
 }
 
@@ -647,10 +594,17 @@ function MobileEventualitiesOverlay({ selectedSwipe, eventualities, isBasic, onC
 
 /** Empty State */
 
-function EmptyState() {
+function EmptyState({ message, ctaHref, ctaLabel }: { message?: string; ctaHref?: string; ctaLabel?: string }) {
   return (
     <div className="rounded-3xl bg-slate-50/80 p-4 text-sm text-slate-500 ring-1 ring-dashed ring-slate-200">
-      Aktuell gibt es zu deiner Auswahl keine Swipes. Probiere einen anderen Suchbegriff, eine andere Ebene – oder entdecke neue Themen auf der Startseite.
+      {message ?? "Aktuell gibt es zu deiner Auswahl keine Swipes. Probiere einen anderen Suchbegriff, eine andere Ebene – oder entdecke neue Themen auf der Startseite."}
+      {ctaHref && ctaLabel && (
+        <div className="mt-2">
+          <Link href={ctaHref} className="text-[11px] font-semibold text-sky-700 underline-offset-2 hover:underline">
+            {ctaLabel}
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

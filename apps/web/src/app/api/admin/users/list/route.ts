@@ -2,15 +2,11 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { getCol } from "@core/db/triMongo";
-
-function isAdmin(req: NextRequest) {
-  const role = req.cookies.get("u_role")?.value || "guest";
-  return role === "admin" || role === "superadmin";
-}
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 export async function GET(req: NextRequest) {
-  if (!isAdmin(req))
-    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   const url = req.nextUrl;
   const q = (url.searchParams.get("q") || "").trim().toLowerCase();

@@ -16,13 +16,15 @@ export const dynamic = "force-dynamic";
 
 const schema = z.object({
   name: z.string().min(2).max(120),
-  firstName: z.string().min(1).max(120).optional(),
-  lastName: z.string().min(1).max(160).optional(),
+  firstName: z.string().min(2).max(120).optional(),
+  lastName: z.string().min(2).max(160).optional(),
   birthDate: z.string().optional(), // Sanitizing unten
   email: z.string().email(),
   password: z.string().min(12),
   preferredLocale: z.string().optional(),
   newsletterOptIn: z.boolean().optional(),
+  title: z.string().trim().max(80).optional(),
+  pronouns: z.string().trim().max(80).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -38,6 +40,8 @@ export async function POST(req: NextRequest) {
   const givenName = body.firstName?.trim() || undefined;
   const familyName = body.lastName?.trim() || undefined;
   const birthDate = normalizeBirthDate(body.birthDate);
+  const title = body.title?.trim() || undefined;
+  const pronouns = body.pronouns?.trim() || undefined;
   const displayName = body.name.trim();
 
   if (!isPasswordStrong(body.password)) {
@@ -129,6 +133,8 @@ export async function POST(req: NextRequest) {
       givenName,
       familyName,
       birthDate: birthDate ?? null,
+      title: title ?? null,
+      pronouns: pronouns ?? null,
       householdSize: householdSize > 1 ? householdSize : undefined,
     });
   } catch (err) {

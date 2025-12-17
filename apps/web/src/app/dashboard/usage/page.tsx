@@ -1,4 +1,5 @@
 import { UsageKPIPanel, type UsageKPI } from "@/app/(components)/UsageKPIPanel";
+import type { AiErrorKind } from "@core/telemetry/aiUsageTypes";
 
 type TelemetryResponse = {
   ok: boolean;
@@ -21,11 +22,19 @@ type RecentEvent = {
   timestamp: string;
   provider: string;
   pipeline: string;
+  model?: string | null;
   region?: string | null;
   tokens: number;
+  tokensInput?: number;
+  tokensOutput?: number;
   costEur: number;
   durationMs: number;
   success: boolean;
+  errorKind?: AiErrorKind | null;
+  strictJson?: boolean;
+  promptSnippet?: string;
+  responseSnippet?: string;
+  rawError?: string;
 };
 
 function resolveBaseUrl() {
@@ -67,6 +76,7 @@ const PROVIDER_OPTIONS = [
   { value: "anthropic", label: "Claude / Anthropic" },
   { value: "mistral", label: "Mistral" },
   { value: "gemini", label: "Gemini" },
+  { value: "ari", label: "ARI" },
   { value: "youcom", label: "ARI / You.com" },
 ];
 
@@ -175,6 +185,8 @@ function RecentEventsTable({ events }: { events: RecentEvent[] }) {
             <th className="px-4 py-2 font-semibold text-right">Kosten</th>
             <th className="px-4 py-2 font-semibold text-right">Dauer</th>
             <th className="px-4 py-2 font-semibold text-right">Status</th>
+            <th className="px-4 py-2 font-semibold text-right">ErrorKind</th>
+            <th className="px-4 py-2 font-semibold text-right">Details</th>
           </tr>
         </thead>
         <tbody>
@@ -206,6 +218,36 @@ function RecentEventsTable({ events }: { events: RecentEvent[] }) {
                 ) : (
                   <span className="text-rose-600">error</span>
                 )}
+              </td>
+              <td className="px-4 py-2 text-right">
+                {!event.success && event.errorKind ? (
+                  <span className="inline-flex items-center justify-end rounded-full bg-rose-50 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-rose-700 ring-1 ring-rose-100">
+                    {event.errorKind}
+                  </span>
+                ) : event.strictJson ? (
+                  <span className="inline-flex items-center justify-end rounded-full bg-sky-50 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-sky-700 ring-1 ring-sky-100">
+                    JSON
+                  </span>
+                ) : (
+                  "—"
+                )}
+              </td>
+              <td className="px-4 py-2 text-right">
+                <details className="text-[11px] text-slate-600">
+                  <summary className="cursor-pointer text-sky-700 underline-offset-2 hover:underline">Details</summary>
+                  <div className="mt-1 space-y-1 text-left">
+                    {event.model && <div>Modell: {event.model}</div>}
+                    <div>Tokens In/Out: {event.tokensInput ?? 0} / {event.tokensOutput ?? 0}</div>
+                    <div>Dauer: {event.durationMs} ms</div>
+                    {event.promptSnippet && (
+                      <pre className="max-h-24 overflow-y-auto rounded bg-slate-50 p-2 text-[10px] text-slate-700">{event.promptSnippet}</pre>
+                    )}
+                    {event.responseSnippet && (
+                      <pre className="max-h-24 overflow-y-auto rounded bg-slate-50 p-2 text-[10px] text-slate-700">{event.responseSnippet}</pre>
+                    )}
+                    {event.rawError && <div className="text-rose-600">{event.rawError}</div>}
+                  </div>
+                </details>
               </td>
             </tr>
           ))}

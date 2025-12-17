@@ -14,6 +14,8 @@ export type AuthUser = {
   engagementLevel: string | null;
   contributionCredits: number | null;
   vogMembershipStatus: string | null;
+  avatarUrl?: string | null;
+  avatarStyle?: "initials" | "abstract" | "emoji" | null;
 };
 
 type AuthState = {
@@ -89,6 +91,11 @@ export function useCurrentUser(): AuthState {
 // Helfer, um den Client-Cache explizit zu leeren (z.B. nach Logout)
 export function clearCachedUser() {
   cachedUser = undefined;
+  pending = null;
+}
+
+export function primeCachedUser(user: AuthUser | null) {
+  cachedUser = user;
   pending = null;
 }
 

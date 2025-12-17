@@ -2,15 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "@core/db/triMongo";
 import { evidenceItemsCol, evidenceLinksCol } from "@core/evidence/db";
 import type { EvidenceItemDoc } from "@core/evidence/types";
-import { isStaffRequest } from "@/app/api/admin/feeds/utils";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   const { id } = await context.params;
   let objectId: ObjectId;
@@ -39,9 +38,8 @@ export async function PATCH(
   req: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   let body: any;
   try {

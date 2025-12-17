@@ -1,19 +1,13 @@
 // apps/web/src/app/api/admin/telemetry/ai/events/route.ts
-import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 import { recentEvents, summarizeTelemetry } from "@features/ai/telemetry";
 
 export const runtime = "nodejs";
 
-async function isAdmin() {
-  const jar = await cookies();
-  return jar.get("u_role")?.value === "admin";
-}
-
-export async function GET() {
-  if (!(await isAdmin())) {
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
-  }
+export async function GET(req: NextRequest) {
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   const events = recentEvents(200);
   const summary = summarizeTelemetry(events);

@@ -1,15 +1,9 @@
 import type { ObjectId } from "mongodb";
 import type { UserVerification } from "@core/auth/verificationTypes";
+import type { UserRole } from "@/types/user";
+import type { AccessTier } from "@core/access/accessTiers";
 
-export type CoreAccessTier =
-  | "public"
-  | "citizenBasic"
-  | "citizenPremium"
-  | "citizenPro"
-  | "citizenUltra"
-  | "institutionBasic"
-  | "institutionPremium"
-  | "staff";
+export type CoreAccessTier = AccessTier;
 
 export type CoreUserProfile = {
   displayName?: string | null;
@@ -42,7 +36,7 @@ export type CoreUserDoc = {
   email: string;
   name?: string | null;
   role?: string | null;
-  roles?: Array<string | { role?: string; subRole?: string; premium?: boolean }>;
+  roles?: UserRole[];
   accessTier?: CoreAccessTier;
   profile?: CoreUserProfile;
   settings?: CoreUserSettings;

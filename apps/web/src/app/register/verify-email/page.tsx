@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { RegisterStepper } from "../RegisterStepper";
 
 const TOKEN_VALIDITY_HOURS = 24;
+const CHANNEL_NAME = "vog-email-verify";
 
 type State = "idle" | "pending" | "success" | "error";
 
@@ -17,13 +18,48 @@ export default function VerifyEmailPage() {
   const [state, setState] = useState<State>("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [resendState, setResendState] = useState<"idle" | "sending" | "sent">("idle");
+  const [channel, setChannel] = useState<BroadcastChannel | null>(null);
 
   useEffect(() => {
-    if (tokenParam) {
-      confirmToken(tokenParam);
+    if (typeof window === "undefined" || typeof BroadcastChannel === "undefined") return;
+    const ch = new BroadcastChannel(CHANNEL_NAME);
+    setChannel(ch);
+    return () => ch.close();
+  }, []);
+
+  useEffect(() => {
+    if (!channel) return;
+    const onMessage = (event: MessageEvent) => {
+      const payload = event.data;
+      if (!payload || payload.type !== "vog-email-verify-token") return;
+      if (payload.email && emailParam && payload.email !== emailParam) return;
+      const incoming = String(payload.token ?? "").trim();
+      if (!incoming) return;
+      setToken(incoming);
+      setMessage("Token aus dem Link übernommen.");
+      confirmToken(incoming);
+    };
+    channel.addEventListener("message", onMessage);
+    return () => channel.removeEventListener("message", onMessage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [channel, emailParam]);
+
+  useEffect(() => {
+    if (!tokenParam) return;
+    const normalized = tokenParam.trim();
+    if (!normalized) return;
+    setToken(normalized);
+    if (channel) {
+      channel.postMessage({ type: "vog-email-verify-token", token: normalized, email: emailParam || undefined });
+    }
+    confirmToken(normalized);
+    if (channel) {
+      setTimeout(() => {
+        if (window.history.length <= 1) window.close();
+      }, 500);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tokenParam]);
+  }, [tokenParam, channel, emailParam]);
 
   async function confirmToken(rawToken?: string) {
     const value = rawToken ?? token;
@@ -122,7 +158,7 @@ export default function VerifyEmailPage() {
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="submit"
-              className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              className="rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow disabled:opacity-50"
               disabled={state === "pending"}
             >
               {state === "pending" ? "Bestätige …" : "Code bestätigen"}

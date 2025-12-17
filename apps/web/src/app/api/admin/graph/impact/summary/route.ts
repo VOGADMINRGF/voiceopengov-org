@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getGraphDriver } from "@core/graph/driver";
 import { getStaffContext } from "../../../eventualities/helpers";
 import { logger } from "@core/observability/logger";
@@ -7,11 +7,11 @@ import { maskUserId } from "@core/pii/redact";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  const staff = await getStaffContext();
-  if (!staff) {
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
-  }
+export async function GET(req: NextRequest) {
+  const staff = await getStaffContext(req);
+  if (staff.response) return staff.response;
+  const ctx = staff.context;
+  if (!ctx) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
 
   const driver = getGraphDriver();
   if (!driver) {
@@ -59,7 +59,7 @@ export async function GET() {
       {
         zone: "PII_ZONES_E150",
         action: "graph_impact_summary",
-        userIdMasked: maskUserId(staff.userId),
+        userIdMasked: maskUserId(ctx.userId),
       },
       "Admin fetched graph impact summary",
     );
@@ -70,7 +70,7 @@ export async function GET() {
       {
         zone: "PII_ZONES_E150",
         action: "graph_impact_summary_error",
-        userIdMasked: maskUserId(staff.userId),
+        userIdMasked: maskUserId(ctx.userId),
         reason: error?.message ?? String(error),
       },
       "Failed to fetch graph impact summary",

@@ -10,11 +10,18 @@ type SessionSummary = {
   isLive: boolean;
   visibility: "public" | "unlisted";
   updatedAt?: string;
+  startsAt?: string | null;
 };
 
 export default function StreamsDashboardPage() {
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
   const [title, setTitle] = useState("");
+  const [topicKey, setTopicKey] = useState("");
+  const [regionCode, setRegionCode] = useState("");
+  const [startsAt, setStartsAt] = useState("");
+  const [playerUrl, setPlayerUrl] = useState("");
+  const [visibility, setVisibility] = useState<"public" | "unlisted">("unlisted");
+  const [autofillAgenda, setAutofillAgenda] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,16 +51,40 @@ export default function StreamsDashboardPage() {
     if (!name) return;
     setLoading(true);
     try {
+      const payload: Record<string, any> = {
+        title: name,
+        topicKey: topicKey.trim() || undefined,
+        regionCode: regionCode.trim() || undefined,
+        playerUrl: playerUrl.trim() || undefined,
+        visibility,
+        autofillAgenda,
+      };
+      if (startsAt.trim()) {
+        const dt = new Date(startsAt);
+        if (!isNaN(dt.getTime())) payload.startsAt = dt.toISOString();
+      }
       const res = await fetch("/api/streams/sessions", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ title: name }),
+        body: JSON.stringify(payload),
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body?.error || res.statusText);
       setTitle("");
+      setTopicKey("");
+      setRegionCode("");
+      setStartsAt("");
+      setPlayerUrl("");
+      setAutofillAgenda(false);
       setSessions((prev) => [
-        { _id: body.sessionId, title: name, description: "", isLive: false, visibility: "unlisted" },
+        {
+          _id: body.sessionId,
+          title: name,
+          description: "",
+          isLive: false,
+          visibility,
+          startsAt: payload.startsAt ?? null,
+        },
         ...prev,
       ]);
     } catch (err: any) {
@@ -75,21 +106,68 @@ export default function StreamsDashboardPage() {
 
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
         <h2 className="text-sm font-semibold text-slate-900">Neue Session</h2>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid gap-2 md:grid-cols-2">
           <input
-            className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm"
+            className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
             placeholder="Titel"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
-          <button
-            className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
-            onClick={createSession}
-            disabled={loading}
-          >
-            Anlegen
-          </button>
+          <input
+            className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+            placeholder="Thema (topicKey)"
+            value={topicKey}
+            onChange={(e) => setTopicKey(e.target.value)}
+          />
+          <input
+            className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+            placeholder="Region (z. B. DE-BE oder PLZ)"
+            value={regionCode}
+            onChange={(e) => setRegionCode(e.target.value)}
+          />
+          <input
+            className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+            placeholder="Player-URL / Embed"
+            value={playerUrl}
+            onChange={(e) => setPlayerUrl(e.target.value)}
+          />
+          <label className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm">
+            <span className="shrink-0 text-slate-600">Startzeit</span>
+            <input
+              className="w-full rounded-md border border-slate-200 px-2 py-1 text-sm"
+              type="datetime-local"
+              value={startsAt}
+              onChange={(e) => setStartsAt(e.target.value)}
+            />
+          </label>
+          <label className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm">
+            <span className="shrink-0 text-slate-600">Sichtbarkeit</span>
+            <select
+              className="w-full rounded-md border border-slate-200 px-2 py-1 text-sm"
+              value={visibility}
+              onChange={(e) => setVisibility(e.target.value as "public" | "unlisted")}
+            >
+              <option value="public">Öffentlich</option>
+              <option value="unlisted">Nicht gelistet</option>
+            </select>
+          </label>
+          <label className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm md:col-span-2">
+            <input
+              type="checkbox"
+              className="h-4 w-4"
+              checked={autofillAgenda}
+              onChange={(e) => setAutofillAgenda(e.target.checked)}
+            />
+            <span>Agenda automatisch aus aktuellem Thema füllen</span>
+          </label>
         </div>
+        <button
+          className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+          onClick={createSession}
+          disabled={loading}
+        >
+          Anlegen
+        </button>
         {error && <p className="text-sm text-rose-600">{error}</p>}
       </div>
 

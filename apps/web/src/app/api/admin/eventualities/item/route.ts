@@ -8,8 +8,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  const staff = await getStaffContext();
-  if (!staff) {
+  const { context, response } = await getStaffContext(req);
+  if (response) return response;
+  if (!context) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
@@ -28,7 +29,7 @@ export async function GET(req: NextRequest) {
       zone: "PII_ZONES_E150",
       action: "eventualities_item",
       contributionId: id,
-      userIdMasked: maskUserId(staff.userId),
+      userIdMasked: maskUserId(context.userId),
     },
     "Admin viewed eventuality snapshot",
   );

@@ -1,12 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { listTasks, getContributionsByTaskId } from "@core/research";
 import { logger } from "@/utils/logger";
-import { isStaffRequest } from "@/app/api/admin/feeds/utils";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 export async function GET(req: NextRequest) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   const taskId = req.nextUrl.searchParams.get("taskId");
   const status = req.nextUrl.searchParams.get("status") || undefined;

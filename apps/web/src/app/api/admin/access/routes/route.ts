@@ -3,12 +3,11 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { getEffectiveRoutePolicies, countRouteOverrides } from "@core/access/db";
-import { isStaffRequest } from "@/app/api/admin/feeds/utils";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 export async function GET(req: NextRequest) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   const [policies, counts] = await Promise.all([getEffectiveRoutePolicies(), countRouteOverrides()]);
   return NextResponse.json({

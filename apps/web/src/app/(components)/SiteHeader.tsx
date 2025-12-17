@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale } from "@/context/LocaleContext";
-import { useCurrentUser, clearCachedUser } from "@/hooks/auth";
+import { useCurrentUser, clearCachedUser, primeCachedUser } from "@/hooks/auth";
+import type { AuthUser } from "@/hooks/auth";
 
 type NavItem = {
   href: string;
@@ -47,17 +48,25 @@ function deriveInitials(value: string) {
   return `${first}${second}` || first || "DU";
 }
 
-export function SiteHeader() {
+export function SiteHeader({ initialUser }: { initialUser?: AuthUser | null }) {
   const { locale } = useLocale();
   const { user } = useCurrentUser();
   const [mobileOpen, setMobileOpen] = useState(false);
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
+  const avatarLabel = deriveInitials(user?.name || user?.email || "Du");
+  const avatarUrl = user?.avatarUrl ?? null;
 
   const localeLabel = useMemo(
     () => (locale || "de").toUpperCase(),
     [locale],
   );
+
+  useEffect(() => {
+    if (initialUser !== undefined) {
+      primeCachedUser(initialUser ?? null);
+    }
+  }, [initialUser]);
 
   const handleLogout = async () => {
     try {
@@ -93,25 +102,7 @@ export function SiteHeader() {
 
         {/* Rechts: Avatar/Account + Hamburger */}
         <div className="flex items-center gap-3">
-          {user ? (
-            <div className="flex items-center gap-2">
-              <Link
-                href="/account"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-700 shadow-sm hover:border-sky-300 hover:text-sky-700"
-                aria-label="Mein Konto öffnen"
-              >
-                {deriveInitials(user.name || user.email || "Du")}
-              </Link>
-              <button
-                type="button"
-                onClick={handleLogout}
-                disabled={loggingOut}
-                className="hidden sm:inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:border-rose-300 hover:text-rose-600 disabled:opacity-60"
-              >
-                {loggingOut ? "Abmelden …" : "Abmelden"}
-              </button>
-            </div>
-          ) : (
+          {!user && (
             <Link
               href="/login"
               className="hidden sm:inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:border-sky-400 hover:text-sky-600"
@@ -121,24 +112,42 @@ export function SiteHeader() {
           )}
           <button
             type="button"
-            aria-label="Navigation öffnen"
+            aria-label={user ? "Account-Menü öffnen" : "Navigation öffnen"}
             onClick={() => setMobileOpen((v) => !v)}
-            className="inline-flex items-center justify-center rounded-full border border-slate-300/80 bg-white/90 p-2 text-slate-700 shadow-sm"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-300/80 bg-white/90 text-sm font-semibold text-slate-700 shadow-sm hover:border-sky-300"
           >
-            <span className="sr-only">Menü</span>
-            <svg
-              aria-hidden="true"
-              className="h-5 w-5"
-              viewBox="0 0 24 24"
-              fill="none"
-            >
-              <path
-                d="M4 7h16M4 12h16M4 17h10"
-                stroke="currentColor"
-                strokeWidth={1.8}
-                strokeLinecap="round"
-              />
-            </svg>
+            {user ? (
+              avatarUrl ? (
+                <span className="inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-100 shadow-sm">
+                  <span
+                    aria-hidden="true"
+                    className="h-full w-full bg-cover bg-center"
+                    style={{ backgroundImage: `url(${avatarUrl})` }}
+                  />
+                </span>
+              ) : (
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-700 shadow-sm">
+                  {avatarLabel}
+                </span>
+              )
+            ) : (
+              <>
+                <span className="sr-only">Menü</span>
+                <svg
+                  aria-hidden="true"
+                  className="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M4 7h16M4 12h16M4 17h10"
+                    stroke="currentColor"
+                    strokeWidth={1.8}
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </>
+            )}
           </button>
         </div>
       </div>

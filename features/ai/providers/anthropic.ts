@@ -1,11 +1,12 @@
 // features/ai/providers/anthropic.ts
 import { withMetrics } from "../orchestrator";
+import type { AiErrorKind } from "@core/telemetry/aiUsageTypes";
 
 const API_BASE = (process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com").replace(
   /\/+$/,
   "",
 );
-const MODEL = process.env.ANTHROPIC_MODEL || "claude-3-5-sonnet-20241022";
+const MODEL = process.env.ANTHROPIC_MODEL || "claude-3-5-sonnet-latest";
 const VERSION = process.env.ANTHROPIC_VERSION || "2023-06-01";
 
 export type AskArgs = {
@@ -63,7 +64,7 @@ async function post(body: Record<string, unknown>, signal?: AbortSignal) {
 
 async function askAnthropic({
   prompt,
-  maxOutputTokens = 1200,
+  maxOutputTokens = 2_200,
   signal,
 }: AskArgs): Promise<AskResult> {
   if (!prompt) throw new Error("prompt darf nicht leer sein");
@@ -108,3 +109,44 @@ export const callAnthropic = withMetrics<Parameters<typeof askAnthropic>, AskRes
 );
 
 export default callAnthropic;
+
+export async function anthropicProbe({ signal }: { signal?: AbortSignal } = {}): Promise<{
+  ok: boolean;
+  errorKind?: AiErrorKind;
+  status?: number;
+  durationMs: number;
+}> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 1_800);
+  const started = Date.now();
+
+  try {
+    const res = await fetch(`${API_BASE}/v1/models`, {
+      method: "GET",
+      headers: {
+        "anthropic-version": VERSION,
+        "x-api-key": process.env.ANTHROPIC_API_KEY ?? "",
+      },
+      signal: signal ?? controller.signal,
+    });
+
+    const durationMs = Date.now() - started;
+    if (res.ok) {
+      return { ok: true, durationMs };
+    }
+
+    let errorKind: AiErrorKind = "INTERNAL";
+    if (res.status === 401 || res.status === 403) errorKind = "UNAUTHORIZED";
+    else if (res.status === 404) errorKind = "MODEL_NOT_FOUND";
+    else if (res.status === 429) errorKind = "RATE_LIMIT";
+
+    return { ok: false, errorKind, status: res.status, durationMs };
+  } catch (err: any) {
+    const durationMs = Date.now() - started;
+    const errorKind: AiErrorKind =
+      err?.name === "AbortError" ? "TIMEOUT" : "INTERNAL";
+    return { ok: false, errorKind, durationMs };
+  } finally {
+    clearTimeout(timeout);
+  }
+}

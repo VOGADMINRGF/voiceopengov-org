@@ -30,6 +30,7 @@ export type Eventuality = {
 export type SwipeFeedFilter = {
   topicQuery?: string;
   level?: SwipeScopeLevel | "ALL";
+  statementId?: string;
 };
 
 export type SwipeFeedRequest = {

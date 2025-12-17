@@ -1,21 +1,26 @@
-import { cookies } from "next/headers";
+import { type NextRequest } from "next/server";
 import type { EventualitySnapshotDoc } from "@core/eventualities";
 import { maskUserId } from "@core/pii/redact";
-
-const STAFF_ROLES = new Set(["admin", "superadmin", "moderator", "staff"]);
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 export type StaffContext = {
   role: string;
   userId: string | null;
 };
 
-export async function getStaffContext(): Promise<StaffContext | null> {
-  const jar = await cookies();
-  const role = jar.get("u_role")?.value ?? "guest";
-  if (!STAFF_ROLES.has(role)) return null;
+export async function getStaffContext(
+  req: NextRequest,
+): Promise<{ context?: StaffContext; response?: Response }> {
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return { response: gate };
+  const user = gate as any;
+  const primaryRole =
+    Array.isArray(user?.roles) && user.roles.length ? user.roles[0] : user?.role ?? "guest";
   return {
-    role,
-    userId: jar.get("u_id")?.value ?? null,
+    context: {
+      role: primaryRole ?? "guest",
+      userId: user?._id ? String(user._id) : null,
+    },
   };
 }
 

@@ -3,7 +3,7 @@ type StepId = 1 | 2 | 3;
 const STEPS: { id: StepId; title: string; subtitle: string }[] = [
   { id: 1, title: "Konto", subtitle: "Basisdaten anlegen" },
   { id: 2, title: "E-Mail", subtitle: "Adresse bestätigen" },
-  { id: 3, title: "Identität", subtitle: "OTP/eID (Mock) prüfen" },
+  { id: 3, title: "OTP", subtitle: "OTP prüfen" },
 ];
 
 export function RegisterStepper({ current }: { current: StepId }) {

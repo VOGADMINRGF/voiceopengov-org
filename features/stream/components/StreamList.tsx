@@ -118,7 +118,7 @@ export type StreamListV3Props = V2Props & V1Props;
 
 /* ------------------------------ Helper config ----------------------------- */
 
-const DEFAULT_ENDPOINT = "/api/streams";
+const DEFAULT_ENDPOINT = "/api/streams/public";
 const DEFAULT_ACCENT = "#3B82F6"; // Fallback (Brand/Indigo-ähnlich)
 const GLOBAL_CATEGORIES = new Set(["EU", "G7", "G-Gipfel", "Sonstiges", "Global"]);
 
@@ -386,14 +386,34 @@ export default function StreamListV3({
       try {
         const url = buildURL(nextCursor ?? cursor);
         const res = await fetch(url, { method: "GET", signal: ac.signal, cache: "no-store" });
+        if (res.status === 404) {
+          setItems([]);
+          setCursor(null);
+          setHasMore(false);
+          return;
+        }
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = (await res.json()) as PageResponse | StreamItem[];
+        const data = (await res.json()) as PageResponse | StreamItem[] | { sessions?: any[] };
 
         let page: PageResponse;
+        const normalizeItem = (raw: any): StreamItem => ({
+          id: raw.id ?? raw._id ?? "",
+          title: raw.title ?? "Stream",
+          summary: raw.summary ?? raw.description ?? undefined,
+          createdAt: raw.createdAt ?? new Date().toISOString(),
+          status: raw.status ?? (raw.isLive ? "Live" : undefined),
+          topic: raw.topicKey ?? raw.topic ?? undefined,
+          region: raw.regionCode ?? raw.region ?? undefined,
+          data: raw,
+        });
+
         if (Array.isArray(data)) {
-          page = { items: data, nextCursor: null, hasMore: data.length >= pageSize };
+          page = { items: data.map(normalizeItem), nextCursor: null, hasMore: data.length >= pageSize };
+        } else if (Array.isArray((data as any)?.sessions)) {
+          const arr = (data as any).sessions.map(normalizeItem);
+          page = { items: arr, nextCursor: null, hasMore: arr.length >= pageSize };
         } else {
-          page = data;
+          page = { ...(data as PageResponse), items: (data as PageResponse).items?.map(normalizeItem) ?? [] };
         }
 
         setItems((prev) => dedupById(prev.concat(page.items || [])));

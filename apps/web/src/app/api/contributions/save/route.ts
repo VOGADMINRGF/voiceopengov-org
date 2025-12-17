@@ -7,6 +7,7 @@ import { dbConnect } from "@/lib/db";
 import Contribution from "@/models/Contribution";
 import { getCol, ObjectId } from "@core/db/triMongo";
 import type { AccessTier } from "@features/pricing/types";
+import { deriveAccessTierFromPlanCode, hasUnlimitedContributions } from "@core/access/accessTiers";
 
 type ContributionPayload = {
   title?: string;
@@ -89,12 +90,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "not_authenticated" }, { status: 401 });
   }
 
-  const tier = (userDoc.accessTier ?? userDoc.tier ?? "citizenBasic") as AccessTier;
-  const unlimited =
-    tier === "citizenPremium" ||
-    tier === "citizenPro" ||
-    tier === "citizenUltra" ||
-    tier === "staff";
+  const tier = deriveAccessTierFromPlanCode(userDoc.accessTier ?? userDoc.tier ?? null) as AccessTier;
+  const unlimited = hasUnlimitedContributions(tier);
 
   let creditDebited = false;
   if (!unlimited) {

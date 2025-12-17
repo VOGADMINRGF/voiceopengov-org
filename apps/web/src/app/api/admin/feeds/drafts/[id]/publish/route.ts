@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { publishVoteDraft } from "@features/feeds/publishVoteDraft";
-import { isStaffRequest } from "../../../utils";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 export async function POST(
   req: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   const { id } = await context.params;
   const result = await publishVoteDraft(id);

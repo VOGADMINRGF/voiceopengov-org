@@ -17,6 +17,8 @@ export type PiiProfilePatch = {
   familyName?: string | null;
   fullName?: string | null;
   birthDate?: string | null;
+  title?: string | null;
+  pronouns?: string | null;
   username?: string | null;
   household?: {
     size?: number | null;
@@ -57,6 +59,8 @@ export async function upsertPiiProfile(userId: ObjectId, patch: PiiProfilePatch)
   assignIfDefined(setOps, "personal.familyName", patch.familyName ?? null, patch.familyName !== undefined);
   assignIfDefined(setOps, "personal.fullName", patch.fullName ?? null, patch.fullName !== undefined);
   assignIfDefined(setOps, "personal.birthDate", patch.birthDate ?? null, patch.birthDate !== undefined);
+  assignIfDefined(setOps, "personal.title", patch.title ?? null, patch.title !== undefined);
+  assignIfDefined(setOps, "personal.pronouns", patch.pronouns ?? null, patch.pronouns !== undefined);
 
   if (patch.address) {
     assignIfDefined(setOps, "address.street", patch.address.street ?? null, patch.address.street !== undefined);
@@ -102,6 +106,8 @@ export async function ensureBasicPiiProfile(
     givenName?: string | null;
     familyName?: string | null;
     birthDate?: string | null;
+    title?: string | null;
+    pronouns?: string | null;
     householdSize?: number | null;
   },
 ) {
@@ -121,6 +127,8 @@ export async function ensureBasicPiiProfile(
     familyName,
     fullName,
     birthDate: opts.birthDate ?? null,
+    title: opts.title ?? null,
+    pronouns: opts.pronouns ?? null,
     household:
       typeof opts.householdSize === "number"
         ? { size: opts.householdSize }

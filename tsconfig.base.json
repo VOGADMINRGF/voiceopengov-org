@@ -52,11 +52,15 @@
     "verbatimModuleSyntax": false,
     "jsx": "react-jsx"
   },
-  "exclude": [
-    "apps/web/scripts/**",
-    "**/__tests__/**",
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "features_2/**"
-  ]
+    "exclude": [
+      "apps/web/scripts/**",
+      "**/__tests__/**",
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "features_2/**",
+      "_legacy_src/**",
+      "**/*.bak",
+      "**/_repair_backup_*/**",
+      "apps/web/src/__features_local_DISABLED__/**"
+    ]
 }

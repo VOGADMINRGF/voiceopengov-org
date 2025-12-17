@@ -1,76 +1,77 @@
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
 
-type Row = {
-  name: string;
-  ok: boolean;
-  status?: number;
-  path?: string;
-  error?: string;
-};
+function resolveAriBaseUrl() {
+  const raw =
+    process.env.ARI_BASE_URL ||
+    process.env.ARI_URL ||
+    process.env.ARI_API_URL ||
+    process.env.YOUCOM_ARI_API_URL ||
+    "";
+  return raw.replace(/\/+$/, "");
+}
+
+function resolveAriApiKey() {
+  return process.env.ARI_API_KEY || process.env.YOUCOM_ARI_API_KEY || "";
+}
 
 export async function GET() {
-  const base = process.env.ARI_URL || process.env.YOUCOM_ARI_API_URL || "";
-  const key = process.env.ARI_API_KEY || process.env.YOUCOM_ARI_API_KEY || "";
+  const base = resolveAriBaseUrl();
+  const key = resolveAriApiKey();
 
-  if (!base)
+  if (!base) {
     return NextResponse.json(
-      { name: "ai:ari", ok: false, error: "ARI_URL missing" },
+      {
+        name: "ai:ari",
+        ok: false,
+        error:
+          "ARI base URL missing (checked ARI_BASE_URL, ARI_URL, ARI_API_URL, YOUCOM_ARI_API_URL)",
+      },
       { status: 500 },
     );
-  if (!key)
+  }
+
+  if (!key) {
     return NextResponse.json(
-      { name: "ai:ari", ok: false, error: "ARI_API_KEY missing" },
+      {
+        name: "ai:ari",
+        ok: false,
+        error: "ARI API key missing (checked ARI_API_KEY, YOUCOM_ARI_API_KEY)",
+      },
       { status: 500 },
     );
+  }
 
   const headers: Record<string, string> = {
     Accept: "application/json",
     Authorization: `Bearer ${key}`,
   };
 
-  // Wir probieren mehrere gängige Pfade: geschützter (=Key-Test) und Health
-  const candidates = [
-    "/v1/models",
-    "/models",
-    "/health",
-    "/status",
-    "/v1/health",
-  ].map((p) => base.replace(/\/+$/, "") + p);
+  // Try a few common endpoints (keep lightweight)
+  const paths = ["/v1/models", "/models", "/health", "/"];
 
-  let lastErr = "unreachable";
-  for (const url of candidates) {
+  for (const p of paths) {
     try {
-      const res = await fetch(url, { headers, cache: "no-store" });
+      const res = await fetch(`${base}${p}`, { headers, cache: "no-store" });
       if (res.ok) {
-        return NextResponse.json({
-          name: "ai:ari",
-          ok: true,
-          status: res.status,
-          path: new URL(url).pathname,
-        });
+        return NextResponse.json(
+          { name: "ai:ari", ok: true, status: res.status, pathTried: p },
+          { status: 200 },
+        );
       }
-      // 401/403 -> Key/Permission-Problem (Diagnose zurückgeben)
-      const txt = await res.text().catch(() => "");
-      return NextResponse.json(
-        {
-          name: "ai:ari",
-          ok: false,
-          status: res.status,
-          path: new URL(url).pathname,
-          error: txt?.slice(0, 160) || `HTTP ${res.status}`,
-        },
-        { status: 200 },
-      );
-    } catch (e: any) {
-      lastErr = e?.message ?? "fetch failed";
-      continue;
+    } catch {
+      // continue
     }
   }
 
   return NextResponse.json(
-    { name: "ai:ari", ok: false, error: lastErr },
-    { status: 200 },
+    {
+      name: "ai:ari",
+      ok: false,
+      error: `ARI not reachable at ${base} (tried ${paths.join(", ")})`,
+    },
+    { status: 500 },
   );
 }

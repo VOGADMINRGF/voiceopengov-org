@@ -3,15 +3,14 @@ import { ObjectId } from "@core/db/triMongo";
 import { getEvidenceClaimById } from "@core/evidence/query";
 import { evidenceClaimsCol } from "@core/evidence/db";
 import type { EvidenceClaimDoc } from "@core/evidence/types";
-import { isStaffRequest } from "@/app/api/admin/feeds/utils";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   const { id } = await context.params;
   const claim = await getEvidenceClaimById(id);
@@ -38,9 +37,8 @@ export async function PATCH(
   req: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   let body: any;
   try {

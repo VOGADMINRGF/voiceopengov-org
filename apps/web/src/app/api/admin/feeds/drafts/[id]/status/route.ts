@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "@core/db/triMongo";
 import { voteDraftsCol } from "@features/feeds/db";
 import type { VoteDraftDoc, VoteDraftStatus } from "@features/feeds/types";
-import { isStaffRequest } from "../../../utils";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 const ALLOWED_STATUS: VoteDraftStatus[] = ["draft", "review", "discarded"];
 
@@ -10,9 +10,8 @@ export async function POST(
   req: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   let body: any;
   try {

@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { voteDraftsCol } from "@features/feeds/db";
 import type { VoteDraftDoc } from "@features/feeds/types";
 import { getRegionName } from "@core/regions/regionTranslations";
-import { isStaffRequest, formatObjectId } from "../utils";
+import { formatObjectId } from "../utils";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 export async function GET(req: NextRequest) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   const params = req.nextUrl.searchParams;
   const status = (params.get("status") || "all").toLowerCase();

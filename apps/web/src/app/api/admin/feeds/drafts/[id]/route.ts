@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "@core/db/triMongo";
 import { voteDraftsCol, statementCandidatesCol, analyzeResultsCol } from "@features/feeds/db";
-import { isStaffRequest } from "../../utils";
 import { getRegionName } from "@core/regions/regionTranslations";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   const { id } = await context.params;
   let objectId: ObjectId;

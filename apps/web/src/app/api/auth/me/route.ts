@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { readSession } from "@/utils/session";
 import { coreCol } from "@core/db/db/triMongo";
 import { getEngagementLevel } from "@features/user/engagement";
+import { deriveAccessTierFromPlanCode } from "@core/access/accessTiers";
 
 export const runtime = "nodejs";
 
@@ -11,6 +12,10 @@ type UserDoc = {
   _id: ObjectId;
   email?: string | null;
   name?: string | null;
+  profile?: {
+    avatarUrl?: string | null;
+    avatarStyle?: "initials" | "abstract" | "emoji" | null;
+  } | null;
   roles?: Array<string | { role?: string; subRole?: string }> | null;
   accessTier?: string | null;
   b2cPlanId?: string | null;
@@ -42,7 +47,8 @@ export async function GET() {
     const engagementLevel = doc.stats?.engagementLevel || getEngagementLevel(xp ?? 0);
     const contributionCredits =
       doc.stats?.contributionCredits ?? doc.usage?.contributionCredits ?? null;
-    const planSlug = doc.b2cPlanId ?? null;
+    const accessTier = deriveAccessTierFromPlanCode(doc.accessTier ?? doc.b2cPlanId ?? null);
+    const planSlug = doc.b2cPlanId ?? accessTier ?? null;
 
     return NextResponse.json(
       {
@@ -51,13 +57,16 @@ export async function GET() {
           email: doc.email ?? null,
           name: doc.name ?? null,
           roles: roles.length ? roles : ["user"],
-          accessTier: doc.accessTier ?? null,
-          b2cPlanId: doc.b2cPlanId ?? null,
+          accessTier,
+          b2cPlanId: planSlug,
           engagementXp: doc.engagementXp ?? null,
           engagementLevel: engagementLevel ?? null,
           contributionCredits,
           planSlug,
           vogMembershipStatus: doc.vogMembershipStatus ?? null,
+          isSuperadmin: roles.includes("superadmin"),
+          avatarUrl: doc.profile?.avatarUrl ?? null,
+          avatarStyle: doc.profile?.avatarStyle ?? null,
         },
       },
       noStore,

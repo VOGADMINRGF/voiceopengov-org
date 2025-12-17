@@ -4,6 +4,7 @@
 import crypto from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
+import type { Collection } from "mongodb";
 import { coreCol } from "@core/db/triMongo";
 import { incrementRateLimit } from "@/lib/security/rate-limit";
 import { verifyHumanToken } from "@/lib/security/human-token";
@@ -209,7 +210,7 @@ export async function POST(req: NextRequest) {
   const confirmTokenHash = hashConfirmToken(confirmToken);
   const confirmTokenExpiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 Tage
 
-  const col = await coreCol<SubscriberDoc>("public_updates_subscribers");
+  const col = (await coreCol("public_updates_subscribers")) as Collection<SubscriberDoc>;
 
   await col.updateOne(
     { email },

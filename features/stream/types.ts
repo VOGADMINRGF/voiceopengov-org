@@ -13,6 +13,8 @@ export interface StreamSessionDoc {
   description?: string | null;
   regionCode?: string | null;
   topicKey?: string | null;
+  startsAt?: Date | null;
+  playerUrl?: string | null;
   visibility: StreamVisibility;
   status?: StreamSessionStatus;
   isLive: boolean;

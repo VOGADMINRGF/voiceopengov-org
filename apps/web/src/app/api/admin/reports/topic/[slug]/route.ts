@@ -8,10 +8,10 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
-  const staff = await getStaffContext();
-  if (!staff) {
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
-  }
+  const staff = await getStaffContext(req);
+  if (staff.response) return staff.response;
+  const ctx = staff.context;
+  if (!ctx) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
 
   const { slug } = await params;
   const topicSlug = slug?.trim();
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
         zone: "PII_ZONES_E150",
         action: "topic_report_fetch",
         topic: topicSlug,
-        userIdMasked: maskUserId(staff.userId),
+        userIdMasked: maskUserId(ctx.userId),
       },
       "Admin fetched topic report",
     );
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
         zone: "PII_ZONES_E150",
         action: "topic_report_error",
         topic: topicSlug,
-        userIdMasked: maskUserId(staff.userId),
+        userIdMasked: maskUserId(ctx.userId),
         reason: error?.message ?? String(error),
       },
       "Topic report failed",

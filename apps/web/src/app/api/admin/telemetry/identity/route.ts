@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getIdentityFunnelSnapshot } from "@core/telemetry/identityEvents";
-import { isStaffRequest } from "@/app/api/admin/feeds/utils";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,9 +21,8 @@ function parseRangeDays(value: string | null): number {
 }
 
 export async function GET(req: NextRequest) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   try {
     const { searchParams } = new URL(req.url);

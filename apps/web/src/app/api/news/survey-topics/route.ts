@@ -293,7 +293,7 @@ async function callOpenAIAnalyze(prompt: string): Promise<BatchLikeAnalyzeResult
         type: "json_schema",
         json_schema: {
           name: "AnalyzeResult",
-          schema: ANALYZE_JSON_SCHEMA,
+          schema: ANALYZE_JSON_SCHEMA.schema,
           strict: true,
         },
       },

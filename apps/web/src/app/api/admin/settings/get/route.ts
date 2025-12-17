@@ -1,8 +1,8 @@
 // apps/web/src/app/api/admin/settings/get/route.ts
-import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@core/db/triMongo"; // <— vereinheitlicht
 import { adminConfig, type AdminConfig } from "@config/admin";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 type SettingsDoc = {
   _id: "global";
@@ -12,15 +12,9 @@ type SettingsDoc = {
 
 export const runtime = "nodejs";
 
-async function isAdmin() {
-  const c = await cookies();
-  return c.get("u_role")?.value === "admin";
-}
-
-export async function GET() {
-  if (!(await isAdmin())) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
+export async function GET(req: NextRequest) {
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   const db = await getDb();
   const doc = await db.collection<SettingsDoc>("settings").findOne({ _id: "global" });

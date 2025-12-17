@@ -1,22 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import ResponsibilityPath from "@/models/responsibility/Path";
 import { rateLimit } from "@/utils/rateLimit";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-async function requireAdmin(): Promise<Response | null> {
-  const jar = await cookies();
-  if (jar.get("u_role")?.value !== "admin") {
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
-  }
-  return null;
-}
-
 export async function GET(req: NextRequest) {
-  const guard = await requireAdmin();
-  if (guard) return guard;
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   const { searchParams } = new URL(req.url);
   const statementId = searchParams.get("statementId");
@@ -27,8 +19,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const guard = await requireAdmin();
-  if (guard) return guard;
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   const rl = await rateLimit("admin:responsibility:paths", 30, 60 * 60 * 1000, {
     salt: "admin",

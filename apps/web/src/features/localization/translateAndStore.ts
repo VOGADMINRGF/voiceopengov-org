@@ -3,7 +3,7 @@
 import { createHash } from "node:crypto";
 import { coreCol } from "@core/db/triMongo";
 import { logAiUsage } from "@core/telemetry/aiUsage";
-import type { AiPipelineName } from "@core/telemetry/aiUsageTypes";
+import type { AiErrorKind, AiPipelineName } from "@core/telemetry/aiUsageTypes";
 import { callOpenAIJson } from "@features/ai";
 import {
   DEFAULT_LOCALE,
@@ -136,10 +136,15 @@ export async function translateAndStore(args: TranslateAndStoreArgs): Promise<st
       durationMs: Date.now() - started,
       success: true,
       errorKind: null,
+      strictJson: true,
     });
 
     return translation;
   } catch (error: any) {
+    const errorKind: AiErrorKind =
+      error?.name === "AbortError"
+        ? "TIMEOUT"
+        : /json/i.test(String(error?.message ?? "")) ? "BAD_JSON" : "INTERNAL";
     await logAiUsage({
       createdAt: new Date(),
       provider: "openai",
@@ -151,7 +156,8 @@ export async function translateAndStore(args: TranslateAndStoreArgs): Promise<st
       costEur: 0,
       durationMs: Date.now() - started,
       success: false,
-      errorKind: error?.name ?? "translation_error",
+      errorKind,
+      strictJson: true,
     });
     return preparedText;
   }

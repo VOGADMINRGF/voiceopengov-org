@@ -1,12 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getActors } from "@core/responsibility";
-import { isStaffRequest } from "@/app/api/admin/feeds/utils";
 import { logger } from "@/utils/logger";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 export async function GET(req: NextRequest) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   try {
     const items = await getActors();
