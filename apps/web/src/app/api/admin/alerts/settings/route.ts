@@ -1,26 +1,21 @@
 type SettingsDoc = { _id: "global"; alerts?: any; [k:string]: any }
 export const runtime = "nodejs";
-import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@core/db/triMongo";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
-async function isAdmin() {
-  const c = await cookies();
-  return c.get("u_role")?.value === "admin";
-}
-
-export async function GET() {
-  if (!(await isAdmin()))
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+export async function GET(req: NextRequest) {
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
   const db = await getDb();
   const doc = await db.collection<SettingsDoc>("settings").findOne({ _id: "global" });
   const alerts = doc?.alerts ?? { enabled: true, recipients: [] };
   return NextResponse.json(alerts);
 }
 
-export async function POST(req: Request) {
-  if (!(await isAdmin()))
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+export async function POST(req: NextRequest) {
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
   const body = await req.json();
   const alerts = {
     enabled: !!body.enabled,

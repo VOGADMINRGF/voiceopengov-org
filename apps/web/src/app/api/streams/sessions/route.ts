@@ -2,12 +2,27 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { ObjectId } from "@core/db/triMongo";
 import { rateLimit } from "@/utils/rateLimit";
 import { streamSessionsCol } from "@features/stream/db";
-import type { StreamSessionDoc, StreamVisibility } from "@features/stream/types";
+import type {
+  StreamSessionDoc,
+  StreamSessionStatus,
+  StreamVisibility,
+} from "@features/stream/types";
 import { resolveSessionStatus } from "@features/stream/types";
 import { enforceStreamHost, requireCreatorContext } from "../utils";
+
+const CreateSessionBodySchema = z.object({
+  title: z.string().min(1),
+  description: z.string().nullable().optional(),
+  regionCode: z.string().nullable().optional(),
+  topicKey: z.string().nullable().optional(),
+  startsAt: z.string().nullable().optional(),
+  playerUrl: z.string().nullable().optional(),
+  visibility: z.enum(["public", "unlisted"]).optional(),
+});
 
 export async function GET(req: NextRequest) {
   const ctx = await requireCreatorContext(req);
@@ -52,22 +67,40 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const body = (await req.json().catch(() => null)) as Partial<StreamSessionDoc> | null;
-  const title = String(body?.title ?? "").trim();
+  const rawBody = await req.json().catch(() => null);
+  const parsedBody = CreateSessionBodySchema.safeParse(rawBody);
+  if (!parsedBody.success) {
+    return NextResponse.json({ ok: false, error: "bad_input" }, { status: 400 });
+  }
+  const body = parsedBody.data;
+
+  const title = String(body.title ?? "").trim();
   if (!title) {
     return NextResponse.json({ ok: false, error: "TITLE_REQUIRED" }, { status: 400 });
   }
+  const topicKey = typeof body.topicKey === "string" ? body.topicKey.trim() || null : null;
+  const regionCode = typeof body.regionCode === "string" ? body.regionCode.trim() || null : null;
+  const startsAtIso = typeof body.startsAt === "string" ? body.startsAt.trim() : null;
+  const startsAt = startsAtIso ? new Date(startsAtIso) : null;
+  const parsedStartsAt = startsAt && !isNaN(startsAt.getTime()) ? startsAt : null;
+  const playerUrl = typeof body.playerUrl === "string" ? body.playerUrl.trim() || null : null;
+  const visibility: StreamVisibility =
+    body.visibility === "public" || body.visibility === "unlisted" ? body.visibility : "unlisted";
+  const status: StreamSessionStatus =
+    parsedStartsAt && parsedStartsAt > new Date() ? "scheduled" : "draft";
 
   const now = new Date();
   const doc: StreamSessionDoc = {
     creatorId: ctx.userId,
     title,
     description: body?.description ?? null,
-    regionCode: body?.regionCode ?? null,
-    topicKey: body?.topicKey ?? null,
+    regionCode,
+    topicKey,
+    startsAt: parsedStartsAt,
+    playerUrl,
     isLive: false,
-    visibility: (body?.visibility as StreamVisibility) ?? "unlisted",
-    status: "draft",
+    visibility,
+    status,
     createdAt: now,
     updatedAt: now,
   };

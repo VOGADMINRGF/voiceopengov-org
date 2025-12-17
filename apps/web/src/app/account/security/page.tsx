@@ -1,7 +1,7 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type TotpState =
@@ -16,6 +16,28 @@ export default function SecurityPage() {
   const router = useRouter();
   const [totp, setTotp] = useState<TotpState>({ status: "idle" });
   const [code, setCode] = useState("");
+  const [status, setStatus] = useState<{ enabled: boolean; updatedAt?: string | null }>({ enabled: false });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    async function loadStatus() {
+      try {
+        const res = await fetch("/api/auth/totp/status", { cache: "no-store" });
+        const body = await res.json().catch(() => ({}));
+        if (active && body?.ok) {
+          setStatus({ enabled: Boolean(body.enabled), updatedAt: body.updatedAt });
+          if (body.enabled) setTotp({ status: "success" });
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+    loadStatus();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   async function startTotp() {
     try {
@@ -72,7 +94,16 @@ export default function SecurityPage() {
       <section className="space-y-4 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-slate-900">Authenticator-App (TOTP)</h2>
 
-        {totp.status === "idle" && (
+        {loading && <p className="text-sm text-slate-600">Status wird geladen …</p>}
+
+        {totp.status === "success" && status.enabled && (
+          <div className="rounded-2xl bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+            2-Faktor ist aktiv{status.updatedAt ? ` · aktiviert am ${status.updatedAt}` : ""}. Wenn du neu koppeln willst, deaktiviere die alte App und starte
+            das Setup erneut.
+          </div>
+        )}
+
+        {!loading && !status.enabled && totp.status === "idle" && (
           <button
             type="button"
             onClick={startTotp}

@@ -1,5 +1,5 @@
 import type { SupportedLocale } from "@core/locale/locales";
-import type { IdentityMethod, VerificationLevel } from "@core/auth/verificationTypes";
+import type { IdentityMethod, VerificationLevel, UserVerification } from "@core/auth/verificationTypes";
 import type { EngagementLevel } from "@features/user/engagement";
 import type { AccessTier } from "@features/pricing/types";
 import type { TopicKey } from "@features/interests/topics";
@@ -119,6 +119,7 @@ export type AccountOverview = {
   emailVerified: boolean;
   verificationLevel: VerificationLevel;
   verificationMethods: IdentityMethod[];
+  verification?: UserVerification;
   paymentProfile?: AccountPaymentProfile | null;
   signature?: AccountSignatureInfo | null;
   createdAt?: Date | string | null;

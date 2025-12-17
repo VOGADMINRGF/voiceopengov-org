@@ -14,13 +14,16 @@ import {
 import { syncAnalyzeResultToGraph } from "@core/graph";
 import { persistEventualitiesSnapshot } from "@core/eventualities";
 import { maskUserId } from "@core/pii/redact";
+import type { ProviderMatrixEntry } from "@features/ai/orchestratorE150";
+import type { AiErrorKind } from "@core/telemetry/aiUsageTypes";
 import crypto from "node:crypto";
 import { z } from "zod";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
-const DEFAULT_MAX_CLAIMS = 20;
+const DEFAULT_MAX_CLAIMS = 10;
 
 type SuccessResponse<T extends Record<string, unknown>> = { ok: true } & T;
 type ErrorResponse<TExtra extends Record<string, unknown> = Record<string, unknown>> = {
@@ -49,6 +52,14 @@ type NormalizedAnalyzerError = { code: string; message: string; status?: number 
 
 function formatErrorResponse(error: NormalizedAnalyzerError, status = 500) {
   return err(error.code, error.message, error.status ?? status);
+}
+
+function logErrorSafe(payload: Record<string, unknown>) {
+  try {
+    logger.error(payload);
+  } catch {
+    // ignore logging failures
+  }
 }
 
 const AnalyzeRequestSchema = z
@@ -118,6 +129,7 @@ function sanitizeMaxClaims(maxClaims?: number): number {
  * - SSE: progress/result/error-events mit identischem Result-Shape
  */
 export async function POST(req: NextRequest): Promise<Response> {
+  const runId = crypto.randomUUID();
   let rawBody: unknown;
   try {
     rawBody = await req.json();
@@ -169,20 +181,32 @@ export async function POST(req: NextRequest): Promise<Response> {
   try {
     const result = await runAnalyzeJob(analyzeInput);
     await finalizeResultPayload(result, analyzeInput);
-    return ok({ result }, 200);
+    const providerMatrix = buildProviderMatrixResponse(
+      null,
+      (result as any)?._meta?.providerMatrix,
+      (result as any)?._meta,
+    );
+    return NextResponse.json(
+      {
+        ok: true,
+        result,
+        meta: {
+          runId,
+          providerMatrix,
+        },
+      },
+      { status: 200 },
+    );
   } catch (error) {
     console.error("[contributions/analyze] failed", error);
-    logger.error({
+    logErrorSafe({
       msg: "analyze.route.error",
       contributionId,
       userId: maskUserId(userId),
       err: error instanceof Error ? error.message : String(error),
     });
     const normalized = normalizeAnalyzerError(error);
-    if (
-      shouldUseFallback(normalized.code) &&
-      process.env.E150_ANALYZE_FALLBACK === "1"
-    ) {
+    if (shouldUseFallback(normalized) && process.env.E150_ANALYZE_FALLBACK === "1") {
       const fallback = buildFallbackResult(analyzeInput, normalized.code);
       return NextResponse.json(
         {
@@ -193,6 +217,67 @@ export async function POST(req: NextRequest): Promise<Response> {
           result: fallback,
         },
         { status: normalized.status ?? 502 },
+      );
+    }
+    if (normalized.code === "BAD_JSON" || normalized.code === "ANALYZE_PROVIDER_FAILED") {
+      const meta = (error as any)?.meta ?? {};
+
+      const providerMatrix = buildProviderMatrixResponse(
+        error,
+        meta?.providerMatrix ?? meta?.provider_matrix ?? null,
+        meta,
+      );
+
+      const degradedResult: AnalyzeResultWithMeta = {
+        mode: "E150",
+        sourceText: null,
+        language: locale,
+        claims: [],
+        notes: [
+          {
+            id: "n_degraded",
+            kind: "FACTS",
+            text: "KI temporär nicht erreichbar; Analyse wird später erneut versucht.",
+          },
+        ],
+        questions: [],
+        knots: [],
+        consequences: { consequences: [], responsibilities: [] },
+        responsibilityPaths: [],
+        eventualities: [],
+        decisionTrees: [],
+        impactAndResponsibility: { impacts: [], responsibleActors: [] },
+        report: {
+          summary: null,
+          keyConflicts: [],
+          facts: { local: [], international: [] },
+          openQuestions: [],
+          takeaways: [],
+        },
+        _meta: {
+          provider: null,
+          model: null,
+          pipeline: "contribution_analyze",
+          contributionId,
+        },
+      };
+
+      return NextResponse.json(
+        {
+          ok: true,
+          degraded: true,
+          warning: "KI temporär nicht erreichbar; Analyse wird später erneut versucht.",
+          result: degradedResult,
+          meta: {
+            runId,
+            providerMatrix,
+            failedProviders: meta?.failedProviders ?? [],
+            disabledProviders: meta?.disabledProviders ?? meta?.disabled ?? [],
+            skippedProviders: meta?.skippedProviders ?? meta?.skipped ?? [],
+            probes: meta?.probes ?? [],
+          },
+        },
+        { status: 200 },
       );
     }
     return formatErrorResponse(normalized, normalized.status ?? 502);
@@ -237,7 +322,7 @@ function startAnalyzeSseStream(input: AnalyzeJobInput): Response {
         sendProgress("complete", 100);
         controller.close();
       } catch (error) {
-        logger.error({
+        logErrorSafe({
           msg: "analyze.route.sse_error",
           contributionId: input.contributionId,
           userId: maskUserId(input.userId ?? null),
@@ -275,7 +360,7 @@ async function finalizeResultPayload(
     locale: input.locale,
     userId: input.userId,
   }).catch((err) => {
-    logger.error({
+    logErrorSafe({
       msg: "analyze.route.eventuality_persist_failed",
       contributionId: input.contributionId,
       err: err instanceof Error ? err.message : String(err),
@@ -297,7 +382,7 @@ async function finalizeResultPayload(
     sourceId: input.contributionId,
     locale: input.locale,
   }).catch((err) => {
-    logger.error({
+    logErrorSafe({
       msg: "analyze.route.graph_sync_failed",
       contributionId: input.contributionId,
       err: err instanceof Error ? err.message : String(err),
@@ -355,6 +440,7 @@ function normalizeConsequenceBundle(
 }
 
 function normalizeAnalyzerError(error: unknown): NormalizedAnalyzerError {
+  const code = typeof (error as any)?.code === "string" ? (error as any).code : null;
   const message =
     typeof error === "object" && error !== null && "message" in error
       ? String((error as { message?: unknown }).message ?? "")
@@ -362,7 +448,7 @@ function normalizeAnalyzerError(error: unknown): NormalizedAnalyzerError {
         ? error
         : "";
 
-  if (message.includes("Orchestrator") && message.includes("Kein aktiver Provider")) {
+  if (code === "NO_ANALYZE_PROVIDER" || (message.includes("Orchestrator") && message.includes("Kein aktiver Provider"))) {
     return {
       code: "NO_ANALYZE_PROVIDER",
       message:
@@ -388,6 +474,20 @@ function normalizeAnalyzerError(error: unknown): NormalizedAnalyzerError {
       status: 502,
     };
   }
+  if (code === "BAD_JSON") {
+    return {
+      code: "BAD_JSON",
+      message: "KI-Antwort war nicht valide. Bitte erneut versuchen.",
+      status: 502,
+    };
+  }
+  if (code === "ANALYZE_PROVIDER_FAILED") {
+    return {
+      code: "ANALYZE_PROVIDER_FAILED",
+      message: "KI-Dienst temporär nicht erreichbar. Bitte erneut versuchen.",
+      status: 502,
+    };
+  }
   return {
     code: "ANALYZE_FAILED",
     message:
@@ -403,8 +503,120 @@ const FALLBACK_ELIGIBLE_CODES = new Set([
   "ANALYZE_FAILED",
 ]);
 
-function shouldUseFallback(code: string) {
-  return FALLBACK_ELIGIBLE_CODES.has(code);
+function shouldUseFallback(err: unknown) {
+  if (!err || typeof err !== "object") return false;
+  const anyErr = err as { errorCode?: string; code?: string };
+  const code = anyErr.errorCode ?? anyErr.code;
+  return typeof code === "string" && FALLBACK_ELIGIBLE_CODES.has(code);
+}
+
+const PROVIDER_LIST: ProviderMatrixEntry["provider"][] = [
+  "openai",
+  "mistral",
+  "anthropic",
+  "ari",
+  "gemini",
+];
+
+const AI_ERROR_KINDS: ReadonlySet<AiErrorKind> = new Set<AiErrorKind>([
+  "BAD_JSON",
+  "CANCELLED",
+  "INTERNAL",
+  "INVALID_API_KEY",
+  "MODEL_NOT_FOUND",
+  "RATE_LIMIT",
+  "TIMEOUT",
+  "UNAUTHORIZED",
+  "UNKNOWN",
+]);
+
+function asAiErrorKind(value: unknown): AiErrorKind | null {
+  if (typeof value !== "string") return null;
+  return AI_ERROR_KINDS.has(value as AiErrorKind) ? (value as AiErrorKind) : null;
+}
+
+function buildProviderMatrixResponse(
+  source: any,
+  existing: ProviderMatrixEntry[] | undefined | null,
+  meta?: any,
+): ProviderMatrixEntry[] {
+  if (Array.isArray(existing) && existing.length) return existing;
+  const m = meta ?? source?.meta ?? {};
+  const disabled: { provider: string; reason?: string }[] =
+    m.disabledProviders ?? m.disabled ?? [];
+  const skipped: { provider: string; reason?: string }[] =
+    m.skippedProviders ?? m.skipped ?? [];
+  const failed: {
+    provider: string;
+    errorKind?: unknown;
+    error?: string;
+    httpStatus?: number | null;
+    errorMessageShort?: string | null;
+  }[] = m.failedProviders ?? [];
+  const timings: Record<string, number | null> = m.timings ?? {};
+  const successProviders: string[] = m.usedProviders ?? [];
+
+  return PROVIDER_LIST.map((provider) => {
+    const disabledEntry = disabled.find((d) => d.provider === provider);
+    if (disabledEntry) {
+      return {
+        provider,
+        state: "disabled",
+        errorKind: null,
+        status: null,
+        durationMs: timings[provider] ?? null,
+        model: null,
+        reason: disabledEntry.reason ?? null,
+      };
+    }
+    const skippedEntry = skipped.find((s) => s.provider === provider);
+    if (skippedEntry) {
+      return {
+        provider,
+        state: "skipped",
+        errorKind: null,
+        status: null,
+        durationMs: timings[provider] ?? null,
+        model: null,
+        reason: skippedEntry.reason ?? null,
+      };
+    }
+    const failedEntry = failed.find((f) => f.provider === provider);
+    if (failedEntry) {
+      const errorKind = asAiErrorKind(failedEntry.errorKind);
+      return {
+        provider,
+        state: "failed",
+        attempt: null,
+        errorKind,
+        status: (failedEntry as any)?.httpStatus ?? null,
+        durationMs: timings[provider] ?? null,
+        model: null,
+        reason: failedEntry.errorMessageShort ?? failedEntry.error ?? null,
+      };
+    }
+    if (successProviders.includes(provider)) {
+      return {
+        provider,
+        state: "ok",
+        attempt: 1,
+        errorKind: null,
+        status: null,
+        durationMs: timings[provider] ?? null,
+        model: null,
+        reason: null,
+      };
+    }
+    return {
+      provider,
+      state: "failed",
+      errorKind: null,
+      status: null,
+      durationMs: null,
+      model: null,
+      reason: "KI temporär nicht erreichbar",
+    };
+  });
 }
 
 function buildFallbackResult(
@@ -449,6 +661,14 @@ function buildFallbackResult(
     responsibilityPaths: [],
     eventualities: [],
     decisionTrees: [],
+    impactAndResponsibility: { impacts: [], responsibleActors: [] },
+    report: {
+      summary: null,
+      keyConflicts: [],
+      facts: { local: [], international: [] },
+      openQuestions: [],
+      takeaways: [],
+    },
     _meta: {
       provider: "fallback",
       model: reason,

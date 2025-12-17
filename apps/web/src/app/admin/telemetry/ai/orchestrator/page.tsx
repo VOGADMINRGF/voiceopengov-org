@@ -8,6 +8,7 @@ type ProviderSmokeResult = {
   ok: boolean;
   durationMs: number;
   errorMessage?: string;
+  state?: "disabled" | "skipped";
 };
 
 type SmokeResponse = {
@@ -23,11 +24,12 @@ export default function OrchestratorTelemetryPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function runSmoke() {
+  async function runSmoke(mode?: "full") {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/ai/orchestrator-smoke", { method: "POST" });
+      const suffix = mode === "full" ? "?mode=full" : "";
+      const res = await fetch(`/api/admin/ai/orchestrator-smoke${suffix}`, { method: "POST" });
       const body = (await res.json().catch(() => null)) as SmokeResponse | null;
       if (!res.ok) throw new Error(body?.error || res.statusText);
       setData(body);
@@ -58,10 +60,17 @@ export default function OrchestratorTelemetryPage() {
       <div className="flex items-center gap-3">
         <button
           className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
-          onClick={runSmoke}
+          onClick={() => runSmoke()}
           disabled={loading}
         >
           {loading ? "Test läuft …" : "Smoke-Test ausführen"}
+        </button>
+        <button
+          className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+          onClick={() => runSmoke("full")}
+          disabled={loading}
+        >
+          {loading ? "…" : "E150 Full-Smoke"}
         </button>
         {error && <span className="text-sm text-rose-600">{error}</span>}
       </div>
@@ -97,7 +106,11 @@ export default function OrchestratorTelemetryPage() {
                 <tr key={result.providerId}>
                   <td className="px-3 py-2 font-semibold text-slate-900">{result.providerId}</td>
                   <td className="px-3 py-2">
-                    {result.ok ? (
+                    {result.state === "disabled" ? (
+                      <span className="text-slate-500">⏸ deaktiviert (lokal)</span>
+                    ) : result.state === "skipped" ? (
+                      <span className="text-amber-600">⤼ übersprungen</span>
+                    ) : result.ok ? (
                       <span className="text-emerald-600">✅ OK</span>
                     ) : (
                       <span className="text-rose-600">❌ Fehler</span>

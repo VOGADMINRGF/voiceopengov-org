@@ -4,15 +4,14 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getEffectiveRoutePolicy, upsertRoutePolicy } from "@core/access/db";
 import type { AccessGroup, RouteId } from "@features/access/types";
-import { isStaffRequest } from "@/app/api/admin/feeds/utils";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 export async function PATCH(
   req: NextRequest,
   context: { params: Promise<{ routeId: string }> },
 ) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   const { routeId: rawRouteId } = await context.params;
   const routeId = rawRouteId as RouteId;

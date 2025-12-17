@@ -1,5 +1,6 @@
 // Lightweight telemetry sink for AI orchestration.
 // Data stays in-memory (ring buffer) but can be mirrored via a custom sink.
+import type { AiErrorKind } from "@core/telemetry/aiUsageTypes";
 
 export type AiTelemetryEvent = {
   ts: number;
@@ -13,7 +14,7 @@ export type AiTelemetryEvent = {
   tokensIn?: number;
   tokensOut?: number;
   fallbackUsed?: boolean;
-  errorKind?: string | null;
+  errorKind?: AiErrorKind | null;
 };
 
 export type AiTelemetrySummary = {

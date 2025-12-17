@@ -1,12 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { saveTask } from "@core/research";
 import { logger } from "@/utils/logger";
-import { isStaffRequest } from "@/app/api/admin/feeds/utils";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 export async function POST(req: NextRequest) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   const body = await req.json().catch(() => ({}));
   const { id, title, description, level, tags, kind, source, status, hints, dueAt } = body ?? {};

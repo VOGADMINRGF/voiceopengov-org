@@ -14,6 +14,7 @@ type Props = {
 };
 
 export default async function AccountPage({ searchParams }: Props) {
+  const params = await Promise.resolve(searchParams ?? {});
   const cookieStore = await cookies();
   const session = await readSession();
   const userId = cookieStore.get("u_id")?.value || session?.uid;
@@ -28,8 +29,8 @@ export default async function AccountPage({ searchParams }: Props) {
   }
 
   const membershipNotice =
-    typeof searchParams?.membership === "string" &&
-    searchParams.membership === "thanks";
+    typeof (params as any)?.membership === "string" &&
+    (params as any).membership === "thanks";
 
   const displayName: string | undefined = (overview as any)?.profile?.displayName || (overview as any)?.displayName;
   const firstName = displayName?.trim().split(" ").filter(Boolean)[0] ?? undefined;

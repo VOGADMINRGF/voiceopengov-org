@@ -11,10 +11,26 @@ export type RouteId =
   | "evidence_region"
   | "dashboard_usage"
   | "dashboard_streams"
-  | "admin_evidence"
-  | "admin_feeds"
+  | "admin_ai_root"
+  | "admin_dashboard"
+  | "admin_users"
+  | "admin_analytics"
+  | "admin_newsletter"
+  | "admin_identity"
   | "admin_access"
+  | "admin_access_users"
+  | "admin_ai_dashboard"
+  | "admin_ai_usage"
   | "admin_ai_orchestrator"
+  | "admin_eventualities"
+  | "admin_graph"
+  | "admin_impact"
+  | "admin_reports"
+  | "admin_research"
+  | "admin_responsibility"
+  | "admin_settings"
+  | "admin_feeds"
+  | "admin_evidence"
   | "account";
 
 export type AccessGroup = AccessTier | "admin" | "creator";
@@ -142,6 +158,55 @@ export const DEFAULT_ROUTE_POLICIES: RoutePolicy[] = [
     locked: false,
   },
   {
+    routeId: "admin_dashboard",
+    pathPattern: "/admin",
+    label: "Admin · Dashboard",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+    matchMode: "exact",
+  },
+  {
+    routeId: "admin_ai_root",
+    pathPattern: "/admin/telemetry/ai",
+    label: "Admin · AI Telemetry",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_users",
+    pathPattern: "/admin/users",
+    label: "Admin · Nutzer & Rollen",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_analytics",
+    pathPattern: "/admin/analytics",
+    label: "Admin · Analytics",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_newsletter",
+    pathPattern: "/admin/newsletter",
+    label: "Admin · Newsletter",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_identity",
+    pathPattern: "/admin/identity",
+    label: "Admin · Legitimation",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
     routeId: "admin_evidence",
     pathPattern: "/admin/evidence",
     label: "Admin · Evidence",
@@ -166,9 +231,89 @@ export const DEFAULT_ROUTE_POLICIES: RoutePolicy[] = [
     locked: true,
   },
   {
+    routeId: "admin_access_users",
+    pathPattern: "/admin/access/users",
+    label: "Admin · Access Overrides",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_ai_dashboard",
+    pathPattern: "/admin/telemetry/ai/dashboard",
+    label: "Admin · AI Telemetry",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_ai_usage",
+    pathPattern: "/admin/telemetry/ai/usage",
+    label: "Admin · AI Usage",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
     routeId: "admin_ai_orchestrator",
     pathPattern: "/admin/telemetry/ai/orchestrator",
     label: "Admin · AI Orchestrator Health",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_eventualities",
+    pathPattern: "/admin/eventualities",
+    label: "Admin · Eventualities",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_graph",
+    pathPattern: "/admin/graph",
+    label: "Admin · Graph",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_impact",
+    pathPattern: "/admin/impact",
+    label: "Admin · Impact",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_reports",
+    pathPattern: "/admin/reports",
+    label: "Admin · Reports",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_research",
+    pathPattern: "/admin/research",
+    label: "Admin · Research",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_responsibility",
+    pathPattern: "/admin/responsibility",
+    label: "Admin · Responsibility",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_settings",
+    pathPattern: "/admin/settings",
+    label: "Admin · Settings",
     defaultGroups: ["staff", "admin"],
     allowAnonymous: false,
     locked: true,

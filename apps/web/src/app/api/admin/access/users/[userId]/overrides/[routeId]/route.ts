@@ -2,17 +2,16 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
-import { isStaffRequest } from "@/app/api/admin/feeds/utils";
 import { upsertUserOverride, deleteUserOverride } from "@core/access/db";
 import type { RouteId, UserRouteOverrideMode } from "@features/access/types";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 export async function PATCH(
   req: NextRequest,
   context: { params: Promise<{ userId: string; routeId: RouteId }> },
 ) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
   const { userId, routeId } = await context.params;
   const body = (await req.json().catch(() => null)) as {
     mode?: UserRouteOverrideMode;
@@ -36,9 +35,8 @@ export async function DELETE(
   req: NextRequest,
   context: { params: Promise<{ userId: string; routeId: RouteId }> },
 ) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
   const { userId, routeId } = await context.params;
   await deleteUserOverride(userId, routeId);
   return NextResponse.json({ ok: true });

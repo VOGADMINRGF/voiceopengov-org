@@ -5,6 +5,7 @@ import type {
   AiProviderName,
   AiUsageDailyRow,
   AiUsageEvent,
+  AiErrorKind,
 } from "./aiUsageTypes";
 
 export type UsageTileTone = "token" | "cost" | "warning" | "default";
@@ -22,11 +23,19 @@ export interface UsageEventSummary {
   timestamp: string;
   provider: AiProviderName;
   pipeline: AiPipelineName;
+  model?: string | null;
   region?: string | null;
   tokens: number;
+  tokensInput?: number;
+  tokensOutput?: number;
   costEur: number;
   durationMs: number;
   success: boolean;
+  errorKind?: AiErrorKind | null;
+  strictJson?: boolean;
+  promptSnippet?: string;
+  responseSnippet?: string;
+  rawError?: string;
 }
 
 export interface UsageSnapshotFilters {
@@ -82,6 +91,7 @@ const PROVIDERS: AiProviderName[] = [
   "anthropic",
   "mistral",
   "gemini",
+  "ari",
   "youcom",
 ];
 
@@ -90,6 +100,7 @@ const PROVIDER_LABELS: Record<AiProviderName, string> = {
   anthropic: "Claude / Anthropic",
   mistral: "Mistral",
   gemini: "Gemini",
+  ari: "ARI",
   youcom: "ARI / You.com",
 };
 
@@ -103,6 +114,7 @@ const PIPELINE_LABELS: Record<AiPipelineName, string> = {
   content_translate: "Übersetzung",
   content_summarize_news: "News-Summary",
   orchestrator_smoke: "Orchestrator Smoke",
+  provider_probe: "Provider Probe",
   other: "Andere",
 };
 
@@ -272,11 +284,17 @@ export async function getUsageSnapshot(
       provider: 1,
       pipeline: 1,
       region: 1,
+      model: 1,
       tokensInput: 1,
       tokensOutput: 1,
       costEur: 1,
       durationMs: 1,
       success: 1,
+      errorKind: 1,
+      strictJson: 1,
+      promptSnippet: 1,
+      responseSnippet: 1,
+      rawError: 1,
     })
     .toArray();
 
@@ -284,11 +302,19 @@ export async function getUsageSnapshot(
     timestamp: event.createdAt.toISOString(),
     provider: event.provider,
     pipeline: event.pipeline,
+    model: (event as any).model ?? null,
     region: event.region ?? null,
     tokens: (event.tokensInput ?? 0) + (event.tokensOutput ?? 0),
+    tokensInput: (event as any).tokensInput ?? 0,
+    tokensOutput: (event as any).tokensOutput ?? 0,
     costEur: event.costEur ?? 0,
     durationMs: event.durationMs ?? 0,
     success: event.success,
+    errorKind: (event as any).errorKind ?? null,
+    strictJson: (event as any).strictJson ?? false,
+    promptSnippet: (event as any).promptSnippet,
+    responseSnippet: (event as any).responseSnippet,
+    rawError: (event as any).rawError,
   }));
 
   return {

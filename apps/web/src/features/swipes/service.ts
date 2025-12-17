@@ -86,8 +86,13 @@ export async function getSwipeFeed(req: SwipeFeedRequest): Promise<SwipeFeedResp
   const { filter } = req;
   const topicQuery = filter?.topicQuery?.toLowerCase() ?? "";
   const level = filter?.level;
+  const statementId = filter?.statementId;
 
   let items = MOCK_SWIPES;
+
+  if (statementId) {
+    items = items.filter((item) => item.id === statementId);
+  }
 
   if (topicQuery) {
     items = items.filter(

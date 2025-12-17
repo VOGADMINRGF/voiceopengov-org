@@ -1,8 +1,9 @@
 // VPM25/apps/web/src/features/user/context/UserContext.tsx
 "use client";
 import React, { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import type { UserRole } from "@/types/user";
 
-export type Role = "guest" | "user" | "verified" | "editor" | "admin";
+export type Role = UserRole;
 export type RoleCompat = "guest" | "member" | "admin";
 export interface IUserProfile {
   id?: string; name?: string; email?: string;
@@ -23,9 +24,13 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 function normalizeRoleFine(r?: IUserProfile["role"]): Role {
   const x = (r ?? "guest").toString().toLowerCase();
   switch (x) {
+    case "superadmin": return "superadmin";
     case "admin": return "admin";
-    case "editor": return "editor";
-    case "verified": return "verified";
+    case "moderator": return "moderator";
+    case "premium": return "premium";
+    case "legitimized": return "legitimized";
+    case "ngo": return "ngo";
+    case "politics": return "politics";
     case "user":
     case "member": return "user";
     default: return "guest";

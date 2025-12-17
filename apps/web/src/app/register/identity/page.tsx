@@ -75,7 +75,7 @@ export default function IdentityStepPage() {
     <div className="mx-auto flex max-w-3xl flex-col gap-6 p-6">
       <RegisterStepper current={3} />
       <header className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Schritt 3 · Identität</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Schritt 3 · OTP</p>
         <h1 className="text-2xl font-semibold text-slate-900">Schnell verifizieren mit Authenticator-App</h1>
         <p className="text-sm text-slate-600">
           Wir nutzen eine Authenticator-App (TOTP), um Missbrauch vorzubeugen. Später können weitere Ident-Stufen wie

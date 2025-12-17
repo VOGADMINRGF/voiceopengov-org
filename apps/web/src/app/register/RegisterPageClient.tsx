@@ -10,6 +10,10 @@ function okPwd(p: string) {
   return p.length >= 12 && /[0-9]/.test(p) && /[^A-Za-z0-9]/.test(p);
 }
 
+function sanitizeBirthDateInput(value: string) {
+  return value.replace(/[^\d.-]/g, "").slice(0, 10);
+}
+
 type RegisterPageClientProps = {
   personCount?: number;
   searchParams?: Record<string, string | string[] | undefined>;
@@ -26,7 +30,11 @@ function RegisterPageClient({ personCount = 1, searchParams }: RegisterPageClien
   const [email, setEmail] = useState(searchParams?.email ? String(searchParams.email) : "");
   const [firstName, setFirstName] = useState(searchParams?.firstName ? String(searchParams.firstName) : "");
   const [lastName, setLastName] = useState(searchParams?.lastName ? String(searchParams.lastName) : "");
-  const [birthDate, setBirthDate] = useState(searchParams?.birthDate ? String(searchParams.birthDate) : "");
+  const [title, setTitle] = useState(searchParams?.title ? String(searchParams.title) : "");
+  const [pronouns, setPronouns] = useState(searchParams?.pronouns ? String(searchParams.pronouns) : "");
+  const [birthDate, setBirthDate] = useState(
+    searchParams?.birthDate ? sanitizeBirthDateInput(String(searchParams.birthDate)) : "",
+  );
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [errMsg, setErrMsg] = useState<string>();
@@ -40,6 +48,11 @@ function RegisterPageClient({ personCount = 1, searchParams }: RegisterPageClien
     e.preventDefault();
     setErrMsg(undefined);
     setOkMsg(undefined);
+
+    if (firstName.trim().length < 2 || lastName.trim().length < 2) {
+      setErrMsg("Vor- und Nachname: jeweils mindestens 2 Zeichen.");
+      return;
+    }
 
     if (!okPwd(password)) {
       setErrMsg("Passwort: min. 12 Zeichen, inkl. Zahl & Sonderzeichen.");
@@ -73,6 +86,8 @@ function RegisterPageClient({ personCount = 1, searchParams }: RegisterPageClien
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           birthDate: birthDate || undefined,
+          title: title.trim() || undefined,
+          pronouns: pronouns.trim() || undefined,
         }),
         signal: ac.signal,
       });
@@ -110,14 +125,14 @@ function RegisterPageClient({ personCount = 1, searchParams }: RegisterPageClien
         </p>
       </div>
 
-        {fromParams > 1 && (
-          <div className="rounded-2xl border border-sky-100 bg-sky-50/70 px-4 py-3 text-xs text-sky-900">
-            <p className="font-semibold">Aus deinem Mitgliedsantrag übernommen</p>
-            <p className="mt-1">
-              Du hast <strong>{fromParams}</strong> Personen ab 16 Jahren angegeben. Dieses Formular legt das Konto für
-              die Hauptkontaktperson an. Weitere Personen kannst du später im Profil ergänzen.
-            </p>
-          </div>
+      {fromParams > 1 && (
+        <div className="rounded-2xl border border-sky-100 bg-sky-50/70 px-4 py-3 text-xs text-sky-900">
+          <p className="font-semibold">Aus deinem Mitgliedsantrag übernommen</p>
+          <p className="mt-1">
+            Du hast <strong>{fromParams}</strong> Personen ab 16 Jahren angegeben. Dieses Formular legt das Konto für die
+            Hauptkontaktperson an. Weitere Personen kannst du später im Profil ergänzen.
+          </p>
+        </div>
       )}
 
       <form onSubmit={onSubmit} className="space-y-4 rounded-3xl border border-slate-100 bg-white/95 p-5 shadow-sm">
@@ -134,6 +149,7 @@ function RegisterPageClient({ personCount = 1, searchParams }: RegisterPageClien
               onChange={(e) => setFirstName(e.target.value)}
               autoComplete="given-name"
               required
+              minLength={2}
               disabled={busy}
             />
           </div>
@@ -149,6 +165,40 @@ function RegisterPageClient({ personCount = 1, searchParams }: RegisterPageClien
               onChange={(e) => setLastName(e.target.value)}
               autoComplete="family-name"
               required
+              minLength={2}
+              disabled={busy}
+            />
+          </div>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          <div className="space-y-1">
+            <label htmlFor="title" className="text-xs font-medium text-slate-700">
+              Titel (optional)
+            </label>
+            <input
+              id="title"
+              name="title"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Dr., Prof., ..."
+              autoComplete="honorific-prefix"
+              disabled={busy}
+            />
+          </div>
+          <div className="space-y-1">
+            <label htmlFor="pronouns" className="text-xs font-medium text-slate-700">
+              Pronomen (optional)
+            </label>
+            <input
+              id="pronouns"
+              name="pronouns"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+              value={pronouns}
+              onChange={(e) => setPronouns(e.target.value)}
+              placeholder="sie/ihr, er/ihm, ..."
+              autoComplete="additional-name"
               disabled={busy}
             />
           </div>
@@ -161,12 +211,16 @@ function RegisterPageClient({ personCount = 1, searchParams }: RegisterPageClien
           <input
             id="birthDate"
             name="birthDate"
-            type="date"
+            type="text"
             className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
             value={birthDate}
-            onChange={(e) => setBirthDate(e.target.value)}
+            onChange={(e) => setBirthDate(sanitizeBirthDateInput(e.target.value))}
             required
-            pattern="\\d{4}-\\d{2}-\\d{2}"
+            placeholder="TT.MM.JJJJ oder JJJJ-MM-TT"
+            inputMode="numeric"
+            maxLength={10}
+            pattern="^(\\d{2}\\.\\d{2}\\.\\d{4}|\\d{4}-\\d{2}-\\d{2})$"
+            title="TT.MM.JJJJ oder JJJJ-MM-TT"
             disabled={busy}
           />
           <p className="text-[11px] text-slate-500">Für faire Citizen Votes: Teilnahme ab 16 Jahren.</p>

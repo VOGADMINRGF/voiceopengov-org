@@ -3,6 +3,7 @@
 
 import crypto from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
+import type { Collection } from "mongodb";
 import { coreCol } from "@core/db/triMongo";
 import { sendMail } from "@/utils/mailer";
 
@@ -113,7 +114,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const col = await coreCol<SubscriberDoc>("public_updates_subscribers");
+  const col = (await coreCol("public_updates_subscribers")) as Collection<SubscriberDoc>;
   const tokenHash = hashConfirmToken(token);
   const now = new Date();
 

@@ -1,7 +1,7 @@
 export const runtime = "nodejs";
-import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 const EnvSchema = z.object({
   CORE_DB_NAME: z.string().min(1),
@@ -18,14 +18,9 @@ async function loadSystemMatrix() {
   }
 }
 
-async function isAdmin() {
-  const c = await cookies();
-  return c.get("u_role")?.value === "admin";
-}
-
-export async function POST() {
-  if (!(await isAdmin()))
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+export async function POST(req: NextRequest) {
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
   const envCheck = EnvSchema.safeParse(process.env);
   if (!envCheck.success) {
     return NextResponse.json(

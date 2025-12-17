@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { createSession } from "@/utils/session";
 import { ensureVerificationDefaults } from "@core/auth/verificationTypes";
 import type { ObjectId } from "@core/db/triMongo";
+import type { UserRole } from "@/types/user";
 
 export const CREDENTIAL_COLLECTION = "user_credentials" as const;
 export const TWO_FA_COLLECTION = "twofactor_challenges" as const;
@@ -41,7 +42,7 @@ export type CoreUserAuthSnapshot = {
   email?: string | null;
   name?: string | null;
   role?: string | null;
-  roles?: Array<string | { role?: string; subRole?: string; premium?: boolean }>;
+  roles?: Array<UserRole | { role?: string; subRole?: string; premium?: boolean }>;
   groups?: string[];
   accessTier?: string | null;
   b2cPlanId?: string | null;
@@ -81,6 +82,15 @@ export function resolveTwoFactorMethod(
   return method === "totp" ? "otp" : method;
 }
 
+function normalizeUserRoles(
+  roles?: Array<UserRole | { role?: string; subRole?: string; premium?: boolean } | string> | null,
+): UserRole[] {
+  if (!Array.isArray(roles)) return [];
+  return roles
+    .map((r: any) => (typeof r === "string" ? r : r?.role))
+    .filter(Boolean) as UserRole[];
+}
+
 export async function setPendingTwoFactorCookie(id: string) {
   const jar = await cookies();
   jar.set({
@@ -107,19 +117,26 @@ export async function clearPendingTwoFactorCookie() {
   });
 }
 
-export async function applySessionCookies(user: CoreUserAuthSnapshot) {
+export async function applySessionCookies(
+  user: CoreUserAuthSnapshot,
+  opts?: { twoFactorAuthenticated?: boolean },
+) {
   const cookieJar = await cookies();
   const verification = ensureVerificationDefaults(user.verification);
   const isVerified = verification.level !== "none";
   const hasLocation = !!(user.profile?.location || (user as any).city || (user as any).region);
-  const primaryRole =
-    user.role || (Array.isArray(user.roles) && typeof user.roles[0] === "string"
-      ? user.roles[0]
-      : (user.roles?.[0] as any)?.role);
+  const normalizedRoles = normalizeUserRoles(user.roles);
+  const primaryRole = user.role || normalizedRoles[0];
   const tier = user.accessTier || (user as any).tier || null;
   const groups = Array.isArray(user.groups) ? user.groups : [];
 
-  await createSession(String(user._id), primaryRole ? [primaryRole] : []);
+  const twoFactorAuthenticated = opts?.twoFactorAuthenticated ?? true;
+
+  const rolesForSession = normalizedRoles.length ? normalizedRoles : primaryRole ? [primaryRole] : [];
+
+  await createSession(String(user._id), rolesForSession, {
+    twoFactorAuthenticated,
+  });
   const secureCookie =
     process.env.NODE_ENV === "production" || process.env.COOKIE_SECURE === "true";
   const baseOpts = {
@@ -134,4 +151,5 @@ export async function applySessionCookies(user: CoreUserAuthSnapshot) {
   if (tier) cookieJar.set("u_tier", String(tier), baseOpts);
   if (groups.length) cookieJar.set("u_groups", groups.join(","), baseOpts);
   cookieJar.set("u_loc", hasLocation ? "1" : "0", baseOpts);
+  cookieJar.set("u_2fa", twoFactorAuthenticated ? "1" : "0", baseOpts);
 }

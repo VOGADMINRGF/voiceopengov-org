@@ -2,20 +2,19 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
-import { isStaffRequest } from "@/app/api/admin/feeds/utils";
 import {
   getUserOverridesWithMeta,
   upsertUserOverride,
 } from "@core/access/db";
 import type { RouteId, UserRouteOverrideMode } from "@features/access/types";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ userId: string }> },
 ) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
   const { userId } = await context.params;
   const rows = await getUserOverridesWithMeta(userId);
   return NextResponse.json({
@@ -35,9 +34,8 @@ export async function POST(
   req: NextRequest,
   context: { params: Promise<{ userId: string }> },
 ) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
   const { userId } = await context.params;
 
   const body = (await req.json().catch(() => null)) as {

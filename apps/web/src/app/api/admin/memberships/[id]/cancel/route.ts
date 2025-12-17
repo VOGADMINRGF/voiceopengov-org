@@ -1,25 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { ObjectId, coreCol } from "@core/db/triMongo";
 import type { MembershipApplication } from "@core/memberships/types";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-async function requireAdmin(): Promise<Response | null> {
-  const jar = await cookies();
-  if (jar.get("u_role")?.value !== "admin") {
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
-  }
-  return null;
-}
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<Record<string, string | string[] | undefined>> },
 ) {
-  const guard = await requireAdmin();
-  if (guard) return guard;
+  const gate = await requireAdminOrResponse(request);
+  if (gate instanceof Response) return gate;
 
   const { id: membershipId } = await params;
   if (typeof membershipId !== "string" || !ObjectId.isValid(membershipId)) {

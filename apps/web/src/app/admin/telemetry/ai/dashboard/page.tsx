@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { AiErrorKind } from "@core/telemetry/aiUsageTypes";
 
 type ProviderStats = {
   provider: string;
@@ -27,7 +28,7 @@ type TelemetryEvent = {
   tokensIn?: number;
   tokensOut?: number;
   fallbackUsed?: boolean;
-  errorKind?: string | null;
+  errorKind?: AiErrorKind | null;
 };
 
 type ApiResponse = {
@@ -48,6 +49,9 @@ export default function AiTelemetryDashboard() {
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [providerFilter, setProviderFilter] = useState<string>("");
+  const [pipelineFilter, setPipelineFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "ok" | "error">("all");
 
   async function load() {
     setLoading(true);
@@ -71,6 +75,28 @@ export default function AiTelemetryDashboard() {
   }, []);
 
   const providerStats = useMemo(() => data?.summary.perProvider ?? [], [data]);
+  const providers = useMemo(
+    () => Array.from(new Set((data?.events ?? []).map((e) => e.provider))).sort(),
+    [data],
+  );
+  const pipelines = useMemo(
+    () => Array.from(new Set((data?.events ?? []).map((e) => e.pipeline))).sort(),
+    [data],
+  );
+
+  const filteredEvents = useMemo(() => {
+    const rows = data?.events ?? [];
+    return rows
+      .filter((ev) => (providerFilter ? ev.provider === providerFilter : true))
+      .filter((ev) => (pipelineFilter ? ev.pipeline === pipelineFilter : true))
+      .filter((ev) => {
+        if (statusFilter === "ok") return ev.success;
+        if (statusFilter === "error") return !ev.success;
+        return true;
+      })
+      .slice(-50)
+      .reverse();
+  }, [data, providerFilter, pipelineFilter, statusFilter]);
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-8">
@@ -153,6 +179,44 @@ export default function AiTelemetryDashboard() {
       {data?.events && data.events.length > 0 && (
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900">Letzte Aufrufe</h2>
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+            <select
+              value={providerFilter}
+              onChange={(e) => setProviderFilter(e.target.value)}
+              className="rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm"
+            >
+              <option value="">Provider: alle</option>
+              {providers.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+            <select
+              value={pipelineFilter}
+              onChange={(e) => setPipelineFilter(e.target.value)}
+              className="rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm"
+            >
+              <option value="">Pipeline: alle</option>
+              {pipelines.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as any)}
+              className="rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm"
+            >
+              <option value="all">Status: alle</option>
+              <option value="ok">nur OK</option>
+              <option value="error">nur Fehler</option>
+            </select>
+            <span className="text-xs text-slate-500">
+              {filteredEvents.length} von {data.events.length} (max 50)
+            </span>
+          </div>
           <div className="mt-4 overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-100 text-sm">
               <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -166,7 +230,7 @@ export default function AiTelemetryDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {data.events.map((event) => (
+                {filteredEvents.map((event) => (
                   <tr key={`${event.provider}-${event.ts}-${event.pipeline}`}>
                     <td className="px-3 py-2 text-slate-500">
                       {dateFormatter.format(new Date(event.ts))}

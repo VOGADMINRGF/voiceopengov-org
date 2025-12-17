@@ -5,6 +5,7 @@ export type AiProviderName =
   | "anthropic"
   | "mistral"
   | "gemini"
+  | "ari"
   | "youcom";
 
 export type AiPipelineName =
@@ -17,7 +18,19 @@ export type AiPipelineName =
   | "content_translate"
   | "content_summarize_news"
   | "orchestrator_smoke"
+  | "provider_probe"
   | "other";
+
+export type AiErrorKind =
+  | "MODEL_NOT_FOUND"
+  | "INVALID_API_KEY"
+  | "UNAUTHORIZED"
+  | "BAD_JSON"
+  | "TIMEOUT"
+  | "RATE_LIMIT"
+  | "INTERNAL"
+  | "CANCELLED"
+  | "UNKNOWN";
 
 export interface AiUsageEvent {
   _id?: string;
@@ -38,7 +51,11 @@ export interface AiUsageEvent {
 
   durationMs: number;
   success: boolean;
-  errorKind?: string | null;
+  errorKind?: AiErrorKind | null;
+  strictJson?: boolean;
+  promptSnippet?: string | null;
+  responseSnippet?: string | null;
+  rawError?: string | null;
 }
 
 export interface AiUsageDailyRow {

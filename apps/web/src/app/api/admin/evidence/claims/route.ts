@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { findEvidenceClaims } from "@core/evidence/query";
 import { getRegionName } from "@core/regions/regionTranslations";
 import type { SupportedLocale } from "@core/locale/locales";
-import { isStaffRequest } from "@/app/api/admin/feeds/utils";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 
 export async function GET(req: NextRequest) {
-  if (!isStaffRequest(req)) {
-    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
-  }
+  const gate = await requireAdminOrResponse(req);
+  if (gate instanceof Response) return gate;
 
   const params = req.nextUrl.searchParams;
   const page = Math.max(1, Number(params.get("page") ?? 1));

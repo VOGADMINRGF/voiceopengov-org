@@ -45,16 +45,17 @@ async function loadSession(sessionId: string): Promise<StreamSessionDoc | null> 
   return col.findOne({ _id: new ObjectId(sessionId) });
 }
 
-async function fetchTopicStatements(topicKey?: string | null): Promise<
-  Array<{ id: string; title?: string | null; text?: string | null }>
-> {
+async function fetchTopicStatements(
+  topicKey?: string | null,
+  regionCode?: string | null,
+): Promise<Array<{ id: string; title?: string | null; text?: string | null }>> {
   if (!topicKey) return [];
   const col = await coreCol("statements");
-  const docs = await col
-    .find({ topic: topicKey })
-    .project({ id: 1, title: 1, text: 1 })
-    .limit(5)
-    .toArray();
+  const match: Record<string, any> = { topic: topicKey };
+  if (regionCode) {
+    match.regionCode = regionCode;
+  }
+  const docs = await col.find(match).project({ id: 1, title: 1, text: 1 }).limit(5).toArray();
   return docs.map((doc: any) => ({
     id: doc.id ?? doc._id?.toString?.() ?? randomUUID(),
     title: doc.title ?? null,
@@ -66,10 +67,11 @@ export async function buildAgendaForSession(options: BuildAgendaOptions): Promis
   const session = await loadSession(options.sessionId);
   if (!session) throw new Error("SESSION_NOT_FOUND");
 
-  const topicItems = await fetchTopicStatements(session.topicKey ?? null);
+  const hasTopic = !!session.topicKey;
+  const topicItems = hasTopic ? await fetchTopicStatements(session.topicKey ?? null, session.regionCode ?? null) : [];
   const now = new Date();
 
-  if (topicItems.length === 0) {
+  if (!hasTopic) {
     return FALLBACK_ITEMS.map((item, idx) => ({
       ...item,
       sessionId: new ObjectId(options.sessionId),
@@ -78,6 +80,9 @@ export async function buildAgendaForSession(options: BuildAgendaOptions): Promis
       createdAt: now,
       updatedAt: now,
     }));
+  }
+  if (topicItems.length === 0) {
+    return [];
   }
 
   const agenda: StreamAgendaItemDoc[] = [];

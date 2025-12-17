@@ -10,6 +10,7 @@ export const piiUserSchema = z.object({
       birthDate: z.string().trim().optional(),
       city: z.string().trim().optional(),
       profession: z.string().trim().optional(),
+      title: z.string().trim().optional(),
       pronouns: z.string().trim().optional(),
     })
     .optional(),

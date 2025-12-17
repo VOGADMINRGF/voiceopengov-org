@@ -66,7 +66,7 @@ async function post(body: Record<string, unknown>, signal?: AbortSignal) {
 
 async function askMistral({
   prompt,
-  maxOutputTokens = 1_200,
+  maxOutputTokens = 2_000,
   signal,
 }: AskArgs): Promise<AskResult> {
   if (!prompt) throw new Error("prompt darf nicht leer sein");

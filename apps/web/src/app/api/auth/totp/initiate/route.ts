@@ -60,6 +60,13 @@ export async function POST(_req: NextRequest) {
       );
     }
 
+    if (credentials.otpSecret) {
+      return NextResponse.json(
+        { ok: false, error: "ALREADY_ENABLED" },
+        { status: 409 },
+      );
+    }
+
     await credentialsCol.updateOne(
       { _id: credentials._id },
       {

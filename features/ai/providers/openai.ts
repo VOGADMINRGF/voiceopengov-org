@@ -1,5 +1,6 @@
 // features/ai/providers/openai.ts
 import { withMetrics } from "../orchestrator";
+import { ANALYZE_JSON_SCHEMA } from "@features/analyze/schemas";
 
 // ——— Low-level Responses API ———
 const API_BASE = (process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(
@@ -15,13 +16,31 @@ export type AskArgs = {
   asJson?: boolean;
   maxOutputTokens?: number;
   signal?: AbortSignal;
+  forceJsonFormat?: boolean;
 };
 
-export type AskResult = { text: string; raw: any };
+export type AskResult = {
+  text: string;
+  raw: any;
+  model?: string;
+  tokensIn?: number;
+  tokensOut?: number;
+  formatUsed?: "json_schema" | "json_object";
+  didFallback?: boolean;
+  openaiErrorCode?: string | null;
+  openaiErrorMessage?: string | null;
+};
 
 function withJsonInstruction(s: string) {
   return `${s}\n\nReturn ONLY valid JSON (RFC8259). No preamble, no Markdown, no code fences.`;
 }
+
+const envTextFormat = (process.env.OPENAI_TEXT_FORMAT ?? "").toLowerCase();
+const DEFAULT_TEXT_FORMAT: "json_schema" | "json_object" =
+  envTextFormat === "json_object" ? "json_object" : "json_schema";
+
+const fallbackTextFormat = (format: "json_schema" | "json_object") =>
+  format === "json_schema" ? "json_object" : "json_schema";
 
 async function post(body: any, signal?: AbortSignal) {
   const res = await fetch(`${API_BASE}/responses`, {
@@ -34,79 +53,206 @@ async function post(body: any, signal?: AbortSignal) {
     signal,
   });
 
-  const data = await res.json().catch(() => ({}));
+  const bodyText = await res.text();
+  const data = (() => {
+    try {
+      return JSON.parse(bodyText);
+    } catch {
+      return null;
+    }
+  })();
 
   if (!res.ok) {
-    const msg = data?.error?.message || JSON.stringify(data);
+    const msg = data?.error?.message || bodyText || `status ${res.status}`;
     const err: any = new Error(`OpenAI error ${res.status}: ${msg}`);
     err.status = res.status;
     err.payload = data;
+    const meta = data?.error ?? {};
+    err.meta = {
+      code: meta.code,
+      type: meta.type,
+      param: meta.param,
+      messageShort: typeof meta.message === "string" ? meta.message.slice(0, 200) : undefined,
+    };
     throw err;
   }
-  return data;
+  return data ?? {};
 }
 
 function extractText(data: any): string {
-  // Responses API: bevorzugt output_text; fallback auf content-Array
-  const direct = typeof data?.output_text === "string" ? data.output_text : "";
-  if (direct) return direct.trim();
+  const outputs = Array.isArray(data?.output) ? data.output : [];
 
-  try {
-    const block = data?.output?.[0]?.content?.find?.(
-      (c: any) => c?.type === "output_text"
+  const pickText = (entry: any): string | null => {
+    if (!entry) return null;
+    const t = entry?.text;
+    if (typeof t === "string") return t;
+    if (t && typeof t === "object" && typeof t.value === "string") return t.value;
+    return null;
+  };
+
+  const safeType = (value: any): string => {
+    if (typeof value === "string") return value.slice(0, 40);
+    if (value === null || value === undefined) return String(value);
+    return typeof value;
+  };
+
+  const checkContent = (content: any[]): string | null => {
+    const message = content.find(
+      (c: any) =>
+        (c?.type === "output_text" || c?.type === "text") &&
+        pickText(c),
     );
-    if (block?.text) return String(block.text).trim();
-  } catch {
-    // ignore
+    const normalized = message ? pickText(message) : null;
+    if (normalized) return stripFences(String(normalized).trim());
+
+    const textParts = content
+      .map((c: any) => pickText(c))
+      .filter((t: string | null): t is string => Boolean(t));
+    return textParts.length ? stripFences(textParts.join("")) : null;
+  };
+
+  const messageItems = outputs.filter((item: any) => item?.type === "message");
+  for (const item of messageItems) {
+    const content = Array.isArray(item?.content) ? item.content : [];
+    const found = checkContent(content);
+    if (found) return found;
   }
-  return "";
+
+  for (const item of outputs) {
+    const content = Array.isArray(item?.content) ? item.content : [];
+    const found = checkContent(content);
+    if (found) return found;
+  }
+
+  const outputItemTypes = outputs.map((o: any) => safeType(o?.type ?? typeof o));
+  const contentTypes = outputs.map((o: any) => {
+    const content = Array.isArray(o?.content) ? o.content : [];
+    return content
+      .slice(0, 6)
+      .map((c: any) => safeType(c?.type ?? (pickText(c) ? "text" : typeof c)));
+  });
+  const fingerprint = `types=${outputItemTypes.join("|") || "none"} content=${contentTypes
+    .map((c: string[]) => (c.length ? c.join(",") : "none"))
+    .slice(0, 5)
+    .join(" ; ")}`;
+
+  const err: any = new Error("OPENAI_EMPTY_OUTPUT");
+  err.status = 500;
+  err.errorKind = "INTERNAL";
+  err.meta = { fingerprint, outputItemTypes, contentTypes };
+  throw err;
+}
+
+function stripFences(text: string): string {
+  let cleaned = text?.trim?.() ?? "";
+  if (cleaned.startsWith("```")) {
+    const firstNewline = cleaned.indexOf("\n");
+    if (firstNewline !== -1) cleaned = cleaned.slice(firstNewline + 1);
+    const lastFence = cleaned.lastIndexOf("```");
+    if (lastFence !== -1) cleaned = cleaned.slice(0, lastFence);
+    cleaned = cleaned.trim();
+  }
+  return cleaned;
 }
 
 async function askOpenAI({
   prompt,
   asJson = false,
-  maxOutputTokens = 1200,
+  maxOutputTokens = 1400,
   signal,
+  forceJsonFormat = false,
 }: AskArgs): Promise<AskResult> {
   if (!process.env.OPENAI_API_KEY) throw new Error("OPENAI_API_KEY fehlt");
 
-  // *** WICHTIG: input NIE weglassen ***
-  // Wenn prompt leer/falsy ist, schicken wir trotzdem einen leeren String.
   const safePrompt = prompt ?? "";
-  const inputText = asJson ? withJsonInstruction(safePrompt) : safePrompt;
+  const systemText = "";
+  const userText = asJson ? withJsonInstruction(safePrompt) : safePrompt;
+  const mergedInput = [
+    { role: "system", content: systemText },
+    { role: "user", content: userText },
+  ];
 
-  const baseBody: any = {
+  const buildBody = (format: "json_schema" | "json_object") => ({
     model: MODEL,
-    input: inputText,
+    input: mergedInput,
     max_output_tokens: maxOutputTokens,
+    text:
+      asJson || forceJsonFormat
+        ? {
+            format:
+              format === "json_schema"
+                ? {
+                    type: "json_schema",
+                    name: "contribution_analyze",
+                    schema: ANALYZE_JSON_SCHEMA.schema,
+                    strict: true,
+                  }
+                : { type: "json_object" },
+          }
+        : undefined,
+  });
+
+  if (!asJson && !forceJsonFormat) {
+    const data = await post(buildBody("json_object"), signal);
+    return {
+      text: extractText(data),
+      raw: data,
+      model: data?.model ?? MODEL,
+      tokensIn: data?.usage?.input_tokens,
+      tokensOut: data?.usage?.output_tokens,
+    };
+  }
+
+  const execute = async (format: "json_schema" | "json_object") => {
+    const data = await post(buildBody(format), signal);
+    const text = extractText(data);
+    return { data, text };
   };
 
-  try {
-    // 1. Versuch: normales Responses-JSON ohne spezielles response_format
-    const data = await post(baseBody, signal);
-    return { text: extractText(data), raw: data };
-  } catch (e: any) {
-    const msg = String(e?.message || "");
+  let attemptFormat: "json_schema" | "json_object" = DEFAULT_TEXT_FORMAT;
+  let didFallback = false;
+  let fallbackMeta: { code?: string; message?: string } | null = null;
 
-    // Wenn es um Format / JSON-Output geht, noch einmal mit response_format-JSON
-    const isFormatErr = /text\.format|response_format|json_schema|invalid json/i.test(
-      msg
-    );
-    if (!isFormatErr) {
-      // z.B. "Missing required parameter: 'input'" sollte jetzt **nicht** mehr auftreten,
-      // weil input immer gesetzt ist. Falls doch: bitte msg im Terminal checken.
-      throw e;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const { data, text } = await execute(attemptFormat);
+      return {
+        text,
+        raw: data,
+        model: data?.model ?? MODEL,
+        tokensIn: data?.usage?.input_tokens,
+        tokensOut: data?.usage?.output_tokens,
+        formatUsed: attemptFormat,
+        didFallback,
+        openaiErrorCode: fallbackMeta?.code ?? null,
+        openaiErrorMessage: fallbackMeta?.message ?? null,
+      };
+    } catch (err: any) {
+      const isSchemaIssue =
+        err?.status === 400 &&
+        ((typeof err?.meta?.param === "string" && err.meta.param.includes("text.format")) ||
+          /text\.format|json_schema|response_format|json_object not supported|input/i.test(
+            String(err?.message ?? ""),
+          )) ||
+        err?.status === 422;
+      const needsFallback =
+        !didFallback &&
+        attemptFormat === "json_schema" &&
+        (isSchemaIssue || err?.message === "OPENAI_EMPTY_OUTPUT");
+      if (needsFallback) {
+        didFallback = true;
+        fallbackMeta = {
+          code: err?.meta?.code ?? null,
+          message: err?.meta?.messageShort ?? String(err?.message ?? ""),
+        };
+        attemptFormat = fallbackTextFormat(attemptFormat);
+        continue;
+      }
+      throw err;
     }
-
-    // 2. Versuch: Responses-API mit JSON-Response-Format
-    const bodyWithJsonFormat: any = {
-      ...baseBody,
-      response_format: { type: "json_object" },
-    };
-
-    const data = await post(bodyWithJsonFormat, signal);
-    return { text: extractText(data), raw: data };
   }
+
+  throw new Error("OpenAI call konnte nicht abgeschlossen werden");
 }
 
 // ——— Instrumentierte Exporte ———

@@ -8,8 +8,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  const staff = await getStaffContext();
-  if (!staff) {
+  const { context, response } = await getStaffContext(req);
+  if (response) return response;
+  if (!context) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
   const snapshot = await markEventualitySnapshotReviewed(
     id,
     reviewed,
-    maskUserId(staff.userId),
+    maskUserId(context.userId),
   );
   if (!snapshot) {
     return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
       action: "eventualities_mark_reviewed",
       contributionId: id,
       reviewed,
-      userIdMasked: maskUserId(staff.userId),
+      userIdMasked: maskUserId(context.userId),
     },
     "Admin toggled eventuality review",
   );

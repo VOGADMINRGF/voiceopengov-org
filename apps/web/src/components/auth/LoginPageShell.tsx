@@ -100,6 +100,10 @@ export function LoginPageShell({ redirectTo }: { redirectTo?: string }) {
             <Link href="/register" className="font-semibold text-sky-700 underline-offset-2 hover:underline">
               Jetzt registrieren
             </Link>
+            <br />
+            <Link href="/reset" className="text-[12px] font-semibold text-slate-600 underline-offset-2 hover:text-sky-700 hover:underline">
+              Passwort vergessen?
+            </Link>
           </p>
         </form>
       )}

@@ -46,8 +46,8 @@ export function MembershipPageClient({ membershipPlan, edebattePlans }: Props) {
   const router = useRouter();
 
   // Auswahl: Mitgliedschaft + eDebatte
-  const [withMembership, setWithMembership] = React.useState(true);
-  const [withEdebate, setWithEdebate] = React.useState(true);
+  const [withMembership, setWithMembership] = React.useState(false);
+  const [withEdebate, setWithEdebate] = React.useState(false);
   const [selectedPlanId, setSelectedPlanId] = React.useState<
     EDebattePlan["id"] | null
   >(edebattePlans[0]?.id ?? null);
@@ -109,6 +109,16 @@ export function MembershipPageClient({ membershipPlan, edebattePlans }: Props) {
   const [membershipHint, setMembershipHint] = React.useState<string | null>(
     null,
   );
+
+  const removeMembership = () => {
+    setWithMembership(false);
+    setMembershipHint(null);
+  };
+
+  const removeEdebate = () => {
+    setWithEdebate(false);
+    setSelectedPlanId(null);
+  };
 
   const net = parseEuro(householdNet) ?? 0;
   const rent = parseEuro(warmRent) ?? 0;
@@ -173,7 +183,6 @@ export function MembershipPageClient({ membershipPlan, edebattePlans }: Props) {
 
   // Gesamtbeträge
   const totalMonthly = membershipMonthly + edebatteMonthly;
-  const totalYearly = membershipYearly + edebatteYearly;
 
   const canContinue =
     withMembership || (withEdebate && selectedPlan !== null);
@@ -226,8 +235,39 @@ export function MembershipPageClient({ membershipPlan, edebattePlans }: Props) {
     }
   }
 
+  function setRhythmWithMembership(next: Rhythm) {
+    setRhythm(next);
+    if (next === "once") {
+      if (!withMembership && amountPerPerson > 0) {
+        setMembershipHint(buildMembershipHint(next));
+      }
+      return;
+    }
+    if (!withMembership) {
+      setWithMembership(true);
+      setMembershipHint(null);
+    }
+  }
+
   // Anzeige-Wert für „Beitrag pro Person“ in der Summary
   const displayPerPerson = withMembership ? effectivePerPerson : 0;
+
+  // Zahlungsfluss: sauber zwischen monatlichen und jährlichen Komponenten unterscheiden
+  const membershipMonthlyCharge = rhythm === "monthly" ? membershipMonthly : 0;
+  const membershipYearlyCharge = rhythm === "yearly" ? membershipYearly : 0;
+  const monthlyComponents =
+    membershipMonthlyCharge +
+    (hasApp && billingInterval === "monthly" ? edebatteMonthly : 0);
+  const yearlyComponents =
+    membershipYearlyCharge +
+    (hasApp && billingInterval === "yearly" ? edebatteYearly : 0);
+  const oneOffComponent = oneOffMembershipAmount;
+  const hasOnlyMonthly =
+    monthlyComponents > 0 && yearlyComponents === 0 && oneOffComponent === 0;
+  const hasOnlyYearly =
+    yearlyComponents > 0 && monthlyComponents === 0 && oneOffComponent === 0;
+  const showSplitSchedule = !hasOnlyMonthly && !hasOnlyYearly;
+  const firstPayment = monthlyComponents + yearlyComponents + oneOffComponent;
 
   return (
     <>
@@ -447,7 +487,7 @@ export function MembershipPageClient({ membershipPlan, edebattePlans }: Props) {
                     type="button"
                     onClick={() => {
                       setBillingInterval("monthly");
-                      if (rhythm === "yearly") setRhythm("monthly");
+                      if (rhythm === "yearly") setRhythmWithMembership("monthly");
                     }}
                     className={
                       "rounded-full px-3 py-1 " +
@@ -462,7 +502,7 @@ export function MembershipPageClient({ membershipPlan, edebattePlans }: Props) {
                     type="button"
                     onClick={() => {
                       setBillingInterval("yearly");
-                      if (rhythm !== "once") setRhythm("yearly");
+                      if (rhythm !== "once") setRhythmWithMembership("yearly");
                     }}
                     className={
                       "rounded-full px-3 py-1 " +
@@ -625,10 +665,7 @@ export function MembershipPageClient({ membershipPlan, edebattePlans }: Props) {
                     <button
                       type="button"
                       onClick={() => {
-                        setRhythm("monthly");
-                        if (!withMembership && amountPerPerson > 0) {
-                          setMembershipHint(buildMembershipHint("monthly"));
-                        }
+                        setRhythmWithMembership("monthly");
                       }}
                       className={
                         "flex-1 rounded-full border px-3 py-1.5 text-xs font-semibold " +
@@ -642,10 +679,7 @@ export function MembershipPageClient({ membershipPlan, edebattePlans }: Props) {
                     <button
                       type="button"
                       onClick={() => {
-                        setRhythm("yearly");
-                        if (!withMembership && amountPerPerson > 0) {
-                          setMembershipHint(buildMembershipHint("yearly"));
-                        }
+                        setRhythmWithMembership("yearly");
                       }}
                       className={
                         "flex-1 rounded-full border px-3 py-1.5 text-xs font-semibold " +
@@ -659,10 +693,7 @@ export function MembershipPageClient({ membershipPlan, edebattePlans }: Props) {
                     <button
                       type="button"
                       onClick={() => {
-                        setRhythm("once");
-                        if (!withMembership && amountPerPerson > 0) {
-                          setMembershipHint(buildMembershipHint("once"));
-                        }
+                        setRhythmWithMembership("once");
                       }}
                       className={
                         "flex-1 rounded-full border px-3 py-1.5 text-xs font-semibold " +
@@ -746,16 +777,27 @@ export function MembershipPageClient({ membershipPlan, edebattePlans }: Props) {
                 {/* Mitgliedschaft */}
                 {withMembership ? (
                   <div className="mt-1 space-y-0.5">
-                    <p className="font-semibold">
-                      Mitgliedschaft: {formatEuro(membershipMonthly)} / Monat
-                      <br />
-                      {size} Person(en){" "}
-                      {rhythm === "once"
-                        ? "(einmalig)"
-                        : rhythm === "yearly"
-                          ? "(laufend, jährliche Zahlung)"
-                          : "(laufend, monatlich)"}
-                    </p>
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="font-semibold">
+                        Mitgliedschaft: {formatEuro(membershipMonthly)}{" "}
+                        {rhythm === "yearly" ? "/ Jahr" : "/ Monat"}
+                        <br />
+                        {size} Person(en){" "}
+                        {rhythm === "once"
+                          ? "(einmalig)"
+                          : rhythm === "yearly"
+                            ? "(laufend, jährliche Zahlung)"
+                            : "(laufend, monatlich)"}
+                      </p>
+                      <button
+                        type="button"
+                        aria-label="Mitgliedschaft entfernen"
+                        onClick={removeMembership}
+                        className="rounded-full px-2 text-[11px] font-semibold text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
+                      >
+                        ×
+                      </button>
+                    </div>
                     {rhythm !== "once" && (
                       <p className="text-[11px] text-sky-800">
                         = {formatEuro(membershipYearly)} / Jahr
@@ -777,12 +819,22 @@ export function MembershipPageClient({ membershipPlan, edebattePlans }: Props) {
                     {(() => {
                       const planLabel = selectedPlan.label.replace(/^eDebatte\s+/i, "");
                       return (
-                        <p className="font-semibold">
-                          {`eDebatte ${planLabel}`}:{" "}
-                          {billingInterval === "monthly"
-                            ? `${formatEuro(appVogMonthly)} / Monat`
-                            : `${formatEuro(appVogYearly)} / Jahr`}
-                        </p>
+                        <div className="flex items-start justify-between gap-3">
+                          <p className="font-semibold">
+                            {`eDebatte ${planLabel}`}:{" "}
+                            {billingInterval === "monthly"
+                              ? `${formatEuro(appVogMonthly)} / Monat`
+                              : `${formatEuro(appVogYearly)} / Jahr`}
+                          </p>
+                          <button
+                            type="button"
+                            aria-label="eDebatte-Paket entfernen"
+                            onClick={removeEdebate}
+                            className="rounded-full px-2 text-[11px] font-semibold text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
+                          >
+                            ×
+                          </button>
+                        </div>
                       );
                     })()}
                     {billingInterval === "yearly" && (
@@ -807,18 +859,46 @@ export function MembershipPageClient({ membershipPlan, edebattePlans }: Props) {
 
                 {/* Gesamt */}
                 <div className="mt-3 border-t border-sky-100 pt-2">
-                  {billingInterval === "monthly" && rhythm !== "yearly" ? (
+                  {showSplitSchedule ? (
+                    <>
+                      <p className="text-lg font-bold md:text-xl">
+                        Erste Zahlung: {formatEuro(firstPayment)}
+                      </p>
+                      {monthlyComponents > 0 && (
+                        <p className="text-[11px] text-sky-800">
+                          Danach ca. alle 4 Wochen: {formatEuro(monthlyComponents)}
+                        </p>
+                      )}
+                      {yearlyComponents > 0 && (
+                        <p className="text-[11px] text-sky-800">
+                          Jährlich fällig (erste Zahlung enthält diesen Betrag): {formatEuro(yearlyComponents)}
+                        </p>
+                      )}
+                      {yearlyComponents > 0 && monthlyComponents > 0 && (
+                        <p className="text-[11px] text-slate-700">
+                          Richtwert umgelegt: {formatEuro(totalMonthly)} pro Monat.
+                        </p>
+                      )}
+                      {oneOffComponent > 0 && yearlyComponents === 0 && monthlyComponents === 0 && (
+                        <p className="text-[11px] text-sky-800">
+                          Einmalige Gutschrift, keine Folgezahlungen.
+                        </p>
+                      )}
+                    </>
+                  ) : hasOnlyMonthly ? (
                     <p className="text-lg font-bold md:text-xl">
-                      {formatEuro(totalMonthly)} <span className="text-xs font-medium">pro Monat</span>
+                      {formatEuro(monthlyComponents)} <span className="text-xs font-medium">pro Monat</span>
                     </p>
                   ) : (
                     <>
                       <p className="text-lg font-bold md:text-xl">
-                        {formatEuro(totalYearly)} <span className="text-xs font-medium">pro Jahr</span>
+                        {formatEuro(yearlyComponents)} <span className="text-xs font-medium">pro Jahr</span>
                       </p>
-                      <p className="text-[11px] text-sky-800">
-                        entspricht ca. {formatEuro(totalMonthly)} pro Monat
-                      </p>
+                      {monthlyComponents > 0 && (
+                        <p className="text-[11px] text-sky-800">
+                          entspricht ca. {formatEuro(monthlyComponents)} pro Monat
+                        </p>
+                      )}
                     </>
                   )}
                 </div>

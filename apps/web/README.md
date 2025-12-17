@@ -34,3 +34,12 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Environment
+
+Relevant variables for the contact form and protections:
+
+- `CONTACT_INBOX` – Zieladresse für Kontaktmails (Fallback: kontakt@voiceopengov.org)
+- `MAIL_FROM`, `SMTP_URL` oder `SMTP_HOST`/`SMTP_PORT`/`SMTP_USER`/`SMTP_PASS`/`SMTP_SECURE` – SMTP Versand
+- `CONTACT_LOG_SALT` – Salt zum Hashen von IPs in Kontakt-Logs
+- `TURNSTILE_SECRET_KEY` und `NEXT_PUBLIC_TURNSTILE_SITE_KEY` – aktivieren Cloudflare Turnstile Schutz

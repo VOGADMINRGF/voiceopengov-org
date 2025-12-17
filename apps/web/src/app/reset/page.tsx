@@ -2,10 +2,10 @@
 import { useMemo, useState } from "react";
 
 export default function ResetPage() {
-  const token = useMemo(
-    () => new URLSearchParams(window.location.search).get("token") ?? "",
-    [],
-  );
+  const token = useMemo(() => {
+    if (typeof window === "undefined") return "";
+    return new URLSearchParams(window.location.search).get("token") ?? "";
+  }, []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState<string>();

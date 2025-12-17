@@ -13,7 +13,7 @@ export const StatementRecordSchema = z.object({
   // Grobe Zuständigkeit, z.B. "EU", "Bund", "Land", "Kommune", "privat", "unbestimmt"
   responsibility: z.string().nullable().optional(),
 
-  importance: z.number().int().min(1).max(5).optional(),
+  importance: z.number().int().min(1).max(5).nullable().optional(),
   topic: z.string().nullable().optional(),
   domain: z.string().nullable().optional(),
   stance: z.enum(["pro", "neutral", "contra"]).nullable().optional(),
@@ -60,7 +60,7 @@ export const ConsequenceRecordSchema = z.object({
   scope: z.enum(["local_short", "local_long", "national", "global", "systemic"]),
   statementIndex: z.number().int().min(0),
   text: z.string(),
-  confidence: z.number().min(0).max(1).optional(),
+  confidence: z.number().min(0).max(1).nullable().optional(),
 });
 export type ConsequenceRecord = z.infer<typeof ConsequenceRecordSchema>;
 
@@ -69,7 +69,7 @@ export const ResponsibilityRecordSchema = z.object({
   level: responsibilityLevelEnum,
   actor: z.string().nullable().optional(),
   text: z.string(),
-  relevance: z.number().min(0).max(1),
+  relevance: z.number().min(0).max(1).nullable().optional(),
 });
 export type ResponsibilityRecord = z.infer<typeof ResponsibilityRecordSchema>;
 
@@ -99,6 +99,41 @@ export const ConsequenceBundleSchema = z.object({
   responsibilities: z.array(ResponsibilityRecordSchema),
 });
 export type ConsequenceBundle = z.infer<typeof ConsequenceBundleSchema>;
+
+export const ImpactRecordSchema = z.object({
+  type: z.string(),
+  description: z.string(),
+  confidence: z.number().min(0).max(1).nullable().optional(),
+});
+export type ImpactRecord = z.infer<typeof ImpactRecordSchema>;
+
+export const ResponsibleActorSchema = z.object({
+  level: z.string(),
+  hint: z.string(),
+  confidence: z.number().min(0).max(1).nullable().optional(),
+});
+export type ResponsibleActor = z.infer<typeof ResponsibleActorSchema>;
+
+export const ImpactAndResponsibilitySchema = z.object({
+  impacts: z.array(ImpactRecordSchema),
+  responsibleActors: z.array(ResponsibleActorSchema),
+});
+export type ImpactAndResponsibility = z.infer<typeof ImpactAndResponsibilitySchema>;
+
+export const ReportFactsSchema = z.object({
+  local: z.array(z.string()),
+  international: z.array(z.string()),
+});
+export type ReportFacts = z.infer<typeof ReportFactsSchema>;
+
+export const ReportSchema = z.object({
+  summary: z.string().nullable(),
+  keyConflicts: z.array(z.string()),
+  facts: ReportFactsSchema,
+  openQuestions: z.array(z.string()),
+  takeaways: z.array(z.string()),
+});
+export type Report = z.infer<typeof ReportSchema>;
 
 /* ---------- Eventualities & Decision Trees ---------- */
 
@@ -151,16 +186,18 @@ export type DecisionTree = z.infer<typeof DecisionTreeSchema>;
 
 export const AnalyzeResultSchema = z.object({
   mode: z.literal("E150"),
-  sourceText: z.string(),
+  sourceText: z.string().nullable(),
   language: z.string(),
   claims: z.array(StatementRecordSchema),
   notes: z.array(NoteRecordSchema),
   questions: z.array(QuestionRecordSchema),
   knots: z.array(KnotRecordSchema),
-  consequences: ConsequenceBundleSchema.optional(),
-  responsibilityPaths: z.array(ResponsibilityPathSchema).optional(),
-  eventualities: z.array(EventualityNodeSchema).optional(),
-  decisionTrees: z.array(DecisionTreeSchema).optional(),
+  consequences: ConsequenceBundleSchema,
+  responsibilityPaths: z.array(ResponsibilityPathSchema),
+  eventualities: z.array(EventualityNodeSchema),
+  decisionTrees: z.array(DecisionTreeSchema),
+  impactAndResponsibility: ImpactAndResponsibilitySchema,
+  report: ReportSchema,
 });
 
 export type AnalyzeResult = z.infer<typeof AnalyzeResultSchema>;
@@ -173,275 +210,75 @@ export const ANALYZE_JSON_SCHEMA = {
     type: "object",
     additionalProperties: false,
     properties: {
-      mode: {
-        type: "string",
-        enum: ["E150"],
-      },
-      sourceText: { type: "string" },
+      mode: { type: "string" },
+      sourceText: { type: ["string", "null"] },
       language: { type: "string" },
-      claims: {
-        type: "array",
-        items: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            id: { type: "string" },
-            text: { type: "string" },
 
-            // NEU auch im JSON-Schema
-            title: { type: "string", nullable: true },
-            responsibility: { type: "string", nullable: true },
+      claims: { type: "array" },
+      notes: { type: "array" },
+      questions: { type: "array" },
+      knots: { type: "array" },
 
-            importance: { type: "integer" },
-            topic: { type: "string", nullable: true },
-            domain: { type: "string", nullable: true },
-            stance: {
-              type: "string",
-              enum: ["pro", "neutral", "contra"],
-              nullable: true,
-            },
-          },
-          required: ["id", "text"],
-        },
-      },
-      notes: {
-        type: "array",
-        items: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            id: { type: "string" },
-            text: { type: "string" },
-            kind: { type: "string", nullable: true },
-          },
-          required: ["id", "text"],
-        },
-      },
-      questions: {
-        type: "array",
-        items: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            id: { type: "string" },
-            text: { type: "string" },
-            dimension: { type: "string", nullable: true },
-          },
-          required: ["id", "text"],
-        },
-      },
-      knots: {
-        type: "array",
-        items: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            id: { type: "string" },
-            label: { type: "string" },
-            description: { type: "string" },
-          },
-          required: ["id", "label", "description"],
-        },
-      },
       consequences: {
         type: "object",
         additionalProperties: false,
         properties: {
-          consequences: {
-            type: "array",
-            items: {
-              type: "object",
-              additionalProperties: false,
-              properties: {
-                id: { type: "string" },
-                scope: {
-                  type: "string",
-                  enum: ["local_short", "local_long", "national", "global", "systemic"],
-                },
-                statementIndex: { type: "integer", minimum: 0 },
-                text: { type: "string" },
-                confidence: { type: "number", minimum: 0, maximum: 1 },
-              },
-              required: ["id", "scope", "statementIndex", "text"],
-            },
-          },
-          responsibilities: {
-            type: "array",
-            items: {
-              type: "object",
-              additionalProperties: false,
-              properties: {
-                id: { type: "string" },
-                level: {
-                  type: "string",
-                  enum: [
-                    "municipality",
-                    "district",
-                    "state",
-                    "federal",
-                    "eu",
-                    "ngo",
-                    "private",
-                    "unknown",
-                  ],
-                },
-                actor: { type: "string", nullable: true },
-                text: { type: "string" },
-                relevance: { type: "number", minimum: 0, maximum: 1 },
-              },
-              required: ["id", "level", "text", "relevance"],
-            },
-          },
+          consequences: { type: "array" },
+          responsibilities: { type: "array" },
         },
         required: ["consequences", "responsibilities"],
       },
-      responsibilityPaths: {
-        type: "array",
-        items: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            id: { type: "string" },
-            statementId: { type: "string" },
-            locale: { type: "string" },
-            nodes: {
-              type: "array",
-              items: {
-                type: "object",
-                additionalProperties: false,
-                properties: {
-                  level: {
-                    type: "string",
-                    enum: [
-                      "municipality",
-                      "district",
-                      "state",
-                      "federal",
-                      "eu",
-                      "ngo",
-                      "private",
-                      "unknown",
-                    ],
-                  },
-                  actorKey: { type: "string" },
-                  displayName: { type: "string" },
-                  description: { type: "string", nullable: true },
-                  contactUrl: { type: "string", nullable: true },
-                  processHint: { type: "string", nullable: true },
-                  relevance: { type: "number", minimum: 0, maximum: 1 },
-                },
-                required: ["level", "actorKey", "displayName"],
-              },
-            },
-            createdAt: { type: "string", nullable: true },
-            updatedAt: { type: "string", nullable: true },
-          },
-          required: ["id", "statementId", "locale", "nodes"],
+
+      responsibilityPaths: { type: "array" },
+      eventualities: { type: "array" },
+      decisionTrees: { type: "array" },
+
+      impactAndResponsibility: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          impacts: { type: "array" },
+          responsibleActors: { type: "array" },
         },
+        required: ["impacts", "responsibleActors"],
       },
-      eventualities: {
-        type: "array",
-        items: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            id: { type: "string" },
-            statementId: { type: "string" },
-            label: { type: "string" },
-            narrative: { type: "string" },
-            stance: {
-              type: "string",
-              enum: ["pro", "neutral", "contra"],
-              nullable: true,
+
+      report: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          summary: { type: ["string", "null"] },
+          keyConflicts: { type: "array" },
+          facts: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              local: { type: "array" },
+              international: { type: "array" },
             },
-            likelihood: { type: "number", minimum: 0, maximum: 1 },
-            impact: { type: "number", minimum: 0, maximum: 1 },
-            consequences: {
-              type: "array",
-              items: {
-                type: "object",
-                additionalProperties: false,
-                properties: {
-                  id: { type: "string" },
-                  scope: {
-                    type: "string",
-                    enum: [
-                      "local_short",
-                      "local_long",
-                      "national",
-                      "global",
-                      "systemic",
-                    ],
-                  },
-                  statementIndex: { type: "integer", minimum: 0 },
-                  text: { type: "string" },
-                  confidence: { type: "number", minimum: 0, maximum: 1 },
-                },
-                required: ["id", "scope", "statementIndex", "text"],
-              },
-            },
-            responsibilities: {
-              type: "array",
-              items: {
-                type: "object",
-                additionalProperties: false,
-                properties: {
-                  id: { type: "string" },
-                  level: {
-                    type: "string",
-                    enum: [
-                      "municipality",
-                      "district",
-                      "state",
-                      "federal",
-                      "eu",
-                      "ngo",
-                      "private",
-                      "unknown",
-                    ],
-                  },
-                  actor: { type: "string", nullable: true },
-                  text: { type: "string" },
-                  relevance: { type: "number", minimum: 0, maximum: 1 },
-                },
-                required: ["id", "level", "text", "relevance"],
-              },
-            },
-            children: {
-              type: "array",
-              items: { $ref: "#/properties/eventualities/items" },
-            },
+            required: ["local", "international"],
           },
-          required: ["id", "statementId", "label", "narrative"],
+          openQuestions: { type: "array" },
+          takeaways: { type: "array" },
         },
-      },
-      decisionTrees: {
-        type: "array",
-        items: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            id: { type: "string", nullable: true },
-            rootStatementId: { type: "string" },
-            locale: { type: "string", nullable: true },
-            createdAt: { type: "string" },
-            updatedAt: { type: "string", nullable: true },
-            options: {
-              type: "object",
-              additionalProperties: false,
-              properties: {
-                pro: { $ref: "#/properties/eventualities/items" },
-                neutral: { $ref: "#/properties/eventualities/items", nullable: true },
-                contra: { $ref: "#/properties/eventualities/items" },
-              },
-              required: ["pro", "contra"],
-            },
-          },
-          required: ["rootStatementId", "createdAt", "options"],
-        },
+        required: ["summary", "keyConflicts", "facts", "openQuestions", "takeaways"],
       },
     },
-    required: ["mode", "sourceText", "language", "claims", "notes", "questions", "knots"],
+    required: [
+      "mode",
+      "sourceText",
+      "language",
+      "claims",
+      "notes",
+      "questions",
+      "knots",
+      "consequences",
+      "responsibilityPaths",
+      "eventualities",
+      "decisionTrees",
+      "impactAndResponsibility",
+      "report",
+    ],
   },
   strict: true,
 } as const;

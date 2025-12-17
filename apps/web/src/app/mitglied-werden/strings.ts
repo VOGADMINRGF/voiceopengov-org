@@ -29,7 +29,7 @@ const STRINGS = {
   } as LocaleString,
   
   tiersIntro: {
-    de: "Du entscheidest selbst, welchen Beitrag du geben möchtest. Uns ist wichtig, dass du dich damit wohlfühlst. Diese Stufen zeigen dir, was dein Beitrag heute ermöglicht.",
+    de: "Du entscheidest selbst, welchen Beitrag du geben möchtest. Uns ist wichtig, dass du dich damit wohlfühlst. Diese Stufen zeigen dir, was dein Beitrag heute ermöglicht – sie sind Richtwerte. Alle Mitglieder werden gleich behandelt, egal ob 5,63 € oder 25 € monatlich; der einzige finanzielle Vorteil ist der allgemeine 25 %-Member-Rabatt.",
   } as LocaleString,
   
   tiersList: {

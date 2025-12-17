@@ -18,6 +18,7 @@ import type {
 import { TOPIC_CHOICES, TOPIC_LABEL_BY_KEY, type TopicKey } from "@features/interests/topics";
 import { getEngagementLevel, swipesUntilNextCredit } from "@features/user/engagement";
 import { getProfilePackageForAccessTier } from "./profilePackages";
+import { deriveAccessTierFromPlanCode } from "@core/access/accessTiers";
 
 const RESEARCH_XP_AWARD = 25;
 
@@ -63,6 +64,7 @@ type UserDoc = {
   };
   membership?: {
     status?: MembershipStatus;
+    planCode?: string | null;
   };
   usage?: {
     swipesThisMonth?: number;
@@ -202,6 +204,7 @@ export async function getAccountOverview(userId: string): Promise<AccountOvervie
     vogMembershipStatus: doc.membership?.status ?? "none",
     hasVogMembership,
     membershipSnapshot,
+    verification,
     pricingTier: derivePricingTier(doc, accessTier),
     stats,
     preferredLocale,
@@ -366,8 +369,27 @@ function deriveProfile(doc: UserDoc): AccountProfile {
 }
 
 function deriveTier(doc: UserDoc): AccessTier {
-  if (doc.accessTier) return doc.accessTier;
-  if (doc.tier) return doc.tier;
+  const membershipPlanCode = (doc as any)?.membership?.planCode ?? null;
+  if (doc.accessTier && membershipPlanCode && doc.accessTier !== membershipPlanCode) {
+    console.warn("[account] accessTier vs membership.planCode mismatch", {
+      userId: String(doc._id),
+      accessTier: doc.accessTier,
+      membershipPlanCode,
+    });
+  }
+  if (doc.accessTier && doc.b2cPlanId && doc.accessTier !== doc.b2cPlanId) {
+    console.warn("[account] accessTier vs b2cPlanId mismatch", {
+      userId: String(doc._id),
+      accessTier: doc.accessTier,
+      b2cPlanId: doc.b2cPlanId,
+    });
+  }
+
+  if (doc.accessTier) return deriveAccessTierFromPlanCode(doc.accessTier);
+  if (doc.tier) return deriveAccessTierFromPlanCode(doc.tier);
+  if (membershipPlanCode) return deriveAccessTierFromPlanCode(membershipPlanCode);
+  if (doc.b2cPlanId) return deriveAccessTierFromPlanCode(doc.b2cPlanId);
+
   const roles = deriveRoles(doc);
   const adminRoles = ["admin", "superadmin", "moderator", "staff"];
   if (roles.some((role) => adminRoles.includes(role))) {

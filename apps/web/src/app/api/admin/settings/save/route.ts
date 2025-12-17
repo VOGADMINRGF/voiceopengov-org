@@ -6,6 +6,7 @@ import { z } from "zod";
 import { getDb } from "@core/db/triMongo";
 import { formatError } from "@core/errors/formatError";
 import { logger } from "@core/observability/logger";
+import { requireAdminOrResponse } from "@/lib/server/auth/admin";
 // Hinweis: Wenn du bereits ein RBAC-Permission-Setup nutzt, kannst du die Cookie-Admin-Logik unten
 // leicht auf hasPermission(...) umstellen.
 
@@ -21,21 +22,11 @@ type SettingsDoc = {
   updatedAt?: Date;
 };
 
-/** Liest die Rolle aus dem Cookie. Integrierbar mit RBAC, falls vorhanden. */
-function getRole(req: NextRequest): string {
-  return req.cookies.get("u_role")?.value ?? "guest";
-}
-
 export async function POST(req: NextRequest) {
   const startedAt = Date.now();
   try {
-    // --- AuthZ (konservativ: Admin-Cookie). RBAC-Hook hier möglich.
-    const role = getRole(req);
-    if (role !== "admin") {
-      const fe = formatError("FORBIDDEN", "Permission denied", { role });
-      logger.warn({ fe }, "ADMIN_SETTINGS_SAVE_FORBIDDEN");
-      return NextResponse.json(fe, { status: 403 });
-    }
+    const gate = await requireAdminOrResponse(req);
+    if (gate instanceof Response) return gate;
 
     // --- Body validieren & koerzieren
     const json = await req.json().catch(() => ({}));

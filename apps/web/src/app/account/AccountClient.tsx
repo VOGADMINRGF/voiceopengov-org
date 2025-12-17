@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { EDEBATTE_PACKAGES_WITH_NONE, EDEBATTE_PACKAGES } from "@/config/edebatte";
+import type { UserRole } from "@/types/user";
 
 // Konsistente Button-Styles im VOG-Gradient-CI
 const primaryButtonClass =
@@ -78,6 +80,7 @@ export type RoleInfo = {
   label: string;
   description?: string;
   badge?: string;
+  role?: UserRole;
 };
 
 export type SecurityInfo = {
@@ -150,7 +153,7 @@ export function AccountClient({ initialData, membershipNotice }: AccountClientPr
 
       <MembershipAndRolesSection membership={data.membership} roles={data.roles} />
 
-      <SecurityAndPaymentSection security={data.security} payment={data.payment} signature={data.signature} />
+      <SecurityAndPaymentSection security={data.security} payment={data.payment} signature={data.signature} membership={data.membership} />
 
       <AdvancedFeaturesSection features={data.features} />
     </div>
@@ -160,6 +163,8 @@ export function AccountClient({ initialData, membershipNotice }: AccountClientPr
 export default AccountClient;
 
 function normalizeOverview(src: any): AccountOverview {
+  const paymentProfile = src?.paymentProfile ?? null;
+
   const profile: ProfileData = {
     id: src?.profile?.id ?? src?.id ?? "",
     displayName: src?.profile?.displayName ?? src?.displayName ?? "Dein Anzeigename",
@@ -207,21 +212,40 @@ function normalizeOverview(src: any): AccountOverview {
   };
 
   const roles: RoleInfo[] = Array.isArray(src?.roles)
-    ? src.roles
+    ? src.roles.map((r: any, idx: number) =>
+        typeof r === "string"
+          ? { id: String(idx), label: r, role: r as UserRole }
+          : {
+              id: r.id ?? String(idx),
+              label: r.label ?? r.role ?? "Rolle",
+              description: r.description,
+              badge: r.badge,
+              role: r.role,
+            },
+      )
     : [];
 
   const security: SecurityInfo = {
-    emailVerified: Boolean(src?.security?.emailVerified),
-    twoFactorEnabled: Boolean(src?.security?.twoFactorEnabled),
-    lastLoginAt: src?.security?.lastLoginAt ?? null,
+    emailVerified: Boolean(src?.security?.emailVerified ?? src?.emailVerified ?? src?.verifiedEmail ?? src?.verification?.email),
+    twoFactorEnabled: Boolean(
+      src?.security?.twoFactorEnabled ??
+        src?.security?.twoFactor ??
+        src?.verification?.twoFA?.enabled ??
+        src?.verification?.twoFA?.secret,
+    ),
+    lastLoginAt: src?.security?.lastLoginAt
+      ? String(src.security.lastLoginAt)
+      : src?.lastLoginAt
+      ? String(src.lastLoginAt)
+      : null,
     loginHint: src?.security?.loginHint ?? null,
   };
 
   const payment: PaymentInfo = {
-    ibanMasked: src?.payment?.ibanMasked ?? null,
-    bic: src?.payment?.bic ?? null,
-    accountHolder: src?.payment?.accountHolder ?? null,
-    note: src?.payment?.note ?? null,
+    ibanMasked: src?.payment?.ibanMasked ?? paymentProfile?.ibanMasked ?? src?.membership?.paymentInfo?.bankIbanMasked ?? null,
+    bic: src?.payment?.bic ?? paymentProfile?.bic ?? src?.membership?.paymentInfo?.bankBic ?? null,
+    accountHolder: src?.payment?.accountHolder ?? paymentProfile?.holderName ?? src?.membership?.paymentInfo?.bankRecipient ?? null,
+    note: src?.payment?.note ?? src?.membership?.paymentInfo?.reference ?? null,
   };
 
   const signature: SignatureInfo = {
@@ -498,17 +522,13 @@ type EDebattePackageCardProps = {
 };
 
 function getEDebatteLabel(pkg: EDebattePackage): string {
-  switch (pkg) {
-    case "basis":
-      return "eDebatte Basis";
-    case "start":
-      return "eDebatte Start";
-    case "pro":
-      return "eDebatte Pro";
-    case "none":
-    default:
-      return "Noch kein eDebatte-Paket";
-  }
+  const labels: Record<EDebattePackage, string> = {
+    basis: "eDebatte Basis",
+    start: "eDebatte Start",
+    pro: "eDebatte Pro",
+    none: "Noch kein eDebatte-Paket",
+  };
+  return labels[pkg] ?? "Noch kein eDebatte-Paket";
 }
 
 function getEDebatteStatusLabel(info: EDebattePackageInfo): string {
@@ -617,7 +637,7 @@ function EDebattePackageCard({ edebatte, usage, onRefresh }: EDebattePackageCard
       </div>
     </section>
 
-      {showModal && <EDebattePackageModal currentPackage={edebatte} onClose={() => setShowModal(false)} />}
+      {showModal && <EDebattePackageModal currentPackage={edebatte} onClose={() => setShowModal(false)} onRefresh={onRefresh} />}
     </>
   );
 }
@@ -625,6 +645,7 @@ function EDebattePackageCard({ edebatte, usage, onRefresh }: EDebattePackageCard
 type EDebattePackageModalProps = {
   currentPackage: EDebattePackageInfo;
   onClose: () => void;
+  onRefresh: () => void;
 };
 
 type EDebatteChoice = {
@@ -634,28 +655,33 @@ type EDebatteChoice = {
   description: string;
 };
 
-const EDEBATTE_CHOICES: EDebatteChoice[] = [
-  {
-    id: "basis",
-    name: "eDebatte Basis",
-    priceLabel: "0,00 € / Monat",
-    description: "Kostenfreier Einstieg: Inhalte ansehen, swipen, Community kennenlernen.",
-  },
-  {
-    id: "start",
-    name: "eDebatte Start",
-    priceLabel: "9,90 € / Monat",
-    description: "Für alle, die regelmäßig mitbestimmen und eigene Vorschläge einbringen wollen.",
-  },
-  {
-    id: "pro",
-    name: "eDebatte Pro",
-    priceLabel: "29,00 € / Monat",
-    description: "Für Vielnutzer:innen, Initiativen und Organisationen mit erweiterten Kontingenten.",
-  },
-];
+const EDEBATTE_CHOICES: EDebatteChoice[] = EDEBATTE_PACKAGES.map((pkg) => {
+  switch (pkg) {
+    case "basis":
+      return {
+        id: "basis" as const,
+        name: "eDebatte Basis",
+        priceLabel: "0,00 € / Monat",
+        description: "Kostenfreier Einstieg: Inhalte ansehen, swipen, Community kennenlernen.",
+      };
+    case "start":
+      return {
+        id: "start" as const,
+        name: "eDebatte Start",
+        priceLabel: "9,90 € / Monat",
+        description: "Für alle, die regelmäßig mitbestimmen und eigene Vorschläge einbringen wollen.",
+      };
+    case "pro":
+      return {
+        id: "pro" as const,
+        name: "eDebatte Pro",
+        priceLabel: "29,00 € / Monat",
+        description: "Für Vielnutzer:innen, Initiativen und Organisationen mit erweiterten Kontingenten.",
+      };
+  }
+});
 
-function EDebattePackageModal({ currentPackage, onClose }: EDebattePackageModalProps) {
+function EDebattePackageModal({ currentPackage, onClose, onRefresh }: EDebattePackageModalProps) {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -676,6 +702,7 @@ function EDebattePackageModal({ currentPackage, onClose }: EDebattePackageModalP
       })
       .then(() => {
         onClose();
+        onRefresh?.();
       })
       .catch((err) => {
         console.warn("[edebatte] paketwahl fehlgeschlagen", err);
@@ -1008,6 +1035,8 @@ type RolesCardProps = {
 };
 
 function RolesCard({ roles }: RolesCardProps) {
+  const hasSuperadmin = roles.some((r) => r.role === "superadmin" || r.label === "superadmin");
+
   return (
     <section className="rounded-3xl bg-white/95 p-5 shadow-[0_18px_55px_rgba(15,23,42,0.08)] ring-1 ring-slate-100 sm:p-6">
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">Rollen &amp; Zugänge</p>
@@ -1020,6 +1049,11 @@ function RolesCard({ roles }: RolesCardProps) {
               <div>
                 <p className="text-xs font-medium text-slate-800">{role.label}</p>
                 {role.description && <p className="text-[11px] text-slate-500">{role.description}</p>}
+                {role.role && (
+                  <p className="text-[10px] text-slate-400">
+                    Systemrolle: <span className="font-semibold">{role.role}</span>
+                  </p>
+                )}
               </div>
               {role.badge && (
                 <span className="inline-flex items-center rounded-full bg-sky-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-700 ring-1 ring-sky-100">
@@ -1029,7 +1063,14 @@ function RolesCard({ roles }: RolesCardProps) {
             </div>
           ))
         ) : (
-          <p className="text-[11px] text-slate-400">Du nutzt VoiceOpenGov aktuell als Bürger:in ohne zusätzliche Sonderrolle.</p>
+          <div className="rounded-2xl bg-slate-50/80 px-3 py-2 text-[11px] text-slate-500">
+            Noch keine Sonderrolle hinterlegt. Für Moderation/Team-Zugänge bitte das Team kontaktieren.
+          </div>
+        )}
+        {hasSuperadmin && (
+          <div className="rounded-2xl bg-emerald-50/70 px-3 py-2 text-[11px] font-semibold text-emerald-800 ring-1 ring-emerald-100">
+            Superadmin aktiv
+          </div>
         )}
       </div>
     </section>
@@ -1044,9 +1085,10 @@ type SecurityAndPaymentSectionProps = {
   security: SecurityInfo;
   payment: PaymentInfo;
   signature: SignatureInfo;
+  membership?: MembershipInfo;
 };
 
-function SecurityAndPaymentSection({ security, payment, signature }: SecurityAndPaymentSectionProps) {
+function SecurityAndPaymentSection({ security, payment, signature, membership }: SecurityAndPaymentSectionProps) {
   return (
     <section aria-labelledby="account-security-heading" className="space-y-4">
       <div className="flex flex-col gap-1">
@@ -1058,7 +1100,7 @@ function SecurityAndPaymentSection({ security, payment, signature }: SecurityAnd
 
       <div className="grid gap-4 md:grid-cols-2">
         <SecurityCard security={security} />
-        <PaymentAndSignatureCard payment={payment} signature={signature} />
+        <PaymentAndSignatureCard payment={payment} signature={signature} membership={membership} />
       </div>
     </section>
   );
@@ -1070,8 +1112,8 @@ type SecurityCardProps = {
 
 function SecurityCard({ security }: SecurityCardProps) {
   const identPilot = "Zusätzliche Ident (Bank-Check / eID) in Pilotphase – schalten wir bald frei.";
-  const emailOk = security.emailVerified === undefined ? true : security.emailVerified;
-  const twoFaOk = security.twoFactorEnabled === undefined ? true : security.twoFactorEnabled;
+  const emailOk = security.emailVerified === undefined ? true : Boolean(security.emailVerified);
+  const twoFaOk = security.twoFactorEnabled === undefined ? true : Boolean(security.twoFactorEnabled);
   return (
     <section className="rounded-3xl bg-white/95 p-5 shadow-[0_18px_55px_rgba(15,23,42,0.08)] ring-1 ring-slate-100 sm:p-6">
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">Sicherheit</p>
@@ -1090,7 +1132,7 @@ function SecurityCard({ security }: SecurityCardProps) {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <Link href="/account/security" className={ghostDarkButtonClass}>
+        <Link href="/account/security" className={primaryButtonSmallClass}>
           Sicherheitseinstellungen öffnen
         </Link>
       </div>
@@ -1123,10 +1165,13 @@ function StatusRow({ label, positive }: StatusRowProps) {
 type PaymentAndSignatureCardProps = {
   payment: PaymentInfo;
   signature: SignatureInfo;
+  membership?: MembershipInfo;
 };
 
-function PaymentAndSignatureCard({ payment, signature }: PaymentAndSignatureCardProps) {
+function PaymentAndSignatureCard({ payment, signature, membership }: PaymentAndSignatureCardProps) {
   const hasIban = Boolean(payment.ibanMasked);
+  const contribution =
+    (membership && (membership.contributionLabel || membership.statusLabel)) || null;
 
   return (
     <section className="rounded-3xl bg-white/95 p-5 shadow-[0_18px_55px_rgba(15,23,42,0.08)] ring-1 ring-slate-100 sm:p-6">
@@ -1137,7 +1182,12 @@ function PaymentAndSignatureCard({ payment, signature }: PaymentAndSignatureCard
         <div className="space-y-1 rounded-2xl bg-slate-50/80 px-3 py-2">
           <p className="text-[11px] font-medium text-slate-700">Standardkonto für Beiträge</p>
           <p className="text-[11px] text-slate-600">{hasIban ? `${payment.accountHolder ?? ""} · ${payment.ibanMasked}` : "Noch kein Konto hinterlegt."}</p>
-          {payment.note && <p className="text-[11px] text-slate-400">{payment.note}</p>}
+          {(payment.note || contribution) && (
+            <p className="text-[11px] text-slate-400">
+              {contribution ? `Aktuelle Rate: ${contribution}` : null}
+              {payment.note ? ` · ${payment.note}` : null}
+            </p>
+          )}
         </div>
 
         <div className="space-y-1 rounded-2xl bg-slate-50/80 px-3 py-2">
@@ -1146,7 +1196,7 @@ function PaymentAndSignatureCard({ payment, signature }: PaymentAndSignatureCard
             {signature.hasSignature ? `Hinterlegt · zuletzt aktualisiert am ${signature.updatedAt ?? "–"}` : "Noch keine digitale Unterschrift hinterlegt."}
           </p>
           <p className="text-[11px] text-slate-400">
-            Pilot: Auf Mobilgeräten kannst du deine Unterschrift direkt erfassen (Finger/Tablet). Für bestimmte Abstimmungen oder Mandatsvergaben kann sie hilfreich sein.
+            Pilot: Auf Mobilgeräten kannst du deine Unterschrift direkt erfassen (Finger/Tablet). Für bestimmte Abstimmungen oder Mandatsvergaben kann sie hilfreich sein. Ident (Bank-Check / eID) rüsten wir gerade nach, damit du dich ohne Papieraufwand legitimieren kannst.
           </p>
         </div>
       </div>
