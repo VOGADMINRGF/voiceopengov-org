@@ -40,6 +40,12 @@ const TRACE_MODE_META: Record<TraceAttribution["mode"], { label: string; classNa
   inference: { label: "Ableitung", className: "bg-amber-50 text-amber-700 ring-amber-100" },
 };
 
+const TRACE_COLOR_MAP: Record<TraceAttribution["mode"], string> = {
+  verbatim: "bg-sky-100 text-slate-900",
+  paraphrase: "bg-amber-100 text-slate-900",
+  inference: "bg-rose-100 text-slate-900",
+};
+
 const JOURNEY_OPTIONS = [
   {
     id: "concern",
@@ -366,18 +372,12 @@ function renderHighlightedText(text: string, ranges: QuoteRange[]): React.ReactN
   const nodes: React.ReactNode[] = [];
   let lastIndex = 0;
 
-  const colors: Record<TraceAttribution["mode"], string> = {
-    verbatim: "bg-sky-100 text-slate-900",
-    paraphrase: "bg-amber-100 text-slate-900",
-    inference: "bg-rose-100 text-slate-900",
-  };
-
   ranges.forEach((range, idx) => {
     if (range.start > lastIndex) nodes.push(text.slice(lastIndex, range.start));
     nodes.push(
       <mark
         key={`quote-${range.start}-${range.end}-${idx}`}
-        className={`rounded px-0.5 ${colors[range.mode]}`}
+        className={`rounded px-0.5 ${TRACE_COLOR_MAP[range.mode]}`}
       >
         {text.slice(range.start, range.end)}
       </mark>,
@@ -519,6 +519,7 @@ export default function AnalyzeWorkspace({
   const [traceResult, setTraceResult] = React.useState<TraceResult | null>(null);
   const [traceError, setTraceError] = React.useState<string | null>(null);
   const [isTracing, setIsTracing] = React.useState(false);
+  const [lastTraceKey, setLastTraceKey] = React.useState<string | null>(null);
   const ctaRef = React.useRef<HTMLDivElement | null>(null);
   const workspaceRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -911,7 +912,10 @@ export default function AnalyzeWorkspace({
   }, [analyzeDisabled, analyzeEndpoint, locale, maxClaims, preparedText, text, viewLevel]);
 
   const handleTrace = React.useCallback(async () => {
-    if (!text.trim() || statements.length === 0) return;
+    if (isTracing) return;
+    const key = `${preparedText}::${statements.map((s) => `${s.id}-${s.text}`).join("|")}`;
+    if (lastTraceKey && lastTraceKey === key) return;
+    if (!preparedText.trim() || statements.length === 0) return;
     setIsTracing(true);
     setTraceError(null);
     try {
@@ -933,12 +937,13 @@ export default function AnalyzeWorkspace({
         attribution: body.attribution ?? {},
         guidance: body.guidance ?? null,
       });
+      setLastTraceKey(key);
     } catch (err: any) {
       setTraceError(err?.message ?? "Herkunft konnte nicht ermittelt werden.");
     } finally {
       setIsTracing(false);
     }
-  }, [locale, preparedText, statements, text]);
+  }, [isTracing, lastTraceKey, locale, preparedText, statements, text]);
 
   const toggleSelected = (id: string) => {
     setHasManualSelection(true);
