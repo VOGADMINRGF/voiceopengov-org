@@ -65,6 +65,7 @@ function logErrorSafe(payload: Record<string, unknown>) {
 const AnalyzeRequestSchema = z
   .object({
     text: z.string().min(1).max(10_000).optional(),
+    preparedText: z.string().min(1).max(10_000).optional(),
     locale: z.string().min(2).max(8).optional(),
     maxClaims: z.number().int().min(1).max(50).optional(),
     stream: z.boolean().optional(),
@@ -74,7 +75,8 @@ const AnalyzeRequestSchema = z
   })
   .superRefine((val, ctx) => {
     if (val.test === "ping") return;
-    if (!val.text || !val.text.trim()) {
+    const candidate = val.preparedText?.trim() || val.text?.trim();
+    if (!candidate) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Feld 'text' ist erforderlich.",
@@ -82,7 +84,7 @@ const AnalyzeRequestSchema = z
       });
       return;
     }
-    if (val.text.trim().length < 10) {
+    if (candidate.length < 10) {
       ctx.addIssue({
         code: z.ZodIssueCode.too_small,
         minimum: 10,
@@ -155,7 +157,7 @@ export async function POST(req: NextRequest): Promise<Response> {
 
   const locale = sanitizeLocale(body.locale);
   const maxClaims = sanitizeMaxClaims(body.maxClaims);
-  const text = body.text!.trim();
+  const text = body.preparedText?.trim() || body.text?.trim() || "";
   const userId = req.cookies.get("u_id")?.value ?? null;
   const contributionId = resolveContributionId(body.contributionId, text);
   const ip = (req.headers.get("x-forwarded-for") || "local").split(",")[0].trim();
