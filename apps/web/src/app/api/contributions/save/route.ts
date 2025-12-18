@@ -8,7 +8,9 @@ import { z } from "zod";
 
 const DraftSaveSchema = z.object({
   draftId: z.string().optional(),
-  text: z.string().min(1),
+  text: z.string().optional(),
+  textOriginal: z.string().optional(),
+  textPrepared: z.string().optional(),
   locale: z.string().optional(),
   source: z.string().optional(),
   analysis: z.unknown().optional(),
@@ -45,6 +47,12 @@ export async function POST(req: NextRequest) {
 
   const Drafts = await getCol<ContributionDraftDoc>("contribution_drafts");
   const now = new Date();
+  const normalizedText =
+    body.textPrepared?.trim() || body.textOriginal?.trim() || body.text?.trim() || "";
+
+  if (!normalizedText) {
+    return NextResponse.json({ ok: false, error: "empty_text" }, { status: 422 });
+  }
 
   if (body.draftId) {
     let draftOid: ObjectId;
@@ -58,7 +66,7 @@ export async function POST(req: NextRequest) {
       { _id: draftOid, authorId: userId },
       {
         $set: {
-          text: body.text,
+          text: normalizedText,
           locale: body.locale ?? null,
           source: body.source ?? null,
           analysis: body.analysis ?? null,
@@ -83,7 +91,7 @@ export async function POST(req: NextRequest) {
 
   const doc: ContributionDraftDoc = {
     authorId: userId,
-    text: body.text,
+    text: normalizedText,
     locale: body.locale ?? undefined,
     source: body.source ?? undefined,
     analysis: body.analysis ?? undefined,

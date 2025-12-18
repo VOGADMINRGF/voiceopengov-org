@@ -383,6 +383,16 @@ function renderHighlightedText(text: string, ranges: QuoteRange[]): React.ReactN
   return nodes;
 }
 
+function prepareText(raw: string): { original: string; prepared: string; ratio: number } {
+  const original = raw ?? "";
+  let prepared = original.replace(/\r\n/g, "\n");
+  prepared = prepared.replace(/[ \t]+/g, " ");
+  prepared = prepared.replace(/\n{3,}/g, "\n\n").trim();
+  const ratio =
+    original.length > 0 ? Math.max(0, Math.round(((original.length - prepared.length) / original.length) * 100)) : 0;
+  return { original, prepared, ratio };
+}
+
 function defaultJourneyForLevel(level?: number): JourneyId {
   if (!level || level <= 1) return "concern";
   if (level === 2) return "context";
@@ -508,7 +518,10 @@ export default function AnalyzeWorkspace({
 
   const levelStatements = viewLevel === 1 ? statements.slice(0, MAX_LEVEL1_STATEMENTS) : statements;
   const totalStatements = statements.length;
-  const previewText = text;
+  const prepared = React.useMemo(() => prepareText(text), [text]);
+  const preparedText = prepared.prepared;
+  const preparedRatio = prepared.ratio;
+  const previewText = preparedText || text;
 
   const traceQuotes = React.useMemo(() => {
     if (!traceResult?.attribution) return [];
@@ -608,8 +621,8 @@ export default function AnalyzeWorkspace({
       : true;
 
   const analyzeDisabled =
-    analysisStatus === "running" || !text.trim() || (verificationStatus === "loading") || !meetsLevel;
-  const traceDisabled = isTracing || !text.trim() || statements.length === 0;
+    analysisStatus === "running" || !preparedText.trim() || verificationStatus === "loading" || !meetsLevel;
+  const traceDisabled = isTracing || !preparedText.trim() || statements.length === 0;
   const traceButtonLabel = isTracing
     ? "Herkunft läuft …"
     : traceResult
@@ -642,7 +655,7 @@ export default function AnalyzeWorkspace({
   };
 
   const saveDraftSnapshot = React.useCallback(async () => {
-    if (!text.trim()) {
+    if (!preparedText.trim()) {
       setSaveInfo("Bitte zuerst einen Text eingeben.");
       return;
     }
@@ -652,7 +665,9 @@ export default function AnalyzeWorkspace({
     try {
       const payload = {
         draftId,
-        text,
+        text: preparedText || text,
+        textOriginal: text,
+        textPrepared: preparedText,
         locale,
         source: mode === "statement" ? "statement_new" : "contribution_new",
         analysis: {
@@ -700,6 +715,7 @@ export default function AnalyzeWorkspace({
     locale,
     mode,
     notes,
+    preparedText,
     questions,
     report,
     responsibilities,
@@ -759,7 +775,14 @@ export default function AnalyzeWorkspace({
       const res = await fetch(analyzeEndpoint, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ text, locale, maxClaims }),
+        body: JSON.stringify({
+          textOriginal: text,
+          textPrepared: preparedText,
+          locale,
+          maxClaims,
+          detailPreset: viewLevel,
+          evidenceItems: [],
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data?.ok) {
@@ -879,7 +902,7 @@ export default function AnalyzeWorkspace({
         }),
       );
     }
-  }, [analyzeDisabled, analyzeEndpoint, locale, maxClaims, text, viewLevel]);
+  }, [analyzeDisabled, analyzeEndpoint, locale, maxClaims, preparedText, text, viewLevel]);
 
   const handleTrace = React.useCallback(async () => {
     if (!text.trim() || statements.length === 0) return;
@@ -891,7 +914,7 @@ export default function AnalyzeWorkspace({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           textOriginal: text,
-          textPrepared: text.trim() ? text : undefined,
+          textPrepared: preparedText || undefined,
           locale,
           statements: statements.map((s) => ({ id: s.id, text: s.text })),
         }),
@@ -909,7 +932,7 @@ export default function AnalyzeWorkspace({
     } finally {
       setIsTracing(false);
     }
-  }, [locale, statements, text]);
+  }, [locale, preparedText, statements, text]);
 
   const toggleSelected = (id: string) => {
     setHasManualSelection(true);
@@ -1066,6 +1089,7 @@ export default function AnalyzeWorkspace({
 
               <div className="mt-3 flex flex-col items-center gap-2 text-[11px] text-slate-500">
                 <span>{text.length} Zeichen</span>
+                <span>Aufbereitet: ~{preparedRatio}% kürzer (spart Zeit & Coins)</span>
                 <div className="inline-flex gap-2 flex-wrap justify-center">
                   <button
                     type="button"
@@ -1597,7 +1621,7 @@ export default function AnalyzeWorkspace({
             <button
               type="button"
               onClick={saveDraftSnapshot}
-              disabled={isSaving}
+              disabled={isSaving || !preparedText.trim()}
               className="rounded-full border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
             >
               Entwurf speichern
