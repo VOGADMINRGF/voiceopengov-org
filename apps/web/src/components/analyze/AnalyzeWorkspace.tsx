@@ -34,6 +34,12 @@ const LEVEL_OPTIONS = [
 ];
 const MAX_LEVEL1_STATEMENTS = 3;
 
+const TRACE_MODE_META: Record<TraceAttribution["mode"], { label: string; className: string }> = {
+  verbatim: { label: "Wörtlich", className: "bg-emerald-50 text-emerald-700 ring-emerald-100" },
+  paraphrase: { label: "Paraphrase", className: "bg-sky-50 text-sky-700 ring-sky-100" },
+  inference: { label: "Ableitung", className: "bg-amber-50 text-amber-700 ring-amber-100" },
+};
+
 const JOURNEY_OPTIONS = [
   {
     id: "concern",
@@ -112,6 +118,28 @@ type QuestionCard = {
 };
 
 type KnotCard = { id: string; title: string; category: string; body: string };
+
+type TraceAttribution = {
+  mode: "verbatim" | "paraphrase" | "inference";
+  quotes: string[];
+  why: string;
+};
+
+type TraceGuidance = {
+  concern: string;
+  scopeHints: { levels: string[]; why: string };
+  istStandChecklist: { society: string[]; media: string[]; politics: string[] };
+  proFrames: { frame: string; stakeholders: string[] }[];
+  contraFrames: { frame: string; stakeholders: string[] }[];
+  alternatives: string[];
+  searchQueries: string[];
+  sourceTypes: string[];
+};
+
+type TraceResult = {
+  attribution: Record<string, TraceAttribution>;
+  guidance: TraceGuidance | null;
+};
 
 type StatementEntry = NormalizedClaim & {
   stance?: "pro" | "contra" | "neutral" | string | null;
@@ -301,6 +329,60 @@ function formatDateLabel(value?: string | null) {
   return date.toLocaleString();
 }
 
+type QuoteRange = { start: number; end: number };
+
+function buildQuoteRanges(text: string, quotes: string[]): QuoteRange[] {
+  if (!text || quotes.length === 0) return [];
+  const lower = text.toLowerCase();
+  const ranges: QuoteRange[] = [];
+
+  quotes.forEach((quote) => {
+    const trimmed = quote.trim();
+    if (!trimmed) return;
+    const needle = trimmed.toLowerCase();
+    let idx = lower.indexOf(needle);
+    while (idx !== -1) {
+      ranges.push({ start: idx, end: idx + trimmed.length });
+      idx = lower.indexOf(needle, idx + needle.length);
+    }
+  });
+
+  ranges.sort((a, b) => a.start - b.start || b.end - a.end);
+  const merged: QuoteRange[] = [];
+  ranges.forEach((range) => {
+    const last = merged[merged.length - 1];
+    if (!last || range.start > last.end) {
+      merged.push({ ...range });
+      return;
+    }
+    last.end = Math.max(last.end, range.end);
+  });
+
+  return merged;
+}
+
+function renderHighlightedText(text: string, ranges: QuoteRange[]): React.ReactNode {
+  if (!ranges.length) return text;
+  const nodes: React.ReactNode[] = [];
+  let lastIndex = 0;
+
+  ranges.forEach((range, idx) => {
+    if (range.start > lastIndex) nodes.push(text.slice(lastIndex, range.start));
+    nodes.push(
+      <mark
+        key={`quote-${range.start}-${range.end}-${idx}`}
+        className="rounded bg-amber-100/80 px-0.5 text-slate-900"
+      >
+        {text.slice(range.start, range.end)}
+      </mark>,
+    );
+    lastIndex = range.end;
+  });
+
+  if (lastIndex < text.length) nodes.push(text.slice(lastIndex));
+  return nodes;
+}
+
 function defaultJourneyForLevel(level?: number): JourneyId {
   if (!level || level <= 1) return "concern";
   if (level === 2) return "context";
@@ -387,6 +469,8 @@ export default function AnalyzeWorkspace({
   const [maxClaims, setMaxClaims] = React.useState<number>(journeyConfig.maxClaims);
   const [openPanels, setOpenPanels] = React.useState<Record<PanelKey, boolean>>(journeyConfig.openPanels);
   const [text, setText] = React.useState("");
+  const [textMode, setTextMode] = React.useState<"edit" | "preview">("edit");
+  const [showAttributionLayer, setShowAttributionLayer] = React.useState(false);
   const [notes, setNotes] = React.useState<NoteSection[]>([]);
   const [questions, setQuestions] = React.useState<QuestionCard[]>([]);
   const [knots, setKnots] = React.useState<KnotCard[]>([]);
@@ -416,11 +500,29 @@ export default function AnalyzeWorkspace({
   const [finalizeRedirectTo, setFinalizeRedirectTo] = React.useState<string | null>(null);
   const [selectedClaimIds, setSelectedClaimIds] = React.useState<string[]>([]);
   const [hasManualSelection, setHasManualSelection] = React.useState(false);
+  const [traceResult, setTraceResult] = React.useState<TraceResult | null>(null);
+  const [traceError, setTraceError] = React.useState<string | null>(null);
+  const [isTracing, setIsTracing] = React.useState(false);
   const ctaRef = React.useRef<HTMLDivElement | null>(null);
   const workspaceRef = React.useRef<HTMLDivElement | null>(null);
 
   const levelStatements = viewLevel === 1 ? statements.slice(0, MAX_LEVEL1_STATEMENTS) : statements;
   const totalStatements = statements.length;
+  const previewText = text;
+
+  const traceQuotes = React.useMemo(() => {
+    if (!traceResult?.attribution) return [];
+    const unique = new Set<string>();
+    Object.values(traceResult.attribution).forEach((entry) => {
+      entry.quotes?.forEach((quote) => {
+        const trimmed = quote.trim();
+        if (trimmed) unique.add(trimmed);
+      });
+    });
+    return Array.from(unique);
+  }, [traceResult]);
+
+  const quoteRanges = React.useMemo(() => buildQuoteRanges(previewText, traceQuotes), [previewText, traceQuotes]);
 
   React.useEffect(() => {
     if (!storageKey) return;
@@ -507,6 +609,13 @@ export default function AnalyzeWorkspace({
 
   const analyzeDisabled =
     analysisStatus === "running" || !text.trim() || (verificationStatus === "loading") || !meetsLevel;
+  const traceDisabled = isTracing || !text.trim() || statements.length === 0;
+  const traceButtonLabel = isTracing
+    ? "Herkunft läuft …"
+    : traceResult
+    ? "Herkunft aktualisieren"
+    : "Herkunft anzeigen";
+  const guidance = traceResult?.guidance ?? null;
 
   const gatingMessage =
     verificationStatus === "login_required"
@@ -641,6 +750,8 @@ export default function AnalyzeWorkspace({
     if (analyzeDisabled) return;
     setError(null);
     setInfo(null);
+    setTraceResult(null);
+    setTraceError(null);
     setAnalysisStatus("running");
     setSteps(BASE_STEPS.map((s) => ({ ...s, state: "running" })));
 
@@ -770,6 +881,36 @@ export default function AnalyzeWorkspace({
     }
   }, [analyzeDisabled, analyzeEndpoint, locale, maxClaims, text, viewLevel]);
 
+  const handleTrace = React.useCallback(async () => {
+    if (!text.trim() || statements.length === 0) return;
+    setIsTracing(true);
+    setTraceError(null);
+    try {
+      const res = await fetch("/api/contributions/trace", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          textOriginal: text,
+          textPrepared: text.trim() ? text : undefined,
+          locale,
+          statements: statements.map((s) => ({ id: s.id, text: s.text })),
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok || !body?.ok) {
+        throw new Error(body?.error || "Herkunft konnte nicht ermittelt werden.");
+      }
+      setTraceResult({
+        attribution: body.attribution ?? {},
+        guidance: body.guidance ?? null,
+      });
+    } catch (err: any) {
+      setTraceError(err?.message ?? "Herkunft konnte nicht ermittelt werden.");
+    } finally {
+      setIsTracing(false);
+    }
+  }, [locale, statements, text]);
+
   const toggleSelected = (id: string) => {
     setHasManualSelection(true);
     setSelectedClaimIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -880,7 +1021,48 @@ export default function AnalyzeWorkspace({
                 </div>
               </div>
 
-              <HighlightedTextarea value={text} onChange={setText} analyzing={analysisStatus === "running"} rows={12} />
+              <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                <div className="inline-flex items-center rounded-full bg-slate-100 p-1">
+                  {(["edit", "preview"] as const).map((modeOption) => (
+                    <button
+                      key={modeOption}
+                      type="button"
+                      onClick={() => setTextMode(modeOption)}
+                      className={[
+                        "rounded-full px-3 py-1 transition",
+                        textMode === modeOption
+                          ? "bg-white text-slate-900 shadow-sm"
+                          : "text-slate-600 hover:text-slate-900",
+                      ].join(" ")}
+                    >
+                      {modeOption === "edit" ? "Bearbeiten" : "Vorschau"}
+                    </button>
+                  ))}
+                </div>
+
+                {textMode === "preview" && (
+                  <label className="ml-auto inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] text-slate-600">
+                    <input
+                      type="checkbox"
+                      checked={showAttributionLayer}
+                      onChange={(event) => setShowAttributionLayer(event.target.checked)}
+                      disabled={traceQuotes.length === 0}
+                      className="h-3.5 w-3.5 rounded border-slate-300 text-sky-600 disabled:opacity-50"
+                    />
+                    Herkunft-Layer
+                  </label>
+                )}
+              </div>
+
+              {textMode === "preview" ? (
+                <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm leading-relaxed text-slate-800 whitespace-pre-wrap">
+                  {showAttributionLayer && traceQuotes.length > 0
+                    ? renderHighlightedText(previewText, quoteRanges)
+                    : previewText}
+                </div>
+              ) : (
+                <HighlightedTextarea value={text} onChange={setText} analyzing={analysisStatus === "running"} rows={12} />
+              )}
 
               <div className="mt-3 flex flex-col items-center gap-2 text-[11px] text-slate-500">
                 <span>{text.length} Zeichen</span>
@@ -913,6 +1095,147 @@ export default function AnalyzeWorkspace({
 
           <div className="space-y-4">
             <AnalyzeProgress steps={steps} providerMatrix={providerMatrix} />
+
+            <div className="rounded-xl border border-slate-200 bg-white/95 p-4 shadow-sm">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Einordnung & nächste Schritte</p>
+                  <p className="text-[11px] text-slate-500">
+                    Vorschläge / Prüfplan – keine recherchierten Fakten.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleTrace}
+                  disabled={traceDisabled}
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {traceButtonLabel}
+                </button>
+              </div>
+
+              {traceError && (
+                <p className="mt-2 text-[11px] font-semibold text-rose-600">{traceError}</p>
+              )}
+
+              {!guidance && !traceError && (
+                <p className="mt-2 text-[11px] text-slate-500">
+                  Erzeuge Herkunftshinweise und einen Prüfplan auf Basis deines Texts.
+                </p>
+              )}
+
+              {guidance && (
+                <div className="mt-3 space-y-3 text-[11px] text-slate-700">
+                  {guidance.concern && (
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Anliegen</p>
+                      <p className="mt-1 text-sm text-slate-800">{guidance.concern}</p>
+                    </div>
+                  )}
+
+                  {guidance.scopeHints && (
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Ebenen</p>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {guidance.scopeHints.levels?.map((lvl) => (
+                          <span key={lvl} className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-slate-600">
+                            {lvl}
+                          </span>
+                        ))}
+                      </div>
+                      {guidance.scopeHints.why && (
+                        <p className="mt-1 text-[11px] text-slate-600">{guidance.scopeHints.why}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {guidance.istStandChecklist && (
+                    <div className="grid gap-3 md:grid-cols-3">
+                      {([
+                        { key: "society", label: "Gesellschaft" },
+                        { key: "media", label: "Medien" },
+                        { key: "politics", label: "Politik" },
+                      ] as const).map(({ key, label }) => (
+                        <div key={key} className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+                          <ul className="mt-1 space-y-1">
+                            {(guidance.istStandChecklist[key] ?? []).map((item) => (
+                              <li key={item} className="text-[11px] text-slate-700">
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Pro-Frames</p>
+                      <ul className="mt-1 space-y-1">
+                        {(guidance.proFrames ?? []).map((frame, idx) => (
+                          <li key={`${frame.frame}-${idx}`}>
+                            <span className="font-semibold text-slate-700">{frame.frame}</span>
+                            {frame.stakeholders?.length ? (
+                              <span className="text-slate-500"> · {frame.stakeholders.join(", ")}</span>
+                            ) : null}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Contra-Frames</p>
+                      <ul className="mt-1 space-y-1">
+                        {(guidance.contraFrames ?? []).map((frame, idx) => (
+                          <li key={`${frame.frame}-${idx}`}>
+                            <span className="font-semibold text-slate-700">{frame.frame}</span>
+                            {frame.stakeholders?.length ? (
+                              <span className="text-slate-500"> · {frame.stakeholders.join(", ")}</span>
+                            ) : null}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  {guidance.alternatives?.length ? (
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Alternativen</p>
+                      <ul className="mt-1 list-disc space-y-1 pl-4 text-[11px] text-slate-700">
+                        {guidance.alternatives.map((alt) => (
+                          <li key={alt}>{alt}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+
+                  {guidance.searchQueries?.length ? (
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Suchbegriffe</p>
+                      <ul className="mt-1 list-disc space-y-1 pl-4 text-[11px] text-slate-700">
+                        {guidance.searchQueries.map((query) => (
+                          <li key={query}>{query}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+
+                  {guidance.sourceTypes?.length ? (
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Quellentypen</p>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {guidance.sourceTypes.map((source) => (
+                          <span key={source} className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-slate-600">
+                            {source}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              )}
+            </div>
 
             {viewLevel <= 2 && (
               <div className="rounded-xl border border-slate-200 bg-white/95 p-4 shadow-sm">
@@ -953,6 +1276,8 @@ export default function AnalyzeWorkspace({
                     const tags: string[] = [];
                     if (stanceLabel) tags.push(`Haltung: ${stanceLabel}`);
                     if (typeof s.importance === "number") tags.push(`Wichtigkeit: ${s.importance}/5`);
+                    const attribution = traceResult?.attribution?.[s.id] ?? null;
+                    const modeMeta = attribution ? TRACE_MODE_META[attribution.mode] : null;
 
                     return (
                       <StatementCard
@@ -977,6 +1302,37 @@ export default function AnalyzeWorkspace({
                               )
                             }
                           />
+                          {attribution && (
+                            <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-[11px] text-slate-700">
+                              <div className="flex flex-wrap items-center gap-2">
+                                {modeMeta && (
+                                  <span
+                                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ring-1 ${modeMeta.className}`}
+                                  >
+                                    {modeMeta.label}
+                                  </span>
+                                )}
+                                {attribution.why && <span className="text-slate-600">{attribution.why}</span>}
+                              </div>
+                              {Array.isArray(attribution.quotes) && attribution.quotes.length > 0 && (
+                                <details className="mt-2">
+                                  <summary className="cursor-pointer text-[11px] font-semibold text-slate-600">
+                                    Zitate aus deinem Text
+                                  </summary>
+                                  <ul className="mt-2 space-y-1 text-[11px] text-slate-700">
+                                    {attribution.quotes.map((quote, idx) => (
+                                      <li
+                                        key={`${s.id}-quote-${idx}`}
+                                        className="rounded-lg border border-slate-100 bg-white px-2 py-1"
+                                      >
+                                        {quote}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </details>
+                              )}
+                            </div>
+                          )}
                           <div className="flex flex-wrap items-center justify-between gap-3">
                             <VogVoteButtons
                               value={s.vote ?? null}
