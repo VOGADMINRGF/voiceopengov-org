@@ -514,12 +514,33 @@ export default function AnalyzeWorkspace({
   const [traceError, setTraceError] = React.useState<string | null>(null);
   const [isTracing, setIsTracing] = React.useState(false);
   const [lastTraceKey, setLastTraceKey] = React.useState<string | null>(null);
-  const inflightCtrlRef = React.useRef<AbortController | null>(null);
-  const inflightKeyRef = React.useRef<string | null>(null);
-  const runSeqRef = React.useRef(0);
+  // --- Patch C: single-flight + abort + dedupe + debounce ---
   const mountedRef = React.useRef(true);
+
+  const analyzeCtrlRef = React.useRef<AbortController | null>(null);
+  const analyzeKeyRef = React.useRef<string | null>(null);
+  const analyzeRunRef = React.useRef(0);
+
+  const traceTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const traceCtrlRef = React.useRef<AbortController | null>(null);
+  const traceKeyRef = React.useRef<string | null>(null);
+  const traceRunRef = React.useRef(0);
   const ctaRef = React.useRef<HTMLDivElement | null>(null);
   const workspaceRef = React.useRef<HTMLDivElement | null>(null);
+
+  function makeKey(
+    preparedTextValue: string,
+    statementList: Array<{ id?: string; text?: string }>,
+    extra?: Record<string, unknown>,
+  ) {
+    const ids = (statementList ?? []).map((s) => s.id ?? "").join(",");
+    return JSON.stringify({
+      t: (preparedTextValue ?? "").trim(),
+      ids,
+      n: statementList?.length ?? 0,
+      ...extra,
+    });
+  }
 
   const levelStatements = viewLevel === 1 ? statements.slice(0, MAX_LEVEL1_STATEMENTS) : statements;
   const totalStatements = statements.length;
@@ -561,7 +582,9 @@ export default function AnalyzeWorkspace({
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
-      inflightCtrlRef.current?.abort();
+      analyzeCtrlRef.current?.abort();
+      traceCtrlRef.current?.abort();
+      if (traceTimerRef.current) clearTimeout(traceTimerRef.current);
     };
   }, []);
 
@@ -777,13 +800,13 @@ export default function AnalyzeWorkspace({
 
   const handleAnalyze = React.useCallback(async () => {
     if (analyzeDisabled) return;
-    const key = JSON.stringify({ preparedText, viewLevel, maxClaims, locale });
-    if (inflightCtrlRef.current && inflightKeyRef.current === key) return;
-    inflightCtrlRef.current?.abort();
+    const key = makeKey(preparedText, statements, { maxClaims, detailLevel: viewLevel, locale });
+    if (analyzeCtrlRef.current && analyzeKeyRef.current === key) return;
+    analyzeCtrlRef.current?.abort();
     const ctrl = new AbortController();
-    inflightCtrlRef.current = ctrl;
-    inflightKeyRef.current = key;
-    const myRun = ++runSeqRef.current;
+    analyzeCtrlRef.current = ctrl;
+    analyzeKeyRef.current = key;
+    const myRun = ++analyzeRunRef.current;
     setError(null);
     setInfo(null);
     setTraceResult(null);
@@ -807,6 +830,7 @@ export default function AnalyzeWorkspace({
         }),
       });
       const data = await res.json().catch(() => ({}));
+      if (!mountedRef.current || myRun !== analyzeRunRef.current) return;
       if (!res.ok || !data?.ok) {
         throw new Error(data?.message || data?.error || `Analyse fehlgeschlagen (HTTP ${res.status}).`);
       }
@@ -897,6 +921,7 @@ export default function AnalyzeWorkspace({
       }
     } catch (err: any) {
       if (err?.name === "AbortError") return;
+      if (!mountedRef.current || myRun !== analyzeRunRef.current) return;
       const msg = String(err?.message ?? "");
       setError(msg || "Analyse fehlgeschlagen. Vermutlich gab es ein Problem mit dem KI-Dienst.");
       setInfo("Dein Entwurf bleibt erhalten. Du kannst es nach einem kurzen Moment erneut versuchen.");
@@ -925,46 +950,88 @@ export default function AnalyzeWorkspace({
         }),
       );
     } finally {
-      if (mountedRef.current && myRun === runSeqRef.current) {
-        inflightCtrlRef.current = null;
-        inflightKeyRef.current = null;
+      if (mountedRef.current && myRun === analyzeRunRef.current) {
+        analyzeCtrlRef.current = null;
+        analyzeKeyRef.current = null;
       }
     }
-  }, [analyzeDisabled, analyzeEndpoint, locale, maxClaims, preparedText, text, viewLevel]);
+  }, [analyzeDisabled, analyzeEndpoint, locale, maxClaims, preparedText, statements, text, viewLevel]);
 
-  const handleTrace = React.useCallback(async () => {
-    if (isTracing) return;
-    const key = `${preparedText}::${statements.map((s) => `${s.id}-${s.text}`).join("|")}`;
-    if (lastTraceKey && lastTraceKey === key) return;
-    if (!preparedText.trim() || statements.length === 0) return;
-    setIsTracing(true);
-    setTraceError(null);
-    try {
-      const res = await fetch("/api/contributions/trace", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          textOriginal: text,
-          preparedText: preparedText || undefined,
-          locale,
-          statements: statements.map((s) => ({ id: s.id, text: s.text })),
-        }),
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok || !body?.ok) {
-        throw new Error(body?.error || "Herkunft konnte nicht ermittelt werden.");
+  const scheduleTrace = React.useCallback(() => {
+    const key = makeKey(preparedText, statements, { mode: "trace", locale });
+
+    if (traceTimerRef.current) clearTimeout(traceTimerRef.current);
+
+    traceTimerRef.current = setTimeout(async () => {
+      if (traceCtrlRef.current && traceKeyRef.current === key) return;
+
+      traceCtrlRef.current?.abort();
+      const ctrl = new AbortController();
+      traceCtrlRef.current = ctrl;
+      traceKeyRef.current = key;
+      const myRun = ++traceRunRef.current;
+
+      try {
+        if (!preparedText.trim() || statements.length === 0) {
+          setTraceResult(null);
+          setTraceError(null);
+          setLastTraceKey(null);
+          return;
+        }
+        setIsTracing(true);
+        setTraceError(null);
+        const res = await fetch("/api/contributions/trace", {
+          method: "POST",
+          signal: ctrl.signal,
+          headers: { "content-type": "application/json" },
+          cache: "no-store",
+          body: JSON.stringify({
+            textOriginal: text,
+            preparedText: preparedText || undefined,
+            locale,
+            statements: statements.map((s) => ({ id: s.id, text: s.text })),
+          }),
+        });
+        const body = await res.json().catch(() => ({}));
+
+        if (!mountedRef.current || myRun !== traceRunRef.current) return;
+
+        if (!res.ok || !body?.ok) {
+          setTraceError(body?.error || "Herkunft konnte nicht ermittelt werden.");
+          setTraceResult(null);
+          return;
+        }
+        setTraceResult({
+          attribution: body.attribution ?? {},
+          guidance: body.guidance ?? null,
+        });
+        setLastTraceKey(key);
+      } catch (err: any) {
+        if (err?.name === "AbortError") return;
+        if (!mountedRef.current || myRun !== traceRunRef.current) return;
+        setTraceError(err?.message ?? "Herkunft konnte nicht ermittelt werden.");
+        setTraceResult(null);
+      } finally {
+        if (!mountedRef.current || myRun !== traceRunRef.current) return;
+        traceCtrlRef.current = null;
+        setIsTracing(false);
       }
-      setTraceResult({
-        attribution: body.attribution ?? {},
-        guidance: body.guidance ?? null,
-      });
-      setLastTraceKey(key);
-    } catch (err: any) {
-      setTraceError(err?.message ?? "Herkunft konnte nicht ermittelt werden.");
-    } finally {
-      setIsTracing(false);
+    }, 250);
+  }, [locale, preparedText, statements, text]);
+
+  React.useEffect(() => {
+    if (!preparedText?.trim()) {
+      setTraceResult(null);
+      setTraceError(null);
+      setLastTraceKey(null);
+      return;
     }
-  }, [isTracing, lastTraceKey, locale, preparedText, statements, text]);
+    scheduleTrace();
+  }, [preparedText, scheduleTrace, statements]);
+
+  const handleTrace = React.useCallback(() => {
+    scheduleTrace();
+  }, [scheduleTrace]);
 
   const toggleSelected = (id: string) => {
     setHasManualSelection(true);
