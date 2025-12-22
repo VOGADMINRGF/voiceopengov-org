@@ -12,8 +12,8 @@ const TraceSchema = z.object({
   locale: z.string().min(2).max(8).optional(),
   statements: z
     .array(z.object({ id: z.string().min(1).max(80), text: z.string().min(3).max(800) }))
-    .min(1)
-    .max(30),
+    .max(30)
+    .default([]),
 });
 
 function buildPrompt(args: z.infer<typeof TraceSchema>) {

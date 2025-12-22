@@ -513,7 +513,6 @@ export default function AnalyzeWorkspace({
   const [traceResult, setTraceResult] = React.useState<TraceResult | null>(null);
   const [traceError, setTraceError] = React.useState<string | null>(null);
   const [isTracing, setIsTracing] = React.useState(false);
-  const [lastTraceKey, setLastTraceKey] = React.useState<string | null>(null);
   // --- Patch C: single-flight + abort + dedupe + debounce ---
   const mountedRef = React.useRef(true);
 
@@ -975,7 +974,6 @@ export default function AnalyzeWorkspace({
         if (!preparedText.trim() || statements.length === 0) {
           setTraceResult(null);
           setTraceError(null);
-          setLastTraceKey(null);
           return;
         }
         setIsTracing(true);
@@ -1005,7 +1003,6 @@ export default function AnalyzeWorkspace({
           attribution: body.attribution ?? {},
           guidance: body.guidance ?? null,
         });
-        setLastTraceKey(key);
       } catch (err: any) {
         if (err?.name === "AbortError") return;
         if (!mountedRef.current || myRun !== traceRunRef.current) return;
@@ -1023,7 +1020,6 @@ export default function AnalyzeWorkspace({
     if (!preparedText?.trim()) {
       setTraceResult(null);
       setTraceError(null);
-      setLastTraceKey(null);
       return;
     }
     scheduleTrace();
