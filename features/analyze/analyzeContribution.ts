@@ -1,4 +1,4 @@
-import { AnalyzeResultSchema } from "./schemas";
+import { AnalyzeResultSchema, coerceStringArray } from "./schemas";
 import type { AnalyzeResult, StatementRecord } from "./schemas";
 import { normalizeStatementRecord } from "./normalizeClaim";
 import {
@@ -7,6 +7,7 @@ import {
   OrchestratorAllFailedError,
 } from "@features/ai/orchestratorE150";
 import type { AiPipelineName } from "@core/telemetry/aiUsageTypes";
+import { EDITORIAL_DOMAIN_GUIDE } from "./domainLabels";
 export type { AnalyzeResult } from "./schemas";
 
 export type AnalyzeInput = {
@@ -180,6 +181,8 @@ function buildSystemPrompt(locale: string = "de"): string {
       "- Du arbeitest streng textbasiert.",
       "- Du erfindest keine Fakten und keine Inhalte, die im Text nicht angelegt sind.",
       "- Wenn du unsicher bist, lasse keine Keys weg. Gib Unsicherheit über eine Note mit kind 'Unsicherheit' oder confidence=null aus.",
+      "",
+      EDITORIAL_DOMAIN_GUIDE,
     ].join("\n");
   }
 
@@ -193,6 +196,8 @@ function buildSystemPrompt(locale: string = "de"): string {
     "- Work strictly text-based.",
     "- Do NOT invent facts or content that is not grounded in the input text.",
     "- If you are unsure, keep keys present but signal uncertainty via null/confidence or a note labeled 'uncertainty'.",
+    "",
+    EDITORIAL_DOMAIN_GUIDE,
   ].join("\n");
 }
 
@@ -463,6 +468,22 @@ throw e;
       (c: StatementRecord | null): c is StatementRecord => c !== null
     );
 
+  const normalizedClaimsWithDomains: StatementRecord[] = normalizedRawClaims.map((c) => {
+    const domains =
+      coerceStringArray((c as any)?.domains) ??
+      coerceStringArray((c as any)?.domain) ??
+      null;
+    const domain =
+      (typeof (c as any)?.domain === "string" && (c as any).domain.trim()
+        ? (c as any).domain.trim()
+        : domains?.[0]) ?? null;
+    return {
+      ...c,
+      domain,
+      domains,
+    } as StatementRecord;
+  });
+
   const notes = sanitizeNotes(rawNotes, 6);
   const questions = sanitizeQuestions(rawQuestions, 5);
   const knots = sanitizeKnots(rawKnots, 5);
@@ -474,7 +495,7 @@ throw e;
     mode: "E150",
     sourceText,
     language,
-    claims: normalizedRawClaims,
+    claims: normalizedClaimsWithDomains,
     notes,
     questions,
     knots,
@@ -685,4 +706,3 @@ function ensureReport(value: unknown): AnalyzeResult["report"] {
     takeaways: Array.isArray(v.takeaways) ? v.takeaways.slice(0, 12) : [],
   };
 }
-

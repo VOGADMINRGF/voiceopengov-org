@@ -1,5 +1,43 @@
 import { z } from "zod";
 
+/* ---------- Redaktionelle Domains (Zuordnung) ---------- */
+
+export const DOMAIN_KEYS = [
+  "gesellschaft",
+  "nachbarschaft",
+
+  "aussenbeziehungen_nachbarlaender",
+  "aussenbeziehungen_eu",
+  "aussenbeziehungen_schengen",
+  "aussenbeziehungen_g7",
+  "aussenbeziehungen_g20",
+  "aussenbeziehungen_un",
+  "aussenbeziehungen_nato",
+  "aussenbeziehungen_oecd",
+  "aussenbeziehungen_global",
+
+  "innenpolitik",
+  "wirtschaft",
+  "bildung",
+  "gesundheit",
+  "sicherheit",
+  "klima_umwelt",
+  "digitales",
+  "infrastruktur",
+  "justiz",
+  "kultur_medien",
+  "sonstiges",
+] as const;
+
+export type DomainKey = (typeof DOMAIN_KEYS)[number];
+
+export function coerceStringArray(v: unknown): string[] | undefined {
+  if (!v) return undefined;
+  if (Array.isArray(v)) return v.filter((x) => typeof x === "string" && x.trim().length > 0);
+  if (typeof v === "string" && v.trim().length > 0) return [v.trim()];
+  return undefined;
+}
+
 /* ---------- Statements / Claims ---------- */
 
 export const StatementRecordSchema = z.object({
@@ -15,6 +53,7 @@ export const StatementRecordSchema = z.object({
   importance: z.number().int().min(1).max(5).nullable().optional(),
   topic: z.string().nullable().optional(),
   domain: z.string().nullable().optional(),
+  domains: z.array(z.string()).nullable().optional(),
   stance: z.enum(["pro", "neutral", "contra"]).nullable().optional(),
 });
 
@@ -213,7 +252,30 @@ export const ANALYZE_JSON_SCHEMA = {
       sourceText: { type: ["string", "null"] },
       language: { type: "string" },
 
-      claims: { type: "array" },
+      claims: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            id: { type: "string" },
+            text: { type: "string" },
+            title: { type: ["string", "null"] },
+            responsibility: { type: ["string", "null"] },
+            importance: { type: ["integer", "null"], minimum: 1, maximum: 5 },
+            topic: { type: ["string", "null"] },
+            domain: { type: ["string", "null"] },
+            domains: {
+              type: ["array", "null"],
+              items: { type: "string" },
+              description:
+                "Weitere redaktionelle Domains (z.B. ['gesellschaft','aussenbeziehungen_nachbarlaender']). Optional.",
+            },
+            stance: { type: ["string", "null"], enum: ["pro", "neutral", "contra", null] },
+          },
+          required: ["id", "text"],
+        },
+      },
       notes: { type: "array" },
       questions: { type: "array" },
       knots: { type: "array" },
