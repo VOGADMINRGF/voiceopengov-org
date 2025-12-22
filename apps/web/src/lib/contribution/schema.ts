@@ -71,6 +71,7 @@ export const StatementRecordSchema = z
     responsibility: z.string().optional(),
     topic: z.string().optional(),
     domain: z.string().optional(),
+    domains: z.array(z.string()).nullable().optional(),
     cluster: z.string().optional(),
     quality: QualitySchema.optional(),
   })
