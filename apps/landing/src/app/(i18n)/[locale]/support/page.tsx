@@ -68,6 +68,22 @@ export default function SupportPage({ params: { locale }, searchParams }: Props)
   // Zahlung
   const [method, setMethod] = useState<PaymentMethod>("sepa");
 
+  const updateMember = (index: number, key: keyof Member, value: string) => {
+    setMembers((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], [key]: value };
+      return next;
+    });
+  };
+
+  const formatBirth = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 8);
+    const day = digits.slice(0, 2);
+    const month = digits.slice(2, 4);
+    const year = digits.slice(4, 8);
+    return [day, month, year].filter(Boolean).join(".");
+  };
+
   // Anzeige-Label für Land
   const countries = useMemo(() => getCountries(locale), [locale]);
   const countryLabel =
@@ -375,11 +391,7 @@ export default function SupportPage({ params: { locale }, searchParams }: Props)
                     className="rounded-xl border border-slate-300 px-3 py-2"
                     placeholder={`Vollständiger Name #${i + 1}`}
                     value={m.fullName}
-                    onChange={(e) => {
-                      const next = [...members];
-                      next[i] = { ...next[i], fullName: e.target.value };
-                      setMembers(next);
-                    }}
+                    onChange={(e) => updateMember(i, "fullName", e.target.value)}
                     required
                   />
                   <input
@@ -387,22 +399,17 @@ export default function SupportPage({ params: { locale }, searchParams }: Props)
                     className="rounded-xl border border-slate-300 px-3 py-2"
                     placeholder="E-Mail"
                     value={m.email}
-                    onChange={(e) => {
-                      const next = [...members];
-                      next[i] = { ...next[i], email: e.target.value };
-                      setMembers(next);
-                    }}
+                    onChange={(e) => updateMember(i, "email", e.target.value)}
                     required
                   />
                   <input
-                    type="date"
+                    type="text"
                     className="rounded-xl border border-slate-300 px-3 py-2"
                     value={m.birth}
-                    onChange={(e) => {
-                      const next = [...members];
-                      next[i] = { ...next[i], birth: e.target.value };
-                      setMembers(next);
-                    }}
+                    onChange={(e) => updateMember(i, "birth", formatBirth(e.target.value))}
+                    inputMode="numeric"
+                    maxLength={10}
+                    placeholder="TT.MM.JJJJ"
                     required
                   />
                 </div>
