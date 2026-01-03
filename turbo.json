@@ -1,5 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "envMode": "strict",
   "globalEnv": [
     "NODE_ENV",
     "OPENAI_API_KEY",
@@ -13,14 +14,11 @@
     "PUBLIC_BASE_URL",
     "WEB_BASE_URL",
     "JWT_SECRET",
-
     "CORE_DB_NAME",
     "VOTES_DB_NAME",
     "PII_DB_NAME",
-
     "AI_CORE_READER_DB_NAME",
     "AI_CORE_READER_MONGODB_URI",
-
     "NEO4J_URI",
     "NEO4J_USER",
     "NEO4J_PASSWORD",
@@ -28,10 +26,8 @@
     "ARANGO_DB",
     "ARANGO_USER",
     "ARANGO_ROOT_PASSWORD",
-
     "MEMGRAPH_URI",
     "OPENAI_MODEL",
-
     "MAIL_FROM",
     "SMTP_FROM",
     "SMTP_HOST",
@@ -39,7 +35,6 @@
     "SMTP_SECURE",
     "SMTP_USER",
     "SMTP_PASS",
-
     "EDITOR_TOKEN",
     "BCRYPT_ROUNDS",
     "SESSION_TTL_DAYS"
@@ -52,7 +47,28 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "dist/**"]
+      "outputs": [".next/**", "dist/**"],
+      "env": [
+        "VERCEL_*",
+        "NEXT_PUBLIC_*",
+        "VOG_*",
+        "AI_*",
+        "FEATURE_*",
+        "PROMPT_*",
+        "MOCK_*",
+        "PUBLIC_*",
+        "INTERNAL_*",
+        "CLAIM_*",
+        "GRAPH_*",
+        "NEO4J_*",
+        "REDIS_*",
+        "KAFKA_*",
+        "R2_*",
+        "STORAGE_*",
+        "YOU_*",
+        "YOUCOM_*",
+        "OPENAI_*"
+      ]
     },
     "lint": {
       "outputs": [".eslintcache"],

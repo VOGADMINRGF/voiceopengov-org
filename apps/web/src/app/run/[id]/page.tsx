@@ -4,9 +4,14 @@ function baseUrl(): string {
   return "http://localhost:3000";
 }
 
-export default async function RunPage({ params }: { params: { id: string } }) {
-  const res = await fetch(`${baseUrl()}/api/runreceipts/${params.id}`, { cache: "no-store" }).catch(() => null);
+type RunParams = { id: string };
+
+export default async function RunPage({ params }: { params: Promise<RunParams> }) {
+  const { id } = await params;
+
+  const res = await fetch(`${baseUrl()}/api/runreceipts/${id}`, { cache: "no-store" }).catch(() => null);
   const data = res ? await res.json().catch(() => null) : null;
+
   return (
     <div className="mx-auto max-w-3xl p-4">
       <h1 className="text-xl font-semibold">RunReceipt</h1>

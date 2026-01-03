@@ -20,7 +20,7 @@ const howItWorksSteps = [
     title: "Thema & Vorlage",
     subtitle: "Worum geht es genau?",
     description:
-      "Themen werden als klar strukturierte Vorlagen vorbereitet: Kurztext, Hintergrund, Pro & Contra, Quellen und offene Fragen. Alles ist verlinkt und später nachvollziehbar.",
+      "Themen werden als klar strukturierte Vorlage vorbereitet: Kurztext, Hintergrund, Pro & Contra, Quellen und offene Fragen. Alles ist verlinkt und später nachvollziehbar.",
     badge: "Schritt 1",
   },
   {
@@ -48,7 +48,7 @@ const faqCategories: FaqCategory[] = [
         id: "grundlagen-1",
         question: "Was ist VoiceOpenGov?",
         answer:
-          "VoiceOpenGov ist eine direktdemokratische Bewegung. Wir heißen alle willkommen, die das Mehrheitsprinzip stärken und an eine gerechtere Welt glauben. Mit eDebatte, unserem eigens entwickelten Werkzeug, bauen wir eine digitale Infrastruktur für nachvollziehbare Entscheidungen.",
+          "VoiceOpenGov ist die direktdemokratische Bewegung. Wir heißen alle willkommen, die das Mehrheitsprinzip stärken und an eine gerechtere Welt glauben. Mit eDebatte, unserem eigens entwickelten Werkzeug, bauen wir eine digitale Infrastruktur für nachvollziehbare Entscheidungen.",
       },
       {
         id: "grundlagen-1b",
@@ -60,7 +60,7 @@ const faqCategories: FaqCategory[] = [
         id: "grundlagen-2",
         question: "Ist VoiceOpenGov eine Partei?",
         answer:
-          "Nein. VoiceOpenGov ist keine Partei, sondern eine unabhängige Bewegung und Infrastruktur. Mit eDebatte stellen wir Werkzeuge bereit, mit denen Bürger:innen, Initiativen, Parteien oder Kommunen Themen einbringen, diskutieren und abstimmen können. Niemand erhält Sonderstimmrechte aufgrund einer Rolle oder finanzieller Beiträge.",
+          "Nein. VoiceOpenGov ist keine Partei, sondern eine unabhängige Bewegung und Infrastruktur. Mit eDebatte stellen wir Werkzeuge bereit, mit denen Bürger:innen, Initiativen, Parteien oder Kommunen Themen einbringen, diskutieren und abstimmen können. Niemand erhält Sonderstimmrechte aufgrund von Rolle oder finanziellen Beiträgen.",
       },
       {
         id: "grundlagen-3",
@@ -78,7 +78,7 @@ const faqCategories: FaqCategory[] = [
         id: "abstimmung-1",
         question: "Wie läuft eine Abstimmung ab?",
         answer:
-          "1. Vorlage lesen: Du siehst Kurztext, Begründung, Pro & Contra, Quellen und Unsicherheiten.\n2. Berechtigung prüfen: Je nach Thema kann es Kriterien geben (z. B. Region, Alter). Grundsatz bleibt: eine Person, eine Stimme.\n3. Stimme abgeben: Du stimmst digital, deine Identität ist technisch vom Stimmzettel getrennt.\n4. Zählen & prüfen: Quorum, definierte Mehrheiten (z. B. 2/3 bei Grundsatzfragen) und Minderheitenbericht werden ermittelt.\n5. Veröffentlichen: Ergebnis, Beteiligung, Minderheitenbericht und Prüfprotokoll sind öffentlich einsehbar.",
+          "1. Vorlage lesen: Du siehst Kurztext, Begründung, Pro & Contra, Quellen und Unsicherheiten.\n2. Berechtigung prüfen: Je nach Thema kann es Kriterien geben (z. B. Region, Alter). Grundsatz bleibt: eine Person, eine Stimme.\n3. Stimme abgeben: Du stimmst digital, die Identität ist technisch vom Stimmzettel getrennt.\n4. Zählen & prüfen: Quorum, definierte Mehrheiten (z. B. 2/3 bei Grundsatzfragen) und Minderheitenbericht werden ermittelt.\n5. Veröffentlichen: Ergebnis, Beteiligung, Minderheitenbericht und Prüfprotokoll sind öffentlich einsehbar.",
       },
       {
         id: "abstimmung-2",
@@ -108,7 +108,7 @@ const faqCategories: FaqCategory[] = [
         id: "mitmachen-1",
         question: "Wer kann teilnehmen?",
         answer:
-          "Grundsätzlich kann jede volljährige Person mitmachen. Bürger:innen können außerdem Themen, Streams oder Regionen als Creator:innen begleiten. Bei bestimmten Abstimmungen – zum Beispiel zu kommunalen Fragen – kann es Einschränkungen nach Region oder Zielgruppe geben. Diese werden jeweils klar gekennzeichnet.",
+          "Grundsätzlich kann jeder ab 16 Jahre mitmachen. Bürger:innen können außerdem Themen, Streams oder Regionen als Creator begleiten. Bei bestimmten Abstimmungen – zum Beispiel zu kommunalen Fragen – kann es Einschränkungen nach Region oder Zielgruppe geben. Diese werden jeweils klar gekennzeichnet.",
       },
       {
         id: "mitmachen-2",
@@ -118,15 +118,15 @@ const faqCategories: FaqCategory[] = [
       },
       {
         id: "mitmachen-3",
-        question: "Wie können Politik, Verwaltung oder Kommunen VoiceOpenGov nutzen?",
+        question: "Wie können Politik, Verwaltung oder Kommunen eDebatte nutzen?",
         answer:
-          "Parteien, Fraktionen, Initiativen, Verwaltungen und Kommunen können eDebatte unabhängig von politischer oder religiöser Ausrichtung einsetzen – für Stimmungsbilder, die Erprobung konkreter Vorschläge oder verbindliche Mitglieder- bzw. Bürgerentscheide. Wir liefern strukturierte Entscheidungsgrundlagen, Datenpakete und Dossiers, damit Beschlüsse transparent, vergleichbar und jederzeit nachvollziehbar sind. Für alle gilt dasselbe Prinzip: eine Person, eine Stimme – Organisationen erhalten keine Zusatzstimmen.",
+          "Parteien, Fraktionen, Initiativen und Kommunen können eDebatte unabhängig ihrer Politischen oder religiösen gesinnung. nutzen, um Stimmungsbilder einzuholen, Vorschläge zu testen oder verbindliche Mitglieder- bzw. Bürgerentscheide durchzuführen. Wir stellen aufbereitete Entscheidungsgrundlagen, Datenpakete und Dossiers bereit, damit Beschlüsse nachvollziehbar bleiben. Die Regeln bleiben dabei für alle gleich: eine Person, eine Stimme – keine Zusatzstimmen für Organisationen.",
       },
       {
         id: "mitmachen-3b",
         question: "Wie können Verbände und Vereine VoiceOpenGov nutzen?",
         answer:
-          "Verbände und Vereine können Mitgliederbefragungen, interne Abstimmungen und Arbeitsgruppen in eDebatte aufsetzen. Dossiers bündeln Quellen und Argumente, Ergebnisse liefern Mandate für Mitgliederkommunikation und Beschlüsse.",
+          "Verbände und Vereine können Mitgliederbefragungen, interne Abstimmungen und Arbeitsgruppen in eDebatte aufsetzen. Dossiers bündeln Quellen und Argumente; Ergebnisse liefern Mandate für Mitgliederkommunikation und Beschlüsse.",
       },
       {
         id: "mitmachen-3c",
@@ -138,7 +138,7 @@ const faqCategories: FaqCategory[] = [
         id: "mitmachen-4",
         question: "Wie kann ich in der Aufbauphase unterstützen?",
         answer:
-          "Du kannst dich registrieren, Mitglied werden, eine einmalige Gutschrift leisten oder die eDebatte-Pakete vorbestellen. Ebenso wichtig sind Tests, Feedback und Weiterempfehlungen. Jede Form von Unterstützung hilft, die Bewegung und die Infrastruktur stabil aufzubauen.",
+          "Du kannst dich registrieren, Mitglied werden, eine einmalige Gutschrift geben oder die eDebatte-Pakete vorbestellen. Ebenso wichtig sind Tests, Feedback und Weiterempfehlungen. Jede Form von Unterstützung hilft, die Bewegung und die Infrastruktur stabil aufzubauen.",
       },
     ],
   },
@@ -162,7 +162,7 @@ const faqCategories: FaqCategory[] = [
         id: "datenschutz-3",
         question: "Wo finde ich den Transparenzbericht?",
         answer:
-          "Schau im Footer (unten rechts) nach dem Transparenzbericht. Dort veröffentlichen wir regelmäßig eine Übersicht über Einnahmen, Ausgaben, offene Punkte und Risiken. In der Aufbauphase beschreiben wir dort außerdem das geschätzte Entwicklungsminus und die Prioritäten für den Einsatz der ersten Gelder.",
+          "Schau im Footer (im Unteren rechten Rand nach Transparenzbericht - dort veröffentlichen wir regelmäßig eine Übersicht über Einnahmen, Ausgaben, offene Punkte und Risiken. In der Aufbauphase beschreiben wir dort außerdem das geschätzte Entwicklungs-Minus und die Prioritäten für den Einsatz der ersten Gelder.",
       },
     ],
   },
@@ -192,7 +192,7 @@ export default function FaqPage() {
           {/* Hero */}
           <header className="space-y-3 text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-600">
-              FAQ & So funktioniert es
+              FAQ & How it works
             </p>
             <h1 className="text-3xl font-extrabold leading-tight text-slate-900 md:text-4xl">
               VoiceOpenGov – kurz erklärt
@@ -348,7 +348,7 @@ export default function FaqPage() {
               >
                 Kontaktformular
               </Link>{" "}
-              oder trag dich dort in den Newsletter ein.
+              oder trag dich in den Newsletter dort ein. 
             </p>
           </section>
         </div>
