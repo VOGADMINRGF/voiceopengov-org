@@ -4,10 +4,19 @@ function baseUrl(): string {
   return "http://localhost:3000";
 }
 
-export default async function VerifyPage({ params }: { params: { receiptHash: string } }) {
-  const hash = params.receiptHash;
-  const res = await fetch(`${baseUrl()}/api/runreceipts/by-hash/${hash}`, { cache: "no-store" }).catch(() => null);
+export default async function VerifyPage({
+  params,
+}: {
+  params: Promise<{ receiptHash: string }>;
+}) {
+  const { receiptHash: hash } = await params;
+
+  const res = await fetch(`${baseUrl()}/api/runreceipts/by-hash/${hash}`, {
+    cache: "no-store",
+  }).catch(() => null);
+
   const data = res ? await res.json().catch(() => null) : null;
+
   return (
     <div className="mx-auto max-w-3xl p-4">
       <h1 className="text-xl font-semibold">Verify</h1>

@@ -22,17 +22,19 @@ type UserDoc = {
   createdAt?: Date;
 };
 
+type SearchGroup =
+  | "Nutzer"
+  | "Newsletter"
+  | "Research Tasks"
+  | "Feed Drafts"
+  | "Eventualitaeten"
+  | "Evidence Claims"
+  | "Evidence Items"
+  | "Reports";
+
 type SearchItem = {
   id: string;
-  group:
-    | "Nutzer"
-    | "Newsletter"
-    | "Research Tasks"
-    | "Feed Drafts"
-    | "Eventualitaeten"
-    | "Evidence Claims"
-    | "Evidence Items"
-    | "Reports";
+  group: SearchGroup;
   label: string;
   description?: string | null;
   href: string;
@@ -47,35 +49,43 @@ const LIMIT_EVENTUALITIES = 5;
 const LIMIT_CLAIMS = 5;
 const LIMIT_ITEMS = 5;
 
+// Guardrails (avoid expensive regex / huge payload)
+const MIN_QUERY_LEN = 2;
+const MAX_QUERY_LEN = 80;
+
 export async function GET(req: NextRequest) {
   const gate = await requireAdminOrResponse(req);
   if (gate instanceof Response) return gate;
 
-  const query = req.nextUrl.searchParams.get("q")?.trim() ?? "";
-  if (!query) {
-    return NextResponse.json({ ok: true, items: [] as SearchItem[] });
-  }
+  const raw = req.nextUrl.searchParams.get("q") ?? "";
+  const query = raw.trim();
 
-  const regex = new RegExp(escapeRegExp(query), "i");
+  if (!query) return NextResponse.json({ ok: true, items: [] as SearchItem[] });
 
+  // Hard limit to avoid pathological regex strings
+  const safeQuery = query.slice(0, MAX_QUERY_LEN);
+
+  // If you want to allow single-char searches for users only, you can tweak this.
+  if (safeQuery.length < 1) return NextResponse.json({ ok: true, items: [] as SearchItem[] });
+
+  const regex = buildSafeRegex(safeQuery);
+
+  // Run in parallel but fail-safe (one loader error shouldn't 500 the whole endpoint)
   const [users, newsletter, tasks, drafts, eventualities, claims, items] = await Promise.all([
-    loadUsers(regex),
-    loadNewsletter(regex),
-    loadResearchTasks(regex),
-    loadFeedDrafts(regex),
-    loadEventualitySnapshots(regex),
-    loadEvidenceClaims(query),
-    loadEvidenceItems(query, regex),
+    safeCall(() => loadUsers(regex), [] as UserDoc[]),
+    safeCall(() => loadNewsletter(regex), [] as UserDoc[]),
+    safeCall(() => loadResearchTasks(regex), [] as ResearchTaskHit[]),
+    safeCall(() => loadFeedDrafts(regex), [] as FeedDraftHit[]),
+    safeCall(() => loadEventualitySnapshots(regex), [] as EventualitySnapshotDoc[]),
+    safeCall(() => loadEvidenceClaims(safeQuery), [] as EvidenceClaimWithMeta[]),
+    safeCall(() => loadEvidenceItems(safeQuery, regex), [] as EvidenceItemDoc[]),
   ]);
 
   const results: SearchItem[] = [];
 
-  users.forEach((doc) => {
-    const roles = Array.isArray(doc.roles)
-      ? doc.roles
-      : doc.role
-      ? [doc.role]
-      : [];
+  // Users
+  for (const doc of users) {
+    const roles = Array.isArray(doc.roles) ? doc.roles : doc.role ? [doc.role] : [];
     const name = doc.name?.trim() || null;
     const label = name || doc.email || "Unbekannter Nutzer";
     const descriptionParts: string[] = [];
@@ -83,7 +93,8 @@ export async function GET(req: NextRequest) {
     if (roles.length) descriptionParts.push(roles.join(", "));
     if (doc.settings?.newsletterOptIn || doc.newsletterOptIn) descriptionParts.push("Newsletter");
     const description = descriptionParts.filter(Boolean).join(" · ");
-    const hrefQuery = doc.email || name || query;
+    const hrefQuery = doc.email || name || safeQuery;
+
     results.push({
       id: `user:${String(doc._id)}`,
       group: "Nutzer",
@@ -92,26 +103,27 @@ export async function GET(req: NextRequest) {
       href: `/admin/users?q=${encodeURIComponent(hrefQuery)}`,
       badge: roles[0] ?? null,
     });
-  });
+  }
 
-  newsletter.forEach((doc) => {
+  // Newsletter (subset of users)
+  for (const doc of newsletter) {
     const name = doc.name?.trim() || null;
-    const label = doc.email || "Newsletter Abo";
-    const description = name ? name : null;
     results.push({
       id: `newsletter:${String(doc._id)}`,
       group: "Newsletter",
-      label,
-      description,
+      label: doc.email || "Newsletter Abo",
+      description: name ? name : null,
       href: `/admin/newsletter?q=${encodeURIComponent(doc.email)}`,
     });
-  });
+  }
 
-  tasks.forEach((task) => {
+  // Research Tasks
+  for (const task of tasks) {
     const label = task.title?.trim() || "Research Task";
     const meta = [task.kind, task.level, task.status].filter(Boolean).join(" · ");
     const tags = task.tags?.length ? `Tags: ${task.tags.slice(0, 3).join(", ")}` : null;
     const description = [meta, tags].filter(Boolean).join(" · ");
+
     results.push({
       id: `task:${task.id}`,
       group: "Research Tasks",
@@ -120,15 +132,17 @@ export async function GET(req: NextRequest) {
       href: `/admin/research/tasks?taskId=${encodeURIComponent(task.id)}`,
       badge: task.status ?? null,
     });
-  });
+  }
 
-  drafts.forEach((draft) => {
+  // Feed Drafts
+  for (const draft of drafts) {
     const label = draft.title?.trim() || "Feed Draft";
     const descParts = [
       draft.status ? `Status: ${draft.status}` : null,
       draft.regionCode ?? null,
       draft.pipeline ?? null,
     ].filter(Boolean);
+
     results.push({
       id: `draft:${draft.id}`,
       group: "Feed Drafts",
@@ -137,15 +151,17 @@ export async function GET(req: NextRequest) {
       href: `/admin/feeds/drafts/${encodeURIComponent(draft.id)}`,
       badge: draft.status ?? null,
     });
-  });
+  }
 
-  eventualities.forEach((snapshot) => {
+  // Eventualities
+  for (const snapshot of eventualities) {
     const descParts = [
       snapshot.locale ?? null,
       snapshot.reviewed ? "Review ok" : "Offen",
       `${snapshot.nodesCount ?? 0} Nodes`,
       `${snapshot.treesCount ?? 0} Trees`,
     ].filter(Boolean);
+
     results.push({
       id: `eventuality:${snapshot.contributionId}`,
       group: "Eventualitaeten",
@@ -154,28 +170,28 @@ export async function GET(req: NextRequest) {
       href: `/admin/eventualities/${encodeURIComponent(snapshot.contributionId)}`,
       badge: snapshot.reviewed ? "reviewed" : "open",
     });
-  });
+  }
 
-  claims.forEach((entry) => {
+  // Evidence Claims
+  for (const entry of claims) {
     const claim = entry.claim;
-    const label = claim.text?.trim() || "Claim";
-    const descParts = [
-      claim.locale ?? null,
-      claim.regionCode ?? "global",
-      claim.meta?.pipeline ?? null,
-    ].filter(Boolean);
+    const rawLabel = claim.text?.trim() || "Claim";
+    const descParts = [claim.locale ?? null, claim.regionCode ?? "global", claim.meta?.pipeline ?? null].filter(Boolean);
+
     results.push({
       id: `claim:${claim._id.toString()}`,
       group: "Evidence Claims",
-      label: label.length > 140 ? `${label.slice(0, 140)}…` : label,
+      label: rawLabel.length > 140 ? `${rawLabel.slice(0, 140)}…` : rawLabel,
       description: descParts.join(" · "),
       href: `/admin/evidence/claims/${claim._id.toString()}`,
     });
-  });
+  }
 
-  items.forEach((doc) => {
+  // Evidence Items
+  for (const doc of items) {
     const label = doc.shortTitle?.trim() || doc.publisher || doc.url;
     const descParts = [doc.publisher, doc.sourceKind].filter(Boolean);
+
     results.push({
       id: `evidence:${doc._id.toString()}`,
       group: "Evidence Items",
@@ -183,67 +199,64 @@ export async function GET(req: NextRequest) {
       description: descParts.join(" · "),
       href: `/admin/evidence/items/${doc._id.toString()}`,
     });
-  });
+  }
 
-  if (query.length >= 2) {
+  // Reports (synthetic)
+  if (safeQuery.length >= MIN_QUERY_LEN) {
     results.push(
       {
-        id: `report-topic:${query}`,
+        id: `report-topic:${safeQuery}`,
         group: "Reports",
-        label: `Topic Report: ${query}`,
+        label: `Topic Report: ${safeQuery}`,
         description: "Oeffnet den Topic-Report",
-        href: `/admin/reports/topic/${encodeURIComponent(query)}`,
+        href: `/admin/reports/topic/${encodeURIComponent(safeQuery)}`,
       },
       {
-        id: `report-region:${query}`,
+        id: `report-region:${safeQuery}`,
         group: "Reports",
-        label: `Region Report: ${query}`,
+        label: `Region Report: ${safeQuery}`,
         description: "Oeffnet den Region-Report",
-        href: `/admin/reports/region/${encodeURIComponent(query)}`,
+        href: `/admin/reports/region/${encodeURIComponent(safeQuery)}`,
       },
     );
   }
 
-  return NextResponse.json({ ok: true, items: results });
+  // Dedupe (by id) + stable sort (group then label)
+  const deduped = dedupeById(results).sort((a, b) => {
+    if (a.group !== b.group) return a.group.localeCompare(b.group, "de");
+    return a.label.localeCompare(b.label, "de");
+  });
+
+  return NextResponse.json({ ok: true, items: deduped });
 }
+
+/* --------------------------------- loaders -------------------------------- */
 
 async function loadUsers(regex: RegExp): Promise<UserDoc[]> {
   const users = await getCol<UserDoc>("users");
-  const docs = await users
+  return users
     .find({
-      $or: [
-        { email: { $regex: regex } },
-        { email_lc: { $regex: regex } },
-        { name: { $regex: regex } },
-      ],
+      $or: [{ email: { $regex: regex } }, { email_lc: { $regex: regex } }, { name: { $regex: regex } }],
     })
     .sort({ createdAt: -1 })
     .limit(LIMIT_USERS)
     .toArray();
-  return docs;
 }
 
 async function loadNewsletter(regex: RegExp): Promise<UserDoc[]> {
   const users = await getCol<UserDoc>("users");
-  const docs = await users
+  return users
     .find({
       $and: [
         {
-          $or: [
-            { email: { $regex: regex } },
-            { email_lc: { $regex: regex } },
-            { name: { $regex: regex } },
-          ],
+          $or: [{ email: { $regex: regex } }, { email_lc: { $regex: regex } }, { name: { $regex: regex } }],
         },
-        {
-          $or: [{ "settings.newsletterOptIn": true }, { newsletterOptIn: true }],
-        },
+        { $or: [{ "settings.newsletterOptIn": true }, { newsletterOptIn: true }] },
       ],
     })
     .sort({ createdAt: -1 })
     .limit(LIMIT_NEWSLETTER)
     .toArray();
-  return docs;
 }
 
 type ResearchTaskDoc = {
@@ -257,33 +270,32 @@ type ResearchTaskDoc = {
   createdAt?: Date;
 };
 
-async function loadResearchTasks(regex: RegExp): Promise<
-  Array<{
-    id: string;
-    title: string;
-    description?: string;
-    kind?: string;
-    level?: string;
-    status?: string;
-    tags?: string[];
-  }>
-> {
-  if (regex.source.length < 2) return [];
-  const col = coreCol<ResearchTaskDoc>("researchTasks");
+type ResearchTaskHit = {
+  id: string;
+  title: string;
+  description?: string;
+  kind?: string;
+  level?: string;
+  status?: string;
+  tags?: string[];
+};
+
+async function loadResearchTasks(regex: RegExp): Promise<ResearchTaskHit[]> {
+  if (regex.source.length < MIN_QUERY_LEN) return [];
+
+  // IMPORTANT: coreCol(...) is async in your setup => await it
+  const col = await coreCol<ResearchTaskDoc>("researchTasks");
+
   const docs = await col
     .find({
-      $or: [
-        { title: { $regex: regex } },
-        { description: { $regex: regex } },
-        { tags: { $regex: regex } },
-      ],
+      $or: [{ title: { $regex: regex } }, { description: { $regex: regex } }, { tags: { $regex: regex } }],
     })
     .sort({ createdAt: -1 })
     .limit(LIMIT_TASKS)
     .toArray();
 
   return docs.map((doc) => ({
-    id: doc._id?.toString?.() ?? String(doc._id),
+    id: toId(doc._id),
     title: doc.title ?? "Research Task",
     description: doc.description ?? undefined,
     kind: doc.kind ?? undefined,
@@ -293,30 +305,26 @@ async function loadResearchTasks(regex: RegExp): Promise<
   }));
 }
 
-async function loadFeedDrafts(regex: RegExp): Promise<
-  Array<{
-    id: string;
-    title: string;
-    status?: VoteDraftDoc["status"];
-    regionCode?: VoteDraftDoc["regionCode"];
-    pipeline?: VoteDraftDoc["pipeline"];
-  }>
-> {
-  if (regex.source.length < 2) return [];
+type FeedDraftHit = {
+  id: string;
+  title: string;
+  status?: VoteDraftDoc["status"];
+  regionCode?: VoteDraftDoc["regionCode"];
+  pipeline?: VoteDraftDoc["pipeline"];
+};
+
+async function loadFeedDrafts(regex: RegExp): Promise<FeedDraftHit[]> {
+  if (regex.source.length < MIN_QUERY_LEN) return [];
+
   const drafts = await voteDraftsCol();
   const docs = await drafts
-    .find({
-      $or: [
-        { title: { $regex: regex } },
-        { sourceUrl: { $regex: regex } },
-      ],
-    })
+    .find({ $or: [{ title: { $regex: regex } }, { sourceUrl: { $regex: regex } }] })
     .sort({ createdAt: -1 })
     .limit(LIMIT_DRAFTS)
     .toArray();
 
   return docs.map((doc) => ({
-    id: doc._id?.toString?.() ?? String(doc._id),
+    id: toId(doc._id),
     title: doc.title ?? "Feed Draft",
     status: doc.status,
     regionCode: doc.regionCode ?? undefined,
@@ -325,43 +333,29 @@ async function loadFeedDrafts(regex: RegExp): Promise<
 }
 
 async function loadEventualitySnapshots(regex: RegExp): Promise<EventualitySnapshotDoc[]> {
-  if (regex.source.length < 2) return [];
+  if (regex.source.length < MIN_QUERY_LEN) return [];
   const col = await eventualitySnapshotsCol();
-  const docs = await col
-    .find({
-      $or: [
-        { contributionId: { $regex: regex } },
-        { userIdMasked: { $regex: regex } },
-      ],
-    })
+  return col
+    .find({ $or: [{ contributionId: { $regex: regex } }, { userIdMasked: { $regex: regex } }] })
     .sort({ updatedAt: -1 })
     .limit(LIMIT_EVENTUALITIES)
     .toArray();
-  return docs;
 }
 
 async function loadEvidenceClaims(query: string): Promise<EvidenceClaimWithMeta[]> {
-  if (query.length < 2) return [];
-  const result = await findEvidenceClaims({
-    textQuery: query,
-    limit: LIMIT_CLAIMS,
-    offset: 0,
-  });
+  if (query.length < MIN_QUERY_LEN) return [];
+  const result = await findEvidenceClaims({ textQuery: query, limit: LIMIT_CLAIMS, offset: 0 });
   return result.items ?? [];
 }
 
 async function loadEvidenceItems(query: string, regex: RegExp): Promise<EvidenceItemDoc[]> {
-  if (query.length < 2) return [];
+  if (query.length < MIN_QUERY_LEN) return [];
   const col = await evidenceItemsCol();
-  const docs = await col
+  return col
     .find({
       $and: [
         {
-          $or: [
-            { shortTitle: { $regex: regex } },
-            { publisher: { $regex: regex } },
-            { url: { $regex: regex } },
-          ],
+          $or: [{ shortTitle: { $regex: regex } }, { publisher: { $regex: regex } }, { url: { $regex: regex } }],
         },
         { $or: [{ isActive: { $ne: false } }, { isActive: { $exists: false } }] },
       ],
@@ -369,9 +363,38 @@ async function loadEvidenceItems(query: string, regex: RegExp): Promise<Evidence
     .sort({ publishedAt: -1, createdAt: -1 })
     .limit(LIMIT_ITEMS)
     .toArray();
-  return docs;
+}
+
+/* --------------------------------- helpers -------------------------------- */
+
+function buildSafeRegex(input: string): RegExp {
+  // Escape to prevent regex injection; keep "i" for UX
+  return new RegExp(escapeRegExp(input), "i");
 }
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function toId(v: any): string {
+  return v?.toString?.() ?? String(v);
+}
+
+function dedupeById(items: SearchItem[]): SearchItem[] {
+  const seen = new Set<string>();
+  const out: SearchItem[] = [];
+  for (const it of items) {
+    if (seen.has(it.id)) continue;
+    seen.add(it.id);
+    out.push(it);
+  }
+  return out;
+}
+
+async function safeCall<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
+  try {
+    return await fn();
+  } catch {
+    return fallback;
+  }
 }
