@@ -53,6 +53,7 @@ export function MembershipApplicationPageClient() {
   const { user } = useCurrentUser();
   const [draft, setDraft] = React.useState<ReturnType<typeof loadMembershipDraft> | null>(null);
   const [step, setStep] = React.useState<StepId>(1);
+  const draftApplied = React.useRef(false);
 
   React.useEffect(() => {
     setDraft(loadMembershipDraft());
@@ -162,8 +163,8 @@ export function MembershipApplicationPageClient() {
     return { givenName: givenName || "", familyName: familyName || "", email: email || "" };
   }, [user]);
 
-  const [rhythm] = React.useState<Rhythm>(initialRhythm);
-  const [householdSize] = React.useState<number>(initialHouseholdSize);
+  const [rhythm, setRhythm] = React.useState<Rhythm>(initialRhythm);
+  const [householdSize, setHouseholdSize] = React.useState<number>(initialHouseholdSize);
 
   const normalizedContributionPerPerson = Number.isFinite(contributionPerPerson)
     ? contributionPerPerson
@@ -197,6 +198,27 @@ export function MembershipApplicationPageClient() {
     }
     return list;
   });
+
+  React.useEffect(() => {
+    if (!draft || draftApplied.current) return;
+    setContributionPerPerson(contributionPerPersonFromQuery);
+    setRhythm(initialRhythm);
+    setHouseholdSize(initialHouseholdSize);
+    setMembers((prev) => {
+      let next = [...prev];
+      if (next.length > initialHouseholdSize) {
+        next = next.slice(0, initialHouseholdSize);
+      }
+      while (next.length < initialHouseholdSize) {
+        next.push(makeMember("adult"));
+      }
+      if (!next.some((m) => m.role === "primary") && next.length > 0) {
+        next[0] = { ...next[0], role: "primary" };
+      }
+      return next;
+    });
+    draftApplied.current = true;
+  }, [draft, contributionPerPersonFromQuery, initialRhythm, initialHouseholdSize]);
 
   const [payment, setPayment] = React.useState<PaymentFormState>(() => {
     const displayName =
