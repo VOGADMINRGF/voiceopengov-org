@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type NewsletterEntry = {
   email: string;
@@ -11,6 +11,7 @@ type NewsletterEntry = {
 
 export default function AdminNewsletterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [items, setItems] = useState<NewsletterEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -18,14 +19,26 @@ export default function AdminNewsletterPage() {
   const [newEmail, setNewEmail] = useState("");
   const [newName, setNewName] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [accessError, setAccessError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
     async function load() {
       setLoading(true);
+      setAccessError(null);
       const res = await fetch("/api/admin/dashboard/newsletter/export", { cache: "no-store" });
-      if (res.status === 401 || res.status === 403) {
+      if (res.status === 401) {
         router.replace("/login?next=/admin/newsletter");
+        return;
+      }
+      if (res.status === 403) {
+        const body = await res.json().catch(() => ({}));
+        if (body?.error === "two_factor_required") {
+          router.replace("/login?next=/admin/newsletter");
+          return;
+        }
+        if (active) setAccessError("Kein Zugriff auf die Newsletter-Verwaltung.");
+        setLoading(false);
         return;
       }
       const body = (await res.json()) as { items: NewsletterEntry[] };
@@ -39,6 +52,13 @@ export default function AdminNewsletterPage() {
       active = false;
     };
   }, [router]);
+
+  useEffect(() => {
+    const qParam = searchParams.get("q");
+    if (qParam) {
+      setQuery(qParam);
+    }
+  }, [searchParams]);
 
   const filteredItems = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -85,6 +105,11 @@ export default function AdminNewsletterPage() {
 
   return (
     <div className="space-y-4">
+      {accessError && (
+        <div className="rounded-3xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          {accessError}
+        </div>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-white/90 p-4 shadow ring-1 ring-slate-100">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Newsletter</p>

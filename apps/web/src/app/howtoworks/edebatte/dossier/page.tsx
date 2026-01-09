@@ -22,7 +22,7 @@ const heroChips = [
 ];
 
 const heroImage = {
-  src: "/vog_startpage/Dossier.png",
+  src: "/vogpage_default/dossier/flow_pipeline.svg",
   alt: "Flowchart: Vom Anliegen zum Dossier",
 };
 

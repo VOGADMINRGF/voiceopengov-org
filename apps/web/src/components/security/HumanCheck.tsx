@@ -26,6 +26,8 @@ export function HumanCheck({
   const [message, setMessage] = useState<string | null>(null);
   const startRef = useRef<number | null>(null);
   const [puzzleSeed, setPuzzleSeed] = useState<string | null>(null);
+  const answerValue = answer.trim();
+  const isAnswerValid = /^\d+$/.test(answerValue);
 
   useEffect(() => {
     // Erst auf dem Client einen Seed erzeugen, damit SSR/CSR übereinstimmen.
@@ -35,8 +37,19 @@ export function HumanCheck({
   }, []);
 
   const puzzle = useMemo(() => (puzzleSeed ? derivePuzzle(puzzleSeed) : null), [puzzleSeed]);
+  const refreshPuzzle = () => {
+    const seed = safeRandomId();
+    setPuzzleSeed(seed);
+    startRef.current = performance.now();
+    setAnswer("");
+  };
 
   const handleVerify = async () => {
+    if (!isAnswerValid) {
+      setStatus("error");
+      setMessage("Bitte trage das Ergebnis als Zahl ein.");
+      return;
+    }
     setStatus("checking");
     setMessage(null);
 
@@ -50,7 +63,7 @@ export function HumanCheck({
         body: JSON.stringify({
           formId,
           honeypotValue: honeypot,
-          puzzleAnswer: Number(answer),
+          puzzleAnswer: Number(answerValue),
           puzzleSeed,
           timeToSolve,
         }),
@@ -62,6 +75,7 @@ export function HumanCheck({
         setStatus("error");
         setMessage("Die Bestätigung hat nicht geklappt. Bitte kurz erneut versuchen.");
         onError?.(reason);
+        refreshPuzzle();
         return;
       }
 
@@ -72,6 +86,7 @@ export function HumanCheck({
       setStatus("error");
       setMessage("Es gab ein technisches Problem. Bitte später erneut versuchen.");
       onError?.(err instanceof Error ? err.message : "unknown");
+      refreshPuzzle();
     }
   };
 
@@ -168,7 +183,13 @@ export function HumanCheck({
           inputMode="numeric"
           pattern="[0-9]*"
           value={answer}
-          onChange={(e) => setAnswer(e.target.value)}
+          onChange={(e) => {
+            setAnswer(e.target.value);
+            if (status !== "checking") {
+              if (status !== "idle") setStatus("idle");
+              if (message) setMessage(null);
+            }
+          }}
           onKeyDown={(e) => {
             if (e.key !== "Enter") return;
             e.preventDefault();

@@ -4,6 +4,7 @@ import { cookies, headers } from "next/headers";
 import type { Collection } from "mongodb";
 import { ObjectId, getCol } from "@core/db/triMongo";
 import type { AuthUser } from "@/hooks/auth";
+import { readSession } from "@/utils/session";
 import "./globals.css";
 import { LocaleProvider } from "@/context/LocaleContext";
 import { DEFAULT_LOCALE, type SupportedLocale, isSupportedLocale } from "@/config/locales";
@@ -64,7 +65,8 @@ async function detectInitialLocale(cookieStore: Awaited<ReturnType<typeof cookie
 
 async function loadServerUser(cookieStore: Awaited<ReturnType<typeof cookies>>): Promise<AuthUser | null> {
   try {
-    const uid = cookieStore.get("u_id")?.value;
+    const session = await readSession();
+    const uid = session?.uid;
     if (!uid || !ObjectId.isValid(uid)) return null;
     const users = (await getCol("users")) as Collection<any>;
     const doc = await users.findOne(

@@ -118,6 +118,69 @@ export async function GET(req: NextRequest) {
     factcheck = { available: false, error: String(e?.message ?? e), byStatus: {}, total: 0, lastError: null };
   }
 
+  // Dossier health (best effort)
+  let dossiers: any = {
+    available: false,
+    total: 0,
+    claimStatus: {},
+    suggestionsPending: 0,
+    disputesOpen: 0,
+    completeness: {},
+  };
+  try {
+    const dossierCol = await coreCol<any>("dossiers");
+    const claimsCol = await coreCol<any>("dossier_claims");
+    const sourcesCol = await coreCol<any>("dossier_sources");
+    const findingsCol = await coreCol<any>("dossier_findings");
+    const edgesCol = await coreCol<any>("dossier_edges");
+    const suggestionsCol = await coreCol<any>("dossier_suggestions");
+    const disputesCol = await coreCol<any>("dossier_disputes");
+
+    const [dossierTotal, claimStatus, suggestionsPending, disputesOpen, sourcesTotal] = await Promise.all([
+      dossierCol.countDocuments({}),
+      countBy(claimsCol as any, "status"),
+      suggestionsCol.countDocuments({ status: "pending" }),
+      disputesCol.countDocuments({ status: "open" }),
+      sourcesCol.countDocuments({}),
+    ]);
+
+    const [findingsDossiers, edgesDossiers] = await Promise.all([
+      findingsCol.distinct("dossierId"),
+      edgesCol.distinct("dossierId"),
+    ]);
+
+    const total = Number(dossierTotal ?? 0);
+    const avgSourcesPerDossier = total > 0 ? sourcesTotal / total : 0;
+    const pctWithFindings = total > 0 ? findingsDossiers.length / total : 0;
+    const pctWithEdges = total > 0 ? edgesDossiers.length / total : 0;
+
+    dossiers = {
+      available: true,
+      total,
+      claimStatus,
+      suggestionsPending,
+      disputesOpen,
+      completeness: {
+        avgSourcesPerDossier: Number(avgSourcesPerDossier.toFixed(2)),
+        pctWithFindings: Number(pctWithFindings.toFixed(3)),
+        pctWithEdges: Number(pctWithEdges.toFixed(3)),
+        sourcesTotal,
+        dossiersWithFindings: findingsDossiers.length,
+        dossiersWithEdges: edgesDossiers.length,
+      },
+    };
+  } catch (e: any) {
+    dossiers = {
+      available: false,
+      error: String(e?.message ?? e),
+      total: 0,
+      claimStatus: {},
+      suggestionsPending: 0,
+      disputesOpen: 0,
+      completeness: {},
+    };
+  }
+
   return NextResponse.json({
     ok: true,
     now,
@@ -157,6 +220,7 @@ export async function GET(req: NextRequest) {
       },
     },
     factcheck,
+    dossiers,
     links: {
       orchestratorSmoke: "/admin/telemetry/ai/orchestrator",
       feedDrafts: "/admin/feeds/drafts",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import type { ResponsibilityActor } from "@core/responsibility";
 
 const LEVEL_OPTIONS = [
@@ -30,9 +31,11 @@ type FormState = {
 };
 
 export default function ResponsibilityDirectoryPage() {
+  const searchParams = useSearchParams();
   const [items, setItems] = useState<ResponsibilityActor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [formState, setFormState] = useState<FormState>({
     actorKey: "",
@@ -66,6 +69,30 @@ export default function ResponsibilityDirectoryPage() {
   useEffect(() => {
     loadItems();
   }, []);
+
+  useEffect(() => {
+    const qParam = searchParams.get("q");
+    if (qParam) setQuery(qParam);
+  }, [searchParams]);
+
+  const filteredItems = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return items;
+    return items.filter((actor) => {
+      const haystack = [
+        actor.name,
+        actor.actorKey,
+        actor.level,
+        actor.role,
+        actor.regionId,
+        actor.description,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [items, query]);
 
   const openForm = (actor?: ResponsibilityActor) => {
     setFormState({
@@ -116,6 +143,15 @@ export default function ResponsibilityDirectoryPage() {
         </button>
       </header>
 
+      <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-2 shadow-sm">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Akteur suchen (Name, actorKey, Region)"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-slate-400 focus:outline-none"
+        />
+      </div>
+
       {error && (
         <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-700">
           {error}
@@ -143,7 +179,7 @@ export default function ResponsibilityDirectoryPage() {
                 </td>
               </tr>
             ) : (
-              items.map((actor) => (
+              filteredItems.map((actor) => (
                 <tr key={actor.id ?? actor.actorKey}>
                   <td className="px-4 py-3">
                     <div className="font-semibold text-slate-900">{actor.name}</div>
@@ -170,6 +206,12 @@ export default function ResponsibilityDirectoryPage() {
           </tbody>
         </table>
       </div>
+
+      {!loading && filteredItems.length === 0 && (
+        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-600">
+          Keine Treffer für "{query}".
+        </div>
+      )}
 
       {formOpen && (
         <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/40 p-4">

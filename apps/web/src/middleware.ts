@@ -1,10 +1,22 @@
 // apps/web/src/middleware.ts
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimitHeaders } from "@/utils/rateLimitHelpers";
+import { rateLimitPublic } from "@/utils/publicRateLimit";
+
+const EMBED_RATE_LIMIT = { limit: 60, windowMs: 60 * 1000 };
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   // Statics und Next-Interna durchlassen
   if (pathname.startsWith("/_next") || pathname.startsWith("/favicon") || pathname.startsWith("/static")) {
+    return allowNext();
+  }
+
+  if (pathname.startsWith("/embed/dossier/")) {
+    const rl = await rateLimitPublic(req, EMBED_RATE_LIMIT.limit, EMBED_RATE_LIMIT.windowMs, "embed:dossier");
+    if (!rl.ok) {
+      return NextResponse.json({ error: "rate_limited" }, { status: 429, headers: rateLimitHeaders(rl) });
+    }
     return allowNext();
   }
 
@@ -55,5 +67,5 @@ function allowNext() {
 
 // Nur echte Seiten, keine statics
 export const config = {
-  matcher: ["/api/:path*"],
+  matcher: ["/api/:path*", "/embed/dossier/:path*"],
 };

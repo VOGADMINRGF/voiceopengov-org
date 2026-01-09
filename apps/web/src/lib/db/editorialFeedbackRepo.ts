@@ -9,6 +9,10 @@ export type EditorialFeedbackDoc = {
     url?: string;
   };
   action: any;
+  reviewStatus?: "pending" | "approved" | "rejected";
+  reviewedAt?: Date | null;
+  reviewedBy?: string | null;
+  reviewNote?: string | null;
   createdAtDate: Date;
 };
 
@@ -40,6 +44,7 @@ export async function insertEditorialFeedback(payload: {
   ts: string;
   context?: any;
   action: any;
+  reviewStatus?: "pending" | "approved" | "rejected";
 }): Promise<{ id: string }> {
   const col = await feedbackCol();
   const doc: EditorialFeedbackDoc = {
@@ -47,6 +52,10 @@ export async function insertEditorialFeedback(payload: {
     ts: payload.ts,
     context: payload.context,
     action: payload.action,
+    reviewStatus: payload.reviewStatus,
+    reviewedAt: null,
+    reviewedBy: null,
+    reviewNote: null,
     createdAtDate: new Date(),
   };
   await col.insertOne(doc);
@@ -56,12 +65,20 @@ export async function insertEditorialFeedback(payload: {
 export async function listEditorialFeedback(args: {
   contributionId?: string;
   statementId?: string;
+  actionTypes?: string[];
+  reviewStatus?: Array<"pending" | "approved" | "rejected">;
   limit?: number;
 }): Promise<Array<Omit<EditorialFeedbackDoc, "_id"> & { id: string }>> {
   const col = await feedbackCol();
   const q: any = {};
   if (args.contributionId) q["context.contributionId"] = args.contributionId;
   if (args.statementId) q["context.statementId"] = args.statementId;
+  if (Array.isArray(args.actionTypes) && args.actionTypes.length) {
+    q["action.type"] = { $in: args.actionTypes };
+  }
+  if (Array.isArray(args.reviewStatus) && args.reviewStatus.length) {
+    q.reviewStatus = { $in: args.reviewStatus };
+  }
 
   const docs = await col
     .find(q)
@@ -74,6 +91,38 @@ export async function listEditorialFeedback(args: {
     ts: d.ts,
     context: d.context,
     action: d.action,
+    reviewStatus: d.reviewStatus,
+    reviewedAt: d.reviewedAt,
+    reviewedBy: d.reviewedBy,
+    reviewNote: d.reviewNote,
     createdAtDate: d.createdAtDate,
   }));
+}
+
+export async function updateEditorialFeedbackReview(args: {
+  id: string;
+  reviewStatus: "pending" | "approved" | "rejected";
+  reviewedBy?: string | null;
+  reviewNote?: string | null;
+}): Promise<boolean> {
+  const col = await feedbackCol();
+  let objectId: ObjectId;
+  try {
+    objectId = new ObjectId(args.id);
+  } catch {
+    return false;
+  }
+  const now = new Date();
+  const res = await col.updateOne(
+    { _id: objectId },
+    {
+      $set: {
+        reviewStatus: args.reviewStatus,
+        reviewedAt: now,
+        reviewedBy: args.reviewedBy ?? null,
+        reviewNote: args.reviewNote ?? null,
+      },
+    },
+  );
+  return res.matchedCount > 0;
 }

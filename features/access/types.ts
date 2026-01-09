@@ -18,6 +18,7 @@ export type KnownRouteId =
   | "admin_telemetry"
   | "admin_system"
   | "admin_users"
+  | "admin_orgs"
   | "admin_analytics"
   | "admin_newsletter"
   | "admin_identity"
@@ -30,13 +31,24 @@ export type KnownRouteId =
   | "admin_telemetry_identity"
   | "admin_eventualities"
   | "admin_graph"
+  | "admin_graph_health"
+  | "admin_graph_repairs"
   | "admin_impact"
   | "admin_reports"
+  | "admin_reports_assets"
+  | "admin_editorial"
   | "admin_research"
   | "admin_responsibility"
   | "admin_settings"
   | "admin_feeds"
   | "admin_evidence"
+  | "admin_audit"
+  | "admin_api_orgs"
+  | "admin_api_editorial"
+  | "admin_api_reports_assets"
+  | "admin_api_audit"
+  | "admin_api_graph_health"
+  | "admin_api_graph_repairs"
   | "account";
 
 export type RouteId = KnownRouteId | `custom:${string}`;
@@ -228,6 +240,14 @@ export const DEFAULT_ROUTE_POLICIES: RoutePolicy[] = [
     locked: true,
   },
   {
+    routeId: "admin_orgs",
+    pathPattern: "/admin/orgs",
+    label: "Admin · Organisationen",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
     routeId: "admin_analytics",
     pathPattern: "/admin/analytics",
     label: "Admin · Analytics",
@@ -345,6 +365,22 @@ export const DEFAULT_ROUTE_POLICIES: RoutePolicy[] = [
     locked: true,
   },
   {
+    routeId: "admin_graph_health",
+    pathPattern: "/admin/graph/health",
+    label: "Admin · Graph Health",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_graph_repairs",
+    pathPattern: "/admin/graph/repairs",
+    label: "Admin · Graph Repairs",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
     routeId: "admin_impact",
     pathPattern: "/admin/impact",
     label: "Admin · Impact",
@@ -356,6 +392,22 @@ export const DEFAULT_ROUTE_POLICIES: RoutePolicy[] = [
     routeId: "admin_reports",
     pathPattern: "/admin/reports",
     label: "Admin · Reports",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_reports_assets",
+    pathPattern: "/admin/reports/assets",
+    label: "Admin · Report Assets",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_editorial",
+    pathPattern: "/admin/editorial",
+    label: "Admin · Editorial",
     defaultGroups: ["staff", "admin"],
     allowAnonymous: false,
     locked: true,
@@ -380,6 +432,62 @@ export const DEFAULT_ROUTE_POLICIES: RoutePolicy[] = [
     routeId: "admin_settings",
     pathPattern: "/admin/settings",
     label: "Admin · Settings",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_audit",
+    pathPattern: "/admin/audit",
+    label: "Admin · Audit",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_api_orgs",
+    pathPattern: "/api/admin/orgs",
+    label: "Admin API · Orgs",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_api_editorial",
+    pathPattern: "/api/admin/editorial",
+    label: "Admin API · Editorial",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_api_reports_assets",
+    pathPattern: "/api/admin/reports/assets",
+    label: "Admin API · Report Assets",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_api_audit",
+    pathPattern: "/api/admin/audit",
+    label: "Admin API · Audit",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_api_graph_health",
+    pathPattern: "/api/admin/graph/health",
+    label: "Admin API · Graph Health",
+    defaultGroups: ["staff", "admin"],
+    allowAnonymous: false,
+    locked: true,
+  },
+  {
+    routeId: "admin_api_graph_repairs",
+    pathPattern: "/api/admin/graph/repairs",
+    label: "Admin API · Graph Repairs",
     defaultGroups: ["staff", "admin"],
     allowAnonymous: false,
     locked: true,

@@ -58,6 +58,57 @@ Wir freuen uns, dass du dabei bist.
   return { subject: "Bitte bestätige deine E-Mail-Adresse", html, text };
 }
 
+type AccountWelcomeTemplateInput = {
+  accountUrl: string;
+  identityUrl?: string;
+  displayName?: string | null;
+};
+
+export function buildAccountWelcomeMail({ accountUrl, identityUrl, displayName }: AccountWelcomeTemplateInput) {
+  const greeting = displayName ? `Hallo ${displayName}` : "Hallo";
+  const buttonStyle =
+    "display:inline-flex;padding:12px 20px;border-radius:999px;background:#0f172a;color:#fff;text-decoration:none;font-weight:700;letter-spacing:0.3px;font-size:15px;";
+
+  const identityHtml = identityUrl
+    ? `<tr><td style="padding:12px 0 0 0; font-size:14px; color:#334155;">
+        Identitätsprüfung noch offen? Du kannst jederzeit hier fortsetzen:
+        <a href="${identityUrl}" style="color:#0f172a;text-decoration:underline;">${identityUrl}</a>
+      </td></tr>`
+    : "";
+
+  const html = `
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color:#0f172a;">
+      <tr><td style="padding:12px 0;">${greeting},</td></tr>
+      <tr><td style="padding:6px 0 12px 0; font-size:15px; line-height:1.5;">
+        herzlich willkommen bei VoiceOpenGov! Dein Konto ist eingerichtet – ab jetzt kannst du dein Profil vervollständigen und die nächsten Schritte starten.
+      </td></tr>
+      <tr><td style="padding:12px 0;">
+        <a href="${accountUrl}" style="${buttonStyle}">
+          Zum Profil
+        </a>
+      </td></tr>
+      ${identityHtml}
+      <tr><td style="padding:12px 0 0 0; font-size:14px; color:#0f172a; font-weight:600;">
+        Wir freuen uns, dass du dabei bist.<br/>– Dein VoiceOpenGov Team
+      </td></tr>
+    </table>
+  `;
+
+  const identityText = identityUrl
+    ? `Identitätsprüfung noch offen? Hier fortsetzen: ${identityUrl}\n\n`
+    : "";
+
+  const text = `${greeting},
+
+herzlich willkommen bei VoiceOpenGov! Dein Konto ist eingerichtet.
+Profil öffnen: ${accountUrl}
+
+${identityText}Wir freuen uns, dass du dabei bist.
+– VoiceOpenGov Team`;
+
+  return { subject: "Herzlich willkommen bei VoiceOpenGov", html, text };
+}
+
 export function buildSetPasswordMail({
   resetUrl,
   displayName,
@@ -100,6 +151,146 @@ Viele Gruesse
 – VoiceOpenGov Team`;
 
   return { subject: "Passwort fuer deinen Account setzen", html, text };
+}
+
+export function buildOrgInviteMail({
+  resetUrl,
+  orgName,
+  role,
+  displayName,
+  expiresAt,
+}: {
+  resetUrl: string;
+  orgName: string;
+  role: string;
+  displayName?: string | null;
+  expiresAt?: string | null;
+}) {
+  const greeting = displayName ? `Hallo ${displayName}` : "Hallo";
+  const buttonStyle =
+    "display:inline-flex;padding:12px 20px;border-radius:999px;background:#0f172a;color:#fff;text-decoration:none;font-weight:700;letter-spacing:0.3px;font-size:15px;";
+  const expiresLine = expiresAt ? `Einladung gueltig bis: ${expiresAt}` : "";
+
+  const html = `
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color:#0f172a;">
+      <tr><td style="padding:12px 0;">${greeting},</td></tr>
+      <tr><td style="padding:6px 0 12px 0; font-size:15px; line-height:1.5;">
+        du wurdest zur Organisation <strong>${orgName}</strong> eingeladen (Rolle: ${role}).
+        Bitte setze dein Passwort, um den Zugang zu aktivieren.
+      </td></tr>
+      <tr><td style="padding:12px 0;">
+        <a href="${resetUrl}" style="${buttonStyle}">
+          Einladung annehmen
+        </a>
+      </td></tr>
+      ${expiresLine ? `<tr><td style="padding:8px 0 0 0; font-size:13px; color:#64748b;">${expiresLine}</td></tr>` : ""}
+      <tr><td style="padding:14px 0 0 0; font-size:14px; color:#334155;">
+        Falls du keine Einladung erwartet hast, kannst du diese Nachricht ignorieren.
+      </td></tr>
+      <tr><td style="padding:10px 0 0 0; font-size:14px; color:#0f172a; font-weight:600;">
+        Viele Gruesse<br/>– Dein VoiceOpenGov Team
+      </td></tr>
+    </table>
+  `;
+
+  const text = `${greeting},
+
+du wurdest zur Organisation ${orgName} eingeladen (Rolle: ${role}).
+Bitte setze dein Passwort, um den Zugang zu aktivieren:
+${resetUrl}
+
+${expiresLine ? `${expiresLine}\n` : ""}Falls du keine Einladung erwartet hast, kannst du diese Nachricht ignorieren.
+
+Viele Gruesse
+– VoiceOpenGov Team`;
+
+  return { subject: `Einladung zu ${orgName}`, html, text };
+}
+
+export function buildOrgAccessMail({
+  accessUrl,
+  orgName,
+  role,
+  displayName,
+}: {
+  accessUrl: string;
+  orgName: string;
+  role: string;
+  displayName?: string | null;
+}) {
+  const greeting = displayName ? `Hallo ${displayName}` : "Hallo";
+  const buttonStyle =
+    "display:inline-flex;padding:12px 20px;border-radius:999px;background:#0f172a;color:#fff;text-decoration:none;font-weight:700;letter-spacing:0.3px;font-size:15px;";
+
+  const html = `
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color:#0f172a;">
+      <tr><td style="padding:12px 0;">${greeting},</td></tr>
+      <tr><td style="padding:6px 0 12px 0; font-size:15px; line-height:1.5;">
+        dir wurde Zugriff auf die Organisation <strong>${orgName}</strong> gegeben (Rolle: ${role}).
+        Melde dich an, um loszulegen.
+      </td></tr>
+      <tr><td style="padding:12px 0;">
+        <a href="${accessUrl}" style="${buttonStyle}">
+          Zum Login
+        </a>
+      </td></tr>
+      <tr><td style="padding:10px 0 0 0; font-size:14px; color:#0f172a; font-weight:600;">
+        Viele Gruesse<br/>– Dein VoiceOpenGov Team
+      </td></tr>
+    </table>
+  `;
+
+  const text = `${greeting},
+
+dir wurde Zugriff auf die Organisation ${orgName} gegeben (Rolle: ${role}).
+Login: ${accessUrl}
+
+Viele Gruesse
+– VoiceOpenGov Team`;
+
+  return { subject: `Zugriff auf ${orgName}`, html, text };
+}
+
+type IdentityResumeTemplateInput = {
+  resumeUrl: string;
+  displayName?: string | null;
+};
+
+export function buildIdentityResumeMail({ resumeUrl, displayName }: IdentityResumeTemplateInput) {
+  const greeting = displayName ? `Hallo ${displayName}` : "Hallo";
+  const buttonStyle =
+    "display:inline-flex;padding:12px 20px;border-radius:999px;background:#0f172a;color:#fff;text-decoration:none;font-weight:700;letter-spacing:0.3px;font-size:15px;";
+
+  const html = `
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color:#0f172a;">
+      <tr><td style="padding:12px 0;">${greeting},</td></tr>
+      <tr><td style="padding:6px 0 12px 0; font-size:15px; line-height:1.5;">
+        du kannst die Identitätsprüfung jederzeit fortsetzen. Öffne den Link, wenn du den QR-Code bequem scannen möchtest.
+      </td></tr>
+      <tr><td style="padding:12px 0;">
+        <a href="${resumeUrl}" style="${buttonStyle}">
+          Identitätsprüfung fortsetzen
+        </a>
+      </td></tr>
+      <tr><td style="padding:12px 0 0 0; font-size:14px; color:#334155;">
+        Falls du ausgeloggt bist, melde dich zuerst an.
+      </td></tr>
+      <tr><td style="padding:12px 0 0 0; font-size:14px; color:#0f172a; font-weight:600;">
+        – Dein VoiceOpenGov Team
+      </td></tr>
+    </table>
+  `;
+
+  const text = `${greeting},
+
+du kannst die Identitätsprüfung jederzeit fortsetzen:
+${resumeUrl}
+
+Falls du ausgeloggt bist, melde dich zuerst an.
+
+– VoiceOpenGov Team`;
+
+  return { subject: "Dein Link zur Identitätsprüfung", html, text };
 }
 
 export function buildTwoFactorCodeMail({ code }: { code: string }) {
@@ -207,6 +398,14 @@ export function buildMembershipApplyUserMail(args: {
   householdSize: number;
   membershipId: string;
   accountUrl?: string;
+  profileUrl?: string;
+  bankDetails?: {
+    recipient: string;
+    iban: string;
+    bic?: string | null;
+    bankName?: string | null;
+    accountMode?: string | null;
+  };
   edebatte?: {
     enabled: boolean;
     planKey?: string;
@@ -218,6 +417,7 @@ export function buildMembershipApplyUserMail(args: {
   paymentReference?: string;
   paymentInfo?: {
     bankRecipient?: string;
+    bankIban?: string;
     bankIbanMasked?: string;
     bankBic?: string | null;
     bankName?: string | null;
@@ -232,101 +432,238 @@ export function buildMembershipApplyUserMail(args: {
     householdSize,
     membershipId,
     accountUrl,
+    profileUrl,
+    bankDetails,
     edebatte,
-    paymentMethod,
     paymentReference,
     paymentInfo,
   } = args;
   const subject = "Dein Mitgliedsantrag bei VoiceOpenGov";
+  const greeting = `Hallo ${displayName || "Mitglied"}`;
   const rhythmLabel =
     rhythm === "monthly" ? "monatlich" : rhythm === "yearly" ? "jährlich" : "einmalig";
   const amount = formatEuro(amountPerPeriod);
-  const bankRecipient = paymentInfo?.bankRecipient ?? process.env.VOG_PAYMENT_BANK_RECIPIENT ?? "VoiceOpenGov";
-  const bankIbanMasked =
+  const bankRecipient = bankDetails?.recipient ?? paymentInfo?.bankRecipient ?? "VoiceOpenGov";
+  const bankIban =
+    bankDetails?.iban ??
+    paymentInfo?.bankIban ??
     paymentInfo?.bankIbanMasked ??
-    process.env.VOG_PAYMENT_BANK_IBAN ??
-    process.env.NEXT_PUBLIC_VOG_BANK_IBAN ??
     "IBAN folgt";
-  const bankBic =
-    paymentInfo?.bankBic ??
-    process.env.VOG_PAYMENT_BANK_BIC ??
-    process.env.NEXT_PUBLIC_VOG_BANK_BIC ??
-    "";
-  const bankName =
-    paymentInfo?.bankName ??
-    process.env.VOG_PAYMENT_BANK_NAME ??
-    process.env.NEXT_PUBLIC_VOG_BANK_RECIPIENT ??
-    "";
-  const accountMode = paymentInfo?.accountMode ?? process.env.VOG_ACCOUNT_MODE ?? "private_preUG";
+  const bankBic = bankDetails?.bic ?? paymentInfo?.bankBic ?? "";
+  const bankName = bankDetails?.bankName ?? paymentInfo?.bankName ?? "";
+  const accountMode = bankDetails?.accountMode ?? paymentInfo?.accountMode ?? "private_preUG";
   const showMicroTransfer = paymentInfo?.mandateStatus === "pending_microtransfer";
+  const shareUrl = profileUrl?.trim() || "";
+  const shareText = "Ich bin jetzt Mitglied bei VoiceOpenGov.";
+  const encodedShareUrl = shareUrl ? encodeURIComponent(shareUrl) : "";
+  const encodedShareText = encodeURIComponent(shareText);
+  const shareLinks = shareUrl
+    ? {
+        linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedShareUrl}`,
+        x: `https://x.com/intent/post?url=${encodedShareUrl}&text=${encodedShareText}`,
+        reddit: `https://www.reddit.com/submit?url=${encodedShareUrl}&title=${encodedShareText}`,
+        instagram: shareUrl,
+        tiktok: shareUrl,
+      }
+    : null;
+  const iconStyle =
+    "display:inline-block;width:28px;height:28px;border-radius:999px;background:#0f172a;color:#ffffff;font-size:11px;font-weight:700;line-height:28px;text-align:center;text-decoration:none;";
+  const socialLink = (label: string, text: string, href: string, isLast = false) => `
+      <td style="padding-right:${isLast ? "0" : "8px"};">
+        <a href="${href}" style="${iconStyle}" aria-label="${label}" target="_blank" rel="noopener noreferrer">${text}</a>
+      </td>`;
+  const shareIcons = shareLinks
+    ? `
+      <table role="presentation" cellpadding="0" cellspacing="0">
+        <tr>
+          ${socialLink("LinkedIn", "IN", shareLinks.linkedin)}
+          ${socialLink("TikTok", "TT", shareLinks.tiktok)}
+          ${socialLink("Instagram", "IG", shareLinks.instagram)}
+          ${socialLink("X", "X", shareLinks.x)}
+          ${socialLink("Reddit", "RD", shareLinks.reddit, true)}
+        </tr>
+      </table>
+    `
+    : "";
 
-  const edebatteBlock =
-    edebatte && edebatte.enabled && edebatte.finalPricePerMonth
-      ? `
-    <p><strong>eDebatte-App (Vorbestellung)</strong><br/>
-    Paket: ${edebatte.planKey || "unbekannt"}, Abrechnung: ${edebatte.billingMode || "monatlich"}, Preis: ${formatEuro(edebatte.finalPricePerMonth)}${edebatte.discountPercent ? ` (inkl. ${edebatte.discountPercent}% VOG-Rabatt)` : ""}.<br/>
-    Während der Pilotphase ist das ein unverbindlicher Vorbestell-Vermerk; die tatsächliche Buchung und Zahlungsabwicklung klären wir mit dir separat.</p>
-  `
-      : "";
+  const hasEdebate = Boolean(edebatte?.enabled && edebatte.finalPricePerMonth);
+  const edebatteDiscount = edebatte?.discountPercent ? ` (inkl. ${edebatte.discountPercent}% VOG-Rabatt)` : "";
+  const edebatteLine = hasEdebate
+    ? `${edebatte?.planKey || "unbekannt"} ${formatEuro(edebatte?.finalPricePerMonth || 0)} ${
+        edebatte?.billingMode || "monatlich"
+      }${edebatteDiscount}`
+    : "";
+  const edebatteRow = hasEdebate
+    ? `
+        <tr>
+          <td style="padding:6px 0;font-size:12px;color:#64748b;">eDebatte</td>
+          <td style="padding:6px 0;font-size:13px;font-weight:600;text-align:right;color:#0f172a;">${edebatteLine}</td>
+        </tr>
+      `
+    : "";
+  const edebatteNote = hasEdebate
+    ? `
+      <p style="margin:12px 0 0 0;font-size:12px;line-height:1.6;color:#64748b;">
+        Während der Pilotphase ist das ein unverbindlicher Vorbestell-Vermerk; die tatsächliche Buchung und Zahlungsabwicklung klären wir separat.
+      </p>
+    `
+    : "";
+  const microTransferBlock = showMicroTransfer
+    ? `
+      <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-top:16px;border:1px solid #bae6fd;background:#ecfeff;border-radius:16px;">
+        <tr>
+          <td style="padding:16px;">
+            <p style="margin:0 0 6px 0;font-size:14px;font-weight:600;color:#0f172a;">Konto-Verifikation</p>
+            <p style="margin:0;font-size:13px;line-height:1.6;color:#0f172a;">
+              Wir überweisen dir in den nächsten Tagen 0,01 EUR mit einem TAN-Code im Verwendungszweck. Bitte gib den Code im Zahlungsprofil ein.
+            </p>
+            ${
+              accountUrl
+                ? `<p style="margin:12px 0 0 0;">
+                  <a href="${accountUrl}" style="display:inline-block;padding:10px 16px;border-radius:999px;background:#0ea5e9;color:#ffffff;text-decoration:none;font-weight:700;font-size:12px;">Zahlungsprofil öffnen</a>
+                </p>`
+                : ""
+            }
+          </td>
+        </tr>
+      </table>
+    `
+    : "";
+  const profileBlock = shareLinks
+    ? `
+      <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-top:18px;border:1px dashed #e2e8f0;border-radius:16px;">
+        <tr>
+          <td style="padding:16px;">
+            <p style="margin:0 0 6px 0;font-size:14px;font-weight:600;color:#0f172a;">Dein Profil-Link (optional)</p>
+            <p style="margin:0 0 10px 0;font-size:13px;line-height:1.6;color:#475569;">
+              Wenn du möchtest, kannst du dein Profil teilen.
+            </p>
+            <p style="margin:0 0 12px 0;font-size:13px;">
+              <a href="${shareUrl}" style="color:#0ea5e9;text-decoration:none;font-weight:600;">${shareUrl}</a>
+            </p>
+            ${shareIcons}
+            <p style="margin:10px 0 0 0;font-size:11px;color:#94a3b8;">
+              Tipp: Für Instagram/TikTok einfach den Link kopieren und posten.
+            </p>
+          </td>
+        </tr>
+      </table>
+    `
+    : "";
 
   const html = `
-    <p>Hallo ${displayName || "Mitglied"},</p>
-    <p>wir haben deinen Mitgliedsantrag erhalten.</p>
-    <ul>
-      <li><strong>Betrag:</strong> ${amount} (${rhythmLabel})</li>
-      <li><strong>Haushaltsgröße:</strong> ${householdSize}</li>
-      <li><strong>Antrags-ID:</strong> ${membershipId}</li>
-    </ul>
-    ${edebatteBlock}
-    <p><strong>Zahlungsinfo</strong><br/>
-    Bitte richte eine Überweisung oder einen Dauerauftrag ein:<br/>
-      Empfänger: ${bankRecipient}<br/>
-      Bank: ${bankName || "n/a"}<br/>
-      IBAN: ${bankIbanMasked}<br/>
-      ${bankBic ? `BIC: ${bankBic}<br/>` : ""}
-      Verwendungszweck: ${paymentReference ?? "Mitgliedsbeitrag"}
-    </p>
-    ${
-      showMicroTransfer
-        ? `<p><strong>Konto-Verifikation</strong><br/>
-      Wir überweisen dir in den nächsten Tagen 0,01 € mit einem TAN-Code im Verwendungszweck. Bitte gib den Code im Zahlungsprofil ein${
-        accountUrl ? `: <a href="${accountUrl}">${accountUrl}</a>` : "."
-      }</p>`
-        : ""
-    }
-    <p>Wichtig zur Transparenz:</p>
-    <ul>
-      <li>VoiceOpenGov befindet sich in der Gründungsphase (${
-        accountMode === "private_preUG" ? "Privatkonto Aufbauphase" : "Org-Konto nach Gründung"
-      }).</li>
-      <li>Mitgliedsbeiträge sind Gutschriften für die Bewegung – keine Spendenquittung, üblicherweise nicht absetzbar.</li>
-      <li>Die Mitgliedschaft bezieht sich auf VoiceOpenGov, nicht nur auf die eDebatte-App.</li>
-      <li>Wir folgen „eine Person, eine Stimme“ – daher brauchen wir klare Zuordnung und Double-Opt-In.</li>
-    </ul>
-    <p>Du kannst eDebatte direkt im Free-Modus nutzen. Sobald dein Beitrag eingegangen ist, bestätigen wir deine Mitgliedschaft.</p>
-    <p>Danke für deine Unterstützung!</p>
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#0f172a;">
+      <tr>
+        <td align="center" style="padding:24px 12px;">
+          <table width="600" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e2e8f0;border-radius:20px;overflow:hidden;">
+            <tr>
+              <td style="padding:22px 24px;background:#0f172a;">
+                <div style="font-size:11px;letter-spacing:0.36em;text-transform:uppercase;color:#94a3b8;">VoiceOpenGov</div>
+                <div style="margin-top:6px;font-size:24px;font-weight:700;color:#ffffff;">Mitgliedsantrag eingegangen</div>
+                <div style="margin-top:6px;font-size:13px;color:#cbd5f5;">Danke, dass du die Bewegung möglich machst.</div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:22px 24px;">
+                <p style="margin:0 0 10px 0;font-size:16px;font-weight:600;color:#0f172a;">${greeting},</p>
+                <p style="margin:0 0 18px 0;font-size:14px;line-height:1.6;color:#475569;">
+                  wir haben deinen Mitgliedsantrag erhalten. Die wichtigsten Daten auf einen Blick:
+                </p>
+                <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;">
+                  <tr>
+                    <td style="padding:16px;">
+                      <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+                        <tr>
+                          <td style="padding:6px 0;font-size:12px;color:#64748b;">Betrag</td>
+                          <td style="padding:6px 0;font-size:14px;font-weight:600;text-align:right;color:#0f172a;">${amount} (${rhythmLabel})</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:6px 0;font-size:12px;color:#64748b;">Haushalt</td>
+                          <td style="padding:6px 0;font-size:14px;font-weight:600;text-align:right;color:#0f172a;">${householdSize} Person(en)</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:6px 0;font-size:12px;color:#64748b;">Antrags-ID</td>
+                          <td style="padding:6px 0;font-size:12px;font-weight:600;text-align:right;color:#0f172a;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">
+                            ${membershipId}
+                          </td>
+                        </tr>
+                        ${edebatteRow}
+                      </table>
+                      ${edebatteNote}
+                    </td>
+                  </tr>
+                </table>
+
+                <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-top:16px;border:1px solid #e2e8f0;border-radius:16px;">
+                  <tr>
+                    <td style="padding:16px;">
+                      <p style="margin:0 0 8px 0;font-size:14px;font-weight:600;color:#0f172a;">Zahlungsinfo</p>
+                      <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+                        <tr>
+                          <td style="padding:6px 0;font-size:12px;color:#64748b;">Empfänger</td>
+                          <td style="padding:6px 0;font-size:14px;font-weight:600;text-align:right;color:#0f172a;">${bankRecipient}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:6px 0;font-size:12px;color:#64748b;">Bank</td>
+                          <td style="padding:6px 0;font-size:13px;font-weight:600;text-align:right;color:#0f172a;">${bankName || "n/a"}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:6px 0;font-size:12px;color:#64748b;">IBAN</td>
+                          <td style="padding:6px 0;font-size:13px;font-weight:600;text-align:right;color:#0f172a;">${bankIban}</td>
+                        </tr>
+                        ${
+                          bankBic
+                            ? `<tr>
+                                <td style="padding:6px 0;font-size:12px;color:#64748b;">BIC</td>
+                                <td style="padding:6px 0;font-size:13px;font-weight:600;text-align:right;color:#0f172a;">${bankBic}</td>
+                              </tr>`
+                            : ""
+                        }
+                        <tr>
+                          <td style="padding:6px 0;font-size:12px;color:#64748b;">Verwendungszweck</td>
+                          <td style="padding:6px 0;font-size:13px;font-weight:700;text-align:right;color:#0f172a;">${paymentReference ?? "Mitgliedsbeitrag"}</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+                ${microTransferBlock}
+
+                <p style="margin:18px 0 8px 0;font-size:14px;font-weight:600;color:#0f172a;">Transparenz</p>
+                <ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.6;color:#475569;">
+                  <li>VoiceOpenGov befindet sich in der Gründungsphase (${accountMode === "private_preUG" ? "Privatkonto Aufbauphase" : "Org-Konto nach Gründung"}).</li>
+                  <li>Mitgliedsbeiträge sind Gutschriften für die Bewegung – keine Spendenquittung, üblicherweise nicht absetzbar.</li>
+                  <li>Die Mitgliedschaft bezieht sich auf VoiceOpenGov, nicht nur auf die eDebatte-App.</li>
+                  <li>Wir folgen "eine Person, eine Stimme" – daher brauchen wir klare Zuordnung und Double-Opt-In.</li>
+                </ul>
+                ${profileBlock}
+                <p style="margin:18px 0 0 0;font-size:13px;line-height:1.6;color:#475569;">
+                  Du kannst eDebatte direkt im Free-Modus nutzen. Sobald dein Beitrag eingegangen ist, bestätigen wir deine Mitgliedschaft.
+                </p>
+                <p style="margin:14px 0 0 0;font-size:14px;font-weight:600;color:#0f172a;">Danke für deine Unterstützung!</p>
+                <p style="margin:10px 0 0 0;font-size:13px;color:#0f172a;font-weight:600;">– Dein VoiceOpenGov Team</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   `;
 
-  const text = `Hallo ${displayName || "Mitglied"},
+  const text = `${greeting},
 
-wir haben deinen Mitgliedsantrag erhalten.
+wir haben deinen Mitgliedsantrag erhalten. Details:
 - Betrag: ${amount} (${rhythmLabel})
-- Haushaltsgröße: ${householdSize}
+- Haushalt: ${householdSize} Person(en)
 - Antrags-ID: ${membershipId}
-
-- eDebatte: ${
-    edebatte && edebatte.enabled && edebatte.finalPricePerMonth
-      ? `${edebatte.planKey || "unbekannt"} ${formatEuro(edebatte.finalPricePerMonth)} ${
-          edebatte.billingMode || "monatlich"
-        }`
-      : "keine Vorbestellung"
-  }
+${hasEdebate ? `- eDebatte: ${edebatteLine}` : ""}
 
 Zahlung:
 Bitte Dauer-/Einzelüberweisung einrichten.
 Empfänger: ${bankRecipient}
 Bank: ${bankName || "n/a"}
-IBAN: ${bankIbanMasked}
+IBAN: ${bankIban}
 ${bankBic ? `BIC: ${bankBic}` : ""}
 Verwendungszweck: ${paymentReference ?? "Mitgliedsbeitrag"}
 ${
@@ -340,9 +677,12 @@ Transparenz:
 - Mitgliedschaft bezieht sich auf VoiceOpenGov, nicht nur eDebatte.
 - Eine Person, eine Stimme – daher Double-Opt-In.
 
+${shareLinks ? `\nProfil-Link (optional): ${shareUrl}\nLinkedIn: ${shareLinks.linkedin}\nX: ${shareLinks.x}\nReddit: ${shareLinks.reddit}\nInstagram/TikTok: Link kopieren und posten.` : ""}
+
 Du kannst eDebatte im Free-Modus nutzen. Sobald dein Beitrag eingeht, bestätigen wir deine Mitgliedschaft.
 
-Danke für deine Unterstützung!`;
+Danke für deine Unterstützung!
+– Dein VoiceOpenGov Team`;
 
   return { subject, html, text };
 }
@@ -428,6 +768,7 @@ export function buildMembershipReminderMail(
     householdSize: number;
     paymentInfo?: {
       bankRecipient?: string;
+      bankIban?: string;
       bankIbanMasked?: string;
       bankBic?: string | null;
       bankName?: string | null;
@@ -443,23 +784,13 @@ export function buildMembershipReminderMail(
   const amount = formatEuro(args.amountPerPeriod);
   const rhythmLabel =
     args.rhythm === "once" ? "einmalig" : args.rhythm === "yearly" ? "jährlich" : "monatlich";
-  const bankRecipient =
-    args.paymentInfo?.bankRecipient ?? process.env.VOG_PAYMENT_BANK_RECIPIENT ?? "VoiceOpenGov";
-  const bankIbanMasked =
+  const bankRecipient = args.paymentInfo?.bankRecipient ?? "VoiceOpenGov";
+  const bankIban =
+    args.paymentInfo?.bankIban ??
     args.paymentInfo?.bankIbanMasked ??
-    process.env.VOG_PAYMENT_BANK_IBAN ??
-    process.env.NEXT_PUBLIC_VOG_BANK_IBAN ??
     "IBAN folgt";
-  const bankBic =
-    args.paymentInfo?.bankBic ??
-    process.env.VOG_PAYMENT_BANK_BIC ??
-    process.env.NEXT_PUBLIC_VOG_BANK_BIC ??
-    "";
-  const bankName =
-    args.paymentInfo?.bankName ??
-    process.env.VOG_PAYMENT_BANK_NAME ??
-    process.env.NEXT_PUBLIC_VOG_BANK_RECIPIENT ??
-    "";
+  const bankBic = args.paymentInfo?.bankBic ?? "";
+  const bankName = args.paymentInfo?.bankName ?? "";
 
   const intro =
     level === 1
@@ -475,7 +806,7 @@ export function buildMembershipReminderMail(
     <p><strong>Zahlung per Überweisung</strong><br/>
     Empfänger: ${bankRecipient}<br/>
     Bank: ${bankName}<br/>
-    IBAN: ${bankIbanMasked}<br/>
+    IBAN: ${bankIban}<br/>
     ${bankBic ? `BIC: ${bankBic}<br/>` : ""}Verwendungszweck: ${args.reference}</p>
     <p>Bitte nutze den Verwendungszweck exakt so, damit wir die Zahlung eindeutig zuordnen können.</p>
     ${
@@ -493,7 +824,7 @@ Beitrag: ${amount} (${rhythmLabel}), Haushalt: ${args.householdSize}
 Zahlung per Überweisung:
 Empfänger: ${bankRecipient}
 Bank: ${bankName}
-IBAN: ${bankIbanMasked}
+IBAN: ${bankIban}
 ${bankBic ? `BIC: ${bankBic}\n` : ""}Verwendungszweck: ${args.reference}
 
 Bitte den Verwendungszweck genau so nutzen.

@@ -1,9 +1,9 @@
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { ObjectId } from "@core/db/triMongo";
 import { coreCol } from "@core/db/db/triMongo";
 import { getPlanConfig } from "@/config/plans";
+import { readSession } from "@/utils/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,8 +13,8 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const cookieStore = await cookies();
-  const uid = cookieStore.get("u_id")?.value ?? null;
+  const session = await readSession();
+  const uid = session?.uid ?? null;
   if (!uid || !ObjectId.isValid(uid)) {
     return NextResponse.json({ ok: false, error: "not_authenticated" }, { status: 401 });
   }

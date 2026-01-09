@@ -77,6 +77,17 @@
 │       │   ├── vercel.svg
 │       │   ├── videos
 │       │   │   └── WertderStimme_DE.mp4
+│       │   ├── vog_startpage
+│       │   │   ├── Abstimmen.png
+│       │   │   ├── Dossier.png
+│       │   │   └── Mandat.png
+│       │   ├── vogpage_default
+│       │   │   ├── .DS_Store
+│       │   │   └── dossier
+│       │   │       ├── flow_corrections.svg
+│       │   │       ├── flow_evidence_graph.svg
+│       │   │       ├── flow_pipeline.svg
+│       │   │       └── flow_rubric.svg
 │       │   └── window.svg
 │       ├── scripts
 │       │   ├── check_incomplete_files.ts
@@ -191,8 +202,13 @@
 │       │   │   │   ├── payment
 │       │   │   │   └── security
 │       │   │   ├── admin
+│       │   │   │   ├── AdminSearchButton.tsx
+│       │   │   │   ├── AdminSidebar.tsx
 │       │   │   │   ├── access
+│       │   │   │   ├── adminNav.ts
 │       │   │   │   ├── analytics
+│       │   │   │   ├── content
+│       │   │   │   ├── errors
 │       │   │   │   ├── eventualities
 │       │   │   │   ├── evidence
 │       │   │   │   ├── feeds
@@ -202,12 +218,17 @@
 │       │   │   │   ├── layout.tsx
 │       │   │   │   ├── newsletter
 │       │   │   │   ├── page.tsx
+│       │   │   │   ├── people
+│       │   │   │   ├── pitch
 │       │   │   │   ├── reports
 │       │   │   │   ├── research
 │       │   │   │   ├── responsibility
 │       │   │   │   ├── settings
+│       │   │   │   ├── system
 │       │   │   │   ├── telemetry
 │       │   │   │   └── users
+│       │   │   ├── agb
+│       │   │   │   └── page.tsx
 │       │   │   ├── analyze
 │       │   │   │   └── AnalyzeWorkbench.tsx
 │       │   │   ├── api
@@ -215,6 +236,7 @@
 │       │   │   │   ├── _diag
 │       │   │   │   ├── _echo
 │       │   │   │   ├── _utils
+│       │   │   │   ├── access
 │       │   │   │   ├── account
 │       │   │   │   ├── admin
 │       │   │   │   ├── analyze
@@ -227,8 +249,10 @@
 │       │   │   │   ├── csrf
 │       │   │   │   ├── debug
 │       │   │   │   ├── diag
+│       │   │   │   ├── dossiers
 │       │   │   │   ├── drafts
 │       │   │   │   ├── edebatte
+│       │   │   │   ├── editorial
 │       │   │   │   ├── errors
 │       │   │   │   ├── events
 │       │   │   │   ├── export
@@ -240,6 +264,7 @@
 │       │   │   │   ├── graph
 │       │   │   │   ├── health
 │       │   │   │   ├── households
+│       │   │   │   ├── i18n
 │       │   │   │   ├── items
 │       │   │   │   ├── map
 │       │   │   │   ├── membership
@@ -248,6 +273,7 @@
 │       │   │   │   ├── preflight
 │       │   │   │   ├── projects
 │       │   │   │   ├── public
+│       │   │   │   ├── qr
 │       │   │   │   ├── qualify
 │       │   │   │   ├── quality
 │       │   │   │   ├── quick-register
@@ -255,6 +281,7 @@
 │       │   │   │   ├── reports
 │       │   │   │   ├── research
 │       │   │   │   ├── responsibility
+│       │   │   │   ├── runreceipts
 │       │   │   │   ├── search
 │       │   │   │   ├── security
 │       │   │   │   ├── stance
@@ -274,6 +301,8 @@
 │       │   │   │   └── you
 │       │   │   ├── apple-touch-icon.png
 │       │   │   │   └── route.ts
+│       │   │   ├── archiv
+│       │   │   │   └── page.tsx
 │       │   │   ├── auth
 │       │   │   │   ├── 2fa-setup
 │       │   │   │   └── onboarding
@@ -306,7 +335,14 @@
 │       │   │   │   ├── page.tsx
 │       │   │   │   └── strings.ts
 │       │   │   ├── demo
-│       │   │   │   └── page.tsx
+│       │   │   │   ├── dossier
+│       │   │   │   ├── factcheck
+│       │   │   │   ├── layout.tsx
+│       │   │   │   ├── mandat
+│       │   │   │   ├── page.tsx
+│       │   │   │   └── votes
+│       │   │   ├── dossier
+│       │   │   │   └── [dossierId]
 │       │   │   ├── evidence
 │       │   │   │   └── [regionCode]
 │       │   │   ├── faq
@@ -358,7 +394,6 @@
 │       │   │   │   └── uk.json
 │       │   │   ├── mitglied-antrag
 │       │   │   │   ├── MembershipApplicationPageClient.tsx
-│       │   │   │   ├── MitgliedAntragClient.tsx
 │       │   │   │   └── page.tsx
 │       │   │   ├── mitglied-werden
 │       │   │   │   ├── MembershipPageClient.tsx
@@ -372,11 +407,15 @@
 │       │   │   ├── overlay
 │       │   │   │   └── stream
 │       │   │   ├── page.tsx
+│       │   │   ├── partner
+│       │   │   │   └── demo
 │       │   │   ├── pipeline
 │       │   │   │   └── steps
 │       │   │   ├── presse
 │       │   │   │   └── page.tsx
 │       │   │   ├── privacyStrings.ts
+│       │   │   ├── privatsphaere
+│       │   │   │   └── page.tsx
 │       │   │   ├── profile
 │       │   │   │   └── page.tsx
 │       │   │   ├── projekts.tsx
@@ -387,6 +426,8 @@
 │       │   │   │   └── page.tsx
 │       │   │   ├── qrcodewizard
 │       │   │   │   └── page.tsx
+│       │   │   ├── region
+│       │   │   │   └── [codeOrSlug]
 │       │   │   ├── register
 │       │   │   │   ├── RegisterPageClient.tsx
 │       │   │   │   ├── RegisterStepper.tsx
@@ -403,13 +444,16 @@
 │       │   │   │   └── tasks
 │       │   │   ├── reset
 │       │   │   │   └── page.tsx
+│       │   │   ├── run
+│       │   │   │   └── [id]
 │       │   │   ├── satzung
 │       │   │   │   └── page.tsx
 │       │   │   ├── settings
 │       │   │   │   └── page.tsx
 │       │   │   ├── statements
 │       │   │   │   ├── [id]
-│       │   │   │   └── new
+│       │   │   │   ├── new
+│       │   │   │   └── page.tsx
 │       │   │   ├── stream
 │       │   │   │   ├── [slug]
 │       │   │   │   ├── layout.tsx
@@ -423,6 +467,8 @@
 │       │   │   │   └── page.tsx
 │       │   │   ├── team
 │       │   │   │   └── page.tsx
+│       │   │   ├── thema-einreichen
+│       │   │   │   └── page.tsx
 │       │   │   ├── theme.ts
 │       │   │   ├── transparenzbericht
 │       │   │   │   ├── page.tsx
@@ -435,12 +481,15 @@
 │       │   │   ├── verhaltenskodex
 │       │   │   │   └── page.tsx
 │       │   │   ├── verify
+│       │   │   │   ├── [receiptHash]
 │       │   │   │   └── page.tsx
 │       │   │   ├── vote
 │       │   │   │   ├── new
 │       │   │   │   └── page.tsx
 │       │   │   ├── votes
 │       │   │   │   ├── [id]
+│       │   │   │   └── page.tsx
+│       │   │   ├── widerrufsbelehrung
 │       │   │   │   └── page.tsx
 │       │   │   └── widerspruch
 │       │   │       └── page.tsx
@@ -449,6 +498,7 @@
 │       │   │   ├── AnalyzeToolbar.tsx
 │       │   │   ├── ClaimCard.tsx
 │       │   │   ├── ClarifyBar.tsx
+│       │   │   ├── ContentLanguageSelect.tsx
 │       │   │   ├── FAQTabs.tsx
 │       │   │   ├── Headline.tsx
 │       │   │   ├── IntroSection.tsx
@@ -493,14 +543,18 @@
 │       │   │   │   ├── ClaimMatchBadge.tsx
 │       │   │   │   ├── ClarifyPanel.tsx
 │       │   │   │   ├── CounterSynth.tsx
+│       │   │   │   ├── EditorialAuditPanel.tsx
+│       │   │   │   ├── EvidenceGraphPanel.tsx
 │       │   │   │   ├── FactcheckModal.tsx
 │       │   │   │   ├── NarrativeBreaker.tsx
 │       │   │   │   ├── NewsFeedPanel.tsx
 │       │   │   │   ├── ObjectionCollector.tsx
 │       │   │   │   ├── QualifyDialog.tsx
+│       │   │   │   ├── RunReceiptPanel.tsx
 │       │   │   │   ├── SmartClaimCard.tsx
 │       │   │   │   ├── StanceSpectrum.tsx
 │       │   │   │   ├── TopicBoard.tsx
+│       │   │   │   ├── editorialFeedback.ts
 │       │   │   │   └── useAnalyzeOverlay.ts
 │       │   │   ├── auth
 │       │   │   │   ├── HeaderLoginInline.tsx
@@ -606,8 +660,6 @@
 │       │   │   │   ├── prompts
 │       │   │   │   ├── providers
 │       │   │   │   └── roles
-│       │   │   ├── auth
-│       │   │   │   └── LoginPageShell.tsx
 │       │   │   ├── feeds
 │       │   │   │   └── types.ts
 │       │   │   ├── graph
@@ -633,10 +685,9 @@
 │       │   │   ├── research
 │       │   │   │   ├── SerpResultItem.tsx
 │       │   │   │   └── SerpResultsList.tsx
-│       │   │   ├── swipes
-│       │   │   │   ├── service.ts
-│       │   │   │   └── types.ts
-│       │   │   └── ui
+│       │   │   └── swipes
+│       │   │       ├── service.ts
+│       │   │       └── types.ts
 │       │   ├── graph
 │       │   │   ├── arangoRepo.ts
 │       │   │   ├── config.ts
@@ -665,6 +716,8 @@
 │       │   │   ├── auth
 │       │   │   │   ├── getServerUser.ts
 │       │   │   │   ├── index.ts
+│       │   │   │   ├── requireDemoUser.ts
+│       │   │   │   ├── requireServerUser.ts
 │       │   │   │   └── roles.ts
 │       │   │   ├── cache
 │       │   │   │   └── ttl.ts
@@ -684,13 +737,20 @@
 │       │   │   │   └── translateAndCache.ts
 │       │   │   ├── db
 │       │   │   │   ├── core.ts
+│       │   │   │   ├── editorialFeedbackRepo.ts
+│       │   │   │   ├── i18nTranslationsRepo.ts
 │       │   │   │   ├── index.ts
 │       │   │   │   ├── modelOn.ts
 │       │   │   │   ├── pii.ts
+│       │   │   │   ├── runReceiptsRepo.ts
 │       │   │   │   └── votes.ts
 │       │   │   ├── db.ts
 │       │   │   ├── dbCore.ts
 │       │   │   ├── dbWeb.ts
+│       │   │   ├── demo
+│       │   │   │   └── demoAccess.ts
+│       │   │   ├── env
+│       │   │   │   └── payment.ts
 │       │   │   ├── errors
 │       │   │   │   └── formatError.ts
 │       │   │   ├── factcheck.ts
@@ -702,6 +762,9 @@
 │       │   │   │   └── useCivicSearch.ts
 │       │   │   ├── http
 │       │   │   │   └── typedCookies.ts
+│       │   │   ├── i18n
+│       │   │   │   ├── contentLanguage.ts
+│       │   │   │   └── translateOpenAI.ts
 │       │   │   ├── llm.ts
 │       │   │   ├── localization
 │       │   │   │   └── getLocalizedField.ts
@@ -723,7 +786,9 @@
 │       │   │   │   └── consent.ts
 │       │   │   ├── redis.ts
 │       │   │   ├── region
-│       │   │   │   └── effective.ts
+│       │   │   │   ├── effective.ts
+│       │   │   │   ├── filters.ts
+│       │   │   │   └── summary.ts
 │       │   │   ├── regions.ts
 │       │   │   ├── s3.ts
 │       │   │   ├── safety
@@ -951,6 +1016,8 @@
 │       │   ├── sanitize-html.d.ts
 │       │   └── shims.d.ts
 │       └── vitest.config.ts
+├── codex
+│   └── manifest.json
 ├── config
 │   ├── credits.ts
 │   └── engagement.ts
@@ -1107,6 +1174,7 @@
 │   │       └── promptSchemas.ts
 │   └── web
 │       └── worker-client.ts
+├── core.zip
 ├── docker-compose.graphdb.yml
 ├── docker-compose.yml
 ├── docs
@@ -1138,6 +1206,8 @@
 │   ├── E150_NEEDS_REVIEW.md
 │   ├── ORPHAN_FEATURES_VPM25.md
 │   ├── PII_ZONES_E150.md
+│   ├── architecture
+│   │   └── TRIMONGO_GRAPH_CONTRACT.md
 │   └── auth
 │       └── admin-flows.md
 ├── eDbtt-Ordnerstructure.txt
@@ -1218,8 +1288,15 @@
 │   │   │   └── AnalyzeForm.tsx
 │   │   ├── composeVote.ts
 │   │   ├── context.ts
+│   │   ├── contextGaps.ts
+│   │   ├── contextPacks.ts
 │   │   ├── domainLabels.ts
+│   │   ├── editorialAudit.ts
+│   │   ├── editorialContrast.ts
+│   │   ├── editorialPolicyPack.ts
+│   │   ├── editorialSourceClassifier.ts
 │   │   ├── evidence.ts
+│   │   ├── evidenceGraph.ts
 │   │   ├── fallback.ts
 │   │   ├── index.ts
 │   │   ├── llmJson.ts
@@ -1229,15 +1306,19 @@
 │   │   ├── pipeline.ts
 │   │   ├── postprocess.ts
 │   │   ├── prompts.ts
+│   │   ├── publisherRegistry.ts
 │   │   ├── pyramid.ts
 │   │   ├── questionizers.ts
 │   │   ├── roles.ts
+│   │   ├── runReceipt.ts
 │   │   ├── schemas.ts
 │   │   ├── themes.ts
 │   │   ├── types.ts
+│   │   ├── urlCanonical.ts
 │   │   ├── utils.ts
 │   │   ├── views
 │   │   │   └── EditorView.tsx
+│   │   ├── voiceRegistry.ts
 │   │   └── wrapper.ts
 │   ├── auth
 │   │   ├── components
@@ -1323,6 +1404,15 @@
 │   │   └── index.ts
 │   ├── dist-types
 │   │   └── tsconfig.tsbuildinfo
+│   ├── dossier
+│   │   ├── db.ts
+│   │   ├── factcheck.ts
+│   │   ├── ids.ts
+│   │   ├── lookup.ts
+│   │   ├── revisions.ts
+│   │   ├── schemas.ts
+│   │   ├── seed.ts
+│   │   └── statement.ts
 │   ├── e150
 │   │   └── questions
 │   │       └── catalog.ts
@@ -1364,6 +1454,7 @@
 │   │   │   ├── SourceBadge.tsx
 │   │   │   ├── UnitList.tsx
 │   │   │   └── index.ts
+│   │   ├── db.ts
 │   │   ├── index.ts
 │   │   ├── trust
 │   │   │   ├── registry.ts
@@ -1379,9 +1470,14 @@
 │   │   ├── types.ts
 │   │   ├── utils.ts
 │   │   └── voteDrafts.ts
+│   ├── i18n
+│   │   ├── i18nText.ts
+│   │   └── languages.ts
 │   ├── index.ts
 │   ├── interests
 │   │   └── topics.ts
+│   ├── mandate
+│   │   └── demoMandate.ts
 │   ├── map
 │   │   ├── .DS_Store
 │   │   ├── OLMap.tsx
@@ -1601,7 +1697,9 @@
 │   │   │   └── useVoteStream.ts
 │   │   └── index.ts
 │   └── votes
+│       ├── demoVotes.ts
 │       └── service.ts
+├── features.zip
 ├── package.json
 ├── packages
 │   ├── .DS_Store
@@ -1768,6 +1866,7 @@
 │   │   ├── cookies-headers.ts
 │   │   ├── prisma-order-to-sortOrder.ts
 │   │   └── prisma-order-to-sortOrder.v2.ts
+│   ├── codex-preflight.mjs
 │   ├── dropPartitionIndex.ts
 │   ├── e150_bootstrap_content.sh
 │   ├── e150_seed.sh
@@ -2077,4 +2176,4 @@
     └── factcheck
         └── worker.ts
 
-580 directories, 1498 files
+618 directories, 1559 files

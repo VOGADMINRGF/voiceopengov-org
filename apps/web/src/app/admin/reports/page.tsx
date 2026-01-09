@@ -27,7 +27,7 @@ export default function AdminReportsPage() {
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Admin · Reports</p>
         <h1 className="text-2xl font-bold text-slate-900">Reports Explorer</h1>
         <p className="text-sm text-slate-600">
-          Gezielter Einstieg in Topic- und Region-Reports. Optional kannst du die public Reports oeffnen.
+          Gezielter Einstieg in Topic- und Region-Reports. Optional kannst du das oeffentliche Archiv oeffnen.
         </p>
       </header>
 
@@ -92,16 +92,16 @@ export default function AdminReportsPage() {
       <section className="rounded-3xl bg-white/90 p-4 shadow ring-1 ring-slate-100">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-slate-900">Public Reports</h2>
+            <h2 className="text-sm font-semibold text-slate-900">Archiv (oeffentlich)</h2>
             <p className="text-sm text-slate-600">
-              Oeffnet die oeffentliche Reports-Uebersicht.
+              Oeffnet die oeffentliche Archiv-Uebersicht.
             </p>
           </div>
           <Link
-            href="/reports"
+            href="/archiv"
             className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:border-sky-200 hover:text-sky-700"
           >
-            Zu /reports
+            Zu /archiv
           </Link>
         </div>
       </section>

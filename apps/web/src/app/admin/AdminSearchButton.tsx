@@ -19,7 +19,29 @@ type DataSearchItem = {
   badge?: string | null;
 };
 
-const DATA_GROUP_ORDER = ["Nutzer", "Evidence Claims", "Evidence Items", "Reports"];
+const DATA_GROUP_ORDER = [
+  "Nutzer",
+  "Newsletter",
+  "Orgs",
+  "Org Members",
+  "Editorial Items",
+  "Report Assets",
+  "Reports",
+  "Audit Events",
+  "Graph Repairs",
+  "Research Tasks",
+  "Research Contributions",
+  "Access Policies",
+  "Access Overrides",
+  "Feed Drafts",
+  "Eventualitaeten",
+  "Responsibility Actors",
+  "Evidence Claims",
+  "Evidence Items",
+  "AI Telemetry",
+  "AI Usage Daily",
+  "System Errors",
+];
 
 export default function AdminSearchButton() {
   const [open, setOpen] = useState(false);

@@ -20,10 +20,10 @@ export default function IntroSection() {
           <Link href="/swipes">
             <Button variant="secondary">Themen entdecken</Button>
           </Link>
-          <Link href="/beitraege">
+          <Link href="/statements">
             <Button variant="ghost">Beiträge lesen</Button>
           </Link>
-          <Link href="/beitraege/neu">
+          <Link href="/statements/new">
             <Button variant="primary">Eigenes Statement erstellen</Button>
           </Link>
         </div>

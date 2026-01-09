@@ -53,6 +53,16 @@ const SECTIONS: Array<{ title: string; items: HubItem[] }> = [
         href: "/admin/graph/impact",
       },
       {
+        title: "Graph Health",
+        description: "Health-Checks und Reparaturen",
+        href: "/admin/graph/health",
+      },
+      {
+        title: "Graph Repairs",
+        description: "Repair-Tickets verwalten",
+        href: "/admin/graph/repairs",
+      },
+      {
         title: "Responsibility Directory",
         description: "Zustaendigkeiten und Pfade pflegen",
         href: "/admin/responsibility",
@@ -66,6 +76,16 @@ const SECTIONS: Array<{ title: string; items: HubItem[] }> = [
         title: "Feed Drafts",
         description: "Entwuerfe aus Feeds sichten und publizieren",
         href: "/admin/feeds/drafts",
+      },
+      {
+        title: "Editorial Queue",
+        description: "Triage, Review und Freigaben",
+        href: "/admin/editorial/queue",
+      },
+      {
+        title: "Editorial Published",
+        description: "Veröffentlichte Items",
+        href: "/admin/editorial/published",
       },
       {
         title: "Research Tasks",
@@ -86,6 +106,11 @@ const SECTIONS: Array<{ title: string; items: HubItem[] }> = [
         title: "Reports",
         description: "Topic- und Region-Reports",
         href: "/admin/reports",
+      },
+      {
+        title: "Report Assets",
+        description: "Report-Revisions & Freigaben",
+        href: "/admin/reports/assets",
       },
     ],
   },

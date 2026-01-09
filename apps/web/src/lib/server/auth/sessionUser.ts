@@ -14,6 +14,7 @@ export type SessionUser = {
   role?: UserRole | null;
   verification?: any;
   sessionTwoFactorAuthenticated?: boolean;
+  sessionValid?: boolean;
 };
 
 export async function getSessionUser(req?: NextRequest): Promise<SessionUser | null> {
@@ -59,6 +60,7 @@ export async function getSessionUser(req?: NextRequest): Promise<SessionUser | n
     roles: normalizedRoles as UserRole[],
     verification,
     sessionTwoFactorAuthenticated,
+    sessionValid: Boolean(sessionUid),
   };
 }
 

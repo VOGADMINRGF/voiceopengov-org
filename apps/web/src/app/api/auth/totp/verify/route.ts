@@ -16,10 +16,20 @@ import {
   type PiiUserCredentials,
 } from "../../sharedAuth";
 import { verifyTotpToken } from "../totpHelpers";
+import type { UserRole } from "@/types/user";
 
 async function readCookie(name: string): Promise<string | undefined> {
   const raw = await getCookie(name);
   return typeof raw === "string" ? raw : (raw as any)?.value;
+}
+
+function sanitizeNext(value?: string | null) {
+  if (!value) return null;
+  const trimmed = String(value).trim();
+  if (!trimmed.startsWith("/")) return null;
+  if (trimmed.startsWith("//")) return null;
+  if (trimmed.includes("://")) return null;
+  return trimmed;
 }
 
 export async function POST(req: NextRequest) {
@@ -33,8 +43,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { code } = (await req.json().catch(() => ({}))) as {
+    const { code, next } = (await req.json().catch(() => ({}))) as {
       code?: string | number;
+      next?: string | null;
     };
     if (!code && code !== 0) {
       return NextResponse.json(
@@ -124,15 +135,34 @@ export async function POST(req: NextRequest) {
 
     await logIdentityEvent("identity_totp_confirmed", { userId: uid });
 
+    const baseRoles: Array<UserRole | { role?: string; subRole?: string; premium?: boolean }> =
+      Array.isArray(user.roles) ? [...user.roles] : [];
+    if (user.role) {
+      const hasRole = baseRoles.some(
+        (r: any) => (typeof r === "string" ? r : r?.role) === user.role,
+      );
+      if (!hasRole) {
+        baseRoles.push(user.role as UserRole);
+      }
+    }
+    const hasVerifiedRole = baseRoles.some(
+      (r: any) => (typeof r === "string" ? r : r?.role) === "verified",
+    );
+    const nextRoles = hasVerifiedRole
+      ? baseRoles
+      : [...baseRoles, "verified" as UserRole];
+
     const sessionUser: CoreUserAuthSnapshot = {
       ...user,
       _id: new ObjectId(uid),
       verification: nextVerification,
-      role: user.role ?? "verified",
+      role: "verified",
+      roles: nextRoles,
     };
     await applySessionCookies(sessionUser);
 
-    return NextResponse.json({ ok: true, next: "/mitglied-werden" });
+    const nextUrl = sanitizeNext(next) ?? "/account?welcome=1";
+    return NextResponse.json({ ok: true, next: nextUrl });
   } catch (e: any) {
     console.error("TOTP verify failed", e);
     return NextResponse.json(

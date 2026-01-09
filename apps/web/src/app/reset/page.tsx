@@ -6,6 +6,10 @@ export default function ResetPage() {
     if (typeof window === "undefined") return "";
     return new URLSearchParams(window.location.search).get("token") ?? "";
   }, []);
+  const invite = useMemo(() => {
+    if (typeof window === "undefined") return "";
+    return new URLSearchParams(window.location.search).get("invite") ?? "";
+  }, []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState<string>();
@@ -44,7 +48,7 @@ export default function ResetPage() {
       const r = await fetch("/api/auth/reset", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, password }),
+        body: JSON.stringify({ token, password, invite: invite || undefined }),
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j?.error || "Fehler");

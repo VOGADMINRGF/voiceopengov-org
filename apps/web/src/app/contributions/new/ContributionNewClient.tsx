@@ -33,7 +33,9 @@ export function ContributionNewClient({ initialOverview }: ContributionNewClient
   const [levelStatus, setLevelStatus] = React.useState<"loading" | "ok" | "login_required" | "error">(
     initialOverview ? "ok" : "login_required",
   );
-  const [gate, setGate] = React.useState<GateState>(() => deriveGateFromOverview(initialOverview));
+  const [gate, setGate] = React.useState<GateState>(() =>
+    initialOverview ? deriveGateFromOverview(initialOverview) : { status: "loading" },
+  );
 
   React.useEffect(() => {
     let ignore = false;
@@ -56,6 +58,7 @@ export function ContributionNewClient({ initialOverview }: ContributionNewClient
       } catch {
         if (ignore) return;
         setLevelStatus("error");
+        if (!initialOverview) setGate({ status: "anon" });
       }
     }
     loadLevel();

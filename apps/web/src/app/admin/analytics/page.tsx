@@ -12,15 +12,27 @@ type Summary = {
 export default function AdminAnalyticsPage() {
   const [data, setData] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     let active = true;
     async function load() {
       setLoading(true);
+      setError(null);
       const res = await fetch("/api/admin/dashboard/summary", { cache: "no-store" });
-      if (res.status === 401 || res.status === 403) {
+      if (res.status === 401) {
         router.replace("/login?next=/admin/analytics");
+        return;
+      }
+      if (res.status === 403) {
+        const body = await res.json().catch(() => ({}));
+        if (body?.error === "two_factor_required") {
+          router.replace("/login?next=/admin/analytics");
+          return;
+        }
+        if (active) setError("Kein Zugriff auf Analytics.");
+        setLoading(false);
         return;
       }
       const body = (await res.json()) as { data: Summary };
@@ -37,6 +49,11 @@ export default function AdminAnalyticsPage() {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="rounded-3xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          {error}
+        </div>
+      )}
       <section className="rounded-3xl bg-white/90 p-4 shadow ring-1 ring-slate-100">
         <h2 className="text-sm font-semibold text-slate-900">Registrierungen (30 Tage)</h2>
         <div className="mt-3 flex items-end gap-1">

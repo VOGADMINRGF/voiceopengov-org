@@ -41,6 +41,20 @@ type ApiResponse =
   | { ok: true; data?: { membershipId?: string; invitesCreated?: number } }
   | { ok: false; error?: string; message?: string; errorCode?: string };
 
+type PaymentProfileResponse = {
+  ok: boolean;
+  paymentProfile?: { holderName?: string | null } | null;
+};
+
+type PersonalProfileResponse = {
+  ok: boolean;
+  personal?: {
+    givenName?: string | null;
+    familyName?: string | null;
+    email?: string | null;
+  } | null;
+};
+
 type StepId = 1 | 2 | 3;
 
 const MIN_CONTRIBUTION_PER_PERSON = 5.63;
@@ -154,13 +168,24 @@ export function MembershipApplicationPageClient() {
   }
 
   const primaryDefaults = React.useMemo(() => {
-    const givenName =
-      (user as any)?.profile?.givenName ??
-      ((user as any)?.profile?.displayName || "").split(" ")[0] ??
+    const profile = (user as any)?.profile;
+    const rawDisplayName =
+      profile?.displayName ||
+      (typeof user?.name === "string" ? user.name : "") ||
       "";
-    const familyName = (user as any)?.profile?.familyName ?? "";
+    const normalizedDisplayName = normalizeDisplayName(rawDisplayName);
+    const parsed = splitName(normalizedDisplayName);
+    const givenName = (profile?.givenName ?? parsed.givenName ?? "").trim();
+    const familyName = (profile?.familyName ?? parsed.familyName ?? "").trim();
     const email = (user as any)?.email ?? "";
-    return { givenName: givenName || "", familyName: familyName || "", email: email || "" };
+    const displayName =
+      normalizedDisplayName || [givenName, familyName].filter(Boolean).join(" ").trim();
+    return {
+      givenName: givenName || "",
+      familyName: familyName || "",
+      email: email || "",
+      displayName: displayName || "",
+    };
   }, [user]);
 
   const [rhythm, setRhythm] = React.useState<Rhythm>(initialRhythm);
@@ -178,7 +203,8 @@ export function MembershipApplicationPageClient() {
   const totalPerMonth = roundCurrency(
     membershipAmountPerMonth + (edbEnabled ? edbFinalPerMonth : 0),
   );
-  const amountPerPeriod = totalPerMonth;
+  const amountPerPeriod =
+    rhythm === "yearly" ? roundCurrency(totalPerMonth * 12) : totalPerMonth;
   const contributionSliderMax = Math.max(
     50,
     Math.ceil(validatedContributionPerPerson / 5) * 5,
@@ -222,8 +248,8 @@ export function MembershipApplicationPageClient() {
 
   const [payment, setPayment] = React.useState<PaymentFormState>(() => {
     const displayName =
-      (user as any)?.profile?.displayName ??
-      `${primaryDefaults.givenName} ${primaryDefaults.familyName}`.trim();
+      primaryDefaults.displayName ||
+      [primaryDefaults.givenName, primaryDefaults.familyName].filter(Boolean).join(" ").trim();
     return {
       type: "bank_transfer",
       billingName: displayName || "",
@@ -234,6 +260,127 @@ export function MembershipApplicationPageClient() {
       iban: "",
     };
   });
+  const personalLoaded = React.useRef(false);
+  const billingNameTouched = React.useRef(false);
+  const applyProfileDefaults = React.useCallback(
+    (defaults: {
+      givenName?: string;
+      familyName?: string;
+      email?: string;
+      billingName?: string;
+    }) => {
+      const givenName = defaults.givenName?.trim() ?? "";
+      const familyName = defaults.familyName?.trim() ?? "";
+      const email = defaults.email?.trim() ?? "";
+      const billingName = defaults.billingName?.trim() ?? "";
+
+      if (givenName || familyName || email) {
+        setMembers((prev) => {
+          const primaryIndex = prev.findIndex((m) => m.role === "primary");
+          if (primaryIndex === -1) return prev;
+          const current = prev[primaryIndex];
+          let changed = false;
+          const nextMember = { ...current };
+          if (!current.givenName.trim() && givenName) {
+            nextMember.givenName = givenName;
+            changed = true;
+          }
+          if (!current.familyName.trim() && familyName) {
+            nextMember.familyName = familyName;
+            changed = true;
+          }
+          if (!current.email.trim() && email) {
+            nextMember.email = email;
+            changed = true;
+          }
+          if (!changed) return prev;
+          const next = [...prev];
+          next[primaryIndex] = nextMember;
+          return next;
+        });
+      }
+
+      if (billingName) {
+        setPayment((prev) => {
+          if (billingNameTouched.current) return prev;
+          if (prev.billingName === billingName) return prev;
+          return { ...prev, billingName };
+        });
+      }
+    },
+    [setMembers, setPayment],
+  );
+  React.useEffect(() => {
+    if (!user) return;
+    applyProfileDefaults({
+      givenName: primaryDefaults.givenName,
+      familyName: primaryDefaults.familyName,
+      email: primaryDefaults.email,
+      billingName: primaryDefaults.displayName,
+    });
+  }, [
+    user,
+    primaryDefaults.givenName,
+    primaryDefaults.familyName,
+    primaryDefaults.email,
+    primaryDefaults.displayName,
+    applyProfileDefaults,
+  ]);
+
+  React.useEffect(() => {
+    if (!user) return;
+    if (billingNameTouched.current) return;
+    let active = true;
+
+    async function loadPaymentProfile() {
+      try {
+        const res = await fetch("/api/account/payment-profile", { cache: "no-store" });
+        const body = (await res.json().catch(() => null)) as PaymentProfileResponse | null;
+        if (!active || !res.ok || !body?.paymentProfile?.holderName) return;
+        applyProfileDefaults({ billingName: body.paymentProfile.holderName });
+      } catch {
+        // ignore
+      }
+    }
+
+    loadPaymentProfile();
+    return () => {
+      active = false;
+    };
+  }, [user, applyProfileDefaults]);
+
+  React.useEffect(() => {
+    if (!user) return;
+    if (personalLoaded.current) return;
+    const primary = members.find((m) => m.role === "primary");
+    if (!primary) return;
+    const needsPersonal =
+      !primary.givenName.trim() || !primary.familyName.trim() || !primary.email.trim();
+    if (!needsPersonal) return;
+
+    let active = true;
+    personalLoaded.current = true;
+
+    async function loadPersonalProfile() {
+      try {
+        const res = await fetch("/api/account/personal", { cache: "no-store" });
+        const body = (await res.json().catch(() => null)) as PersonalProfileResponse | null;
+        if (!active || !res.ok || !body?.personal) return;
+        applyProfileDefaults({
+          givenName: body.personal.givenName ?? undefined,
+          familyName: body.personal.familyName ?? undefined,
+          email: body.personal.email ?? undefined,
+        });
+      } catch {
+        // ignore
+      }
+    }
+
+    loadPersonalProfile();
+    return () => {
+      active = false;
+    };
+  }, [user, members, applyProfileDefaults]);
   const [geoSuggestions, setGeoSuggestions] = React.useState<
     Array<{
       id: string;
@@ -309,14 +456,17 @@ export function MembershipApplicationPageClient() {
     });
   }
 
-  // Sync billingName placeholder with primary member if empty
+  // Sync billingName with primary member while untouched and empty
   React.useEffect(() => {
+    if (billingNameTouched.current) return;
     const primary = members.find((m) => m.role === "primary");
     const name = [primary?.givenName, primary?.familyName].filter(Boolean).join(" ").trim();
-    if (!payment.billingName && name && primary?.givenName && primary?.familyName) {
-      setPayment((prev) => ({ ...prev, billingName: name }));
-    }
-  }, [members, payment.billingName]);
+    if (!name || !primary?.givenName || !primary?.familyName) return;
+    setPayment((prev) => {
+      if (prev.billingName.trim()) return prev;
+      return { ...prev, billingName: name };
+    });
+  }, [members]);
 
   React.useEffect(() => {
     setFormStartedAt(Date.now());
@@ -408,17 +558,7 @@ export function MembershipApplicationPageClient() {
 
   // --- Validation & Submit --------------------------------------------------
 
-  function validateBeforeSubmit(): string | null {
-    if (!legal.transparency || !legal.statute || !legal.householdAuthority) {
-      return "Bitte bestätige alle rechtlichen Hinweise, bevor du den Antrag absendest.";
-    }
-
-    if (!Number.isFinite(contributionPerPerson) || contributionPerPerson < MIN_CONTRIBUTION_PER_PERSON) {
-      return `Bitte wähle einen Beitrag pro Person von mindestens ${formatEuro(
-        MIN_CONTRIBUTION_PER_PERSON,
-      )}.`;
-    }
-
+  function validateHouseholdStep(): string | null {
     if (!members.length) {
       return "Bitte gib mindestens eine Person an.";
     }
@@ -435,6 +575,23 @@ export function MembershipApplicationPageClient() {
       return "Die Anzahl der Haushaltsmitglieder überschreitet die angegebene Haushaltsgröße.";
     }
 
+    return null;
+  }
+
+  function validateBeforeSubmit(): string | null {
+    if (!legal.transparency || !legal.statute || !legal.householdAuthority) {
+      return "Bitte bestätige alle rechtlichen Hinweise, bevor du den Antrag absendest.";
+    }
+
+    if (!Number.isFinite(contributionPerPerson) || contributionPerPerson < MIN_CONTRIBUTION_PER_PERSON) {
+      return `Bitte wähle einen Beitrag pro Person von mindestens ${formatEuro(
+        MIN_CONTRIBUTION_PER_PERSON,
+      )}.`;
+    }
+
+    const householdError = validateHouseholdStep();
+    if (householdError) return householdError;
+
     if (!payment.billingName.trim()) {
       return "Bitte gib einen Namen für die Zahlung/Beitragsbuchung an.";
     }
@@ -443,7 +600,7 @@ export function MembershipApplicationPageClient() {
       return "Bitte gib eine gültige IBAN für die 0,01 €-Verifikation an.";
     }
 
-    if (totalPerMonth <= 0) {
+    if (amountPerPeriod <= 0) {
       return "Dein Beitrag darf nicht 0 sein. Bitte passe den Betrag an.";
     }
 
@@ -454,8 +611,14 @@ export function MembershipApplicationPageClient() {
     e.preventDefault();
     if (submitting) return;
     setError(null);
-    if (step !== 3) {
-      setStep((prev) => (prev < 3 ? ((prev + 1) as StepId) : prev));
+    if (step === 1) {
+      if (!canProceedFromStep1) return;
+      setStep(2);
+      return;
+    }
+    if (step === 2) {
+      if (!canProceedFromStep2) return;
+      setStep(3);
       return;
     }
 
@@ -528,6 +691,22 @@ export function MembershipApplicationPageClient() {
       const data = (await res.json().catch(() => null)) as ApiResponse | null;
 
       if (!res.ok || !data || !("ok" in data) || !data.ok) {
+        const errCode = (data as any)?.error;
+        if (errCode === "human_token_expired" || errCode === "human_token_invalid") {
+          const isExpired = errCode === "human_token_expired";
+          setHumanToken(null);
+          setHumanNote(
+            isExpired
+              ? "Sicherheitscheck abgelaufen. Bitte erneut."
+              : "Sicherheitscheck ungültig. Bitte erneut.",
+          );
+          setError(
+            isExpired
+              ? "Sicherheitscheck abgelaufen. Bitte erneut bestätigen."
+              : "Sicherheitscheck ungültig. Bitte erneut bestätigen.",
+          );
+          return;
+        }
         const msg =
           (data as any)?.error ||
           (data as any)?.message ||
@@ -597,6 +776,8 @@ export function MembershipApplicationPageClient() {
   ];
   const stepProgress = ((step - 1) / (steps.length - 1)) * 100;
   const canProceedFromStep1 = Number.isFinite(contributionPerPerson) && !contributionBelowMin;
+  const step2Error = validateHouseholdStep();
+  const canProceedFromStep2 = !step2Error;
 
   return (
     <form
@@ -645,15 +826,26 @@ export function MembershipApplicationPageClient() {
           <div className="grid gap-2 md:grid-cols-3">
             {steps.map((item) => {
               const isActive = step === item.id;
+              const canNavigate =
+                item.id === 1
+                  ? true
+                  : item.id === 2
+                    ? canProceedFromStep1
+                    : canProceedFromStep1 && canProceedFromStep2;
               return (
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => setStep(item.id)}
+                  onClick={() => {
+                    if (canNavigate) setStep(item.id);
+                  }}
+                  disabled={!canNavigate}
                   className={`flex items-center gap-3 rounded-2xl border px-3 py-2 text-left text-xs transition ${
                     isActive
                       ? "border-sky-300 bg-sky-50 text-sky-900 shadow-sm"
-                      : "border-slate-100 bg-white text-slate-600 hover:border-sky-200"
+                      : canNavigate
+                        ? "border-slate-100 bg-white text-slate-600 hover:border-sky-200"
+                        : "border-slate-100 bg-slate-50 text-slate-400"
                   }`}
                   aria-current={isActive ? "step" : undefined}
                 >
@@ -661,7 +853,9 @@ export function MembershipApplicationPageClient() {
                     className={`flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold ${
                       isActive
                         ? "bg-sky-600 text-white"
-                        : "bg-slate-100 text-slate-600"
+                        : canNavigate
+                          ? "bg-slate-100 text-slate-600"
+                          : "bg-slate-200 text-slate-500"
                     }`}
                   >
                     {item.id}
@@ -804,7 +998,7 @@ export function MembershipApplicationPageClient() {
                         <div>eDebatte: nicht gewählt</div>
                       )}
                       <div className="pt-1 font-semibold text-slate-800">
-                        Gesamt: {formatEuro(totalPerMonth)} {rhythmLabel}
+                        Gesamt: {formatEuro(amountPerPeriod)} {rhythmLabel}
                       </div>
                     </div>
                   </div>
@@ -815,7 +1009,8 @@ export function MembershipApplicationPageClient() {
             <aside className="space-y-3 rounded-2xl border border-sky-100 bg-sky-50/70 p-4 text-sm text-sky-900 md:sticky md:top-6">
               <p className="font-semibold">Deine Zusammenfassung</p>
               <ContributionSummary
-                totalPerMonth={totalPerMonth}
+                amountPerPeriod={amountPerPeriod}
+                rhythm={rhythm}
                 membershipAmountPerMonth={membershipAmountPerMonth}
                 edbEnabled={edbEnabled}
                 edbFinalPerMonth={edbFinalPerMonth}
@@ -996,7 +1191,8 @@ export function MembershipApplicationPageClient() {
                 Übersicht
               </p>
               <ContributionSummary
-                totalPerMonth={totalPerMonth}
+                amountPerPeriod={amountPerPeriod}
+                rhythm={rhythm}
                 membershipAmountPerMonth={membershipAmountPerMonth}
                 edbEnabled={edbEnabled}
                 edbFinalPerMonth={edbFinalPerMonth}
@@ -1023,10 +1219,14 @@ export function MembershipApplicationPageClient() {
             <button
               type="button"
               onClick={() => setStep(3)}
-              className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 px-6 py-2.5 text-sm font-semibold text-white shadow-md hover:brightness-105"
+              disabled={!canProceedFromStep2}
+              className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 px-6 py-2.5 text-sm font-semibold text-white shadow-md hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
             >
               Weiter zu Zahlung
             </button>
+            {!canProceedFromStep2 && step2Error && (
+              <span className="text-xs text-amber-700">{step2Error}</span>
+            )}
           </div>
         </section>
       )}
@@ -1058,7 +1258,10 @@ export function MembershipApplicationPageClient() {
                       <input
                         type="text"
                         value={payment.billingName}
-                        onChange={(e) => updatePayment({ billingName: e.target.value })}
+                        onChange={(e) => {
+                          billingNameTouched.current = true;
+                          updatePayment({ billingName: e.target.value });
+                        }}
                         className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
                       />
                     </div>
@@ -1316,7 +1519,8 @@ export function MembershipApplicationPageClient() {
                 Übersicht
               </p>
               <ContributionSummary
-                totalPerMonth={totalPerMonth}
+                amountPerPeriod={amountPerPeriod}
+                rhythm={rhythm}
                 membershipAmountPerMonth={membershipAmountPerMonth}
                 edbEnabled={edbEnabled}
                 edbFinalPerMonth={edbFinalPerMonth}
@@ -1338,7 +1542,8 @@ export function MembershipApplicationPageClient() {
 }
 
 function ContributionSummary({
-  totalPerMonth,
+  amountPerPeriod,
+  rhythm,
   membershipAmountPerMonth,
   edbEnabled,
   edbFinalPerMonth,
@@ -1348,7 +1553,8 @@ function ContributionSummary({
   rhythmLabel,
   contributionPerPerson,
 }: {
-  totalPerMonth: number;
+  amountPerPeriod: number;
+  rhythm: Rhythm;
   membershipAmountPerMonth: number;
   edbEnabled: boolean;
   edbFinalPerMonth: number;
@@ -1368,19 +1574,25 @@ function ContributionSummary({
       ? `eDebatte ${edbLabel}${discountSuffix}: ${formatEuro(edbFinalPerMonth)} / Monat`
       : `eDebatte ${edbLabel}: kostenfrei`
     : "eDebatte: nicht gewählt";
+  const basisSuffix =
+    rhythm === "once"
+      ? "einmalig"
+      : rhythm === "yearly"
+        ? "/ Monat (Monatsbasis)"
+        : "/ Monat";
   return (
     <div className="space-y-3">
       <div className="rounded-xl border border-slate-100 bg-white/70 px-3 py-2">
         <p className="text-[11px] uppercase tracking-wide text-slate-500">Gesamtbeitrag</p>
         <p className="text-xl font-semibold text-slate-900">
-          {formatEuro(totalPerMonth)}{" "}
+          {formatEuro(amountPerPeriod)}{" "}
           <span className="text-xs font-medium text-slate-500">{rhythmLabel}</span>
         </p>
       </div>
       <div className="space-y-1 text-xs text-slate-600">
-        <div>Beitrag pro Person: {formatEuro(contributionPerPerson)} / Monat</div>
+        <div>Beitrag pro Person: {formatEuro(contributionPerPerson)} {basisSuffix}</div>
         <div>
-          Haushalt: {householdSize} Person(en) · {formatEuro(membershipAmountPerMonth)} / Monat
+          Haushalt: {householdSize} Person(en) · {formatEuro(membershipAmountPerMonth)} {basisSuffix}
         </div>
         <div>{edbLine}</div>
       </div>
@@ -1393,6 +1605,20 @@ function resolveEdebateLabel(planKey?: string) {
   if (normalized === "pro") return "Pro";
   if (normalized === "start") return "Start";
   return "Basis";
+}
+
+function normalizeDisplayName(input?: string | null): string {
+  const normalized = (input ?? "").trim().replace(/\s+/g, " ");
+  if (!normalized) return "";
+  if (normalized.includes("@")) return "";
+  return normalized;
+}
+
+function splitName(input?: string | null): { givenName?: string; familyName?: string } {
+  const normalized = normalizeDisplayName(input);
+  if (!normalized) return {};
+  const [givenName, ...rest] = normalized.split(" ");
+  return { givenName: givenName || undefined, familyName: rest.join(" ").trim() || undefined };
 }
 
 function parseEuroInput(value: string): number | null {

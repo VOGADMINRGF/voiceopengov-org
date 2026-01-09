@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
-export default function Page() {
+
+export default function BeitraegeNeuPage() {
   redirect("/contributions/new");
 }

@@ -19,4 +19,5 @@ export const ResetRequestSchema = z.object({
 export const ResetSetSchema = z.object({
   token: z.string().min(20),
   password: z.string().min(8).max(200),
+  invite: z.string().min(20).optional(),
 });

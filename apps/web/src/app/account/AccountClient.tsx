@@ -43,12 +43,15 @@ export type PublicProfileData = {
   countryCode?: string | null;
   bio?: string | null;
   tagline?: string | null;
-  avatarStyle?: "initials" | "photo";
+  avatarStyle?: "initials" | "abstract" | "emoji";
   topTopics?: string[];
   showRealName: boolean;
   showCity: boolean;
   showStats: boolean;
+  showJoinDate: boolean;
+  showEngagementLevel: boolean;
   showMembership: boolean;
+  shareId?: string | null;
 };
 
 export type EDebattePackage = "basis" | "start" | "pro" | "none";
@@ -86,6 +89,7 @@ export type RoleInfo = {
 export type SecurityInfo = {
   emailVerified: boolean;
   twoFactorEnabled: boolean;
+  verificationLevel?: string | null;
   lastLoginAt?: string | null;
   loginHint?: string | null;
 };
@@ -133,13 +137,17 @@ type NormalizedOverview = AccountOverview;
 export type AccountClientProps = {
   initialData: any;
   membershipNotice: boolean;
+  welcomeNotice: boolean;
 };
 
-export function AccountClient({ initialData, membershipNotice }: AccountClientProps) {
+export function AccountClient({ initialData, membershipNotice, welcomeNotice }: AccountClientProps) {
   const [data, setData] = useState<NormalizedOverview>(normalizeOverview(initialData));
   const pendingMicroTransfer =
     data.membershipSnapshot?.status === "waiting_payment" &&
     data.membershipSnapshot?.paymentInfo?.mandateStatus === "pending_microtransfer";
+  const identityPending = data.security.verificationLevel
+    ? !["soft", "strong"].includes(data.security.verificationLevel)
+    : !data.security.twoFactorEnabled;
 
   async function refreshOverview() {
     try {
@@ -155,6 +163,8 @@ export function AccountClient({ initialData, membershipNotice }: AccountClientPr
 
   return (
     <div className="flex flex-col gap-10">
+      {welcomeNotice && <WelcomeBanner />}
+      {identityPending && <IdentityPendingBanner />}
       {membershipNotice && <MembershipBanner />}
       {pendingMicroTransfer && (
         <MicroTransferBanner paymentReference={data.membershipSnapshot?.paymentReference} />
@@ -177,6 +187,19 @@ export default AccountClient;
 
 function normalizeOverview(src: any): AccountOverview {
   const paymentProfile = src?.paymentProfile ?? null;
+  const profileFlags = src?.profile?.publicFlags ?? {};
+  const publicProfileSource = src?.publicProfile ?? {};
+  const publicLocation = src?.profile?.publicLocation ?? {};
+  const topTopicsSource = publicProfileSource?.topTopics ?? src?.profile?.topTopics ?? [];
+  const topTopics: string[] = Array.isArray(topTopicsSource)
+    ? topTopicsSource
+        .map((topic: any) => {
+          if (!topic) return null;
+          if (typeof topic === "string") return topic;
+          return topic.title ?? topic.key ?? null;
+        })
+        .filter((topic: string | null): topic is string => Boolean(topic))
+    : [];
 
   const profile: ProfileData = {
     id: src?.profile?.id ?? src?.id ?? "",
@@ -189,17 +212,20 @@ function normalizeOverview(src: any): AccountOverview {
   };
 
   const publicProfile: PublicProfileData = {
-    city: src?.publicProfile?.city ?? null,
-    region: src?.publicProfile?.region ?? null,
-    countryCode: src?.publicProfile?.countryCode ?? null,
-    bio: src?.publicProfile?.bio ?? "",
-    tagline: src?.publicProfile?.tagline ?? "",
-    avatarStyle: src?.publicProfile?.avatarStyle ?? "initials",
-    topTopics: src?.publicProfile?.topTopics ?? [],
-    showRealName: Boolean(src?.publicProfile?.showRealName),
-    showCity: Boolean(src?.publicProfile?.showCity),
-    showStats: Boolean(src?.publicProfile?.showStats),
-    showMembership: Boolean(src?.publicProfile?.showMembership),
+    city: publicProfileSource?.city ?? publicLocation.city ?? null,
+    region: publicProfileSource?.region ?? publicLocation.region ?? null,
+    countryCode: publicProfileSource?.countryCode ?? publicLocation.countryCode ?? null,
+    bio: publicProfileSource?.bio ?? src?.profile?.bio ?? "",
+    tagline: publicProfileSource?.tagline ?? src?.profile?.tagline ?? "",
+    avatarStyle: publicProfileSource?.avatarStyle ?? src?.profile?.avatarStyle ?? "initials",
+    topTopics,
+    showRealName: Boolean(publicProfileSource?.showRealName ?? profileFlags.showRealName),
+    showCity: Boolean(publicProfileSource?.showCity ?? profileFlags.showCity),
+    showStats: Boolean(publicProfileSource?.showStats ?? profileFlags.showStats),
+    showJoinDate: Boolean(publicProfileSource?.showJoinDate ?? profileFlags.showJoinDate),
+    showEngagementLevel: Boolean(publicProfileSource?.showEngagementLevel ?? profileFlags.showEngagementLevel),
+    showMembership: Boolean(publicProfileSource?.showMembership ?? profileFlags.showMembership),
+    shareId: publicProfileSource?.shareId ?? src?.profile?.publicShareId ?? null,
   };
 
   const edebatte: EDebattePackageInfo = {
@@ -246,6 +272,7 @@ function normalizeOverview(src: any): AccountOverview {
         src?.verification?.twoFA?.enabled ??
         src?.verification?.twoFA?.secret,
     ),
+    verificationLevel: src?.verificationLevel ?? src?.verification?.level ?? null,
     lastLoginAt: src?.security?.lastLoginAt
       ? String(src.security.lastLoginAt)
       : src?.lastLoginAt
@@ -302,6 +329,43 @@ function MembershipBanner() {
         Dein eDebatte-Paket ist in deinem Konto hinterlegt. Sobald die App startet, erhältst du eine separate Bestätigung mit allen Details per
         E-Mail.
       </p>
+    </section>
+  );
+}
+
+function WelcomeBanner() {
+  return (
+    <section
+      aria-label="Willkommen"
+      className="rounded-3xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900 shadow-sm"
+    >
+      <p className="font-medium">Herzlich willkommen! Dein Konto ist jetzt vollständig eingerichtet.</p>
+      <p className="mt-1 text-xs text-sky-800">
+        Du kannst dein Profil anpassen, Benachrichtigungen einstellen und dein eDebatte-Paket auswählen.
+      </p>
+    </section>
+  );
+}
+
+function IdentityPendingBanner() {
+  const resumeUrl = "/register/identity?next=%2Faccount%3Fwelcome%3D1";
+  return (
+    <section
+      aria-label="Identitätsprüfung offen"
+      className="rounded-3xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-900 shadow-sm"
+    >
+      <p className="font-medium">Identitätsprüfung noch offen.</p>
+      <p className="mt-1 text-xs text-amber-800">
+        Für verifizierte Aktionen brauchst du noch den Authenticator-Schritt. Das dauert nur eine Minute.
+      </p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Link href={resumeUrl} className={primaryButtonSmallClass}>
+          Jetzt verifizieren
+        </Link>
+        <Link href="/account/security" className={secondaryLightButtonClass}>
+          Sicherheitsprofil
+        </Link>
+      </div>
     </section>
   );
 }
@@ -886,10 +950,11 @@ function PublicProfileCard({ initial, onRefresh }: PublicProfileCardProps) {
         city: draft.city,
         region: draft.region,
         countryCode: draft.countryCode,
-        topTopics: draft.topTopics,
         showRealName: draft.showRealName,
         showCity: draft.showCity,
         showStats: draft.showStats,
+        showJoinDate: draft.showJoinDate,
+        showEngagementLevel: draft.showEngagementLevel,
         showMembership: draft.showMembership,
       }),
     })

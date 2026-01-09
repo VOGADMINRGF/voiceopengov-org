@@ -5,6 +5,7 @@ export type Role =
   | "user"
   | "legitimized"
   | "admin"
+  | "superadmin"
   | "moderator"
   | "ngo"
   | "politics";
@@ -21,7 +22,7 @@ export interface AccessControlConfig {
 
 export const accessControl: AccessControlConfig = {
   rules: [
-    { path: "/admin", allowedRoles: ["admin", "moderator"] },
+    { path: "/admin", allowedRoles: ["admin", "superadmin", "moderator"] },
     {
       path: "/account",
       allowedRoles: [

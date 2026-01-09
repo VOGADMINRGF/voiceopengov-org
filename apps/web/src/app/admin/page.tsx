@@ -10,6 +10,17 @@ type Summary = {
   packages: { code: string; count: number }[];
   roles: { role: string; count: number }[];
   registrationsLast30Days: { date: string; count: number }[];
+  orgsTotal?: number;
+  reportAssetsTotal?: number;
+  pendingGraphRepairs?: number;
+  editorialCounts?: {
+    triage: number;
+    review: number;
+    fact_check: number;
+    ready: number;
+    published: number;
+    rejected: number;
+  };
 };
 
 export default function AdminDashboardPage() {
@@ -26,8 +37,17 @@ export default function AdminDashboardPage() {
       setError(null);
       try {
         const res = await fetch("/api/admin/dashboard/summary", { cache: "no-store" });
-        if (res.status === 401 || res.status === 403) {
+        if (res.status === 401) {
           router.replace("/login?next=/admin");
+          return;
+        }
+        if (res.status === 403) {
+          const body = await res.json().catch(() => ({}));
+          if (body?.error === "two_factor_required") {
+            router.replace("/login?next=/admin");
+            return;
+          }
+          if (active) setError("Kein Zugriff auf das Admin-Dashboard.");
           return;
         }
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -127,6 +147,42 @@ export default function AdminDashboardPage() {
         )}
       </section>
 
+      <section className="grid gap-3 md:grid-cols-2 lg:grid-cols-5">
+        {renderCard("Organisationen", data?.orgsTotal, loading, nf, undefined, "/admin/orgs")}
+        {renderCard(
+          "Editorial Triage",
+          data?.editorialCounts?.triage ?? 0,
+          loading,
+          nf,
+          undefined,
+          "/admin/editorial/queue?status=triage",
+        )}
+        {renderCard(
+          "Editorial Review",
+          data?.editorialCounts?.review ?? 0,
+          loading,
+          nf,
+          undefined,
+          "/admin/editorial/queue?status=review",
+        )}
+        {renderCard(
+          "Report Assets",
+          data?.reportAssetsTotal,
+          loading,
+          nf,
+          undefined,
+          "/admin/reports/assets",
+        )}
+        {renderCard(
+          "Graph Repairs (pending)",
+          data?.pendingGraphRepairs,
+          loading,
+          nf,
+          undefined,
+          "/admin/graph/repairs?status=pending",
+        )}
+      </section>
+
       <section className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Admin Hubs</p>
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
@@ -141,9 +197,10 @@ export default function AdminDashboardPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Direktzugriff</p>
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
           <LinkCard title="Access Center" href="/admin/access" description="Seitenzugriffe verwalten" />
-          <LinkCard title="Graph Impact" href="/admin/graph/impact" description="Impact-Summary & Knoten" />
-          <LinkCard title="Reports" href="/admin/reports" description="Topic- und Region-Reports" />
-          <LinkCard title="AI Telemetry" href="/admin/telemetry/ai" description="Usage, Live-Events & Smoke-Tests" />
+          <LinkCard title="Editorial Queue" href="/admin/editorial/queue" description="Triage, Review, Publish" />
+          <LinkCard title="Graph Health" href="/admin/graph/health" description="Health KPIs & Repairs" />
+          <LinkCard title="Report Assets" href="/admin/reports/assets" description="Revisionen & Freigabe" />
+          <LinkCard title="Audit Logs" href="/admin/audit" description="Mutationen & Nachvollziehbarkeit" />
         </div>
       </section>
     </div>

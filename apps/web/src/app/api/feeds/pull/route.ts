@@ -13,7 +13,8 @@ export const dynamic = "force-dynamic";
  *   "scope": "de" | "global",
  *   "maxFeeds": 20,
  *   "maxItemsPerFeed": 12,
- *   "dryRun": false
+ *   "dryRun": false,
+ *   "regionCode": "DE" | "DE:BE" | "DE:BE:11000"
  * }
  */
 import { NextRequest, NextResponse } from "next/server";
@@ -32,6 +33,7 @@ import {
   upsertStatementCandidates,
 } from "@features/feeds/storage";
 import { normalizeRegionCode } from "@core/regions/types";
+import { filterFeedRefsByRegion } from "@/lib/region/filters";
 import { requireAdminOrEditor } from "../_auth";
 
 type CivicFeedsFile = {
@@ -104,7 +106,7 @@ function collectFeedRefs(cfg: CivicFeedsFile): FeedRef[] {
     seen.add(key);
     out.push({
       feedUrl,
-      regionCode: regionCode ?? null,
+      regionCode: regionCode ? String(regionCode).trim() : null,
       topicHint: topicHint ?? null,
     });
   };
@@ -133,6 +135,7 @@ function collectFeedRefs(cfg: CivicFeedsFile): FeedRef[] {
 
   return out;
 }
+
 
 /* ---------------------------------------------
  * RSS / Atom Parsing (leichtgewichtig; Regex)
@@ -395,6 +398,10 @@ export async function POST(req: NextRequest) {
   const maxFeeds = Math.max(1, Math.min(100, Number(body?.maxFeeds ?? 20) || 20));
   const maxItemsPerFeed = Math.max(1, Math.min(50, Number(body?.maxItemsPerFeed ?? 12) || 12));
   const dryRun = Boolean(body?.dryRun);
+  const regionCode =
+    typeof body?.regionCode === "string" && body.regionCode.trim()
+      ? body.regionCode.trim()
+      : null;
   const fetchTimeoutMs = Math.max(
     2_000,
     Math.min(30_000, Number(process.env.FEEDS_PULL_TIMEOUT_MS ?? DEFAULT_FETCH_TIMEOUT_MS) || DEFAULT_FETCH_TIMEOUT_MS),
@@ -411,9 +418,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(payload, { status: 500, headers: JSON_HEADERS });
   }
 
-  const feedRefs = collectFeedRefs(cfg).slice(0, maxFeeds);
+  const collected = collectFeedRefs(cfg);
+  const regionFilter = filterFeedRefsByRegion(collected, regionCode);
+  const feedRefs = (regionCode && !regionFilter.isGlobal ? regionFilter.feedRefs : collected).slice(0, maxFeeds);
+  if (regionCode && !regionFilter.isValid) {
+    return NextResponse.json(
+      { ok: false, error: "invalid_region", regionCode },
+      { status: 400, headers: JSON_HEADERS },
+    );
+  }
   if (feedRefs.length === 0) {
     const payload: Record<string, any> = { ok: false, error: "feeds_config_empty", scope };
+    if (regionCode) payload.regionCode = regionCode;
     if (process.env.NODE_ENV !== "production") {
       payload.searched = searched;
       payload.configSource = source ?? null;
@@ -455,6 +471,8 @@ export async function POST(req: NextRequest) {
       ok: true,
       scope,
       dryRun,
+      regionCode: regionCode ?? null,
+      regionKey: regionFilter.regionKey ?? null,
       maxFeeds,
       maxItemsPerFeed,
       feedConcurrency,

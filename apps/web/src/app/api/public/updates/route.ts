@@ -7,7 +7,7 @@ import { z } from "zod";
 import type { Collection } from "mongodb";
 import { coreCol } from "@core/db/triMongo";
 import { incrementRateLimit } from "@/lib/security/rate-limit";
-import { verifyHumanToken } from "@/lib/security/human-token";
+import { verifyHumanTokenDetailed } from "@/lib/security/human-token";
 import { sendMail } from "@/utils/mailer";
 
 export const runtime = "nodejs";
@@ -197,8 +197,18 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const payload = await verifyHumanToken(humanToken);
-  if (!payload || payload.formId !== "public-updates") {
+  const humanCheck = await verifyHumanTokenDetailed(humanToken);
+  if (!humanCheck.ok) {
+    const reason = "code" in humanCheck ? humanCheck.code : "invalid";
+    return NextResponse.json(
+      {
+        ok: false,
+        error: reason === "expired" ? "human_token_expired" : "invalid_human_token",
+      },
+      { status: 400 },
+    );
+  }
+  if (humanCheck.payload.formId !== "public-updates") {
     return NextResponse.json(
       { ok: false, error: "invalid_human_token" },
       { status: 400 },

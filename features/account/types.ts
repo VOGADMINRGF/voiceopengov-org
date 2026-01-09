@@ -63,6 +63,7 @@ export type ProfilePublicFlags = {
   showJoinDate?: boolean;
   showEngagementLevel?: boolean;
   showStats?: boolean;
+  showMembership?: boolean;
 };
 
 export type ProfileTopTopic = {
@@ -74,18 +75,43 @@ export type ProfileTopTopic = {
 export type AccountProfile = {
   headline?: string | null;
   bio?: string | null;
+  tagline?: string | null;
   avatarStyle?: "initials" | "abstract" | "emoji" | null;
   topTopics?: ProfileTopTopic[];
   publicFlags?: ProfilePublicFlags;
+  publicLocation?: {
+    city?: string | null;
+    region?: string | null;
+    countryCode?: string | null;
+  };
+  publicShareId?: string | null;
 };
 
 export type ProfilePackage = "basic" | "pro" | "premium";
+
+export type PublicProfileSnapshot = {
+  bio?: string | null;
+  tagline?: string | null;
+  avatarStyle?: "initials" | "abstract" | "emoji" | null;
+  topTopics?: ProfileTopTopic[];
+  city?: string | null;
+  region?: string | null;
+  countryCode?: string | null;
+  showRealName?: boolean;
+  showCity?: boolean;
+  showStats?: boolean;
+  showJoinDate?: boolean;
+  showEngagementLevel?: boolean;
+  showMembership?: boolean;
+  shareId?: string | null;
+};
 
 export type AccountOverview = {
   userId: string;
   email: string;
   displayName: string | null;
   profile?: AccountProfile;
+  publicProfile?: PublicProfileSnapshot;
   profilePackage?: ProfilePackage;
   /** Legacy mirrors for backward compatibility */
   publicFlags?: ProfilePublicFlags;
@@ -110,6 +136,7 @@ export type AccountOverview = {
       method: "bank_transfer";
       reference: string;
       bankRecipient: string;
+      bankIban?: string;
       bankIbanMasked: string;
       bankBic?: string | null;
       bankName?: string | null;
@@ -148,7 +175,13 @@ export type AccountSettingsUpdate = {
 export type AccountProfileUpdate = {
   headline?: string | null;
   bio?: string | null;
+  tagline?: string | null;
   avatarStyle?: "initials" | "abstract" | "emoji" | null;
   topTopics?: { key: TopicKey; statement?: string | null }[] | null;
   publicFlags?: ProfilePublicFlags | null;
+  publicLocation?: {
+    city?: string | null;
+    region?: string | null;
+    countryCode?: string | null;
+  } | null;
 };

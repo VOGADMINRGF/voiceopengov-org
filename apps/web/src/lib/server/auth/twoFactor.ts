@@ -12,6 +12,7 @@ export function userRequiresTwoFactor(user: SessionUser | null): boolean {
 
 export function sessionHasPassedTwoFactor(user: SessionUser | null): boolean {
   if (!user) return false;
+  if ((user as any).sessionValid === false) return false;
   const requires = userRequiresTwoFactor(user);
   const passed = user.sessionTwoFactorAuthenticated;
   if (requires) return Boolean(passed);

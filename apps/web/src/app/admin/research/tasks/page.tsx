@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { ResearchContribution, ResearchTask } from "@core/research";
 
 const LEVEL_OPTIONS = [
@@ -35,6 +36,8 @@ type FormState = {
 };
 
 export default function ResearchTasksAdminPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [tasks, setTasks] = useState<ResearchTask[]>([]);
   const [contributions, setContributions] = useState<ResearchContribution[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,6 +57,7 @@ export default function ResearchTasksAdminPage() {
     () => tasks.find((t) => t.id === selectedTaskId) ?? null,
     [tasks, selectedTaskId],
   );
+  const taskIdParam = searchParams.get("taskId");
 
   const loadTasks = async (taskId?: string) => {
     setLoading(true);
@@ -74,8 +78,13 @@ export default function ResearchTasksAdminPage() {
   };
 
   useEffect(() => {
+    if (taskIdParam) {
+      setSelectedTaskId(taskIdParam);
+      loadTasks(taskIdParam);
+      return;
+    }
     loadTasks();
-  }, []);
+  }, [taskIdParam]);
 
   const openForm = (task?: ResearchTask) => {
     setFormState({
@@ -121,7 +130,17 @@ export default function ResearchTasksAdminPage() {
 
   const selectTask = async (id: string) => {
     setSelectedTaskId(id);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("taskId", id);
+    const href = `/admin/research/tasks?${params.toString()}`;
+    router.replace(href as any);
     await loadTasks(id);
+  };
+
+  const clearSelection = async () => {
+    setSelectedTaskId(null);
+    router.replace("/admin/research/tasks");
+    await loadTasks();
   };
 
   const updateContribution = async (contributionId: string, status: "accepted" | "rejected") => {
@@ -220,7 +239,7 @@ export default function ResearchTasksAdminPage() {
               <p className="text-xs text-slate-500">{selectedTask.description}</p>
             </div>
             <button
-              onClick={() => setSelectedTaskId(null)}
+              onClick={clearSelection}
               className="text-xs font-semibold text-slate-500 hover:text-slate-700"
             >
               schließen

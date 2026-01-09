@@ -1,16 +1,26 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useLoginFlow } from "@/hooks/useLoginFlow";
+import { useLoginFlow, type LoginStep, type TwoFactorMethod } from "@/hooks/useLoginFlow";
 import Link from "next/link";
 
-export function LoginPageShell({ redirectTo }: { redirectTo?: string }) {
+export function LoginPageShell({
+  redirectTo,
+  initialStep,
+  initialMethod,
+  forceTwoFactor,
+}: {
+  redirectTo?: string;
+  initialStep?: LoginStep;
+  initialMethod?: TwoFactorMethod | null;
+  forceTwoFactor?: boolean;
+}) {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { step, method, expiresAt, loading, error, submitCredentials, submitTwoFactor, reset } =
-    useLoginFlow({ redirectTo });
+    useLoginFlow({ redirectTo, initialStep, initialMethod });
 
   const expiresInMinutes = useMemo(() => {
     if (!expiresAt) return null;
@@ -51,6 +61,12 @@ export function LoginPageShell({ redirectTo }: { redirectTo?: string }) {
         </h1>
         <p className="text-sm text-slate-600">E-Mail &amp; Passwort, optional mit 2FA.</p>
       </div>
+
+      {forceTwoFactor && step === "twofactor" && (
+        <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700">
+          2FA erforderlich: Bitte den Code aus E-Mail oder Authenticator eingeben, um fortzufahren.
+        </div>
+      )}
 
       {step === "credentials" && (
         <form onSubmit={handleCredentialSubmit} className="space-y-4">

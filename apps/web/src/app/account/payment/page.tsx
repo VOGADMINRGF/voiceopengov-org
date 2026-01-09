@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { readSession } from "@/utils/session";
 import { getAccountOverview } from "@features/account/service";
@@ -10,9 +9,8 @@ export const metadata = {
 };
 
 export default async function PaymentPage() {
-  const cookieStore = await cookies();
   const session = await readSession();
-  const userId = cookieStore.get("u_id")?.value || session?.uid;
+  const userId = session?.uid ?? null;
 
   if (!userId) {
     redirect(`/login?next=${encodeURIComponent("/account/payment")}`);

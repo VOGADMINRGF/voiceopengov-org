@@ -12,7 +12,7 @@ import { sendMail } from "@/utils/mailer";
 import { buildVerificationMail } from "@/utils/emailTemplates";
 import { ensureBasicPiiProfile } from "@core/pii/userProfileService";
 import { incrementRateLimit } from "@/lib/security/rate-limit";
-import { verifyHumanToken } from "@/lib/security/human-token";
+import { verifyHumanTokenDetailed } from "@/lib/security/human-token";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -73,9 +73,16 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const humanPayload = await verifyHumanToken(body.humanToken);
-  if (!humanPayload || humanPayload.formId !== "register") {
-    return NextResponse.json({ error: "invalid_input" }, { status: 400 });
+  const humanCheck = await verifyHumanTokenDetailed(body.humanToken);
+  if (!humanCheck.ok) {
+    const reason = "code" in humanCheck ? humanCheck.code : "invalid";
+    return NextResponse.json(
+      { error: reason === "expired" ? "human_token_expired" : "human_token_invalid" },
+      { status: 400 },
+    );
+  }
+  if (humanCheck.payload.formId !== "register") {
+    return NextResponse.json({ error: "human_token_invalid" }, { status: 400 });
   }
 
   const email = body.email.trim().toLowerCase();

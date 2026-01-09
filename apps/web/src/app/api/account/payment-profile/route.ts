@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { z } from "zod";
 import { ObjectId } from "@core/db/triMongo";
 import { upsertUserPaymentProfile, getUserPaymentProfile } from "@core/db/pii/userPaymentProfiles";
 import { applyStrongVerificationIfComplete } from "@core/auth/verificationProgress";
+import { readSession } from "@/utils/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -54,8 +54,8 @@ function validateBic(bic?: string) {
 }
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("u_id")?.value;
+  const session = await readSession();
+  const userId = session?.uid ?? null;
   if (!userId) {
     return NextResponse.json({ ok: false, error: "not_authenticated" }, { status: 401 });
   }
@@ -74,8 +74,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("u_id")?.value;
+  const session = await readSession();
+  const userId = session?.uid ?? null;
   if (!userId) {
     return NextResponse.json({ ok: false, error: "not_authenticated" }, { status: 401 });
   }

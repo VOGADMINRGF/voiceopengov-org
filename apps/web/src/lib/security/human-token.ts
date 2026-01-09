@@ -25,12 +25,38 @@ export async function signHumanToken(payload: { formId?: string; timeToSolve: nu
   return jwt;
 }
 
-export async function verifyHumanToken(token: string): Promise<JWTPayload | null> {
+type HumanTokenVerifyResult =
+  | { ok: true; payload: JWTPayload }
+  | { ok: false; code: "expired" | "invalid" };
+
+function decodeJwtPayload(token: string): JWTPayload | null {
+  if (!token || typeof token !== "string") return null;
+  const parts = token.split(".");
+  if (parts.length < 2) return null;
   try {
-    const secret = getSecretKey();
-    const { payload } = await jwtVerify(token, secret);
-    return payload;
+    const json = Buffer.from(parts[1], "base64url").toString("utf8");
+    return JSON.parse(json) as JWTPayload;
   } catch {
     return null;
   }
+}
+
+export async function verifyHumanTokenDetailed(token: string): Promise<HumanTokenVerifyResult> {
+  try {
+    const secret = getSecretKey();
+    const { payload } = await jwtVerify(token, secret);
+    return { ok: true, payload };
+  } catch {
+    const decoded = decodeJwtPayload(token);
+    const expRaw = typeof decoded?.exp === "number" ? decoded.exp : Number(decoded?.exp);
+    if (Number.isFinite(expRaw) && expRaw * 1000 < Date.now()) {
+      return { ok: false, code: "expired" };
+    }
+    return { ok: false, code: "invalid" };
+  }
+}
+
+export async function verifyHumanToken(token: string): Promise<JWTPayload | null> {
+  const result = await verifyHumanTokenDetailed(token);
+  return result.ok ? result.payload : null;
 }

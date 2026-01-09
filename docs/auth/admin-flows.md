@@ -30,6 +30,7 @@ Helpers & Gates
 - Admin-Gate:
   - Server-Layout `/admin/layout.tsx` prüft: Session vorhanden → 2FA erfüllt (falls nötig) → Rolle admin/superadmin.
   - Admin-APIs unter `/api/admin/**` nutzen dieselben Checks und liefern JSON-Fehler (401 unauthorized, 403 two_factor_required/forbidden).
+  - Session gilt nur als gültig, wenn `session_token` verifizierbar ist (`sessionValid`).
 
 Session-Validierung (Soll)
 - Login ohne 2FA: Session wird direkt gesetzt (`tfa=true`), Admin-Gate lässt durch.

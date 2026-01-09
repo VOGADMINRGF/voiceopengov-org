@@ -13,10 +13,36 @@ const FEEDBACK_GET_RATE = { limit: 120, windowMs: 60_000 };
 
 const ShortText = z.string().trim().min(1).max(600);
 const ClaimText = z.string().trim().min(1).max(800);
+const FactVerdict = z.enum(["LIKELY_TRUE", "LIKELY_FALSE", "MIXED", "UNDETERMINED"]);
+const SourceUrl = z.string().trim().min(1).max(600);
+const FeedbackOrigin = z.enum(["community", "editorial", "user", "ai"]);
 
 const FeedbackActionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("mark_evidence_sufficient"), claim: ClaimText, note: ShortText.optional() }).strict(),
   z.object({ type: z.literal("mark_evidence_insufficient"), claim: ClaimText, note: ShortText.optional() }).strict(),
+  z
+    .object({
+      type: z.literal("manual_factcheck_submit"),
+      claim: ClaimText,
+      verdict: FactVerdict,
+      confidence: z.number().min(0).max(1).optional(),
+      note: ShortText.optional(),
+      sources: z.array(SourceUrl).max(10).optional(),
+      origin: FeedbackOrigin.optional(),
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("manual_factcheck_update"),
+      entryId: z.string().trim().min(4).max(120),
+      claim: ClaimText,
+      verdict: FactVerdict,
+      confidence: z.number().min(0).max(1).optional(),
+      note: ShortText.optional(),
+      sources: z.array(SourceUrl).max(10).optional(),
+      origin: FeedbackOrigin.optional(),
+    })
+    .strict(),
   z
     .object({
       type: z.literal("disagree_flag"),
@@ -111,10 +137,16 @@ export async function POST(req: NextRequest) {
     }
 
     const ts = parsed.data.ts ?? new Date().toISOString();
+    const reviewStatus =
+      parsed.data.action.type === "manual_factcheck_submit" ||
+      parsed.data.action.type === "manual_factcheck_update"
+        ? "pending"
+        : undefined;
     const { id } = await insertEditorialFeedback({
       ts,
       context: parsed.data.context,
       action: parsed.data.action,
+      reviewStatus,
     });
     return NextResponse.json({ ok: true, id }, { headers: rateLimitHeaders(rl) });
   } catch {

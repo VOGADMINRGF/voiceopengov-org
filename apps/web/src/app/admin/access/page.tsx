@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { AccessGroup, RoutePolicy } from "@features/access/types";
 import type { AccessTier } from "@features/pricing/types";
 import { ACCESS_TIER_CONFIG } from "@core/access/accessTiers";
@@ -20,6 +21,7 @@ const ACCESS_GROUP_OPTIONS: AccessGroup[] = [
 ];
 
 export default function AccessCenterPage() {
+  const searchParams = useSearchParams();
   const [routes, setRoutes] = useState<RouteRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,6 +68,13 @@ export default function AccessCenterPage() {
       ignore = true;
     };
   }, []);
+
+  useEffect(() => {
+    const qParam = searchParams.get("q");
+    if (qParam) {
+      setQuery(qParam);
+    }
+  }, [searchParams]);
 
   const filteredRoutes = useMemo(() => {
     const base = [...routes].sort((a, b) => a.label.localeCompare(b.label));

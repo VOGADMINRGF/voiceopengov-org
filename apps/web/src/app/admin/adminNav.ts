@@ -56,6 +56,12 @@ export const NAV_SECTIONS: NavSection[] = [
     title: "People & Access",
     items: [
       {
+        href: "/admin/orgs",
+        label: "Organisationen",
+        description: "Orgs, Teams, Seats",
+        keywords: ["orgs", "teams", "seats", "invite"],
+      },
+      {
         href: "/admin/users",
         label: "Nutzer & Rollen",
         description: "User suchen, Rollen setzen",
@@ -91,10 +97,34 @@ export const NAV_SECTIONS: NavSection[] = [
     title: "Content & Reports",
     items: [
       {
+        href: "/admin/editorial/queue",
+        label: "Editorial Queue",
+        description: "Triage, Review, Freigaben",
+        keywords: ["editorial", "queue", "review"],
+      },
+      {
+        href: "/admin/editorial/published",
+        label: "Editorial Published",
+        description: "Veröffentlichte Items",
+        keywords: ["editorial", "published"],
+      },
+      {
         href: "/admin/graph/impact",
         label: "Graph Impact",
         description: "Impact-Summary & Knoten",
         keywords: ["graph", "impact"],
+      },
+      {
+        href: "/admin/graph/health",
+        label: "Graph Health",
+        description: "Health-Checks & KPIs",
+        keywords: ["graph", "health", "repairs"],
+      },
+      {
+        href: "/admin/graph/repairs",
+        label: "Graph Repairs",
+        description: "Repair-Tickets",
+        keywords: ["graph", "repairs"],
       },
       {
         href: "/admin/evidence/claims",
@@ -137,6 +167,24 @@ export const NAV_SECTIONS: NavSection[] = [
         label: "Reports",
         description: "Topic- und Region-Reports",
         keywords: ["reports", "topics", "regions"],
+      },
+      {
+        href: "/admin/reports/assets",
+        label: "Report Assets",
+        description: "Revisionen & Freigaben",
+        keywords: ["reports", "assets", "publish"],
+      },
+      {
+        href: "/admin/factcheck",
+        label: "Factcheck Review",
+        description: "Manuelle Factchecks freigeben",
+        keywords: ["factcheck", "editorial", "review"],
+      },
+      {
+        href: "/admin/pitch",
+        label: "Pitch Studio",
+        description: "Region Pitch & Landing",
+        keywords: ["pitch", "region", "landing", "feeds"],
       },
     ],
   },
@@ -185,6 +233,18 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     title: "System & Config",
     items: [
+      {
+        href: "/admin/errors",
+        label: "Error Logs",
+        description: "Systemfehler & Trace IDs",
+        keywords: ["errors", "logs", "trace"],
+      },
+      {
+        href: "/admin/audit",
+        label: "Audit Logs",
+        description: "Mutationen & Nachvollziehbarkeit",
+        keywords: ["audit", "trail", "events"],
+      },
       {
         href: "/admin/settings",
         label: "Admin Settings",

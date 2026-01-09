@@ -10,6 +10,20 @@ import { ObjectId } from "@core/db/triMongo";
 import { callAriSearchSerp, type SerpResultLite } from "@features/ai/providers/ari_search";
 import { factcheckJobsCol, type FactcheckJobStatus } from "@features/factcheck/db";
 import type { AnalyzeResult, StatementRecord } from "@features/analyze/schemas";
+import { stableHash } from "@core/utils/hash";
+import {
+  ensureDossierForStatement,
+  dossierSourcesCol,
+  dossierEdgesCol,
+  dossierFindingsCol,
+  openQuestionsCol,
+  dossierClaimsCol,
+  updateDossierCounts,
+  touchDossierFactchecked,
+} from "@features/dossier/db";
+import { seedDossierFromAnalysis } from "@features/dossier/seed";
+import { logDossierRevision } from "@features/dossier/revisions";
+import { clampPublisher, clampSnippet, clampTitle } from "@features/dossier/limits";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -80,6 +94,223 @@ function coerceClaims(claims: unknown, maxClaims: number): StatementRecord[] {
     })
     .filter(Boolean) as StatementRecord[];
   return normalized.slice(0, maxClaims);
+}
+
+function normalizeUrl(raw: string) {
+  try {
+    const url = new URL(raw.trim());
+    url.hash = "";
+    if (url.pathname.endsWith("/") && url.pathname !== "/") {
+      url.pathname = url.pathname.slice(0, -1);
+    }
+    return url.toString();
+  } catch {
+    return raw.trim();
+  }
+}
+
+function parseDate(value?: string | null) {
+  if (!value) return undefined;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+}
+
+async function syncDossierFromFactcheck(params: {
+  statementId: string;
+  title?: string | null;
+  claims: StatementRecord[];
+  serpResults: SerpResultLite[];
+  withSerp: boolean;
+  analysis?: AnalyzeResult | null;
+}) {
+  const dossier = await ensureDossierForStatement(params.statementId, { title: params.title ?? undefined });
+  if (!dossier) return;
+
+  await seedDossierFromAnalysis({
+    dossierId: dossier.dossierId,
+    claims: params.claims,
+    questions: params.analysis?.questions ?? [],
+    createdByRole: "pipeline",
+  });
+
+  const dossierId = dossier.dossierId;
+  const now = new Date();
+
+  if (params.withSerp && params.serpResults.length > 0) {
+    const sourceCol = await dossierSourcesCol();
+    const edgeCol = await dossierEdgesCol();
+    const sources = [];
+
+    for (const res of params.serpResults) {
+      if (!res.url) continue;
+      const url = normalizeUrl(res.url);
+      const canonicalUrlHash = stableHash(url);
+      const sourceId = `source_${canonicalUrlHash.slice(0, 12)}`;
+
+      let publisher = clampPublisher(res.siteName ?? undefined);
+      if (!publisher) {
+        try {
+          publisher = clampPublisher(new URL(url).hostname);
+        } catch {
+          publisher = "Quelle";
+        }
+      }
+      const title = clampTitle(res.title ?? "Quelle") ?? "Quelle";
+      const snippet = clampSnippet(res.snippet ?? undefined);
+
+      const previousSource = await sourceCol.findOneAndUpdate(
+        { dossierId, canonicalUrlHash },
+        {
+          $set: {
+            url,
+            title,
+            publisher,
+            type: "other",
+            snippet,
+            publishedAt: parseDate(res.publishedAt),
+            updatedAt: now,
+          },
+          $setOnInsert: {
+            dossierId,
+            sourceId,
+            canonicalUrlHash,
+            createdAt: now,
+          },
+        },
+        { upsert: true, returnDocument: "before" },
+      );
+
+      const effectiveSourceId = previousSource?.sourceId ?? sourceId;
+      sources.push({ sourceId: effectiveSourceId, url });
+      await logDossierRevision({
+        dossierId,
+        entityType: "source",
+        entityId: effectiveSourceId,
+        action: previousSource ? "update" : "create",
+        diffSummary: previousSource ? "Quelle aktualisiert (Factcheck)." : "Quelle hinzugefuegt (Factcheck).",
+        byRole: "pipeline",
+      });
+    }
+
+    for (const claim of params.claims) {
+      const claimId = claim.id;
+      for (const source of sources) {
+        const edgeKey = `edge_${stableHash(`${dossierId}:${claimId}:${source.sourceId}:mentions`).slice(0, 12)}`;
+        const edgeRes = await edgeCol.updateOne(
+          { dossierId, fromId: claimId, toId: source.sourceId, rel: "mentions" },
+          {
+            $set: {
+              fromType: "claim",
+              fromId: claimId,
+              toType: "source",
+              toId: source.sourceId,
+              rel: "mentions",
+              active: true,
+            },
+            $unset: { archivedAt: "", archivedReason: "" },
+            $setOnInsert: {
+              dossierId,
+              edgeId: edgeKey,
+              createdBy: "pipeline",
+              createdAt: now,
+            },
+          },
+          { upsert: true },
+        );
+        await logDossierRevision({
+          dossierId,
+          entityType: "edge",
+          entityId: edgeKey,
+          action: edgeRes.upsertedId ? "create" : "update",
+          diffSummary: edgeRes.upsertedId ? "Graph-Edge erstellt (Factcheck)." : "Graph-Edge aktualisiert (Factcheck).",
+          byRole: "pipeline",
+        });
+      }
+    }
+  }
+
+  if (params.withSerp && params.serpResults.length === 0 && params.claims.length > 0) {
+    const findingCol = await dossierFindingsCol();
+    const questionsCol = await openQuestionsCol();
+    const claimCol = await dossierClaimsCol();
+
+    for (const claim of params.claims) {
+      const claimId = claim.id;
+      const findingId = `finding_${claimId}`;
+      const findingRes = await findingCol.updateOne(
+        { dossierId, claimId, producedBy: "pipeline" },
+        {
+          $set: {
+            findingId,
+            dossierId,
+            claimId,
+            verdict: "unclear",
+            rationale: ["Keine Quellen gefunden."],
+            citations: [],
+            producedBy: "pipeline",
+            updatedAt: now,
+          },
+          $setOnInsert: {
+            createdAt: now,
+          },
+        },
+        { upsert: true },
+      );
+
+      const claimRes = await claimCol.updateOne(
+        { dossierId, claimId },
+        { $set: { status: "unclear", updatedAt: now } },
+      );
+
+      const questionId = `coverage_${claimId}`;
+      const questionRes = await questionsCol.updateOne(
+        { dossierId, questionId },
+        {
+          $set: {
+            text: `Welche Primaerquelle fehlt fuer: ${claim.text}`,
+            status: "open",
+            updatedAt: now,
+          },
+          $setOnInsert: {
+            dossierId,
+            questionId,
+            createdAt: now,
+          },
+        },
+        { upsert: true },
+      );
+
+      await logDossierRevision({
+        dossierId,
+        entityType: "finding",
+        entityId: findingId,
+        action: findingRes.upsertedId ? "create" : "update",
+        diffSummary: findingRes.upsertedId ? "Finding angelegt (keine Quellen)." : "Finding aktualisiert (keine Quellen).",
+        byRole: "pipeline",
+      });
+      if (claimRes.modifiedCount > 0) {
+        await logDossierRevision({
+          dossierId,
+          entityType: "claim",
+          entityId: claimId,
+          action: "status_change",
+          diffSummary: "Claim-Status auf unklar gesetzt (keine Quellen).",
+          byRole: "pipeline",
+        });
+      }
+      await logDossierRevision({
+        dossierId,
+        entityType: "open_question",
+        entityId: questionId,
+        action: questionRes.upsertedId ? "create" : "update",
+        diffSummary: "Coverage-Gap Frage gesetzt.",
+        byRole: "pipeline",
+      });
+    }
+  }
+
+  await updateDossierCounts(dossierId, "Factcheck Sync");
+  await touchDossierFactchecked(dossierId, now);
 }
 
 export async function POST(req: NextRequest) {
@@ -184,6 +415,21 @@ export async function POST(req: NextRequest) {
       updatedAt: now,
       finishedAt: now,
     } as any);
+
+    if (payload.contributionId) {
+      try {
+        await syncDossierFromFactcheck({
+          statementId: payload.contributionId,
+          title: null,
+          claims,
+          serpResults,
+          withSerp: payload.withSerp !== false,
+          analysis,
+        });
+      } catch (err: any) {
+        logger.warn({ err }, "FACTCHECK_DOSSIER_SYNC_FAIL");
+      }
+    }
 
     const durationMs = Date.now() - t0;
     return json({

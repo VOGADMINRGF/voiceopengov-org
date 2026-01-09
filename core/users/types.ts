@@ -11,18 +11,26 @@ export type CoreUserProfile = {
   location?: string | null;
   headline?: string | null;
   bio?: string | null;
+  tagline?: string | null;
   avatarStyle?: "initials" | "abstract" | "emoji" | null;
   topTopics?: Array<{
     key?: string;
     title?: string;
     statement?: string | null;
   }>;
+  publicLocation?: {
+    city?: string | null;
+    region?: string | null;
+    countryCode?: string | null;
+  };
+  publicShareId?: string | null;
   publicFlags?: {
     showRealName?: boolean;
     showCity?: boolean;
     showJoinDate?: boolean;
     showEngagementLevel?: boolean;
     showStats?: boolean;
+    showMembership?: boolean;
   };
 };
 

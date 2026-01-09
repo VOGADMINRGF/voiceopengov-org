@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { ObjectId, getCol } from "@core/db/triMongo";
 import { DEFAULT_LOCALE, isSupportedLocale } from "@core/locale/locales";
 import { ensureVerificationDefaults } from "@core/auth/verificationTypes";
@@ -12,6 +13,7 @@ import type {
   AccountSettingsUpdate,
   AccountStats,
   MembershipStatus,
+  PublicProfileSnapshot,
   PricingTier,
   ProfilePublicFlags,
   ProfileTopTopic,
@@ -54,8 +56,15 @@ type UserDoc = {
     locale?: string | null;
     headline?: string | null;
     bio?: string | null;
+    tagline?: string | null;
     avatarStyle?: "initials" | "abstract" | "emoji" | null;
     topTopics?: Array<{ key?: string; title?: string; statement?: string | null }>;
+    publicLocation?: {
+      city?: string | null;
+      region?: string | null;
+      countryCode?: string | null;
+    };
+    publicShareId?: string | null;
     publicFlags?: ProfilePublicFlags;
   };
   publicFlags?: ProfilePublicFlags;
@@ -159,6 +168,7 @@ export async function getAccountOverview(userId: string): Promise<AccountOvervie
   const verification = ensureVerificationDefaults(doc.verification as any);
   const hasVogMembership = doc.membership?.status === "active";
   const profile = deriveProfile(doc);
+  const publicProfile = derivePublicProfile(doc);
   const profilePackage = getProfilePackageForAccessTier(accessTier);
   const membershipSnapshot = doc.membership
     ? {
@@ -180,6 +190,7 @@ export async function getAccountOverview(userId: string): Promise<AccountOvervie
               method: (doc.membership as any).paymentInfo.method ?? "bank_transfer",
               reference: (doc.membership as any).paymentInfo.reference ?? "",
               bankRecipient: (doc.membership as any).paymentInfo.bankRecipient ?? "",
+              bankIban: (doc.membership as any).paymentInfo.bankIban ?? null,
               bankIbanMasked: (doc.membership as any).paymentInfo.bankIbanMasked ?? "",
               bankBic: (doc.membership as any).paymentInfo.bankBic ?? null,
               bankName: (doc.membership as any).paymentInfo.bankName ?? null,
@@ -216,6 +227,7 @@ export async function getAccountOverview(userId: string): Promise<AccountOvervie
     email: doc.email ?? "",
     displayName: deriveDisplayName(doc),
     profile,
+    publicProfile,
     profilePackage,
     publicFlags: profile.publicFlags,
     topTopics: profile.topTopics,
@@ -305,6 +317,11 @@ export async function updateAccountProfile(
     setOps["profile.bio"] = value;
   }
 
+  if (patch.tagline !== undefined) {
+    const value = patch.tagline?.trim() || null;
+    setOps["profile.tagline"] = value;
+  }
+
   if (patch.avatarStyle !== undefined) {
     setOps["profile.avatarStyle"] = patch.avatarStyle ?? null;
   }
@@ -322,6 +339,26 @@ export async function updateAccountProfile(
     } else {
       unsetOps["profile.publicFlags"] = "";
       unsetOps.publicFlags = "";
+    }
+  }
+
+  if (patch.publicLocation !== undefined) {
+    const normalized = normalizePublicLocation(patch.publicLocation);
+    if (normalized) {
+      setOps["profile.publicLocation"] = normalized;
+    } else {
+      unsetOps["profile.publicLocation"] = "";
+    }
+  }
+
+  if (patch.publicFlags?.showMembership === true) {
+    const Users = await getCol<UserDoc>("users");
+    const current = await Users.findOne(
+      { _id: oid },
+      { projection: { "profile.publicShareId": 1 } },
+    );
+    if (!current?.profile?.publicShareId) {
+      setOps["profile.publicShareId"] = createPublicShareId();
     }
   }
 
@@ -346,7 +383,7 @@ function normalizePublicFlags(flags?: ProfilePublicFlags | null): ProfilePublicF
   if (!flags || typeof flags !== "object") return {};
   const result: ProfilePublicFlags = {};
   (
-    ["showRealName", "showCity", "showJoinDate", "showEngagementLevel", "showStats"] as Array<
+    ["showRealName", "showCity", "showJoinDate", "showEngagementLevel", "showStats", "showMembership"] as Array<
       keyof ProfilePublicFlags
     >
   ).forEach((key) => {
@@ -355,6 +392,25 @@ function normalizePublicFlags(flags?: ProfilePublicFlags | null): ProfilePublicF
     }
   });
   return result;
+}
+
+function normalizePublicLocation(value?: AccountProfileUpdate["publicLocation"] | null) {
+  if (!value || typeof value !== "object") return null;
+  const city = normalizeLocationField(value.city);
+  const region = normalizeLocationField(value.region);
+  const countryCode = normalizeLocationField(value.countryCode)?.toUpperCase() ?? null;
+  if (!city && !region && !countryCode) return null;
+  return {
+    city: city ?? null,
+    region: region ?? null,
+    countryCode,
+  };
+}
+
+function normalizeLocationField(value?: string | null) {
+  if (value === undefined || value === null) return null;
+  const trimmed = value.trim();
+  return trimmed.length ? trimmed : null;
 }
 
 function normalizeEdebatePackage(value?: string | null): "basis" | "start" | "pro" | "none" {
@@ -402,9 +458,35 @@ function deriveProfile(doc: UserDoc): AccountProfile {
   return {
     headline: doc.profile?.headline?.trim() || null,
     bio: doc.profile?.bio?.trim() || null,
+    tagline: doc.profile?.tagline?.trim() || null,
     avatarStyle: doc.profile?.avatarStyle ?? null,
     topTopics: sanitizeTopTopics(doc.profile?.topTopics ?? []),
     publicFlags: normalizePublicFlags(doc.profile?.publicFlags ?? doc.publicFlags),
+    publicLocation: normalizePublicLocation(doc.profile?.publicLocation ?? null) ?? undefined,
+    publicShareId: doc.profile?.publicShareId ?? null,
+  };
+}
+
+function derivePublicProfile(doc: UserDoc): PublicProfileSnapshot {
+  const profile = deriveProfile(doc);
+  const location = profile.publicLocation ?? {};
+  const flags = profile.publicFlags ?? {};
+
+  return {
+    bio: profile.bio ?? null,
+    tagline: profile.tagline ?? null,
+    avatarStyle: profile.avatarStyle ?? null,
+    topTopics: profile.topTopics ?? [],
+    city: location.city ?? null,
+    region: location.region ?? null,
+    countryCode: location.countryCode ?? null,
+    showRealName: flags.showRealName ?? false,
+    showCity: flags.showCity ?? false,
+    showStats: flags.showStats ?? false,
+    showJoinDate: flags.showJoinDate ?? false,
+    showEngagementLevel: flags.showEngagementLevel ?? false,
+    showMembership: flags.showMembership ?? false,
+    shareId: profile.publicShareId ?? null,
   };
 }
 
@@ -506,6 +588,10 @@ function matchTopicKey(raw: string): TopicKey | null {
       topic.label.toLowerCase() === normalized,
   );
   return match ? match.key : null;
+}
+
+function createPublicShareId(): string {
+  return crypto.randomBytes(9).toString("hex");
 }
 
 function deriveStats(doc: UserDoc): AccountStats {

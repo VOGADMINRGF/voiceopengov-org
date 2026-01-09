@@ -7,7 +7,8 @@ import { safeRandomId } from "@core/utils/random";
 import crypto from "node:crypto";
 import { sendMail } from "@/utils/mailer";
 import { incrementRateLimit } from "@/lib/security/rate-limit";
-import { verifyHumanToken } from "@/lib/security/human-token";
+import { verifyHumanTokenDetailed } from "@/lib/security/human-token";
+import { getPaymentEnv } from "@/lib/env/payment";
 import {
   buildHouseholdInviteMail,
   buildMembershipApplyAdminMail,
@@ -173,10 +174,28 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const humanPayload = await verifyHumanToken(body.humanToken);
-  if (!humanPayload || humanPayload.formId !== "membership-apply") {
+  const humanCheck = await verifyHumanTokenDetailed(body.humanToken);
+  if (!humanCheck.ok) {
+    const reason = "code" in humanCheck ? humanCheck.code : "invalid";
+    const isExpired = reason === "expired";
     return NextResponse.json(
-      { ok: false, error: "invalid_input", message: "Ungültige Eingabedaten." },
+      {
+        ok: false,
+        error: isExpired ? "human_token_expired" : "human_token_invalid",
+        message: isExpired
+          ? "Sicherheitscheck abgelaufen. Bitte erneut bestätigen."
+          : "Sicherheitscheck ungültig. Bitte erneut bestätigen.",
+      },
+      { status: 400 },
+    );
+  }
+  if (humanCheck.payload.formId !== "membership-apply") {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "human_token_invalid",
+        message: "Sicherheitscheck ungültig. Bitte erneut bestätigen.",
+      },
       { status: 400 },
     );
   }
@@ -187,14 +206,16 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const paymentEnv = {
-    accountMode: (process.env.VOG_ACCOUNT_MODE as any) || "private_preUG",
-    recipient: process.env.VOG_PAYMENT_BANK_RECIPIENT || "PLEASE_SET_RECIPIENT",
-    iban: process.env.VOG_PAYMENT_BANK_IBAN || "PLEASE_SET_IBAN",
-    bic: process.env.VOG_PAYMENT_BANK_BIC || "",
-    bankName: process.env.VOG_PAYMENT_BANK_NAME || "",
-    referencePrefix: process.env.VOG_PAYMENT_REFERENCE_PREFIX || "VOG-",
-  };
+  let paymentEnv: ReturnType<typeof getPaymentEnv>;
+  try {
+    paymentEnv = getPaymentEnv();
+  } catch (err) {
+    console.error("[membership/apply] env_misconfigured", err);
+    return NextResponse.json(
+      { ok: false, error: "server_misconfigured" },
+      { status: 500 },
+    );
+  }
   const geoRegion =
     body.payment.geo && Number.isFinite(body.payment.geo.lat) && Number.isFinite(body.payment.geo.lon)
       ? await resolveRegionInfo({
@@ -237,7 +258,17 @@ export async function POST(req: NextRequest) {
   const Users = await coreCol("users");
   const user = await Users.findOne(
     { _id: new ObjectId(userId) },
-    { projection: { email: 1, name: 1, emailVerified: 1, verification: 1 } },
+    {
+      projection: {
+        email: 1,
+        name: 1,
+        emailVerified: 1,
+        verification: 1,
+        "profile.publicFlags": 1,
+        "profile.publicShareId": 1,
+        publicFlags: 1,
+      },
+    },
   );
   if (!user || user.emailVerified === false) {
     return NextResponse.json({ ok: false, error: "email_not_verified" }, { status: 403 });
@@ -301,6 +332,7 @@ export async function POST(req: NextRequest) {
       method: "bank_transfer",
       reference: paymentReference,
       bankRecipient: paymentEnv.recipient,
+      bankIban: paymentEnv.iban,
       bankIbanMasked: maskIban(paymentEnv.iban),
       bankBic: paymentEnv.bic || null,
       bankName: paymentEnv.bankName || null,
@@ -397,6 +429,11 @@ export async function POST(req: NextRequest) {
   const origin = process.env.NEXT_PUBLIC_BASE_URL || new URL(req.url).origin;
   const base = origin.replace(/\/$/, "");
   const accountUrl = `${base}/account/payment`;
+  const shareEnabled = Boolean(
+    (user as any)?.profile?.publicFlags?.showMembership ?? (user as any)?.publicFlags?.showMembership,
+  );
+  const shareId = (user as any)?.profile?.publicShareId;
+  const profileUrl = shareEnabled && shareId ? `${base}/profile/${shareId}` : undefined;
 
   if (payerMail) {
     const mail = buildMembershipApplyUserMail({
@@ -410,6 +447,14 @@ export async function POST(req: NextRequest) {
       paymentMethod: application.paymentMethod,
       paymentReference,
       paymentInfo: application.paymentInfo,
+      bankDetails: {
+        recipient: paymentEnv.recipient,
+        iban: paymentEnv.iban,
+        bic: paymentEnv.bic || "",
+        bankName: paymentEnv.bankName || "",
+        accountMode: paymentEnv.accountMode,
+      },
+      profileUrl,
     });
     await sendMail({
       to: payerMail,
@@ -419,7 +464,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const adminTo = process.env.MAIL_ADMIN_TO || "members@voiceopengov.org";
+  const adminTo = process.env.MAIL_ADMIN_TO || paymentEnv.membershipContactEmail;
   const adminMail = buildMembershipApplyAdminMail({
     membershipId: String(application._id),
     userId: String(userId),

@@ -41,6 +41,16 @@ function isoToDe(iso: string): string {
   return `${dd}.${mm}.${yyyy}`;
 }
 
+function sanitizeNext(value?: string | string[] | null) {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  if (!trimmed.startsWith("/")) return null;
+  if (trimmed.startsWith("//")) return null;
+  if (trimmed.includes("://")) return null;
+  return trimmed;
+}
+
 type RegisterPageClientProps = {
   personCount?: number;
   searchParams?: Record<string, string | string[] | undefined>;
@@ -62,6 +72,7 @@ function RegisterPageClient({ personCount = 1, searchParams }: RegisterPageClien
   const [birthDate, setBirthDate] = useState(
     searchParams?.birthDate ? sanitizeBirthDateInput(String(searchParams.birthDate)) : "",
   );
+  const nextParam = sanitizeNext(searchParams?.next ?? null);
   const datePickerRef = useRef<HTMLInputElement | null>(null);
   const [useNativeDate, setUseNativeDate] = useState(false);
   const [password, setPassword] = useState("");
@@ -174,11 +185,26 @@ function RegisterPageClient({ personCount = 1, searchParams }: RegisterPageClien
         ? await r.json().catch(() => ({}))
         : { error: (await r.text()).slice(0, 500) };
 
-      if (!r.ok)
+      if (!r.ok) {
+        if (data?.error === "human_token_expired" || data?.error === "human_token_invalid") {
+          const isExpired = data?.error === "human_token_expired";
+          const note = isExpired
+            ? "Sicherheitscheck abgelaufen. Bitte erneut."
+            : "Sicherheitscheck ungültig. Bitte erneut.";
+          const err = isExpired
+            ? "Sicherheitscheck abgelaufen. Bitte erneut bestätigen."
+            : "Sicherheitscheck ungültig. Bitte erneut bestätigen.";
+          setHumanToken(null);
+          setHumanNote(note);
+          setErrMsg(err);
+          return;
+        }
         throw new Error(data?.error || data?.message || `HTTP ${r.status}`);
+      }
 
       setOkMsg("Konto erstellt. Weiterleitung zur Verifizierung …");
-      router.push(`/register/verify-email?email=${encodeURIComponent(email)}`);
+      const nextQuery = nextParam ? `&next=${encodeURIComponent(nextParam)}` : "";
+      router.push(`/register/verify-email?email=${encodeURIComponent(email)}${nextQuery}`);
     } catch (err: any) {
       setErrMsg(
         err?.name === "AbortError"

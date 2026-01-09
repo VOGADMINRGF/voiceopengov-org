@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ObjectId, getCol } from "@core/db/triMongo";
 import { requireAdminOrResponse } from "@/lib/server/auth/admin";
+import { orgsCol } from "@features/org/db";
+import { editorialItemsCol } from "@features/editorial/db";
+import { reportAssetsCol } from "@features/reportsAssets/db";
+import { graphRepairsCol } from "@features/graphAdmin/db";
 
 type UserDoc = {
   _id: ObjectId;
@@ -78,6 +82,23 @@ export async function GET(req: NextRequest) {
     ])
     .toArray();
 
+  const [orgsTotal, reportAssetsTotal, pendingRepairs, editorialAgg] = await Promise.all([
+    (await orgsCol()).countDocuments({ $or: [{ archivedAt: { $exists: false } }, { archivedAt: null }] }),
+    (await reportAssetsCol()).countDocuments({}),
+    (await graphRepairsCol()).countDocuments({ status: "pending" }),
+    (await editorialItemsCol())
+      .aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }])
+      .toArray(),
+  ]);
+
+  const editorialCounts = editorialAgg.reduce(
+    (acc: Record<string, number>, row: any) => {
+      acc[String(row._id)] = row.count ?? 0;
+      return acc;
+    },
+    {},
+  );
+
   const data = {
     totalUsers,
     activeUsers,
@@ -85,6 +106,17 @@ export async function GET(req: NextRequest) {
     packages: packageAgg.map((p) => ({ code: p._id, count: p.count })),
     roles: rolesAgg.map((r) => ({ role: r._id, count: r.count })),
     registrationsLast30Days: registrations.map((r) => ({ date: r._id, count: r.count })),
+    orgsTotal,
+    reportAssetsTotal,
+    pendingGraphRepairs: pendingRepairs,
+    editorialCounts: {
+      triage: editorialCounts.triage ?? 0,
+      review: editorialCounts.review ?? 0,
+      fact_check: editorialCounts.fact_check ?? 0,
+      ready: editorialCounts.ready ?? 0,
+      published: editorialCounts.published ?? 0,
+      rejected: editorialCounts.rejected ?? 0,
+    },
   };
 
   return NextResponse.json({ data });

@@ -16,6 +16,16 @@ const SECTIONS: Array<{ title: string; items: HubItem[] }> = [
         href: "/admin/telemetry",
       },
       {
+        title: "Audit Logs",
+        description: "Mutationen und Zugriffspfad",
+        href: "/admin/audit",
+      },
+      {
+        title: "Error Logs",
+        description: "Systemfehler & Trace IDs",
+        href: "/admin/errors",
+      },
+      {
         title: "Analytics (Legacy)",
         description: "Registrierungen, Rollen, Pakete",
         href: "/admin/analytics",

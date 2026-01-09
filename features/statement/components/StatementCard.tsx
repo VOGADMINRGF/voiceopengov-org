@@ -1,6 +1,8 @@
 // features/statement/components/StatementCard.tsx
 "use client";
 
+import { formatEditorialStatus } from "@/lib/editorial/status";
+
 type Perspective = {
   text: string;
   stance: "pro" | "contra" | "alternative";
@@ -75,6 +77,7 @@ function scenarioLabel(p: Perspective) {
 export function StatementCard({ statement, index = 0 }: Props) {
   const { core, evidence, perspectives, quality } = statement;
   const grouped = groupPerspectives(perspectives.items);
+  const editorial = formatEditorialStatus({ reviewStatus: core.reviewStatus });
 
   return (
     <article className="rounded-2xl border border-slate-200 bg-white/80 shadow-sm p-4 mb-4">
@@ -91,7 +94,7 @@ export function StatementCard({ statement, index = 0 }: Props) {
               Topic: {core.topicKanonId}
             </span>
             <span className="rounded-full border border-slate-200 px-2 py-0.5">
-              Status: {core.reviewStatus}
+              Status Redaktion: {editorial.label}
             </span>
           </div>
         </div>

@@ -25,9 +25,9 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     href: "/statements",
-    label: "Einreichen",
+    label: "Statements",
     description:
-      "Eigene Positionen einreichen – Beiträge & Statements zu aktuellen eDebatte-Themen.",
+      "Statements einreichen – klare Aussagen und Struktur für neue Themen.",
   },
   {
     href: "/stream",
@@ -36,7 +36,7 @@ const NAV_ITEMS: NavItem[] = [
       "Themen präsentieren – Streams starten und gemeinsam vertiefen.",
   },
   {
-    href: "/reports",
+    href: "/archiv",
     label: "Archiv",
     description:
       "Archiv & Nachschlagen – Ergebnisse zu Themen, Abstimmungen und Beteiligung in deiner Region.",

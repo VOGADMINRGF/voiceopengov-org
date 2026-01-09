@@ -1,9 +1,9 @@
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getAccountOverview, updateAccountProfile } from "@features/account/service";
 import { TOPIC_CHOICES, type TopicKey } from "@features/interests/topics";
 import type { AccountProfileUpdate } from "@features/account/types";
+import { readSession } from "@/utils/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,6 +23,15 @@ const textField = (min: number, max: number) =>
     ])
     .optional();
 
+const locationField = (max: number) =>
+  z
+    .union([
+      z.string().trim().min(2, "too_short").max(max, "too_long"),
+      z.literal("").transform(() => null),
+      z.null(),
+    ])
+    .optional();
+
 const statementField = z
   .union([
     z.string().trim().max(140, "too_long"),
@@ -34,7 +43,11 @@ const statementField = z
 const schema = z.object({
   headline: textField(3, 140),
   bio: textField(10, 800),
+  tagline: textField(2, 140),
   avatarStyle: z.enum(["initials", "abstract", "emoji"]).nullish(),
+  city: locationField(120),
+  region: locationField(120),
+  countryCode: locationField(8),
   topTopics: z
     .array(
       z
@@ -54,13 +67,20 @@ const schema = z.object({
       showJoinDate: z.boolean().optional(),
       showEngagementLevel: z.boolean().optional(),
       showStats: z.boolean().optional(),
+      showMembership: z.boolean().optional(),
     })
     .optional(),
+  showRealName: z.boolean().optional(),
+  showCity: z.boolean().optional(),
+  showJoinDate: z.boolean().optional(),
+  showEngagementLevel: z.boolean().optional(),
+  showStats: z.boolean().optional(),
+  showMembership: z.boolean().optional(),
 });
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("u_id")?.value;
+  const session = await readSession();
+  const userId = session?.uid ?? null;
   if (!userId) {
     return NextResponse.json({ ok: false, error: "not_authenticated" }, { status: 401 });
   }
@@ -74,8 +94,8 @@ export async function GET() {
 }
 
 export async function PATCH(req: NextRequest) {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("u_id")?.value;
+  const session = await readSession();
+  const userId = session?.uid ?? null;
   if (!userId) {
     return NextResponse.json({ ok: false, error: "not_authenticated" }, { status: 401 });
   }
@@ -92,6 +112,7 @@ export async function PATCH(req: NextRequest) {
   const payload: AccountProfileUpdate = {
     headline: parsed.data.headline !== undefined ? parsed.data.headline : undefined,
     bio: parsed.data.bio !== undefined ? parsed.data.bio : undefined,
+    tagline: parsed.data.tagline !== undefined ? parsed.data.tagline : undefined,
     avatarStyle: parsed.data.avatarStyle !== undefined ? parsed.data.avatarStyle ?? null : undefined,
     topTopics:
       parsed.data.topTopics === undefined
@@ -102,8 +123,30 @@ export async function PATCH(req: NextRequest) {
               key: topic.key,
               statement: topic.statement ?? null,
             })),
-    publicFlags: parsed.data.publicFlags !== undefined ? parsed.data.publicFlags : undefined,
   };
+  const hasLocationUpdate = ["city", "region", "countryCode"].some(
+    (key) => (parsed.data as Record<string, unknown>)[key] !== undefined,
+  );
+  if (hasLocationUpdate) {
+    payload.publicLocation = {
+      city: parsed.data.city ?? null,
+      region: parsed.data.region ?? null,
+      countryCode: parsed.data.countryCode ?? null,
+    };
+  }
+
+  const mergedFlags = {
+    showRealName: parsed.data.showRealName ?? parsed.data.publicFlags?.showRealName,
+    showCity: parsed.data.showCity ?? parsed.data.publicFlags?.showCity,
+    showJoinDate: parsed.data.showJoinDate ?? parsed.data.publicFlags?.showJoinDate,
+    showEngagementLevel: parsed.data.showEngagementLevel ?? parsed.data.publicFlags?.showEngagementLevel,
+    showStats: parsed.data.showStats ?? parsed.data.publicFlags?.showStats,
+    showMembership: parsed.data.showMembership ?? parsed.data.publicFlags?.showMembership,
+  };
+  const hasFlagsUpdate = Object.values(mergedFlags).some((value) => value !== undefined);
+  if (hasFlagsUpdate) {
+    payload.publicFlags = mergedFlags;
+  }
 
   const overview = await updateAccountProfile(userId, payload);
   if (!overview) {

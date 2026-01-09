@@ -1,0 +1,398 @@
+import { coreCol } from "@core/db/triMongo";
+import type {
+  DossierDoc,
+  DossierSourceDoc,
+  DossierClaimDoc,
+  DossierFindingDoc,
+  DossierEdgeDoc,
+  OpenQuestionDoc,
+  DossierRevisionDoc,
+  DossierDisputeDoc,
+  DossierSuggestionDoc,
+  DossierCounts,
+} from "./schemas";
+import { makeDossierEntityId } from "./ids";
+import { computeRevisionHash, REVISION_HASH_ALGO } from "./revisionHash";
+import { selectEffectiveFindings } from "./effective";
+
+const DISABLE_HASH_CHAIN = process.env.VOG_DISABLE_REVISION_HASH_CHAIN === "1";
+
+const DOSSIERS_COLLECTION = "dossiers";
+const SOURCES_COLLECTION = "dossier_sources";
+const CLAIMS_COLLECTION = "dossier_claims";
+const FINDINGS_COLLECTION = "dossier_findings";
+const EDGES_COLLECTION = "dossier_edges";
+const QUESTIONS_COLLECTION = "open_questions";
+const REVISIONS_COLLECTION = "dossier_revisions";
+const DISPUTES_COLLECTION = "dossier_disputes";
+const SUGGESTIONS_COLLECTION = "dossier_suggestions";
+
+const DEFAULT_COUNTS: DossierCounts = {
+  claims: 0,
+  sources: 0,
+  findings: 0,
+  edges: 0,
+  openQuestions: 0,
+};
+
+async function appendRevision(input: {
+  dossierId: string;
+  entityType: string;
+  entityId: string;
+  action: "create" | "update" | "delete" | "status_change" | "system_update";
+  diffSummary: string;
+  byRole: "pipeline" | "editor" | "member" | "admin" | "system";
+  byUserId?: string;
+}) {
+  const col = await dossierRevisionsCol();
+  const dossierCol = await dossiersCol();
+  const now = new Date();
+  if (DISABLE_HASH_CHAIN) {
+    await col.insertOne({
+      revId: makeDossierEntityId("rev"),
+      dossierId: input.dossierId,
+      entityType: input.entityType,
+      entityId: input.entityId,
+      action: input.action,
+      diffSummary: input.diffSummary,
+      byRole: input.byRole,
+      byUserId: input.byUserId,
+      timestamp: now,
+    } as any);
+    return;
+  }
+  let prevHash: string | undefined;
+  let hash = "";
+  let attempts = 0;
+  let updatedChain = false;
+
+  while (attempts < 5) {
+    attempts += 1;
+    const dossier = await dossierCol.findOne(
+      { dossierId: input.dossierId },
+      { projection: { lastRevisionHash: 1 } },
+    );
+    prevHash = dossier?.lastRevisionHash ?? undefined;
+    if (!prevHash) {
+      const last = await col
+        .find({ dossierId: input.dossierId })
+        .sort({ timestamp: -1, _id: -1 })
+        .limit(1)
+        .next();
+      prevHash = last?.hash ?? undefined;
+    }
+    hash = computeRevisionHash({
+      prevHash,
+      dossierId: input.dossierId,
+      entityType: input.entityType,
+      entityId: input.entityId,
+      action: input.action,
+      diffSummary: input.diffSummary,
+      byRole: input.byRole,
+      byUserId: input.byUserId,
+      timestamp: now,
+    });
+
+    if (!dossier) break;
+
+    const filter = prevHash
+      ? { dossierId: input.dossierId, lastRevisionHash: prevHash }
+      : { dossierId: input.dossierId, lastRevisionHash: { $exists: false } };
+    const res = await dossierCol.updateOne(
+      filter,
+      { $set: { lastRevisionHash: hash, lastRevisionAt: now }, $inc: { revisionSeq: 1 } },
+    );
+    if (res.modifiedCount === 1) {
+      updatedChain = true;
+      break;
+    }
+  }
+
+  if (!updatedChain) {
+    // Avoid overwriting newer chain state; fall back to revision history on next write.
+  }
+  await col.insertOne({
+    revId: makeDossierEntityId("rev"),
+    dossierId: input.dossierId,
+    entityType: input.entityType,
+    entityId: input.entityId,
+    action: input.action,
+    diffSummary: input.diffSummary,
+    byRole: input.byRole,
+    byUserId: input.byUserId,
+    timestamp: now,
+    prevHash,
+    hash,
+    hashAlgo: REVISION_HASH_ALGO,
+  } as any);
+}
+
+const ensured = {
+  dossiers: false,
+  sources: false,
+  claims: false,
+  findings: false,
+  edges: false,
+  questions: false,
+  revisions: false,
+  disputes: false,
+  suggestions: false,
+};
+
+async function ensureDossierIndexes() {
+  if (ensured.dossiers) return;
+  const col = await coreCol<DossierDoc>(DOSSIERS_COLLECTION);
+  await col.createIndex({ dossierId: 1 }, { unique: true });
+  await col.createIndex({ statementId: 1 }, { unique: true });
+  await col.createIndex({ status: 1 });
+  ensured.dossiers = true;
+}
+
+async function ensureSourceIndexes() {
+  if (ensured.sources) return;
+  const col = await coreCol<DossierSourceDoc>(SOURCES_COLLECTION);
+  await col.createIndex({ dossierId: 1, canonicalUrlHash: 1 }, { unique: true });
+  await col.createIndex({ dossierId: 1, type: 1 });
+  await col.createIndex({ publishedAt: -1 });
+  ensured.sources = true;
+}
+
+async function ensureClaimIndexes() {
+  if (ensured.claims) return;
+  const col = await coreCol<DossierClaimDoc>(CLAIMS_COLLECTION);
+  await col.createIndex({ dossierId: 1, claimId: 1 }, { unique: true });
+  await col.createIndex({ dossierId: 1, status: 1 });
+  ensured.claims = true;
+}
+
+async function ensureFindingIndexes() {
+  if (ensured.findings) return;
+  const col = await coreCol<DossierFindingDoc>(FINDINGS_COLLECTION);
+  await col.createIndex({ dossierId: 1, findingId: 1 }, { unique: true });
+  await col.createIndex({ dossierId: 1, claimId: 1, producedBy: 1 }, { unique: true });
+  await col.createIndex({ dossierId: 1, verdict: 1 });
+  ensured.findings = true;
+}
+
+async function ensureEdgeIndexes() {
+  if (ensured.edges) return;
+  const col = await coreCol<DossierEdgeDoc>(EDGES_COLLECTION);
+  await col.createIndex({ dossierId: 1, edgeId: 1 }, { unique: true });
+  await col.createIndex({ dossierId: 1, fromId: 1, toId: 1, rel: 1 }, { unique: true });
+  await col.createIndex({ dossierId: 1, active: 1 });
+  ensured.edges = true;
+}
+
+async function ensureQuestionIndexes() {
+  if (ensured.questions) return;
+  const col = await coreCol<OpenQuestionDoc>(QUESTIONS_COLLECTION);
+  await col.createIndex({ dossierId: 1, questionId: 1 }, { unique: true });
+  await col.createIndex({ dossierId: 1, status: 1 });
+  ensured.questions = true;
+}
+
+async function ensureRevisionIndexes() {
+  if (ensured.revisions) return;
+  const col = await coreCol<DossierRevisionDoc>(REVISIONS_COLLECTION);
+  await col.createIndex({ dossierId: 1, timestamp: -1 });
+  await col.createIndex({ entityType: 1, entityId: 1 });
+  ensured.revisions = true;
+}
+
+async function ensureDisputeIndexes() {
+  if (ensured.disputes) return;
+  const col = await coreCol<DossierDisputeDoc>(DISPUTES_COLLECTION);
+  await col.createIndex({ dossierId: 1, disputeId: 1 }, { unique: true });
+  await col.createIndex({ dossierId: 1, status: 1 });
+  ensured.disputes = true;
+}
+
+async function ensureSuggestionIndexes() {
+  if (ensured.suggestions) return;
+  const col = await coreCol<DossierSuggestionDoc>(SUGGESTIONS_COLLECTION);
+  await col.createIndex({ dossierId: 1, suggestionId: 1 }, { unique: true });
+  await col.createIndex({ dossierId: 1, status: 1 });
+  ensured.suggestions = true;
+}
+
+export async function dossiersCol() {
+  await ensureDossierIndexes();
+  return coreCol<DossierDoc>(DOSSIERS_COLLECTION);
+}
+
+export async function dossierSourcesCol() {
+  await ensureSourceIndexes();
+  return coreCol<DossierSourceDoc>(SOURCES_COLLECTION);
+}
+
+export async function dossierClaimsCol() {
+  await ensureClaimIndexes();
+  return coreCol<DossierClaimDoc>(CLAIMS_COLLECTION);
+}
+
+export async function dossierFindingsCol() {
+  await ensureFindingIndexes();
+  return coreCol<DossierFindingDoc>(FINDINGS_COLLECTION);
+}
+
+export async function dossierEdgesCol() {
+  await ensureEdgeIndexes();
+  return coreCol<DossierEdgeDoc>(EDGES_COLLECTION);
+}
+
+export async function openQuestionsCol() {
+  await ensureQuestionIndexes();
+  return coreCol<OpenQuestionDoc>(QUESTIONS_COLLECTION);
+}
+
+export async function dossierRevisionsCol() {
+  await ensureRevisionIndexes();
+  return coreCol<DossierRevisionDoc>(REVISIONS_COLLECTION);
+}
+
+export async function dossierDisputesCol() {
+  await ensureDisputeIndexes();
+  return coreCol<DossierDisputeDoc>(DISPUTES_COLLECTION);
+}
+
+export async function dossierSuggestionsCol() {
+  await ensureSuggestionIndexes();
+  return coreCol<DossierSuggestionDoc>(SUGGESTIONS_COLLECTION);
+}
+
+export async function ensureDossierForStatement(
+  statementId: string,
+  seed?: { title?: string },
+  aliases: string[] = [],
+) {
+  const col = await dossiersCol();
+  const now = new Date();
+  const dossierId = statementId;
+  const ids = [statementId, ...aliases].filter(Boolean);
+  const existing = await col.findOne({
+    $or: [{ statementId: { $in: ids } }, { dossierId: { $in: ids } }],
+  } as any);
+  if (existing) return existing;
+  const update: Record<string, any> = {
+    $setOnInsert: {
+      dossierId,
+      statementId,
+      status: "active",
+      counts: { ...DEFAULT_COUNTS },
+      createdAt: now,
+    },
+  };
+
+  if (seed?.title) {
+    update.$set = { title: seed.title, updatedAt: now };
+  }
+
+  const res = await col.findOneAndUpdate(
+    { statementId },
+    update,
+    { upsert: true, returnDocument: "before", includeResultMetadata: true },
+  );
+
+  const created = !res.value;
+  const dossier = await col.findOne({ statementId });
+  if (dossier) {
+    if (created) {
+      await appendRevision({
+        dossierId: dossier.dossierId,
+        entityType: "dossier",
+        entityId: dossier.dossierId,
+        action: "create",
+        diffSummary: "Dossier erstellt.",
+        byRole: "system",
+      });
+    } else if (seed?.title && res.value?.title !== seed.title) {
+      await appendRevision({
+        dossierId: dossier.dossierId,
+        entityType: "dossier",
+        entityId: dossier.dossierId,
+        action: "update",
+        diffSummary: "Dossier aktualisiert.",
+        byRole: "system",
+      });
+    }
+  }
+
+  return dossier ?? null;
+}
+
+export async function computeDossierCounts(dossierId: string) {
+  const [claims, sources, findings, edges, openQuestions] = await Promise.all([
+    (await dossierClaimsCol()).countDocuments({ dossierId }),
+    (await dossierSourcesCol()).countDocuments({ dossierId }),
+    (await dossierFindingsCol())
+      .find({ dossierId }, { projection: { claimId: 1, producedBy: 1, updatedAt: 1 } })
+      .toArray(),
+    (await dossierEdgesCol()).countDocuments({ dossierId, active: { $ne: false } }),
+    (await openQuestionsCol()).countDocuments({ dossierId }),
+  ]);
+  const effectiveFindings = selectEffectiveFindings(findings as any[]);
+
+  return {
+    claims,
+    sources,
+    findings: effectiveFindings.length,
+    edges,
+    openQuestions,
+  } satisfies DossierCounts;
+}
+
+export async function updateDossierCounts(dossierId: string, reason = "Dossier-Zaehler aktualisiert.") {
+  const dossierCol = await dossiersCol();
+  const existing = await dossierCol.findOne({ dossierId });
+  const counts = await computeDossierCounts(dossierId);
+
+  if (!existing) return counts;
+
+  const changed =
+    existing.counts?.claims !== counts.claims ||
+    existing.counts?.sources !== counts.sources ||
+    existing.counts?.findings !== counts.findings ||
+    existing.counts?.edges !== counts.edges ||
+    existing.counts?.openQuestions !== counts.openQuestions;
+
+  if (changed) {
+    await dossierCol.updateOne(
+      { dossierId },
+      { $set: { counts, updatedAt: new Date() } },
+    );
+    await appendRevision({
+      dossierId,
+      entityType: "dossier",
+      entityId: dossierId,
+      action: "system_update",
+      diffSummary: reason,
+      byRole: "system",
+    });
+  }
+
+  return counts;
+}
+
+// Backwards-compat alias: prefer updateDossierCounts in write paths only.
+export async function refreshDossierCounts(dossierId: string) {
+  return updateDossierCounts(dossierId);
+}
+
+export async function touchDossierFactchecked(dossierId: string, at: Date = new Date()) {
+  await (await dossiersCol()).updateOne(
+    { dossierId },
+    { $set: { lastFactcheckedAt: at, updatedAt: new Date() } },
+  );
+}
+
+export const dossierCollections = {
+  DOSSIERS_COLLECTION,
+  SOURCES_COLLECTION,
+  CLAIMS_COLLECTION,
+  FINDINGS_COLLECTION,
+  EDGES_COLLECTION,
+  QUESTIONS_COLLECTION,
+  REVISIONS_COLLECTION,
+  DISPUTES_COLLECTION,
+  SUGGESTIONS_COLLECTION,
+};

@@ -1,4 +1,4 @@
-export type Role = "guest" | "user" | "org" | "redaktion" | "admin";
+export type Role = "guest" | "user" | "org" | "redaktion" | "admin" | "superadmin";
 
 export type NavItem = {
   label: string;
@@ -18,7 +18,7 @@ export function filterNav(userOrRole: { role?: Role } | Role): NavItem[] {
       href: "/dashboard",
       roles: ["user", "org", "redaktion", "admin"],
     },
-    { label: "Admin", href: "/admin", roles: ["admin"] },
+    { label: "Admin", href: "/admin", roles: ["admin", "superadmin"] },
   ];
 
   return items.filter((it) => !it.roles || it.roles.includes(role));

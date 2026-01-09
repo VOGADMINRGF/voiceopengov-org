@@ -11,6 +11,11 @@ const SECTIONS: Array<{ title: string; items: HubItem[] }> = [
     title: "Nutzer & Rollen",
     items: [
       {
+        title: "Organisationen",
+        description: "Orgs, Teams und Seats verwalten",
+        href: "/admin/orgs",
+      },
+      {
         title: "Nutzerverwaltung",
         description: "User suchen, Rollen setzen, Pakete pflegen",
         href: "/admin/users",

@@ -1,5 +1,4 @@
 // file: app/account/page.tsx
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { AccountClient } from "./AccountClient";
 import { getAccountOverview } from "@features/account/service";
@@ -15,9 +14,8 @@ type Props = {
 
 export default async function AccountPage({ searchParams }: Props) {
   const params = await Promise.resolve(searchParams ?? {});
-  const cookieStore = await cookies();
   const session = await readSession();
-  const userId = cookieStore.get("u_id")?.value || session?.uid;
+  const userId = session?.uid ?? null;
 
   if (!userId) {
     redirect(`/login?next=${encodeURIComponent("/account")}`);
@@ -31,6 +29,9 @@ export default async function AccountPage({ searchParams }: Props) {
   const membershipNotice =
     typeof (params as any)?.membership === "string" &&
     (params as any).membership === "thanks";
+  const welcomeNotice =
+    typeof (params as any)?.welcome === "string" &&
+    ["1", "true", "yes"].includes((params as any).welcome);
 
   const displayName: string | undefined = (overview as any)?.profile?.displayName || (overview as any)?.displayName;
   const firstName = displayName?.trim().split(" ").filter(Boolean)[0] ?? undefined;
@@ -66,7 +67,7 @@ export default async function AccountPage({ searchParams }: Props) {
           )}
         </header>
 
-        <AccountClient initialData={overview} membershipNotice={membershipNotice} />
+        <AccountClient initialData={overview} membershipNotice={membershipNotice} welcomeNotice={welcomeNotice} />
       </div>
     </main>
   );

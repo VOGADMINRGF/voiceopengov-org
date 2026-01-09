@@ -1,6 +1,7 @@
 export type UserRole =
   | "guest"
   | "user"
+  | "verified"
   | "moderator"
   | "admin"
   | "ngo"

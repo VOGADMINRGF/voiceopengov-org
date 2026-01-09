@@ -21,16 +21,18 @@ async function gateAdmin(req: NextRequest): Promise<SessionUser | Response> {
   const user = await getSessionUser(req);
   const requiresTwoFactor = userRequiresTwoFactor(user);
   const hasTwoFactor = sessionHasPassedTwoFactor(user);
+  const sessionValid = user?.sessionValid ?? false;
 
   logGate(req?.nextUrl?.pathname ?? "unknown", {
     userId: user?._id ? String(user._id) : null,
     email: maskEmail((user as any)?.email),
     roles: (user as any)?.roles || (user as any)?.role,
+    sessionValid,
     requiresTwoFactor,
     hasTwoFactor,
   });
 
-  if (!user) {
+  if (!user || !sessionValid) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 

@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { z } from "zod";
 import { coreCol, ObjectId } from "@core/db/triMongo";
 import { piiCol } from "@core/db/db/triMongo";
 import { sendMail } from "@/utils/mailer";
 import { verifyPassword } from "@/utils/password";
-import { clearSession } from "@/utils/session";
+import { clearSession, readSession } from "@/utils/session";
 import { CREDENTIAL_COLLECTION } from "../../auth/sharedAuth";
 
 export const runtime = "nodejs";
@@ -18,8 +17,8 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const jar = await cookies();
-  const userId = jar.get("u_id")?.value;
+  const session = await readSession();
+  const userId = session?.uid ?? null;
 
   if (!userId || !ObjectId.isValid(userId)) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });

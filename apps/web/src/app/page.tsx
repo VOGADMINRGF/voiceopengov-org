@@ -96,13 +96,22 @@ export default function Home() {
           hp_updates: updatesHoneypot,
         }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (res.ok && data?.ok) {
         setNotice({ ok: true, msg: strings.updatesForm.success });
         setEmail("");
         setInterests("");
         setHumanToken(null);
       } else {
+        if (
+          data?.error === "invalid_human_token" ||
+          data?.error === "human_token_expired" ||
+          data?.error === "human_token_invalid"
+        ) {
+          setHumanToken(null);
+          setNotice({ ok: false, msg: strings.updatesForm.invalid });
+          return;
+        }
         setNotice({ ok: false, msg: strings.updatesForm.error });
       }
     } catch {

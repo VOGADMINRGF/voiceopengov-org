@@ -2,10 +2,12 @@ import crypto from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { cookies, headers } from "next/headers";
 import { coreCol, ObjectId } from "@core/db/triMongo";
-import { verifyHumanToken } from "@/lib/security/human-token";
+import { verifyHumanTokenDetailed } from "@/lib/security/human-token";
 import { incrementRateLimit } from "@/lib/security/rate-limit";
 import { readSession } from "src/utils/session";
 import { analyzeContribution } from "@features/analyze/analyzeContribution";
+import { ensureDossierForStatement } from "@features/dossier/db";
+import { seedDossierFromAnalysis } from "@features/dossier/seed";
 const REQUIRE_LOGIN = process.env.REQUIRE_LOGIN === "1";
 export const runtime = "nodejs";
 
@@ -136,12 +138,12 @@ async function tryEnqueueFactcheck(payload: any) {
 export async function POST(req: NextRequest) {
   if (!(await isCsrfValid(req))) return csrfForbidden();
 
-  const sess = await readSession();
-  if (REQUIRE_LOGIN && !sess) {
+  const session = await readSession();
+  const userId = session?.uid ?? null;
+  if (REQUIRE_LOGIN && !userId) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
-  const userId = (sess as any)?.uid ?? req.cookies.get("u_id")?.value ?? null;
   const isAnonymous = !userId;
 
   let body: any;
@@ -159,9 +161,11 @@ export async function POST(req: NextRequest) {
     if (!humanToken) {
       return NextResponse.json({ ok: false, error: "missing_token" }, { status: 400 });
     }
-    const verified = await verifyHumanToken(humanToken);
-    if (!verified) {
-      return NextResponse.json({ ok: false, error: "invalid_token" }, { status: 403 });
+    const verified = await verifyHumanTokenDetailed(humanToken);
+    if (!verified.ok) {
+      const reason = "code" in verified ? verified.code : "invalid";
+      const code = reason === "expired" ? "human_token_expired" : "invalid_token";
+      return NextResponse.json({ ok: false, error: code }, { status: 403 });
     }
   }
 
@@ -205,6 +209,20 @@ export async function POST(req: NextRequest) {
   const col = await coreCol("statements");
   const ins = await col.insertOne(doc);
   const id = String(ins.insertedId);
+
+  try {
+    const dossier = await ensureDossierForStatement(id, { title });
+    if (dossier?.dossierId) {
+      await seedDossierFromAnalysis({
+        dossierId: dossier.dossierId,
+        claims: analysis?.claims ?? [],
+        questions: analysis?.questions ?? [],
+        createdByRole: "pipeline",
+      });
+    }
+  } catch (err) {
+    console.warn("[dossier] ensure failed", (err as any)?.message ?? err);
+  }
 
   tryEnqueueFactcheck({ contributionId: id, text, language, topic: category, scope, timeframe }).catch(() => {});
   const resp = NextResponse.json({ ok: true, id }, { status: 201 });

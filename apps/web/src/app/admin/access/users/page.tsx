@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 type AdminUser = {
   _id: string;
@@ -11,6 +12,7 @@ type AdminUser = {
 };
 
 export default function AccessUsersPage() {
+  const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(false);
@@ -43,6 +45,11 @@ export default function AccessUsersPage() {
       clearTimeout(tid);
     };
   }, [query]);
+
+  useEffect(() => {
+    const qParam = searchParams.get("q");
+    if (qParam) setQuery(qParam);
+  }, [searchParams]);
 
   return (
     <main className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-8">

@@ -48,6 +48,7 @@ export default function AdminUsersPage() {
   const [createLoading, setCreateLoading] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState(0);
+  const [accessError, setAccessError] = useState<string | null>(null);
   const [createForm, setCreateForm] = useState({
     email: "",
     name: "",
@@ -102,6 +103,7 @@ export default function AdminUsersPage() {
     let active = true;
     async function load() {
       setLoading(true);
+      setAccessError(null);
       const params = new URLSearchParams();
       if (query) params.set("q", query);
       if (role) params.set("role", role);
@@ -112,8 +114,18 @@ export default function AdminUsersPage() {
       params.set("page", String(page));
       params.set("pageSize", "25");
       const res = await fetch(`/api/admin/dashboard/users?${params.toString()}`, { cache: "no-store" });
-      if (res.status === 401 || res.status === 403) {
+      if (res.status === 401) {
         router.replace("/login?next=/admin/users");
+        return;
+      }
+      if (res.status === 403) {
+        const body = await res.json().catch(() => ({}));
+        if (body?.error === "two_factor_required") {
+          router.replace("/login?next=/admin/users");
+          return;
+        }
+        if (active) setAccessError("Kein Zugriff auf die Admin-Userliste.");
+        setLoading(false);
         return;
       }
       const body = (await res.json()) as UsersResponse;
@@ -181,6 +193,14 @@ export default function AdminUsersPage() {
       setCreateLoading(false);
     }
   };
+
+  if (accessError) {
+    return (
+      <div className="rounded-3xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        {accessError}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

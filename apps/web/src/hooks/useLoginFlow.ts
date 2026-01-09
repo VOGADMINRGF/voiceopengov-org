@@ -5,11 +5,17 @@ import { useCallback, useState } from "react";
 export type LoginStep = "credentials" | "twofactor";
 export type TwoFactorMethod = "email" | "otp" | "totp";
 
-export function useLoginFlow(opts?: { redirectTo?: string }) {
-  const [step, setStep] = useState<LoginStep>("credentials");
-  const [method, setMethod] = useState<TwoFactorMethod | null>(null);
+export function useLoginFlow(opts?: {
+  redirectTo?: string;
+  initialStep?: LoginStep;
+  initialMethod?: TwoFactorMethod | null;
+}) {
+  const [step, setStep] = useState<LoginStep>(opts?.initialStep ?? "credentials");
+  const initialMethod =
+    opts?.initialMethod ?? (opts?.initialStep === "twofactor" ? "email" : null);
+  const [method, setMethod] = useState<TwoFactorMethod | null>(initialMethod);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
-  const [redirectUrl, setRedirectUrl] = useState(opts?.redirectTo || "/");
+  const [redirectUrl, setRedirectUrl] = useState(opts?.redirectTo || "/account");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

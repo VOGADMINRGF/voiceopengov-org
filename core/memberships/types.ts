@@ -24,6 +24,7 @@ export interface MembershipPaymentInfo {
   method: MembershipPaymentMethod;
   reference: string;
   bankRecipient: string;
+  bankIban?: string;
   bankIbanMasked: string;
   bankBic?: string | null;
   bankName?: string | null;

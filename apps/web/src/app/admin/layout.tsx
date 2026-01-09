@@ -19,22 +19,24 @@ export default async function AdminLayout({ children }: Props) {
   const user = await getSessionUser();
   const requiresTwoFactor = userRequiresTwoFactor(user);
   const hasTwoFactor = sessionHasPassedTwoFactor(user);
+  const sessionValid = user?.sessionValid ?? false;
 
   logGate({
     path: "/admin",
     userId: user?._id ? String(user._id) : null,
     email: maskEmail((user as any)?.email),
     roles: (user as any)?.roles || (user as any)?.role,
+    sessionValid,
     requiresTwoFactor,
     hasTwoFactor,
   });
 
-  if (!user) {
+  if (!user || !sessionValid) {
     redirect(`/login?next=${encodeURIComponent("/admin")}`);
   }
 
   if (requiresTwoFactor && !hasTwoFactor) {
-    redirect(`/login?next=${encodeURIComponent("/admin")}&step=verify`);
+    redirect(`/login?next=${encodeURIComponent("/admin")}`);
   }
 
   if (!userIsAdminDashboard(user)) {

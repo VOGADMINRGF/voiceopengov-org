@@ -9,11 +9,25 @@ const CHANNEL_NAME = "vog-email-verify";
 
 type State = "idle" | "pending" | "success" | "error";
 
+function sanitizeNext(value: string | null) {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("/")) return null;
+  if (trimmed.startsWith("//")) return null;
+  if (trimmed.includes("://")) return null;
+  return trimmed;
+}
+
 export default function VerifyEmailPage() {
   const search = useSearchParams();
   const router = useRouter();
   const emailParam = useMemo(() => search.get("email") ?? "", [search]);
   const tokenParam = search.get("token");
+  const nextParam = useMemo(() => sanitizeNext(search.get("next")), [search]);
+  const nextAfterVerify = useMemo(
+    () => (nextParam ? `/register/identity?next=${encodeURIComponent(nextParam)}` : "/register/identity"),
+    [nextParam],
+  );
   const [token, setToken] = useState(tokenParam ?? "");
   const [state, setState] = useState<State>("idle");
   const [message, setMessage] = useState<string | null>(null);
@@ -36,12 +50,12 @@ export default function VerifyEmailPage() {
       setState("success");
       setMessage("E-Mail bestätigt. Weiter geht's mit Schritt 3 …");
       setTimeout(() => {
-        router.push(payload.next || "/register/identity");
+        router.push(payload.next || nextAfterVerify);
       }, 600);
     };
     channel.addEventListener("message", onMessage);
     return () => channel.removeEventListener("message", onMessage);
-  }, [channel, emailParam, router]);
+  }, [channel, emailParam, nextAfterVerify, router]);
 
   useEffect(() => {
     if (!tokenParam) return;
@@ -78,10 +92,14 @@ export default function VerifyEmailPage() {
       setState("success");
       setMessage("E-Mail bestätigt. Weiter geht's mit Schritt 3 …");
       if (channel) {
-        channel.postMessage({ type: "vog-email-verify-success", email: emailParam || undefined, next: body?.next });
+        channel.postMessage({
+          type: "vog-email-verify-success",
+          email: emailParam || undefined,
+          next: nextAfterVerify,
+        });
       }
       setTimeout(() => {
-        router.push(body?.next || "/register/identity");
+        router.push(nextAfterVerify || body?.next || "/register/identity");
       }, 1200);
     } catch (err: any) {
       setState("error");
