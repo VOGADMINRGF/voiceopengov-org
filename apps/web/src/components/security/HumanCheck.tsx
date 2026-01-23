@@ -1,9 +1,8 @@
 "use client";
 // E200: Lightweight anti-bot check with honeypot, puzzle, and time heuristic.
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { derivePuzzle } from "@/lib/security/human-puzzle";
-import { safeRandomId } from "@core/utils/random";
 
 interface HumanCheckProps {
   formId?: string;
@@ -11,6 +10,75 @@ interface HumanCheckProps {
   onError?: (reason: string) => void;
   variant?: "full" | "compact";
 }
+
+
+const STORAGE_PREFIX = "vog_human_check";
+const TOKEN_TTL_MS = 10 * 60 * 1000;
+
+type StoredHumanToken = {
+  token: string;
+  ts: number;
+};
+
+function storageKey(formId: string) {
+  return `${STORAGE_PREFIX}:${formId}`;
+}
+
+function safeRandomId() {
+  const cryptoObj =
+    typeof globalThis !== "undefined" ? (globalThis.crypto as Crypto | undefined) : undefined;
+  if (cryptoObj?.randomUUID) {
+    return cryptoObj.randomUUID();
+  }
+  if (cryptoObj?.getRandomValues) {
+    const bytes = new Uint8Array(16);
+    cryptoObj.getRandomValues(bytes);
+    return Array.from(bytes)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+  }
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function readStoredToken(formId: string): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(storageKey(formId));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as StoredHumanToken;
+    if (!parsed?.token || typeof parsed.ts !== "number") {
+      sessionStorage.removeItem(storageKey(formId));
+      return null;
+    }
+    if (Date.now() - parsed.ts > TOKEN_TTL_MS) {
+      sessionStorage.removeItem(storageKey(formId));
+      return null;
+    }
+    return parsed.token;
+  } catch {
+    sessionStorage.removeItem(storageKey(formId));
+    return null;
+  }
+}
+
+function storeToken(formId: string, token: string) {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(storageKey(formId), JSON.stringify({ token, ts: Date.now() }));
+  } catch {
+    // ignore storage failures
+  }
+}
+
+function clearStoredToken(formId: string) {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.removeItem(storageKey(formId));
+  } catch {
+    // ignore storage failures
+  }
+}
+
 
 export function HumanCheck({
   formId = "public-updates",
@@ -26,6 +94,7 @@ export function HumanCheck({
   const [message, setMessage] = useState<string | null>(null);
   const startRef = useRef<number | null>(null);
   const [puzzleSeed, setPuzzleSeed] = useState<string | null>(null);
+  const restoredForRef = useRef<string | null>(null);
   const answerValue = answer.trim();
   const isAnswerValid = /^\d+$/.test(answerValue);
 
@@ -36,12 +105,29 @@ export function HumanCheck({
     startRef.current = performance.now();
   }, []);
 
+
+  useEffect(() => {
+    const storedToken = readStoredToken(formId);
+    if (!storedToken || restoredForRef.current === formId) return;
+    restoredForRef.current = formId;
+    setStatus("solved");
+    setMessage("Sicherheitscheck bereits erledigt.");
+    onSolved({ token: storedToken, meta: { restored: true } });
+  }, [formId, onSolved]);
+
   const puzzle = useMemo(() => (puzzleSeed ? derivePuzzle(puzzleSeed) : null), [puzzleSeed]);
   const refreshPuzzle = () => {
     const seed = safeRandomId();
     setPuzzleSeed(seed);
     startRef.current = performance.now();
     setAnswer("");
+  };
+
+  const handleVerifyClick = async (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (status === "checking" || status === "solved") return;
+    await handleVerify();
   };
 
   const handleVerify = async () => {
@@ -69,18 +155,24 @@ export function HumanCheck({
         }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
       if (!res.ok || !data?.ok) {
         const reason = data?.code ?? "unknown";
         setStatus("error");
         setMessage("Die Bestätigung hat nicht geklappt. Bitte kurz erneut versuchen.");
         onError?.(reason);
+        const is4xx = res.status >= 400 && res.status < 500;
+        const isRateLimit = res.status === 429 || data?.code === "ratelimit";
+        if (is4xx && !isRateLimit) {
+          clearStoredToken(formId);
+        }
         refreshPuzzle();
         return;
       }
 
       setStatus("solved");
       setMessage("Danke – kurz bestätigt.");
+      storeToken(formId, data.humanToken);
       onSolved({ token: data.humanToken, meta: { timeToSolve, puzzleSeed } });
     } catch (err) {
       setStatus("error");
@@ -194,7 +286,7 @@ export function HumanCheck({
             if (e.key !== "Enter") return;
             e.preventDefault();
             e.stopPropagation();
-            if (status !== "checking") void handleVerify();
+            if (status !== "checking" && status !== "solved") void handleVerify();
           }}
           className={`w-24 rounded-lg border bg-white px-3 py-2 text-sm outline-none ${
             isCompact
@@ -205,10 +297,8 @@ export function HumanCheck({
         />
         <button
           type="button"
-          disabled={status === "checking"}
-          onClick={() => {
-            if (status !== "checking") void handleVerify();
-          }}
+          disabled={status === "checking" || status === "solved"}
+          onClick={handleVerifyClick}
           className={`ml-auto inline-flex items-center rounded-full px-4 py-2 text-xs font-semibold text-white shadow disabled:opacity-60 ${
             isCompact
               ? "bg-slate-900 hover:bg-slate-800"

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { evaluateContactSpam } from "@/lib/spam/contactSpam";
 import { verifyHumanChallenge } from "@/lib/spam/humanChallenge";
 import { rateLimit } from "@/utils/rateLimit";
-import { sendMail } from "@/utils/mailer";
+import { sendMail } from "@/lib/mail/sendMail";
 import {
   getClientIp,
   rateLimitFromRequest,

@@ -40,7 +40,6 @@ export default function DatenschutzPage() {
             </div>
 
             <InfoCard title={strings.cookiesTitle} body={strings.cookiesBody} />
-            <InfoCard title={strings.aiTitle} body={strings.aiBody} />
 
             <div className="rounded-2xl border border-slate-100 bg-white p-4 text-sm text-slate-800 shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">

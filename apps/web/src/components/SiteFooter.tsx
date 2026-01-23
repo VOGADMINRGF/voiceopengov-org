@@ -1,27 +1,19 @@
 import Link from "next/link";
 
-const infoLinks = [
-  { href: "/ueber-uns", label: "Über Uns" },
-  { href: "/satzung", label: "Satzung (Entwurf)" },
-  { href: "/faq", label: "FAQ & Hilfe" },
-  { href: "/transparenzbericht", label: "Transparenzbericht" },
+const mainLinks = [
+  { href: "/#mitmachen", label: "Mitmachen" },
+  { href: "/dossier", label: "Dossier" },
+  { href: "/donate", label: "Spenden" },
 ];
 
-const platformLinks = [
-  { href: "/swipes", label: "Abstimmen" },
-  { href: "/statements", label: "Einreichen" },
-  { href: "/stream", label: "Präsentieren" },
-  { href: "/reports", label: "Archiv nachschlagen" },
+const initiativeLinks = [
+  { href: "/initiatives", label: "Fuer Initiativen" },
 ];
 
 const legalLinks = [
   { href: "/kontakt", label: "Kontakt" },
   { href: "/impressum", label: "Impressum" },
   { href: "/datenschutz", label: "Datenschutz" },
-  { href: "/privatsphaere", label: "Privatsphäre" },
-  { href: "/agb", label: "AGB" },
-  { href: "/widerrufsbelehrung", label: "Widerrufsbelehrung" },
-  { href: "/widerspruch", label: "Widerspruchserklärung" },
 ];
 
 const currentYear = new Date().getFullYear();
@@ -49,27 +41,26 @@ export default function SiteFooter() {
               VoiceOpenGov
             </Link>
             <p className="mt-2 text-sm font-semibold text-slate-900">
-              Offene Infrastruktur für direkte Demokratie.
+              Bewegung fuer robuste, nachvollziehbare Entscheidungen.
             </p>
             <p className="mt-3 text-sm leading-relaxed text-slate-600">
-              Keine Partei, kein Verein – wir finanzieren uns über
-              Mitgliedsbeiträge und faire Nutzungsentgelte, nicht über
-              Spendenquittungen oder versteckte Werbung.
+              VoiceOpenGov verbindet Menschen, Initiativen und Organisationen,
+              die klare Verfahren und transparente Beteiligung aufbauen wollen.
             </p>
           </div>
 
-          {/* Über VOG */}
+          {/* Mitmachen */}
           <FooterNav
-            title="Über VoiceOpenGov"
-            ariaLabel="Footer Navigation: Über VoiceOpenGov"
-            links={infoLinks}
+            title="Mitmachen"
+            ariaLabel="Footer Navigation: Mitmachen"
+            links={mainLinks}
           />
 
-          {/* Plattform nutzen */}
+          {/* Initiativen */}
           <FooterNav
-            title="Plattform nutzen"
-            ariaLabel="Footer Navigation: Plattform nutzen"
-            links={platformLinks}
+            title="Fuer Initiativen"
+            ariaLabel="Footer Navigation: Initiativen"
+            links={initiativeLinks}
           />
 
           {/* Kontakt & Rechtliches */}
@@ -83,7 +74,8 @@ export default function SiteFooter() {
         <div className="mt-8 border-t border-slate-200/70 pt-6 text-xs text-slate-500 md:flex md:items-center md:justify-between">
           <p>© {currentYear} VoiceOpenGov</p>
           <p className="mt-2 text-[11px] text-slate-500 md:mt-0">
-powerd by Ricky G. Fleischer           </p>
+            powered by Ricky G. Fleischer
+          </p>
         </div>
       </div>
     </footer>
@@ -93,7 +85,7 @@ powerd by Ricky G. Fleischer           </p>
 type FooterNavProps = {
   title: string;
   ariaLabel: string;
-  links: { href: string; label: string }[];
+  links: { href: string; label: string; external?: boolean }[];
 };
 
 function FooterNav({ title, ariaLabel, links }: FooterNavProps) {
@@ -103,12 +95,23 @@ function FooterNav({ title, ariaLabel, links }: FooterNavProps) {
       <ul className="mt-3 space-y-2 text-sm text-slate-600">
         {links.map((link) => (
           <li key={`${link.href}-${link.label}`}>
-            <Link
-              href={link.href}
-              className="transition hover:text-slate-900 hover:underline hover:underline-offset-4"
-            >
-              {link.label}
-            </Link>
+            {link.external ? (
+              <a
+                href={link.href}
+                target="_blank"
+                rel="noreferrer"
+                className="transition hover:text-slate-900 hover:underline hover:underline-offset-4"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                href={link.href}
+                className="transition hover:text-slate-900 hover:underline hover:underline-offset-4"
+              >
+                {link.label}
+              </Link>
+            )}
           </li>
         ))}
       </ul>

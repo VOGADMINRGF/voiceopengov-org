@@ -65,12 +65,11 @@
     "next-env.d.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
-    ".next/types/**/*.ts",
-    "../../MainEditor.tsx",
-    ".next/dev/types/**/*.ts"
+    "../../MainEditor.tsx"
   ],
   "exclude": [
     "node_modules",
+    ".next",
     "tools/migration/**",
     "tools/migration/VPM25/_legacy/**",
     "src/_disabled/**"

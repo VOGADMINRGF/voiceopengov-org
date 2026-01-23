@@ -66,16 +66,12 @@ export function VogCookieBanner({ strings, initialConsent }: VogCookieBannerProp
               {strings.banner.title}
             </div>
             <p className="text-sm text-slate-700">{strings.banner.lead}</p>
-            <p className="text-[11px] text-slate-600">{strings.dialog.aiUsageBody}</p>
             <div className="flex flex-wrap gap-4 text-xs text-slate-600">
               <Link href="/datenschutz" className="font-semibold text-emerald-700 underline underline-offset-2">
                 {strings.banner.links.privacy}
               </Link>
               <Link href="/impressum" className="font-semibold text-emerald-700 underline underline-offset-2">
                 {strings.banner.links.imprint}
-              </Link>
-              <Link href="/ki-nutzung" className="font-semibold text-emerald-700 underline underline-offset-2">
-                {strings.banner.links.aiUsage}
               </Link>
             </div>
           </div>
@@ -134,7 +130,7 @@ export function VogCookieBanner({ strings, initialConsent }: VogCookieBannerProp
             {settingsOpen && (
               <div className="space-y-1 rounded-lg bg-white/60 p-3 text-[11px] text-emerald-800">
                 <p className="font-semibold">{strings.dialog.title}</p>
-                <p>{strings.dialog.aiUsageBody}</p>
+                <p>{strings.dialog.intro}</p>
               </div>
             )}
           </div>

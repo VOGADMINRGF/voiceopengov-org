@@ -56,56 +56,46 @@ const STRINGS = {
   dataPoints: {
     de: [
       {
-        label: "Account",
+        label: "Unterstuetzer:innen",
         description:
-          "Basisdaten wie E-Mail-Adresse, Zugangsdaten, optionale Profilangaben und Einstellungen, die du in deinem Konto hinterlegst.",
+          "Angaben aus dem Mitmachen-Formular (z. B. Name, E-Mail, Geburtsdatum und -ort, Land, Support-Modus, optionale Skills). Wir nutzen diese Daten fuer Moderation, Rueckfragen und interne Abstimmungen. Fuer den Globus und die Live-Zahlen verwenden wir nur aggregierte Werte.",
       },
       {
-        label: "Nutzung & Telemetrie",
+        label: "Initiativen-Intake",
         description:
-          "Protokoll- und Telemetriedaten, um Stabilität, Sicherheit, Missbrauchserkennung und Fehleranalyse zu ermöglichen (z. B. Zeitstempel, technische Requests, ggf. IP-Adresse in gekürzter Form).",
+          "Angaben zu Organisationen oder Initiativen (z. B. Name, Kontakt, Thema, Region, Ziel und Notizen), damit wir das Anliegen strukturiert pruefen und rueckmelden koennen.",
       },
       {
-        label: "Beteiligung & Abstimmungen",
+        label: "Kontakt & Support",
         description:
-          "Inhalte, die du beisteuerst (Beiträge, Kommentare, Kontextkarten, Bewertungen) sowie deine Stimmen und Beteiligungsaktionen, soweit sie im System gespeichert werden. Öffentliche Inhalte sind für andere Nutzer:innen sichtbar.",
+          "Nachrichten und Kontaktdaten aus Formularen oder E-Mails, die fuer die Bearbeitung deiner Anfrage erforderlich sind.",
       },
       {
-        label: "Mitgliedschaften & Beiträge",
+        label: "Technische Sicherheitsdaten",
         description:
-          "Daten zu Unterstützungs- oder Mitgliedschaftsmodellen, z. B. gewähltes Paket, Laufzeit, Zahlungsinformationen und Zahlungsstatus. Bei Zahlungen über Zahlungsdienstleister (z. B. Bank, PayPal) gelten zusätzlich deren Datenschutzbestimmungen.",
-      },
-      {
-        label: "Kommunikation",
-        description:
-          "Inhalte aus Kontaktanfragen, Support-Nachrichten oder Feedback sowie die von dir angegebenen Kontaktdaten.",
+          "Protokolldaten zur Absicherung der Formulare (z. B. Zeitstempel, IP/Agent-Hashes, Rate-Limits). Diese Daten dienen Missbrauchsschutz und Stabilitaet.",
       },
     ],
     en: [
       {
-        label: "Account",
+        label: "Supporters",
         description:
-          "Basic account data such as e-mail address, login credentials, optional profile information and settings you store in your account.",
+          "Details submitted via the join form (e.g. name, e-mail, birth date/place, country, support mode, optional skills). We use these details for moderation, follow-ups and internal coordination. The globe and live stats show aggregated data only.",
       },
       {
-        label: "Usage & telemetry",
+        label: "Initiatives intake",
         description:
-          "Log and telemetry data to ensure stability, security, abuse detection and debugging (e.g. timestamps, technical requests, possibly IP address in truncated form).",
+          "Organisation or initiative details (e.g. name, contact, topic, region, goal, notes) so we can review and follow up in a structured way.",
       },
       {
-        label: "Participation & votes",
+        label: "Contact & support",
         description:
-          "Content you contribute (posts, comments, context cards, ratings) as well as your votes and participation actions to the extent they are stored in the system. Public content is visible to other users.",
+          "Messages and contact details submitted via forms or e-mail that are required to handle your request.",
       },
       {
-        label: "Memberships & contributions",
+        label: "Technical security data",
         description:
-          "Data relating to support or membership models, e.g. chosen package, term, payment information and payment status. For payments via payment service providers (e.g. bank, PayPal), their privacy policies also apply.",
-      },
-      {
-        label: "Communication",
-        description:
-          "Content of contact requests, support messages or feedback and the contact details you provide.",
+          "Log data used to protect forms (e.g. timestamps, hashed IP/user agent data, rate limits). This data is used for abuse prevention and stability.",
       },
     ],
   } as LocaleValue<PrivacyDataPoint[]>,
@@ -132,23 +122,6 @@ const STRINGS = {
     ].join("\n"),
   } as LocaleValue<string>,
 
-  aiTitle: {
-    de: "KI- und API-Nutzung",
-    en: "Use of AI and APIs",
-  } as LocaleValue<string>,
-
-  aiBody: {
-    de: [
-      "Wir setzen ausgewählte KI- und API-Dienste ein, um Inhalte zu analysieren, zu strukturieren oder zu übersetzen (z. B. für Textanalyse, Moderation, Strukturierung von Beiträgen). Die Verarbeitung erfolgt dabei möglichst datensparsam; wo möglich, werden Inhalte pseudonymisiert oder gekürzt übertragen.",
-      "",
-      "Näheres zu den jeweils eingesetzten Anbietern, Datenkategorien, Rechtsgrundlagen und Schutzmechanismen findest du unter /ki-nutzung. KI trifft bei VoiceOpenGov keine Entscheidungen allein: Ergebnisse werden durch Regeln, Logs und – wo nötig – menschliche Prüfungen abgesichert.",
-    ].join("\n"),
-    en: [
-      "We use selected AI and API services to analyse, structure or translate content (e.g. text analysis, moderation, structuring of contributions). We aim to minimise data and, where possible, use pseudonymisation or truncation before sending data to providers.",
-      "",
-      "Further details on the providers used, categories of data, legal bases and safeguards can be found at /ki-nutzung. AI does not make decisions on its own at VoiceOpenGov: results are constrained by rules, logs and – where necessary – human review.",
-    ].join("\n"),
-  } as LocaleValue<string>,
 
   rightsTitle: {
     de: "Deine Rechte",
@@ -237,8 +210,6 @@ export function getPrivacyStrings(locale: SupportedLocale | string) {
     dataPoints: pick(STRINGS.dataPoints, locale),
     cookiesTitle: pick(STRINGS.cookiesTitle, locale),
     cookiesBody: pick(STRINGS.cookiesBody, locale),
-    aiTitle: pick(STRINGS.aiTitle, locale),
-    aiBody: pick(STRINGS.aiBody, locale),
     rightsTitle: pick(STRINGS.rightsTitle, locale),
     rightsIntro: pick(STRINGS.rightsIntro, locale),
     rightsPoints: pick(STRINGS.rightsPoints, locale),

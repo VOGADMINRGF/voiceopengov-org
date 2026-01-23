@@ -1,14 +1,12 @@
 // apps/web/src/config/locales.ts
-import {
-  CORE_LOCALES as CORE_LOCALES_BASE,
-  EXTENDED_LOCALES as EXTENDED_LOCALES_BASE,
-  SUPPORTED_LOCALES as SUPPORTED_LOCALES_BASE,
-  DEFAULT_LOCALE as DEFAULT_LOCALE_BASE,
-  isSupportedLocale as isCoreSupportedLocale,
-} from "@core/locale/locales";
 
-type CoreSupportedLocale = (typeof SUPPORTED_LOCALES_BASE)[number];
-export type SupportedLocale = CoreSupportedLocale;
+const CORE_LOCALES = ["de", "en"] as const;
+const EXTENDED_LOCALES = ["fr", "pl", "es", "it", "tr", "ar", "ru", "zh"] as const;
+
+export const SUPPORTED_LOCALES = [...CORE_LOCALES, ...EXTENDED_LOCALES] as const;
+export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
+
+export const DEFAULT_LOCALE: SupportedLocale = "de";
 
 export interface LocaleConfig {
   code: SupportedLocale;
@@ -16,12 +14,6 @@ export interface LocaleConfig {
   flagEmoji: string;
   defaultRegion?: string;
 }
-
-export const CORE_LOCALES = CORE_LOCALES_BASE;
-export const EXTENDED_LOCALES = EXTENDED_LOCALES_BASE;
-export const SUPPORTED_LOCALES = SUPPORTED_LOCALES_BASE;
-export const DEFAULT_LOCALE = DEFAULT_LOCALE_BASE;
-export const isSupportedLocale = isCoreSupportedLocale;
 
 export const LOCALE_CONFIG: LocaleConfig[] = [
   { code: "de", label: "Deutsch", flagEmoji: "🇩🇪", defaultRegion: "DE" },
@@ -46,6 +38,10 @@ export function getLocaleConfig(code: SupportedLocale): LocaleConfig {
       defaultRegion: undefined,
     }
   );
+}
+
+export function isSupportedLocale(locale: string | null | undefined): locale is SupportedLocale {
+  return !!locale && (SUPPORTED_LOCALES as readonly string[]).includes(locale);
 }
 
 export function isCoreLocale(locale: string | null | undefined): locale is SupportedLocale {

@@ -1,4 +1,4 @@
-// E200: Zentrale Texte für VoiceOpenGov-Cookie-/Datenschutzbanner & KI-Hinweis
+// E200: Zentrale Texte für VoiceOpenGov-Cookie-/Datenschutzbanner.
 import { DEFAULT_LOCALE, type SupportedLocale } from "@/config/locales";
 
 type LocaleValue<T> = Record<"de", T> & Partial<Record<SupportedLocale, T>>;
@@ -47,18 +47,6 @@ const LINK_IMPRINT = {
   de: "Impressum",
 };
 
-const LINK_AI_USAGE = {
-  de: "Wie wir KI einsetzen",
-};
-
-const AI_USAGE_TITLE = {
-  de: "Einsatz von KI- und API-Diensten",
-};
-
-const AI_USAGE_BODY = {
-  de: "Für Analyse- und Auswertefunktionen setzen wir externe KI-Dienste wie OpenAI, Anthropic (Claude), Mistral oder Google Gemini ein. Diese Systeme werden ausschließlich serverseitig über unsere eigenen API-Schlüssel angesprochen. Auf deiner Seite setzen wir dafür keine eigenen Drittanbieter-Cookies. Welche Daten wir an diese Dienste übergeben und nach welchen Regeln wir sie einsetzen, beschreiben wir ausführlich in unserer Datenschutzerklärung.",
-};
-
 const DIALOG_TITLE = {
   de: "Datenschutz-Einstellungen für VoiceOpenGov",
 };
@@ -83,14 +71,11 @@ const PRIVACY_STRINGS = {
     links: {
       privacy: LINK_PRIVACY,
       imprint: LINK_IMPRINT,
-      aiUsage: LINK_AI_USAGE,
     },
   },
   dialog: {
     title: DIALOG_TITLE,
     intro: DIALOG_INTRO,
-    aiUsageTitle: AI_USAGE_TITLE,
-    aiUsageBody: AI_USAGE_BODY,
   },
 } as const satisfies {
   banner: {
@@ -108,14 +93,11 @@ const PRIVACY_STRINGS = {
     links: {
       privacy: LocaleValue<string>;
       imprint: LocaleValue<string>;
-      aiUsage: LocaleValue<string>;
     };
   };
   dialog: {
     title: LocaleValue<string>;
     intro: LocaleValue<string>;
-    aiUsageTitle: LocaleValue<string>;
-    aiUsageBody: LocaleValue<string>;
   };
 };
 
@@ -141,14 +123,11 @@ export function getPrivacyStrings(locale: SupportedLocale | string) {
       links: {
         privacy: pick(PRIVACY_STRINGS.banner.links.privacy),
         imprint: pick(PRIVACY_STRINGS.banner.links.imprint),
-        aiUsage: pick(PRIVACY_STRINGS.banner.links.aiUsage),
       },
     },
     dialog: {
       title: pick(PRIVACY_STRINGS.dialog.title),
       intro: pick(PRIVACY_STRINGS.dialog.intro),
-      aiUsageTitle: pick(PRIVACY_STRINGS.dialog.aiUsageTitle),
-      aiUsageBody: pick(PRIVACY_STRINGS.dialog.aiUsageBody),
     },
   };
 }
