@@ -36,7 +36,7 @@ const SHAPE_OPTIONS = [
     label: "Dreieck",
     hint: "grün",
     shape: "triangle" as const,
-    gradient: "bg-gradient-to-br from-emerald-300 to-emerald-500",
+    gradient: "bg-gradient-to-br from-sky-300 to-sky-500",
   },
 ];
 
@@ -155,7 +155,7 @@ export default function KontaktForm({ sent, error, challenge }: Props) {
         Wir routen dein Anliegen intern an die passende Stelle.
       </p>
       {sent && (
-        <div className="mt-3 rounded-xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-800">
+        <div className="mt-3 rounded-xl border border-sky-100 bg-sky-50/80 px-4 py-3 text-sm text-sky-800">
           Danke! Deine Nachricht ist bei uns angekommen. Wir freuen uns über jedes Feedback und
           melden uns zeitnah.
         </div>
@@ -397,7 +397,7 @@ export default function KontaktForm({ sent, error, challenge }: Props) {
         <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <button
             type="submit"
-            className="w-full rounded-full bg-gradient-to-r from-sky-500 via-cyan-500 to-emerald-500 px-8 py-3 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(14,116,144,0.35)] transition hover:brightness-105 focus:outline-none focus:ring-2 focus:ring-sky-200 md:w-auto md:px-10"
+            className="w-full rounded-full bg-gradient-to-r from-sky-500 via-cyan-500 to-sky-500 px-8 py-3 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(14,116,144,0.35)] transition hover:brightness-105 focus:outline-none focus:ring-2 focus:ring-sky-200 md:w-auto md:px-10"
           >
             Anfrage absenden
           </button>

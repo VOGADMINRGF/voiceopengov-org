@@ -206,7 +206,7 @@ export function HumanCheck({
         className={`space-y-2 rounded-xl border p-4 text-xs ${
           isCompact
             ? "border-slate-200 bg-white/95 text-slate-600 shadow-sm"
-            : "border-emerald-100 bg-emerald-50/70 text-emerald-800"
+            : "border-sky-100 bg-sky-50/70 text-sky-800"
         }`}
       >
         Lade kurze Bestätigung …
@@ -219,13 +219,13 @@ export function HumanCheck({
       className={`space-y-3 rounded-xl border p-4 ${
         isCompact
           ? "border-slate-200 bg-white/95 shadow-sm"
-          : "border-emerald-100 bg-emerald-50/70"
+          : "border-sky-100 bg-sky-50/70"
       }`}
     >
       <div className="flex items-center justify-between gap-2">
         <p
           className={`text-sm font-semibold ${
-            isCompact ? "text-slate-900" : "text-emerald-900"
+            isCompact ? "text-slate-900" : "text-sky-900"
           }`}
         >
           Kurze Bestätigung: Bist du ein Mensch?
@@ -233,14 +233,14 @@ export function HumanCheck({
         {status === "solved" && (
           <span
             className={`text-xs font-semibold ${
-              isCompact ? "text-slate-600" : "text-emerald-700"
+              isCompact ? "text-slate-600" : "text-sky-700"
             }`}
           >
             ✓ geprüft
           </span>
         )}
       </div>
-      <p className={`text-xs ${isCompact ? "text-slate-600" : "text-emerald-800"}`}>
+      <p className={`text-xs ${isCompact ? "text-slate-600" : "text-sky-800"}`}>
         Wir schützen Formulare vor Spam. Kein Tracking, nur ein kleiner Check: Bitte rechne die Aufgabe und lass das versteckte
         Feld leer.
       </p>
@@ -260,12 +260,12 @@ export function HumanCheck({
         className={`flex items-center gap-3 rounded-lg border px-3 py-2 ${
           isCompact
             ? "border-slate-200 bg-slate-50/60"
-            : "border-emerald-200 bg-white/70"
+            : "border-sky-200 bg-white/70"
         }`}
       >
         <span
           className={`text-sm font-semibold ${
-            isCompact ? "text-slate-900" : "text-emerald-900"
+            isCompact ? "text-slate-900" : "text-sky-900"
           }`}
         >
           {puzzle.first} + {puzzle.second} =
@@ -291,7 +291,7 @@ export function HumanCheck({
           className={`w-24 rounded-lg border bg-white px-3 py-2 text-sm outline-none ${
             isCompact
               ? "border-slate-200 text-slate-900 focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
-              : "border-emerald-200 text-emerald-900 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+              : "border-sky-200 text-sky-900 focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
           }`}
           aria-label="Ergebnis eintragen"
         />
@@ -302,7 +302,7 @@ export function HumanCheck({
           className={`ml-auto inline-flex items-center rounded-full px-4 py-2 text-xs font-semibold text-white shadow disabled:opacity-60 ${
             isCompact
               ? "bg-slate-900 hover:bg-slate-800"
-              : "bg-emerald-600 hover:brightness-110"
+              : "bg-sky-600 hover:brightness-110"
           }`}
         >
           {status === "checking" ? "Prüfen …" : status === "solved" ? "Bestätigt" : "Kurz prüfen"}
@@ -310,7 +310,7 @@ export function HumanCheck({
       </div>
 
       {message && (
-        <p className={`text-xs ${isCompact ? "text-slate-600" : "text-emerald-700"}`}>
+        <p className={`text-xs ${isCompact ? "text-slate-600" : "text-sky-700"}`}>
           {message}
         </p>
       )}

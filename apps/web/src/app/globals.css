@@ -14,7 +14,7 @@
   --brand-blue: #2196f3;
   --brand-accent-1: #05b8f6;
   --brand-accent-2: #0ad0b2;
-  --brand-from: #eafcf6;
+  --brand-from: #ecfeff;
   --brand-to: #fefefe;
   --chip-border: rgba(15, 23, 42, 0.12);
   --chip-bg: rgba(255, 255, 255, 0.9);
@@ -473,9 +473,9 @@ mark {
 }
 
 .z-green {
-  background: rgba(16, 185, 129, 0.12);
-  color: #065f46;
-  border-color: rgba(16, 185, 129, 0.35);
+  background: rgba(14, 165, 233, 0.12);
+  color: #0c4a6e;
+  border-color: rgba(14, 165, 233, 0.35);
 }
 
 .z-violet {
@@ -512,7 +512,7 @@ mark {
 }
 
 .z-done {
-  background: #10b981;
+  background: #0ea5e9;
 }
 
 @keyframes pingDot {

@@ -41,25 +41,25 @@ export function SupporterBanner() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Unsere Unterstuetzer
+              Unsere Unterstützer
             </p>
             <h3 className="mt-1 text-lg font-semibold text-slate-900">
-              Danke fuer euren Rueckenwind
+              Danke für euren Rückenwind
             </h3>
             <p className="mt-1 text-xs text-slate-600">
-              Nur oeffentliche Eintraege. Namen werden gekuerzt.
+              Nur öffentliche Einträge. Namen werden gekürzt.
             </p>
           </div>
           <div className="text-xs text-slate-500">
-            {loading ? "laedt..." : `${supporters.length} sichtbar`}
+            {loading ? "lädt…" : `${supporters.length} sichtbar`}
           </div>
         </div>
 
         {shown.length === 0 ? (
           <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-xs text-slate-500">
             {loading
-              ? "Unterstuetzer werden geladen."
-              : "Noch keine oeffentlichen Unterstuetzer sichtbar."}
+              ? "Unterstützer werden geladen."
+              : "Noch keine öffentlichen Unterstützer sichtbar."}
           </div>
         ) : (
           <div className="mt-5 grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
