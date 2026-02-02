@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { WorldPanoramaMap } from "@/components/home/WorldPanoramaMap";
 import { SupporterBanner } from "@/components/home/SupporterBanner";
 import { COUNTRY_OPTIONS } from "@/lib/countries";
@@ -14,13 +14,16 @@ type Stats = {
 
 type Notice = { ok: boolean; msg: string } | null;
 
+const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
+const DONATION_URL = "https://startnext.com/mehrheit";
+
 function formatNumber(value: number | null | undefined) {
   if (typeof value !== "number") return "—";
   return new Intl.NumberFormat("de-DE").format(value);
 }
 
 export default function HomeClient() {
-  const [stats, setStats] = useState<Stats | null>(null);
+  const [stats, setStats] = useState<Stats>({ people: 0, orgs: 0, countries: 0 });
   const [statsError, setStatsError] = useState(false);
 
   const [memberType, setMemberType] = useState<"person" | "organisation">("person");
@@ -32,13 +35,21 @@ export default function HomeClient() {
   const [countryCode, setCountryCode] = useState("");
   const [isPublic, setIsPublic] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarDataUrl, setAvatarDataUrl] = useState<string | null>(null);
+  const [avatarFileName, setAvatarFileName] = useState("");
   const [publicSupporter, setPublicSupporter] = useState(false);
   const [supporterImageUrl, setSupporterImageUrl] = useState("");
+  const [supporterImageDataUrl, setSupporterImageDataUrl] = useState<string | null>(null);
+  const [supporterImageFileName, setSupporterImageFileName] = useState("");
   const [wantsNewsletter, setWantsNewsletter] = useState(false);
-  const [donationAmount, setDonationAmount] = useState("");
+  const [wantsNewsletterEdDebatte, setWantsNewsletterEdDebatte] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [notice, setNotice] = useState<Notice>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDonationPopup, setShowDonationPopup] = useState(false);
+  const membershipRef = useRef<HTMLElement | null>(null);
+  const avatarFileRef = useRef<HTMLInputElement | null>(null);
+  const supporterFileRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -67,12 +78,42 @@ export default function HomeClient() {
 
   const statItems = useMemo(
     () => [
-      { label: "Mitglieder", value: formatNumber(stats?.people ?? null) },
-      { label: "Organisationen", value: formatNumber(stats?.orgs ?? null) },
-      { label: "Länder", value: formatNumber(stats?.countries ?? null) },
+      { label: "Mitglieder", value: formatNumber(stats.people) },
+      { label: "Organisationen", value: formatNumber(stats.orgs) },
+      { label: "Länder", value: formatNumber(stats.countries) },
     ],
     [stats],
   );
+
+  const handleImageFile = (
+    file: File | null,
+    setDataUrl: (value: string | null) => void,
+    setFileName: (value: string) => void,
+  ) => {
+    if (!file) {
+      setDataUrl(null);
+      setFileName("");
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      setNotice({ ok: false, msg: "Bitte eine Bilddatei auswählen." });
+      return;
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      setNotice({ ok: false, msg: "Bitte ein Bild unter 2 MB hochladen." });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === "string" ? reader.result : "";
+      setDataUrl(result || null);
+      setFileName(file.name);
+    };
+    reader.onerror = () => {
+      setNotice({ ok: false, msg: "Bild konnte nicht gelesen werden." });
+    };
+    reader.readAsDataURL(file);
+  };
 
   const resetForm = () => {
     setMemberType("person");
@@ -84,11 +125,35 @@ export default function HomeClient() {
     setCountryCode("");
     setIsPublic(true);
     setAvatarUrl("");
+    setAvatarDataUrl(null);
+    setAvatarFileName("");
     setPublicSupporter(false);
     setSupporterImageUrl("");
+    setSupporterImageDataUrl(null);
+    setSupporterImageFileName("");
     setWantsNewsletter(false);
-    setDonationAmount("");
+    setWantsNewsletterEdDebatte(false);
     setPrivacyAccepted(false);
+    if (avatarFileRef.current) avatarFileRef.current.value = "";
+    if (supporterFileRef.current) supporterFileRef.current.value = "";
+  };
+
+  useEffect(() => {
+    setAvatarUrl("");
+    setAvatarDataUrl(null);
+    setAvatarFileName("");
+    setSupporterImageUrl("");
+    setSupporterImageDataUrl(null);
+    setSupporterImageFileName("");
+    if (avatarFileRef.current) avatarFileRef.current.value = "";
+    if (supporterFileRef.current) supporterFileRef.current.value = "";
+  }, [memberType]);
+
+  const scrollToMembership = (options?: { precheckNewsletter?: boolean }) => {
+    if (options?.precheckNewsletter) {
+      setWantsNewsletter(true);
+    }
+    membershipRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -105,24 +170,21 @@ export default function HomeClient() {
       return;
     }
 
-    const donationRaw = donationAmount.trim();
-    let donationCents = 0;
-    if (donationRaw) {
-      const normalized = donationRaw.replace(",", ".");
-      const parsed = Number(normalized);
-      if (!Number.isFinite(parsed)) {
-        setNotice({ ok: false, msg: "Bitte gib einen gültigen Spendenbetrag ein." });
-        return;
-      }
-      donationCents = Math.round(parsed * 100);
-      if (donationCents > 0 && donationCents < 500) {
-        setNotice({ ok: false, msg: "Spendenbetrag mindestens 5 €." });
-        return;
-      }
-    }
-
     setIsSubmitting(true);
     try {
+      const avatarValue =
+        isPublic && memberType === "person"
+          ? avatarDataUrl || undefined
+          : isPublic && memberType === "organisation"
+            ? avatarUrl.trim() || undefined
+            : undefined;
+
+      const supporterImageValue = publicSupporter
+        ? memberType === "person"
+          ? supporterImageDataUrl || undefined
+          : supporterImageUrl.trim() || undefined
+        : undefined;
+
       const payload: Record<string, unknown> = {
         type: memberType,
         email: email.trim(),
@@ -132,11 +194,11 @@ export default function HomeClient() {
         city: city.trim() || undefined,
         country: countryCode || undefined,
         isPublic,
-        avatarUrl: isPublic ? avatarUrl.trim() || undefined : undefined,
+        avatarUrl: avatarValue,
         publicSupporter,
-        supporterImageUrl: publicSupporter ? supporterImageUrl.trim() || undefined : undefined,
-        wantsNewsletterEdDebatte: wantsNewsletter,
-        donationCents: donationCents || undefined,
+        supporterImageUrl: supporterImageValue,
+        wantsNewsletter,
+        wantsNewsletterEdDebatte,
       };
 
       const res = await fetch("/api/members/public-register", {
@@ -148,9 +210,12 @@ export default function HomeClient() {
 
       if (res.ok && data?.ok) {
         setNotice({ ok: true, msg: "Bitte E-Mail bestätigen – wir haben dir einen Link geschickt." });
+        setStats((prev) => ({
+          ...prev,
+          people: prev.people + (memberType === "person" ? 1 : 0),
+          orgs: prev.orgs + (memberType === "organisation" ? 1 : 0),
+        }));
         resetForm();
-      } else if (data?.error === "donation_min_5_eur") {
-        setNotice({ ok: false, msg: "Spendenbetrag mindestens 5 €." });
       } else {
         setNotice({ ok: false, msg: "Das hat nicht geklappt. Bitte später erneut versuchen." });
       }
@@ -182,21 +247,27 @@ export default function HomeClient() {
                   <span className="block text-slate-900">Nachvollziehbar statt parteitaktisch.</span>
                 </h1>
                 <p className="max-w-2xl text-lg text-slate-700 md:text-xl">
-                  Eine unabhängige Infrastruktur, damit Stimmen wieder Gewicht bekommen — transparent,
-                  überprüfbar, grenzübergreifend.
+                  Viele Menschen erleben Politik als intransparent, folgenlos und
+                  korruptionsanfällig – während Krisen, Konflikte, Sanktionen, Preise und soziale
+                  Spannungen den Alltag prägen. VoiceOpenGov baut eine unabhängige Infrastruktur,
+                  damit Entscheidungen wieder prüfbar, fair und mehrheitsfähig werden – über
+                  Grenzen hinweg.
                 </p>
                 <ul className="space-y-2 text-sm text-slate-700">
-                  <li className="flex gap-2">
+                  <li className="flex gap-3 text-sm text-slate-700">
                     <span className="mt-2 h-1.5 w-1.5 rounded-full bg-sky-600" />
-                    Keine Partei: Inhalte entstehen mit der Gemeinschaft, nicht als fertiges Programm.
+                    Nicht links, nicht rechts – sondern überprüfbar: Quellen, Begriffe und Optionen
+                    sind offen dokumentiert.
                   </li>
-                  <li className="flex gap-2">
+                  <li className="flex gap-3 text-sm text-slate-700">
                     <span className="mt-2 h-1.5 w-1.5 rounded-full bg-sky-600" />
-                    Kein Verein: unabhängig, fokussiert auf Nachvollziehbarkeit statt Förderlogik.
+                    Keine Partei, kein Verein: Inhalte entstehen mit der Gemeinschaft – unabhängig
+                    von Lagerdenken und Förderlogik.
                   </li>
-                  <li className="flex gap-2">
+                  <li className="flex gap-3 text-sm text-slate-700">
                     <span className="mt-2 h-1.5 w-1.5 rounded-full bg-sky-600" />
-                    Ein Werkzeug: eDebatte macht Quellen, Optionen und Mehrheiten prüfbar.
+                    Ein Werkzeug, ein Prüfpfad: eDebatte macht Mehrheiten nachvollziehbar – von der
+                    Frage bis zur Umsetzung.
                   </li>
                 </ul>
 
@@ -216,19 +287,24 @@ export default function HomeClient() {
 
                 <div className="flex flex-wrap items-center gap-3">
                   <Link href="#mitmachen" className="btn btn-primary">
-                    Mitglied werden (kostenfrei)
+                    Kostenfrei beitreten
                   </Link>
-                  <Link
-                    href="#newsletter"
-                    className="btn border border-sky-300 text-sky-700 hover:bg-sky-50"
+                  <button
+                    type="button"
+                    onClick={() => scrollToMembership({ precheckNewsletter: true })}
+                    className="btn btn-ghost"
                   >
                     Newsletter
-                  </Link>
-                  <Link
-                    href="#spenden"
-                    className="btn border border-sky-300 text-sky-700 hover:bg-sky-50"
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowDonationPopup(true)}
+                    className="btn btn-ghost"
                   >
-                    Spenden ab 5 €
+                    Spenden via Startnext
+                  </button>
+                  <Link href="/initiatives" className="btn btn-ghost">
+                    Chapter starten
                   </Link>
                 </div>
               </div>
@@ -239,22 +315,119 @@ export default function HomeClient() {
         </div>
       </section>
 
-      <section id="dossier-beispiel" className="mx-auto mt-12 max-w-6xl px-4">
+      <section id="trust" className="mx-auto mt-12 max-w-6xl px-4">
         <div className="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-sky-700">
-            Beispiel-Dossier
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Vertrauen & Prüfpfade
           </p>
-          <h2 className="mt-2 text-2xl font-bold text-slate-900">Direkte Demokratie</h2>
-          <p className="mt-2 text-sm text-slate-700">
-            Ein Dossier bündelt Behauptungen, Quellen, offene Fragen und Varianten — damit
-            Mehrheiten auf überprüfbaren Grundlagen entscheiden können.
+          <h2 className="mt-2 text-2xl font-bold text-slate-900">
+            Vertrauen entsteht nicht durch Versprechen – sondern durch Prüfpfade.
+          </h2>
+          <p className="mt-3 text-sm text-slate-700">
+            Wir behaupten nicht, die Wahrheit zu besitzen. Wir machen sie prüfbar: Jede Aussage
+            bekommt Kontext, Quellen und Gegenargumente. Jede Entscheidung zeigt, wer was wann
+            vorgeschlagen hat, welche Optionen zur Wahl standen – und warum eine Mehrheit sich so
+            entschieden hat.
+          </p>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {[
+              {
+                title: "Quellenpflicht & Standards",
+                body: "Begriffe, Quellen, Annahmen und offene Fragen werden sichtbar.",
+              },
+              {
+                title: "Mehrheiten mit Kontext",
+                body: "Nicht nur Stimmung, sondern begründete Entscheidungen.",
+              },
+              {
+                title: "Umsetzung sichtbar",
+                body: "Zuständigkeiten, Status und nächste Schritte (wo möglich).",
+              },
+              {
+                title: "Datenschutz & Unabhängigkeit",
+                body: "Kein Datenverkauf, keine Werbung, Double-Opt-In.",
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4"
+              >
+                <h3 className="text-sm font-semibold text-slate-900">{item.title}</h3>
+                <p className="mt-2 text-xs text-slate-600">{item.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="chapter" className="mx-auto mt-12 max-w-6xl px-4">
+        <div className="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Chapters
+          </p>
+          <h2 className="mt-2 text-2xl font-bold text-slate-900">
+            Ein Chapter in jedem Land. In jedem Bundesland. Ein offener Anlaufpunkt – digital und
+            analog.
+          </h2>
+          <p className="mt-3 text-sm text-slate-700">
+            Politikverdrossenheit entsteht oft, weil Menschen nicht wissen, wo sie ihr Anliegen
+            wirksam adressieren können – und weil Prozesse im Zuständigkeits-Nebel verschwinden.
+            Darum bauen wir Chapters: lokale, offene Sprechstunden (z. B. in Stadtteilen, Kommunen,
+            Regionen), in denen Anliegen analog aufgenommen werden – und anschließend digital so
+            strukturiert werden, dass sie prüfbar und abstimmbar sind.
           </p>
 
           <div className="mt-4 grid gap-3 md:grid-cols-3">
             {[
-              "Welche Formen direkter Demokratie funktionieren langfristig?",
-              "Wie verhindern wir taktische Kampagnen ohne Transparenzverlust?",
-              "Welche Standards brauchen Abstimmungen über Grenzen hinweg?",
+              "Anliegen aufnehmen (vor Ort oder online)",
+              "Dossier erstellen (Begriffe, Quellen, Optionen, offene Fragen)",
+              "Mehrheiten bilden (Abstimmen + transparente Ergebnis- und Umsetzungsübersicht)",
+            ].map((step) => (
+              <div
+                key={step}
+                className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-xs text-slate-700"
+              >
+                {step}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link href="/initiatives" className="btn btn-primary">
+              Chapter starten
+            </Link>
+            <Link href="#mitmachen" className="btn btn-ghost">
+              Mitmachen
+            </Link>
+            <Link
+              href="/initiatives?kind=org"
+              className="btn btn-ghost"
+            >
+              Organisation anmelden
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section id="dossier-beispiel" className="mx-auto mt-12 max-w-6xl px-4">
+        <div className="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Beispiel-Dossier
+          </p>
+          <h2 className="mt-2 text-2xl font-bold text-slate-900">
+            Beispiel-Dossier: Direkte Demokratie
+          </h2>
+          <p className="mt-2 text-sm text-slate-700">
+            Ein Dossier bündelt Behauptungen, Quellen, Gegenpositionen, offene Fragen und
+            Varianten – damit Mehrheiten auf belastbaren Grundlagen entscheiden.
+          </p>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {[
+              "Was braucht direkte Demokratie, damit sie fair bleibt – auch bei Kampagnen?",
+              "Welche Mindest-Standards müssen Abstimmungen erfüllen (Identität, Transparenz, Schutz vor Manipulation)?",
+              "Wie bleibt Verantwortung sichtbar: Wer setzt Mehrheiten um – und was passiert bei Nichterfüllung?",
             ].map((item) => (
               <div
                 key={item}
@@ -271,9 +444,9 @@ export default function HomeClient() {
             </Link>
             <Link
               href="/initiatives"
-              className="btn border border-sky-300 text-sky-700 hover:bg-sky-50"
+              className="btn btn-ghost"
             >
-              Mehr Beiträge einreichen
+              Beitrag einreichen
             </Link>
           </div>
         </div>
@@ -285,7 +458,7 @@ export default function HomeClient() {
             Systemvergleich
           </p>
           <h2 className="mt-2 text-2xl font-bold text-slate-900">
-            Warum das heutige System scheitert — und wie wir es ersetzen
+            Warum das heutige System oft blockiert – und was wir anders machen
           </h2>
 
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
@@ -294,9 +467,9 @@ export default function HomeClient() {
                 Heute (parlamentarisch)
               </p>
               <ul className="mt-3 space-y-2 text-sm text-slate-700">
-                <li>Koalitionslogik dominiert Inhalte.</li>
-                <li>Debatten werden gewonnen statt geprüft.</li>
-                <li>Entscheidungen bleiben schwer nachvollziehbar.</li>
+                <li>Zuständigkeiten verschwimmen (Kommune/Land/Bund/EU).</li>
+                <li>Debatten belohnen Taktik statt Nachvollziehbarkeit.</li>
+                <li>Konsequenzen wirken unklar oder folgenlos.</li>
               </ul>
             </div>
 
@@ -305,13 +478,13 @@ export default function HomeClient() {
                 Neu (Mehrheitsprinzip mit Dossier)
               </p>
               <ul className="mt-3 space-y-2 text-sm text-slate-700">
-                <li>Optionen und Quellen sind offen sichtbar.</li>
-                <li>Mehrheiten sind prüfbar und dokumentiert.</li>
-                <li>Umsetzung bleibt nachvollziehbar (Prüfpfad).</li>
+                <li>Optionen & Quellen sind offen (prüfbar statt „Glauben“).</li>
+                <li>Mehrheiten sind dokumentiert (mit Kontext, nicht nur Prozent).</li>
+                <li>Umsetzung wird sichtbar (Status, Zuständigkeit, nächste Schritte).</li>
               </ul>
               <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold text-sky-700">
                 {[
-                  "1. Prüfung",
+                  "1. Check",
                   "2. Dossier",
                   "3. Beteiligung",
                 ].map((step) => (
@@ -328,7 +501,7 @@ export default function HomeClient() {
         </div>
       </section>
 
-      <section id="mitmachen" className="mx-auto mt-12 max-w-6xl px-4">
+      <section id="mitmachen" ref={membershipRef} className="mx-auto mt-12 max-w-6xl px-4">
         <div className="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -337,7 +510,7 @@ export default function HomeClient() {
               </p>
               <h2 className="text-2xl font-bold text-slate-900">Kostenfrei beitreten</h2>
               <p className="mt-1 text-xs text-slate-600">
-                Doppel-Opt-In: Bitte E-Mail bestätigen. Spende optional ab 5 €.
+                Double-Opt-In: Bitte E-Mail bestätigen. Spenden aktuell via Startnext.
               </p>
             </div>
             <div className="inline-flex rounded-full border border-slate-200 bg-white p-1 text-xs font-semibold text-slate-600">
@@ -355,10 +528,6 @@ export default function HomeClient() {
               ))}
             </div>
           </div>
-
-          <p className="mt-2 text-sm text-slate-700">
-            Kostenloser Beitritt ohne Vorbestellung. Wir senden dir einen Bestätigungslink per E-Mail.
-          </p>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             {memberType === "person" && (
@@ -459,9 +628,9 @@ export default function HomeClient() {
               </p>
             </div>
 
-            {isPublic && (
+            {isPublic && memberType === "organisation" && (
               <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-700">Avatar/Logo-Link (optional)</label>
+                <label className="text-xs font-medium text-slate-700">Logo-Link (optional)</label>
                 <input
                   type="url"
                   value={avatarUrl}
@@ -469,6 +638,25 @@ export default function HomeClient() {
                   className="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
                   placeholder="https://"
                 />
+              </div>
+            )}
+
+            {isPublic && memberType === "person" && (
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-slate-700">Foto hochladen (optional)</label>
+                <input
+                  ref={avatarFileRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    handleImageFile(e.target.files?.[0] ?? null, setAvatarDataUrl, setAvatarFileName)
+                  }
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                />
+                {avatarFileName && (
+                  <p className="text-[11px] text-slate-500">Ausgewählt: {avatarFileName}</p>
+                )}
+                <p className="text-[11px] text-slate-500">Max. 2 MB, JPG/PNG.</p>
               </div>
             )}
 
@@ -487,10 +675,10 @@ export default function HomeClient() {
                   Ich möchte als Unterstützer genannt werden (Name gekürzt, Logo optional).
                 </span>
               </label>
-              {publicSupporter && (
+              {publicSupporter && memberType === "organisation" && (
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-700">
-                    Foto/Logo-Link (optional)
+                    Logo-Link (optional)
                   </label>
                   <input
                     type="url"
@@ -499,6 +687,33 @@ export default function HomeClient() {
                     className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
                     placeholder="https://"
                   />
+                </div>
+              )}
+
+              {publicSupporter && memberType === "person" && (
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-700">
+                    Foto hochladen (optional)
+                  </label>
+                  <input
+                    ref={supporterFileRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      handleImageFile(
+                        e.target.files?.[0] ?? null,
+                        setSupporterImageDataUrl,
+                        setSupporterImageFileName,
+                      )
+                    }
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                  />
+                  {supporterImageFileName && (
+                    <p className="text-[11px] text-slate-500">
+                      Ausgewählt: {supporterImageFileName}
+                    </p>
+                  )}
+                  <p className="text-[11px] text-slate-500">Max. 2 MB, JPG/PNG.</p>
                 </div>
               )}
             </div>
@@ -510,26 +725,30 @@ export default function HomeClient() {
                 onChange={(e) => setWantsNewsletter(e.target.checked)}
                 className="mt-1 h-4 w-4 rounded border-slate-300 text-sky-600"
               />
-              <span>
-                Newsletter-Updates zu VoiceOpenGov (optional, inkl. eDebatte).
-              </span>
+              <span>Newsletter-Updates zu VoiceOpenGov (optional)</span>
+            </label>
+            <label className="flex items-start gap-2 text-xs text-slate-600">
+              <input
+                type="checkbox"
+                checked={wantsNewsletterEdDebatte}
+                onChange={(e) => setWantsNewsletterEdDebatte(e.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-slate-300 text-sky-600"
+              />
+              <span>Updates zu eDebatte (Werkzeug) (optional)</span>
             </label>
 
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-700">Spende (optional)</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  min="5"
-                  step="1"
-                  value={donationAmount}
-                  onChange={(e) => setDonationAmount(e.target.value)}
-                  className="w-32 rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
-                  placeholder="5"
-                />
-                <span className="text-xs text-slate-500">€</span>
-              </div>
-              <p className="text-xs text-slate-500">Mindestens 5 € (Zahlung erfolgt später).</p>
+            <div className="space-y-2 rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
+              <p className="text-xs font-medium text-slate-700">Spenden (aktuell über Startnext)</p>
+              <p className="text-xs text-slate-500">
+                Wir modernisieren den Spendenprozess. Bis dahin sammeln wir über Startnext.
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowDonationPopup(true)}
+                className="btn btn-ghost"
+              >
+                Zu Startnext
+              </button>
             </div>
 
             <label className="flex items-start gap-2 text-xs text-slate-600">
@@ -545,7 +764,7 @@ export default function HomeClient() {
                 <Link href="/datenschutz" className="font-semibold text-slate-900 underline underline-offset-2">
                   Datenschutzhinweise
                 </Link>{" "}
-                und den Doppel-Opt-In Hinweis.
+                und den Double-Opt-In Hinweis.
               </span>
             </label>
 
@@ -563,94 +782,18 @@ export default function HomeClient() {
               )}
             </div>
           </form>
-        </div>
-      </section>
 
-      <section id="infrastruktur" className="mx-auto mt-14 max-w-6xl px-4">
-        <div className="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Neue Infrastruktur
-          </p>
-          <h2 className="mt-2 text-2xl font-bold text-slate-900">
-            Unsere eigene Lösung für fairen Journalismus und Politik
-          </h2>
-          <p className="mt-3 text-sm text-slate-700">
-            VoiceOpenGov entwickelt eine Infrastruktur, die Beteiligung, Quellenarbeit und
-            Mehrheiten transparent macht. Nur gemeinsam, für die Sache – nicht für Fraktionszwang,
-            kurzfristige Opportunitäten oder Machtspiele einzelner Gruppen.
-          </p>
-          <p className="mt-3 text-sm text-slate-700">
-            Wir sind in der Lage, Probleme gemeinschaftlich zu lösen, ohne dass wir geführt werden
-            müssen. Jedes Mitglied entscheidet, jede Stimme wird nachvollziehbar dokumentiert.
-          </p>
-
-          <div className="mt-4 grid gap-4 md:grid-cols-3">
-            {[
-              {
-                title: "Aufklären",
-                body: "Begriffe, Quellen und Standards werden offen dokumentiert.",
-              },
-              {
-                title: "Optionen",
-                body: "Mögliche Wege werden strukturiert, vergleichbar und fair bewertet.",
-              },
-              {
-                title: "Mehrheiten",
-                body: "Entscheidungen bleiben prüfbar, nachvollziehbar und global anschlussfähig.",
-              },
-            ].map((step, index) => (
-              <article
-                key={step.title}
-                className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4"
-              >
-                <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-sky-700">
-                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-sky-50 text-sky-800">
-                    {index + 1}
-                  </span>
-                  <span>Schritt {index + 1}</span>
-                </div>
-                <h3 className="text-sm font-semibold text-slate-900">{step.title}</h3>
-                <p className="mt-2 text-xs text-slate-600">{step.body}</p>
-              </article>
-            ))}
-          </div>
-
-          <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
-            Frage an uns alle: Ist das parlamentarische Konstrukt in Zeiten von Werkzeugen wie
-            VoiceOpenGov wirklich das zeitgemäßeste Modell?
+          <div className="mt-4 space-y-2 text-xs text-slate-600">
+            <p>Mitgliedschaft ist kostenfrei.</p>
+            <p>
+              Spenden sind freiwillig und helfen beim Aufbau von Chapters, Moderation, Dossiers und
+              Infrastruktur. Aktuell über Startnext – Fragen gern an members@voiceopengov.org.
+            </p>
+            <p>Öffentlich/Privat: Öffentlich zeigt nur Orts-Summen (keine Einzelprofile, keine Rohdaten).</p>
           </div>
         </div>
       </section>
 
-      <section id="initiativen" className="mx-auto mt-14 max-w-6xl px-4">
-        <div className="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Für Initiativen/Vereine
-              </p>
-              <h3 className="text-xl font-semibold text-slate-900">
-                Bringt euer Thema – wir helfen beim sauberen Prozess.
-              </h3>
-              <p className="text-sm text-slate-700">
-                Wir strukturieren Fragen, Quellen und Beteiligung so, dass Ergebnisse belastbar
-                bleiben.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Link href="/initiatives" className="btn btn-primary">
-                Initiative einreichen
-              </Link>
-              <Link
-                href="/dossier"
-                className="btn border border-sky-300 text-sky-700 hover:bg-sky-50"
-              >
-                Mehr über die Plattform
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <section id="spenden" className="mx-auto mt-14 max-w-6xl px-4 pb-10">
         <div className="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
@@ -662,15 +805,16 @@ export default function HomeClient() {
               </h3>
               <p className="text-sm text-slate-700">
                 Spenden halten Infrastruktur, Recherche, Übersetzung und Transparenz am Laufen.
+                Aktuell über Startnext – wir modernisieren den Prozess.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Link href="/donate" className="btn btn-primary">
-                Spenden
-              </Link>
+              <button type="button" onClick={() => setShowDonationPopup(true)} className="btn btn-primary">
+                Spenden via Startnext
+              </button>
               <Link
                 href="/kontakt"
-                className="btn border border-sky-300 text-sky-700 hover:bg-sky-50"
+                className="btn btn-ghost"
               >
                 Fragen stellen
               </Link>
@@ -678,6 +822,44 @@ export default function HomeClient() {
           </div>
         </div>
       </section>
+
+      {showDonationPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-xl">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Spendenhinweis
+            </p>
+            <h4 className="mt-2 text-lg font-semibold text-slate-900">
+              Spenden aktuell über Startnext
+            </h4>
+            <p className="mt-2 text-sm text-slate-700">
+              Wir sammeln Spenden derzeit über Startnext und modernisieren den Prozess. Bei Fragen
+              erreichst du uns unter{" "}
+              <a href="mailto:members@voiceopengov.org" className="font-semibold text-slate-900">
+                members@voiceopengov.org
+              </a>
+              .
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <a
+                href={DONATION_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-primary"
+              >
+                Zu Startnext
+              </a>
+              <button
+                type="button"
+                onClick={() => setShowDonationPopup(false)}
+                className="btn btn-ghost"
+              >
+                Schließen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <SupporterBanner />
     </main>

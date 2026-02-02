@@ -23,7 +23,7 @@ export default function DonatePage() {
           </h1>
           <p className="text-base md:text-lg text-slate-700 leading-relaxed">
             Deine Unterstuetzung finanziert Hosting, Recherche, Uebersetzung, Recht und Community.
-            Wir berichten monatlich transparent, wie Mittel eingesetzt werden.
+            Aktuell kannst du ueber Startnext spenden oder dich direkt bei uns melden.
           </p>
         </header>
 
@@ -43,26 +43,29 @@ export default function DonatePage() {
         </section>
 
         <section className="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">Transparenz-Versprechen</h2>
+          <h2 className="text-lg font-semibold text-slate-900">Spendenwege</h2>
           <p className="mt-2 text-sm text-slate-700">
-            Wir kommunizieren jeden Monat die wichtigsten Ausgabenposten und Fortschritte.
-            Spenden werden ausschliesslich fuer den Aufbau der VoiceOpenGov-Infrastruktur genutzt.
+            Wenn du direkt spenden oder eine groessere Partnerschaft anfragen moechtest,
+            schreib uns an contact@voiceopengov.org. Fuer alle anderen Spenden nutzen wir
+            aktuell Startnext.
           </p>
         </section>
 
         <section className="grid gap-4 md:grid-cols-2">
-          <button
-            type="button"
-            className="rounded-2xl border border-slate-200 bg-slate-50/90 px-4 py-3 text-sm font-semibold text-slate-700"
+          <a
+            href="https://startnext.com/mehrheit"
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-2xl border border-slate-200 bg-slate-50/90 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-white"
           >
-            Spenden via Ueberweisung (kommt)
-          </button>
-          <button
-            type="button"
-            className="rounded-2xl border border-slate-200 bg-slate-50/90 px-4 py-3 text-sm font-semibold text-slate-700"
+            Zu Startnext (Mehrheit)
+          </a>
+          <a
+            href="mailto:contact@voiceopengov.org"
+            className="rounded-2xl border border-slate-200 bg-slate-50/90 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-white"
           >
-            Spenden via PayPal/Stripe (kommt)
-          </button>
+            Direktkontakt: contact@voiceopengov.org
+          </a>
         </section>
       </section>
     </main>

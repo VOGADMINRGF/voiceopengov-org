@@ -1,10 +1,20 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { geoEquirectangular, geoPath } from "d3-geo";
 import { feature } from "topojson-client";
-import { geoNaturalEarth1, geoPath } from "d3-geo";
 import countriesTopo from "world-atlas/countries-110m.json";
-import { useSvgZoom } from "@/components/home/useSvgZoom";
+import landTopo from "world-atlas/land-110m.json";
+import countryList from "world-countries";
+import {
+  mapOverridesDefault,
+  type MapOverrides,
+  type MapPoint,
+} from "@/config/mapOverrides.default";
+
+type ApiResponse = { ok: boolean; points: MapPoint[] };
+
+type OverridesResponse = { ok: boolean; overrides?: MapOverrides };
 
 type CountryFeature = {
   type: "Feature";
@@ -13,73 +23,57 @@ type CountryFeature = {
   geometry: any;
 };
 
-type CountryHit = { country: string; count: number };
-type CityPoint = { city: string; lat: number; lng: number; count: number };
+type CountryRef = { id: string; iso2?: string; name?: string };
 
-type FocusMarker = { name: string; lat: number; lng: number };
+type CountryFillMode = {
+  code: string;
+  mode: "gradient" | "solid";
+  from?: string;
+  to?: string;
+  color?: string;
+  intensity: number;
+};
 
-const FOCUS_MARKERS: FocusMarker[] = [
-  { name: "Berlin", lat: 52.52, lng: 13.405 },
-  { name: "Weimar", lat: 50.98, lng: 11.33 },
+const FALLBACK_POINTS: MapPoint[] = [
+  { city: "Berlin", country: "DE", lat: 52.52, lng: 13.405, count: 1 },
+  { city: "Weimar", country: "DE", lat: 50.98, lng: 11.33, count: 1 },
 ];
 
-function norm(s: string) {
-  return s.trim().toLowerCase();
+function clamp(n: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, n));
+}
+
+function normalizeCity(value?: string) {
+  return value?.trim().toLowerCase() ?? "";
+}
+
+function buildIso2Map() {
+  const map = new Map<string, string>();
+  (countryList as any[]).forEach((entry) => {
+    const numeric = entry?.ccn3;
+    const iso2 = entry?.cca2;
+    if (!numeric || !iso2) return;
+    map.set(String(numeric).padStart(3, "0"), iso2);
+  });
+  return map;
 }
 
 export function WorldPanoramaMap() {
-  const wrapRef = useRef<HTMLDivElement | null>(null);
-  const [size, setSize] = useState({ w: 0, h: 0 });
-  const [countryHits, setCountryHits] = useState<CountryHit[]>([]);
-  const [points, setPoints] = useState<CityPoint[]>([]);
+  const W = 980;
+  const H = 420;
+
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const dragRef = useRef<{ x: number; y: number; tx: number; ty: number; dragging: boolean } | null>(null);
+
+  const [k, setK] = useState(1);
+  const [tx, setTx] = useState(0);
+  const [ty, setTy] = useState(0);
+
+  const [overrides, setOverrides] = useState<MapOverrides>(mapOverridesDefault);
+  const [points, setPoints] = useState<MapPoint[]>(FALLBACK_POINTS);
   const [loading, setLoading] = useState(true);
-  const { svgRef, transform, reset } = useSvgZoom({ minZoom: 1, maxZoom: 6 });
 
-  // Responsive sizing (2:1 feel, but adapt to container)
-  useEffect(() => {
-    const el = wrapRef.current;
-    if (!el) return;
-
-    const ro = new ResizeObserver(() => {
-      const w = el.clientWidth;
-      const h = Math.max(240, Math.round(w * 0.5));
-      setSize({ w, h });
-    });
-
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  // Fetch data: countries aggregate + city points
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        setLoading(true);
-        const [cRes, pRes] = await Promise.all([
-          fetch("/api/members/public-countries", { cache: "no-store" }),
-          fetch("/api/members/public-locations", { cache: "no-store" }),
-        ]);
-        const cj = await cRes.json().catch(() => null);
-        const pj = await pRes.json().catch(() => null);
-        if (!mounted) return;
-        setCountryHits(Array.isArray(cj?.countries) ? cj.countries : []);
-        setPoints(Array.isArray(pj?.points) ? pj.points : []);
-      } catch {
-        if (mounted) {
-          setCountryHits([]);
-          setPoints([]);
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  const iso2Map = useMemo(() => buildIso2Map(), []);
 
   const topoCountries = useMemo(() => {
     const fc: any = feature(
@@ -89,169 +83,328 @@ export function WorldPanoramaMap() {
     return (fc.features || []) as CountryFeature[];
   }, []);
 
-  // Map: countryName -> count
-  const hitMap = useMemo(() => {
-    const m = new Map<string, number>();
-    for (const h of countryHits) {
-      m.set(norm(h.country), (m.get(norm(h.country)) || 0) + Number(h.count || 0));
+  const landFeature = useMemo(() => {
+    try {
+      const fc: any = feature(landTopo as any, (landTopo as any).objects.land);
+      return fc as any;
+    } catch {
+      return null;
     }
-    return m;
-  }, [countryHits]);
+  }, []);
 
-  const { w, h } = size;
   const projection = useMemo(() => {
-    if (!w || !h) return null;
-    return geoNaturalEarth1().fitSize(
-      [w, h],
-      { type: "FeatureCollection", features: topoCountries } as any,
-    );
-  }, [w, h, topoCountries]);
+    return geoEquirectangular()
+      .translate([W / 2, H / 2])
+      .scale((W / (2 * Math.PI)) * 0.98);
+  }, [W, H]);
 
-  const pathGen = useMemo(() => {
-    if (!projection) return null;
-    return geoPath(projection);
-  }, [projection]);
+  const pathGen = useMemo(() => geoPath(projection as any), [projection]);
 
-  const cityCircles = useMemo(() => {
-    if (!projection) return [];
-    return points
-      .filter((p) => typeof p.lat === "number" && typeof p.lng === "number")
-      .map((p) => {
-        const xy = projection([p.lng, p.lat]) as [number, number] | null;
-        if (!xy) return null;
-        const r = Math.min(10, 4 + Math.log10(Math.max(1, p.count)) * 3);
-        return { ...p, x: xy[0], y: xy[1], r };
+  useEffect(() => {
+    let active = true;
+    fetch("/api/map/overrides", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data: OverridesResponse) => {
+        if (!active) return;
+        if (data?.overrides) {
+          setOverrides({
+            ...mapOverridesDefault,
+            ...data.overrides,
+            countryFills: {
+              ...mapOverridesDefault.countryFills,
+              ...(data.overrides.countryFills ?? {}),
+            },
+          });
+        }
       })
-      .filter(Boolean) as Array<CityPoint & { x: number; y: number; r: number }>;
-  }, [projection, points]);
+      .catch(() => {
+        if (!active) return;
+        setOverrides(mapOverridesDefault);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
-  const focusPoints = useMemo(() => {
-    if (!projection) return [];
-    return FOCUS_MARKERS.map((m) => {
-      const xy = projection([m.lng, m.lat]) as [number, number] | null;
-      if (!xy) return null;
-      return { ...m, x: xy[0], y: xy[1] };
-    }).filter(Boolean) as Array<FocusMarker & { x: number; y: number }>;
-  }, [projection]);
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    fetch("/api/members/public-locations", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data: ApiResponse) => {
+        if (!active) return;
+        setPoints(Array.isArray(data?.points) ? data.points : FALLBACK_POINTS);
+      })
+      .catch(() => {
+        if (!active) return;
+        setPoints(FALLBACK_POINTS);
+      })
+      .finally(() => {
+        if (!active) return;
+        setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const mergedPoints = useMemo(() => {
+    if (overrides.manualPoints?.length) return overrides.manualPoints;
+    return points;
+  }, [overrides.manualPoints, points]);
+
+  const startCity = normalizeCity(overrides.start?.city || mapOverridesDefault.start.city);
+
+  const pointsProjected = useMemo(() => {
+    return mergedPoints
+      .map((p) => {
+        if (!Number.isFinite(p.lat) || !Number.isFinite(p.lng)) return null;
+        const xy = projection([p.lng, p.lat]);
+        if (!xy) return null;
+        return { ...p, x: xy[0], y: xy[1] };
+      })
+      .filter(Boolean) as Array<MapPoint & { x: number; y: number }>;
+  }, [mergedPoints, projection]);
+
+  const countryRefs = useMemo(() => {
+    return topoCountries.map((f) => {
+      const numeric = f.id ? String(f.id).padStart(3, "0") : "";
+      const iso2 = numeric ? iso2Map.get(numeric) : undefined;
+      return { id: String(f.id ?? ""), iso2, name: f.properties?.name } satisfies CountryRef;
+    });
+  }, [topoCountries, iso2Map]);
+
+  const fillModes = useMemo(() => {
+    return Object.entries({
+      ...mapOverridesDefault.countryFills,
+      ...(overrides.countryFills ?? {}),
+    }).map(([code, cfg]) => ({
+      code,
+      mode: cfg.mode,
+      from: cfg.from,
+      to: cfg.to,
+      color: cfg.color,
+      intensity: clamp(cfg.intensity ?? 1, 0, 1),
+    }));
+  }, [overrides.countryFills]);
+
+  function resetView() {
+    setK(1);
+    setTx(0);
+    setTy(0);
+  }
+
+  function onPointerDown(e: React.PointerEvent<SVGSVGElement>) {
+    const el = svgRef.current;
+    if (!el) return;
+    el.setPointerCapture(e.pointerId);
+
+    dragRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      tx,
+      ty,
+      dragging: true,
+    };
+  }
+
+  function onPointerMove(e: React.PointerEvent<SVGSVGElement>) {
+    const d = dragRef.current;
+    if (!d?.dragging) return;
+    const dx = e.clientX - d.x;
+    const dy = e.clientY - d.y;
+    setTx(d.tx + dx);
+    setTy(d.ty + dy);
+  }
+
+  function onPointerUp(e: React.PointerEvent<SVGSVGElement>) {
+    const d = dragRef.current;
+    if (!d) return;
+    d.dragging = false;
+
+    const el = svgRef.current;
+    if (el) el.releasePointerCapture(e.pointerId);
+  }
+
+  function onWheel(e: React.WheelEvent<SVGSVGElement>) {
+    e.preventDefault();
+
+    const el = svgRef.current;
+    if (!el) return;
+
+    const delta = -Math.sign(e.deltaY);
+    const nextK = clamp(k * (delta > 0 ? 1.12 : 0.9), 1, 6);
+
+    const rect = el.getBoundingClientRect();
+    const mx = ((e.clientX - rect.left) / rect.width) * W;
+    const my = ((e.clientY - rect.top) / rect.height) * H;
+
+    const scaleFactor = nextK / k;
+    setTx((prev) => (prev - mx) * scaleFactor + mx);
+    setTy((prev) => (prev - my) * scaleFactor + my);
+    setK(nextK);
+  }
+
+  const placesCount = mergedPoints.length;
 
   return (
-    <div className="w-full rounded-2xl border border-slate-200 bg-white/80 backdrop-blur p-4">
-      <div className="mb-2 flex items-start justify-between gap-4">
+    <div className="rounded-3xl border border-slate-200 bg-white/80 shadow-sm backdrop-blur">
+      <div className="flex items-start justify-between gap-4 px-5 pt-4">
         <div>
-          <div className="text-xs font-semibold tracking-wide text-slate-600">
-            WELTKARTE (SATELLIT)
+          <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            WELTKARTE (AGGREGIERT)
           </div>
           <div className="text-xs text-slate-500">
-            Zoombar, aggregiert, mobilfreundlich.
+            Start in Deutschland (Berlin). Zoombar, mit Grenzen.
           </div>
         </div>
-        <div className="text-xs text-slate-500">
-          {loading ? "lädt…" : `${cityCircles.length} Orte`}
-        </div>
-      </div>
 
-      <div ref={wrapRef} className="w-full">
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-b from-slate-50 to-slate-100">
+        <div className="flex items-center gap-3">
+          <div className="text-xs text-slate-500">
+            {loading ? "lädt…" : `${placesCount} Orte`}
+          </div>
           <button
             type="button"
-            onClick={reset}
-            className="absolute right-3 top-3 z-10 rounded-full border border-slate-200 bg-white/90 px-3 py-1 text-[11px] font-semibold text-slate-600 shadow hover:border-sky-300 hover:text-sky-700"
+            onClick={resetView}
+            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
           >
             Zurück
           </button>
-          <svg
-            ref={svgRef}
-            width={w || "100%"}
-            height={h || 280}
-            viewBox={`0 0 ${w || 800} ${h || 280}`}
-            className="touch-none"
-          >
-            {!pathGen ? (
-              <rect x="0" y="0" width="100%" height="100%" fill="rgba(15,23,42,0.06)" />
-            ) : (
-              <>
-                <image
-                  href="/media/earth_satellite.jpg"
-                  x="0"
-                  y="0"
-                  width={w || 800}
-                  height={h || 280}
-                  preserveAspectRatio="xMidYMid slice"
-                  opacity={0.6}
-                />
-                <rect
-                  x="0"
-                  y="0"
-                  width="100%"
-                  height="100%"
-                  fill="rgba(2, 132, 199, 0.08)"
-                />
-                <g transform={`translate(${transform.x},${transform.y}) scale(${transform.k})`}>
-                  <g>
-                    {topoCountries.map((f, i) => {
-                      const name = f.properties?.name || "";
-                      const k = norm(name);
-                      const c = hitMap.get(k) || 0;
-
-                      const baseFill = "rgba(2, 132, 199, 0.12)";
-                      const hitFill = c > 0 ? "rgba(8, 145, 178, 0.32)" : baseFill;
-                      const stroke = "rgba(15, 23, 42, 0.18)";
-
-                      const d = pathGen(f as any) || "";
-                      return (
-                        <path
-                          key={`${name}-${i}`}
-                          d={d}
-                          fill={hitFill}
-                          stroke={stroke}
-                          strokeWidth={0.7}
-                        >
-                          <title>{c > 0 ? `${name}: ${c}` : name}</title>
-                        </path>
-                      );
-                    })}
-                  </g>
-
-                  <g>
-                    {cityCircles.map((p) => (
-                      <circle
-                        key={`${p.city}-${p.lat}-${p.lng}`}
-                        cx={p.x}
-                        cy={p.y}
-                        r={p.r}
-                        fill="rgba(8, 145, 178, 0.75)"
-                        stroke="rgba(255,255,255,0.9)"
-                        strokeWidth={2}
-                      >
-                        <title>{`${p.city}: ${p.count}`}</title>
-                      </circle>
-                    ))}
-                  </g>
-
-                  <g>
-                    {focusPoints.map((p) => (
-                      <circle
-                        key={p.name}
-                        cx={p.x}
-                        cy={p.y}
-                        r={6}
-                        fill="rgba(14, 165, 233, 0.9)"
-                        stroke="rgba(255,255,255,0.95)"
-                        strokeWidth={2}
-                      >
-                        <title>{p.name}</title>
-                      </circle>
-                    ))}
-                  </g>
-                </g>
-              </>
-            )}
-          </svg>
         </div>
       </div>
 
-      <div className="mt-2 text-xs text-slate-500">
-        Keine Einzelprofile. Nur Länder- und Orts-Summen.
+      <div className="px-4 pb-4 pt-3">
+        <svg
+          ref={svgRef}
+          viewBox={`0 0 ${W} ${H}`}
+          className="vog-map-svg h-[260px] w-full select-none rounded-2xl bg-[radial-gradient(1200px_500px_at_50%_10%,rgba(14,165,233,0.08),transparent_60%),linear-gradient(180deg,rgba(2,6,23,0.02),rgba(2,6,23,0.00))]"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onWheel={onWheel}
+          role="img"
+          aria-label="Weltkarte mit Grenzen und Standorten"
+        >
+          <defs>
+            {fillModes
+              .filter((cfg) => cfg.mode === "gradient")
+              .map((cfg) => (
+                <linearGradient
+                  key={cfg.code}
+                  id={`vog-${cfg.code.toLowerCase()}-grad`}
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                >
+                  <stop
+                    offset="0%"
+                    stopColor={cfg.from || "var(--map-de-from)"}
+                    stopOpacity={cfg.intensity}
+                  />
+                  <stop
+                    offset="100%"
+                    stopColor={cfg.to || "var(--map-de-to)"}
+                    stopOpacity={cfg.intensity}
+                  />
+                </linearGradient>
+              ))}
+          </defs>
+
+          <g transform={`translate(${tx} ${ty}) scale(${k})`}>
+            {topoCountries.map((f, idx) => {
+              const ref = countryRefs[idx];
+              const iso2 = ref?.iso2;
+              const fillCfg = iso2
+                ? overrides.countryFills?.[iso2] ?? mapOverridesDefault.countryFills?.[iso2]
+                : undefined;
+
+              let fill = "var(--map-base-fill, rgba(15, 23, 42, 0.03))";
+              if (fillCfg) {
+                if (fillCfg.mode === "solid") {
+                  fill = fillCfg.color || "var(--map-focus)";
+                } else {
+                  fill = `url(#vog-${iso2?.toLowerCase()}-grad)`;
+                }
+              }
+
+              const d = pathGen(f as any) || "";
+              return (
+                <path
+                  key={`${ref?.id}-${idx}`}
+                  d={d}
+                  fill={fill}
+                  stroke="var(--map-stroke)"
+                  strokeWidth="var(--map-stroke-width)"
+                  vectorEffect="non-scaling-stroke"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                />
+              );
+            })}
+
+            {landFeature && (
+              <path
+                d={pathGen(landFeature as any) || ""}
+                fill="none"
+                stroke="var(--map-coast)"
+                strokeWidth="var(--map-coast-width)"
+                vectorEffect="non-scaling-stroke"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+            )}
+
+            {pointsProjected.map((p, idx) => {
+              const count = Math.max(1, Math.min(12, Number(p.count || 1)));
+              const baseRadius = 3 + Math.log2(count) * 2;
+              const isStart = normalizeCity(p.city) === startCity;
+
+              return (
+                <g key={`${p.city ?? "x"}-${p.lat}-${p.lng}-${idx}`}>
+                  <circle
+                    cx={p.x}
+                    cy={p.y}
+                    r={baseRadius * (isStart ? 3.2 : 2.2)}
+                    fill="rgba(8,145,178,0.18)"
+                  />
+                  {isStart ? (
+                    <polygon
+                      points={Array.from({ length: 10 })
+                        .map((_, i) => {
+                          const outer = baseRadius * 2.2;
+                          const inner = baseRadius * 0.95;
+                          const angle = i * (Math.PI / 5) - Math.PI / 2;
+                          const r = i % 2 === 0 ? outer : inner;
+                          const x = p.x + Math.cos(angle) * r;
+                          const y = p.y + Math.sin(angle) * r;
+                          return `${x},${y}`;
+                        })
+                        .join(" ")}
+                      fill="var(--map-focus)"
+                      stroke="rgba(255,255,255,0.95)"
+                      strokeWidth="1.6"
+                    />
+                  ) : (
+                    <circle
+                      cx={p.x}
+                      cy={p.y}
+                      r={baseRadius}
+                      fill="var(--map-marker)"
+                      stroke="var(--map-marker-stroke)"
+                      strokeWidth="1.8"
+                    />
+                  )}
+                </g>
+              );
+            })}
+          </g>
+        </svg>
+
+        <div className="mt-2 space-y-1 text-xs text-slate-500">
+          <p>Wir starten in Deutschland. Berlin als Startpunkt – danach wachsen Chapters bundesweit, EU-weit, weltweit.</p>
+          <p>Keine Einzelprofile. Nur aggregierte Länder-/Ort-Summen.</p>
+        </div>
       </div>
     </div>
   );

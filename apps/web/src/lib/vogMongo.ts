@@ -1,4 +1,5 @@
 import { MongoClient, Db, Collection } from "mongodb";
+import type { MapOverrides } from "@/config/mapOverrides.default";
 
 let _client: MongoClient | null = null;
 let _db: Db | null = null;
@@ -52,7 +53,8 @@ export type MemberDoc = {
   publicSupporter?: boolean;
   supporterImageUrl?: string;
 
-  wantsNewsletterEdDebatte: boolean;
+  wantsNewsletter: boolean;
+  wantsNewsletterEdDebatte?: boolean;
 
   status: MemberStatus;
   doiToken?: string;
@@ -60,6 +62,7 @@ export type MemberDoc = {
   confirmedAt?: Date;
 
   createdAt: Date;
+  updatedAt?: Date;
 };
 
 export async function membersCol(): Promise<Collection<MemberDoc>> {
@@ -79,4 +82,14 @@ export async function membersCol(): Promise<Collection<MemberDoc>> {
   await col.createIndex({ lat: 1, lng: 1 }).catch(() => {});
 
   return col;
+}
+
+export type MapOverridesDoc = MapOverrides & {
+  _id: "default";
+  updatedAt?: Date;
+};
+
+export async function mapOverridesCol(): Promise<Collection<MapOverridesDoc>> {
+  const db = await vogDb();
+  return db.collection<MapOverridesDoc>("map_overrides");
 }
