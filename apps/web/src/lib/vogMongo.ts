@@ -40,6 +40,7 @@ export type MemberDoc = {
 
   firstName?: string;
   lastName?: string;
+  birthDate?: string;
   orgName?: string;
 
   city?: string;
@@ -52,6 +53,7 @@ export type MemberDoc = {
 
   publicSupporter?: boolean;
   supporterImageUrl?: string;
+  supporterNote?: string;
 
   wantsNewsletter: boolean;
   wantsNewsletterEdDebatte?: boolean;

@@ -18,6 +18,56 @@ type Notice = { ok: boolean; msg: string } | null;
 
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
 const DONATION_URL = "https://startnext.com/mehrheit";
+const MIN_AGE = 16;
+const MOTIVATION_MAX = 160;
+const MOTIVATION_PRESETS = [
+  "Ich will, dass Politik wieder nachvollziehbar wird – mit Fakten, Optionen und Verantwortung.",
+  "Weil ich genug von Show und PR habe. Ich will Transparenz und echte Mehrheitsentscheidungen.",
+  "Ich unterstütze VoiceOpenGov, weil Beteiligung zwischen den Wahlen besser werden muss.",
+  "Ich glaube an digitale Demokratie – strukturiert, fair und offen für alle.",
+  "Ich will, dass Entscheidungen wieder erklärbar sind – nicht nur Mehrheiten, sondern Gründe.",
+];
+
+function applyMotivationTemplate(template: string, cityValue: string) {
+  const place = cityValue.trim() ? `in ${cityValue.trim()}` : "in meinem Ort";
+  return template.replaceAll("{ort}", place);
+}
+
+function parseDateOnly(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) return null;
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return null;
+  }
+  return date;
+}
+
+function isAtLeastAge(dateStr: string, minAge: number) {
+  const birth = parseDateOnly(dateStr);
+  if (!birth) return false;
+  const now = new Date();
+  const cutoff = new Date(
+    Date.UTC(now.getUTCFullYear() - minAge, now.getUTCMonth(), now.getUTCDate()),
+  );
+  return birth <= cutoff;
+}
+
+function maxBirthDateIso(minAge: number) {
+  const now = new Date();
+  const cutoff = new Date(
+    Date.UTC(now.getUTCFullYear() - minAge, now.getUTCMonth(), now.getUTCDate()),
+  );
+  return cutoff.toISOString().slice(0, 10);
+}
 
 export default function HomeClient() {
   const [stats, setStats] = useState<Stats>({ people: 0, countries: 0, chapters: 0 });
@@ -26,6 +76,7 @@ export default function HomeClient() {
   const [memberType, setMemberType] = useState<"person" | "organisation">("person");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [orgName, setOrgName] = useState("");
   const [email, setEmail] = useState("");
   const [city, setCity] = useState("");
@@ -39,6 +90,7 @@ export default function HomeClient() {
   const [supporterImageUrl, setSupporterImageUrl] = useState("");
   const [supporterImageDataUrl, setSupporterImageDataUrl] = useState<string | null>(null);
   const [supporterImageFileName, setSupporterImageFileName] = useState("");
+  const [supporterNote, setSupporterNote] = useState("");
   const [wantsNewsletter, setWantsNewsletter] = useState(false);
   const [wantsNewsletterEdDebatte, setWantsNewsletterEdDebatte] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
@@ -107,6 +159,7 @@ export default function HomeClient() {
     setMemberType("person");
     setFirstName("");
     setLastName("");
+    setBirthDate("");
     setOrgName("");
     setEmail("");
     setCity("");
@@ -120,6 +173,7 @@ export default function HomeClient() {
     setSupporterImageUrl("");
     setSupporterImageDataUrl(null);
     setSupporterImageFileName("");
+    setSupporterNote("");
     setWantsNewsletter(false);
     setWantsNewsletterEdDebatte(false);
     setPrivacyAccepted(false);
@@ -131,10 +185,12 @@ export default function HomeClient() {
     setAvatarUrl("");
     setAvatarDataUrl(null);
     setAvatarFileName("");
+    setBirthDate("");
     setSupporterMode("reuse");
     setSupporterImageUrl("");
     setSupporterImageDataUrl(null);
     setSupporterImageFileName("");
+    setSupporterNote("");
     if (avatarFileRef.current) avatarFileRef.current.value = "";
     if (supporterFileRef.current) supporterFileRef.current.value = "";
   }, [memberType]);
@@ -146,6 +202,17 @@ export default function HomeClient() {
     if (!privacyAccepted) {
       setNotice({ ok: false, msg: "Bitte Datenschutzhinweis akzeptieren." });
       return;
+    }
+
+    if (memberType === "person") {
+      if (!birthDate.trim()) {
+        setNotice({ ok: false, msg: "Bitte gib dein Geburtsdatum an." });
+        return;
+      }
+      if (!isAtLeastAge(birthDate, MIN_AGE)) {
+        setNotice({ ok: false, msg: "Teilnahme ist erst ab 16 Jahren möglich." });
+        return;
+      }
     }
 
     if (isPublic && !city.trim()) {
@@ -179,6 +246,7 @@ export default function HomeClient() {
         email: email.trim(),
         firstName: memberType === "person" ? firstName.trim() || undefined : undefined,
         lastName: memberType === "person" ? lastName.trim() || undefined : undefined,
+        birthDate: memberType === "person" ? birthDate.trim() || undefined : undefined,
         orgName: memberType === "organisation" ? orgName.trim() || undefined : undefined,
         city: city.trim() || undefined,
         country: countryCode || undefined,
@@ -186,6 +254,7 @@ export default function HomeClient() {
         avatarUrl: isPublic ? avatarValue : undefined,
         publicSupporter,
         supporterImageUrl: supporterImageValue,
+        supporterNote: publicSupporter ? supporterNote.trim() || undefined : undefined,
         wantsNewsletter,
         wantsNewsletterEdDebatte,
       };
@@ -512,6 +581,18 @@ export default function HomeClient() {
                     className="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
                   />
                 </div>
+                <div className="space-y-1 md:col-span-2">
+                  <label className="text-xs font-medium text-slate-700">Geburtsdatum</label>
+                  <input
+                    required
+                    type="date"
+                    value={birthDate}
+                    onChange={(e) => setBirthDate(e.target.value)}
+                    max={maxBirthDateIso(MIN_AGE)}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                  />
+                  <p className="text-[11px] text-slate-500">Teilnahme ab 16 Jahren.</p>
+                </div>
               </div>
             )}
 
@@ -635,6 +716,7 @@ export default function HomeClient() {
                     setSupporterImageUrl("");
                     setSupporterImageDataUrl(null);
                     setSupporterImageFileName("");
+                    setSupporterNote("");
                     if (supporterFileRef.current) supporterFileRef.current.value = "";
                   }
                 }}
@@ -648,6 +730,53 @@ export default function HomeClient() {
                   }
                 }}
               />
+
+              {publicSupporter && (
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-medium text-slate-700">
+                      Motivation (optional)
+                    </label>
+                    <span className="text-[11px] text-slate-500">
+                      {supporterNote.length}/{MOTIVATION_MAX}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {MOTIVATION_PRESETS.map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() =>
+                          setSupporterNote(
+                            applyMotivationTemplate(preset, city).slice(0, MOTIVATION_MAX),
+                          )
+                        }
+                        className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-700 hover:border-sky-300 hover:text-sky-700"
+                      >
+                        Vorschlag
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setSupporterNote("")}
+                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-500 hover:text-slate-700"
+                    >
+                      Leeren
+                    </button>
+                  </div>
+                  <textarea
+                    rows={3}
+                    maxLength={MOTIVATION_MAX}
+                    value={supporterNote}
+                    onChange={(e) => setSupporterNote(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                    placeholder="Warum bist du Teil der Community?"
+                  />
+                  <p className="text-[11px] text-slate-500">
+                    Wird öffentlich bei den Unterstützern angezeigt. Bitte keine Kontaktdaten.
+                  </p>
+                </div>
+              )}
 
               {publicSupporter && supporterMode === "separate" && memberType === "organisation" && (
                 <div className="space-y-1">

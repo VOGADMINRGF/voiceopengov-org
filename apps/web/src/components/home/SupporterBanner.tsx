@@ -6,11 +6,13 @@ type Supporter = {
   name: string;
   type: "person" | "organisation";
   imageUrl?: string | null;
+  note?: string | null;
 };
 
 export function SupporterBanner() {
   const [supporters, setSupporters] = useState<Supporter[]>([]);
   const [loading, setLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(6);
 
   useEffect(() => {
     let mounted = true;
@@ -33,7 +35,10 @@ export function SupporterBanner() {
     };
   }, []);
 
-  const shown = useMemo(() => supporters.slice(0, 24), [supporters]);
+  const shown = useMemo(
+    () => supporters.slice(0, Math.min(visibleCount, supporters.length)),
+    [supporters, visibleCount],
+  );
 
   return (
     <section className="mx-auto mt-12 max-w-6xl px-4">
@@ -62,35 +67,53 @@ export function SupporterBanner() {
               : "Noch keine öffentlichen Unterstützer sichtbar."}
           </div>
         ) : (
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {shown.map((supporter, index) => (
-              <div
-                key={`${supporter.name}-${index}`}
-                className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2"
-              >
-                {supporter.imageUrl ? (
-                  <img
-                    src={supporter.imageUrl}
-                    alt={supporter.name}
-                    className="h-10 w-10 rounded-full border border-slate-200 object-cover"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-600">
-                    {supporter.name.slice(0, 1).toUpperCase()}
+          <>
+            <div className="mt-5 space-y-3">
+              {shown.map((supporter, index) => (
+                <div
+                  key={`${supporter.name}-${index}`}
+                  className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                >
+                  {supporter.imageUrl ? (
+                    <img
+                      src={supporter.imageUrl}
+                      alt={supporter.name}
+                      className="h-12 w-12 rounded-full border border-slate-200 object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-600">
+                      {supporter.name.slice(0, 1).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-slate-900">
+                      {supporter.name}
+                    </p>
+                    <p className="text-[11px] uppercase tracking-wide text-slate-500">
+                      {supporter.type === "organisation" ? "Organisation" : "Person"}
+                    </p>
+                    {supporter.note ? (
+                      <p className="mt-1 text-[12px] text-slate-600 line-clamp-2">
+                        “{supporter.note}”
+                      </p>
+                    ) : null}
                   </div>
-                )}
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-slate-900">
-                    {supporter.name}
-                  </p>
-                  <p className="text-[11px] uppercase tracking-wide text-slate-500">
-                    {supporter.type === "organisation" ? "Organisation" : "Person"}
-                  </p>
                 </div>
+              ))}
+            </div>
+            {supporters.length > visibleCount && (
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount((count) => count + 6)}
+                  className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:border-sky-300 hover:text-sky-700"
+                >
+                  Mehr anzeigen
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
     </section>

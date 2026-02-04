@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
   const now = new Date();
 
   if (parsed.data.kind === "person") {
-    const ageOk = isAtLeastAge(parsed.data.birthDate ?? "", 14);
+    const ageOk = isAtLeastAge(parsed.data.birthDate ?? "", 16);
     if (ageOk === null) {
       return NextResponse.json({ ok: false, error: "invalid_birthdate" }, { status: 400 });
     }

@@ -12,7 +12,7 @@ function displayNameFor(member: {
   const last = member.lastName?.trim();
   if (first && last) return `${first} ${last.slice(0, 1).toUpperCase()}.`;
   if (first) return first;
-  return "Unterstuetzer";
+  return "Unterstützer";
 }
 
 export async function GET() {
@@ -28,6 +28,7 @@ export async function GET() {
     name: displayNameFor(member),
     type: member.type,
     imageUrl: member.supporterImageUrl || member.avatarUrl || null,
+    note: member.supporterNote?.trim() || null,
   }));
 
   return NextResponse.json({ ok: true, supporters });
