@@ -84,6 +84,39 @@ export async function membersCol(): Promise<Collection<MemberDoc>> {
   return col;
 }
 
+export type ChapterIntakeStatus = "new" | "reviewed";
+
+export type ChapterIntakeDoc = {
+  _id?: any;
+
+  contactName: string;
+  contactEmail: string;
+  orgName?: string;
+
+  location?: string;
+  interests: string[];
+  spaceAvailable?: "yes" | "maybe" | "no";
+  spaceNotes?: string;
+  notes?: string;
+
+  privacyAccepted: boolean;
+  status: ChapterIntakeStatus;
+
+  createdAt: Date;
+  reviewedAt?: Date;
+};
+
+export async function chapterIntakeCol(): Promise<Collection<ChapterIntakeDoc>> {
+  const db = await vogDb();
+  const col = db.collection<ChapterIntakeDoc>("chapter_intake");
+
+  await col.createIndex({ status: 1 }).catch(() => {});
+  await col.createIndex({ createdAt: -1 }).catch(() => {});
+  await col.createIndex({ contactEmail: 1 }).catch(() => {});
+
+  return col;
+}
+
 export type MapOverridesDoc = MapOverrides & {
   _id: "default";
   updatedAt?: Date;

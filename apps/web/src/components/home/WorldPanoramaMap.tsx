@@ -260,9 +260,11 @@ export function WorldPanoramaMap() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="text-xs text-slate-500">
-            {loading ? "lädt…" : `${placesCount} Orte`}
-          </div>
+          {loading ? (
+            <div className="text-xs text-slate-500">lädt...</div>
+          ) : placesCount > 0 ? (
+            <div className="text-xs text-slate-500">Aggregierte Standorte: {placesCount}</div>
+          ) : null}
           <button
             type="button"
             onClick={resetView}

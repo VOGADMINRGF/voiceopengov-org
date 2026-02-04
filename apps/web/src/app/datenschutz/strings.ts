@@ -27,10 +27,10 @@ const STRINGS = {
     de: [
       "Verantwortlich für die Verarbeitung personenbezogener Daten im Rahmen dieser Website und der angebundenen Dienste ist:",
       "",
-      "VoiceOpenGov UG (haftungsbeschränkt) i.G.",
       "Ricky G. Fleischer",
-      "Kolonnenstraße 8",
-      "10827 Berlin",
+      "(VoiceOpenGov – Initiative)",
+      "Clara-Müller-Jahnke-Str. 41",
+      "12589 Berlin",
       "Deutschland",
       "",
       "E-Mail: privacy@voiceopengov.org",
@@ -38,10 +38,10 @@ const STRINGS = {
     en: [
       "The controller responsible for processing personal data in connection with this website and related services is:",
       "",
-     "VoiceOpenGov UG (haftungsbeschränkt) i.G.",
       "Ricky G. Fleischer",
-      "Kolonnenstraße 8",
-      "10827 Berlin",
+      "(VoiceOpenGov – initiative)",
+      "Clara-Müller-Jahnke-Str. 41",
+      "12589 Berlin",
       "Germany",
       "",
       "E-mail: privacy@voiceopengov.org",
@@ -122,7 +122,6 @@ const STRINGS = {
     ].join("\n"),
   } as LocaleValue<string>,
 
-
   rightsTitle: {
     de: "Deine Rechte",
     en: "Your rights",
@@ -172,20 +171,20 @@ const STRINGS = {
     de: [
       "Wenn du eines deiner Rechte wahrnehmen oder allgemein Fragen zur Datenverarbeitung bei VoiceOpenGov stellen möchtest, wende dich bitte an:",
       "",
-      "VoiceOpenGov UG (haftungsbeschränkt) i.G.",
       "Ricky G. Fleischer",
-      "Kolonnenstraße 8",
-      "10827 Berlin",
+      "(VoiceOpenGov – Initiative)",
+      "Clara-Müller-Jahnke-Str. 41",
+      "12589 Berlin",
       "Deutschland",
     ].join("\n"),
     en: [
       "If you wish to exercise any of your rights or have general questions about data processing at VoiceOpenGov, please contact:",
       "",
-      "VoiceOpenGov UG (haftungsbeschränkt) i.G.",
       "Ricky G. Fleischer",
-      "Kolonnenstraße 8",
-      "10827 Berlin",
-      "Deutschland",
+      "(VoiceOpenGov – initiative)",
+      "Clara-Müller-Jahnke-Str. 41",
+      "12589 Berlin",
+      "Germany",
     ].join("\n"),
   } as LocaleValue<string>,
 

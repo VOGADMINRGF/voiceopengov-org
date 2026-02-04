@@ -43,19 +43,34 @@ export default function KontaktPage({
                 </p>
                 <p>Direkt ans Team VoiceOpenGov</p>
                 <p className="text-xs text-slate-600">
-                  Anfragen versuchen wir binnen von 24 Stunden zu beantworten.
+                  Anfragen versuchen wir binnen 24 Stunden zu beantworten.
                 </p>
               </div>
 
               <div className="space-y-1 md:text-right">
-                <p className="font-semibold text-slate-900">Ladungsfähige Geschäftsanschrift</p>
-                <p>VoiceOpenGov UG (haftungsbeschränkt) i. G.</p>
-                <p>Ricky G. Fleischer</p>
-                <p>Kolonnenstraße 8</p>
-                <p>10827 Berlin</p>
+                <p className="font-semibold text-slate-900">
+                  Anbieter / ladungsfähige Anschrift (gem. § 5 DDG)
+                </p>
+                <p>VoiceOpenGov – Initiative von</p>
+                <p className="font-semibold">Ricky G. Fleischer</p>
+                <p>Clara-Müller-Jahnke-Str. 41</p>
+                <p>12589 Berlin</p>
                 <p>Deutschland</p>
-                <p className="mt-1 text-[11px] text-slate-500">
-                  Weitere Angaben findest du im Impressum.
+
+                <p className="mt-2 text-[11px] text-slate-600">
+                  Verantwortlich i.S.d. § 18 Abs. 2 MStV (journalistisch-redaktionelle Inhalte):{" "}
+                  Ricky G. Fleischer (Anschrift wie oben)
+                </p>
+
+                <p className="mt-2 text-[11px] text-slate-500">
+                  Weitere Angaben findest du im{" "}
+                  <Link
+                    href="/impressum"
+                    className="font-semibold text-sky-700 underline underline-offset-4"
+                  >
+                    Impressum
+                  </Link>
+                  .
                 </p>
               </div>
             </div>

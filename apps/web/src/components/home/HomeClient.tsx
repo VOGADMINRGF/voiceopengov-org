@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { WorldPanoramaMap } from "@/components/home/WorldPanoramaMap";
 import { SupporterBanner } from "@/components/home/SupporterBanner";
+import { MomentumAndCtas } from "@/components/home/MomentumAndCtas";
+import { SupporterSection } from "@/components/join/SupporterSection";
 import { COUNTRY_OPTIONS } from "@/lib/countries";
 
 type Stats = {
   people: number;
-  orgs: number;
   countries: number;
+  chapters: number;
 };
 
 type Notice = { ok: boolean; msg: string } | null;
@@ -17,13 +19,8 @@ type Notice = { ok: boolean; msg: string } | null;
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
 const DONATION_URL = "https://startnext.com/mehrheit";
 
-function formatNumber(value: number | null | undefined) {
-  if (typeof value !== "number") return "—";
-  return new Intl.NumberFormat("de-DE").format(value);
-}
-
 export default function HomeClient() {
-  const [stats, setStats] = useState<Stats>({ people: 0, orgs: 0, countries: 0 });
+  const [stats, setStats] = useState<Stats>({ people: 0, countries: 0, chapters: 0 });
   const [statsError, setStatsError] = useState(false);
 
   const [memberType, setMemberType] = useState<"person" | "organisation">("person");
@@ -38,6 +35,7 @@ export default function HomeClient() {
   const [avatarDataUrl, setAvatarDataUrl] = useState<string | null>(null);
   const [avatarFileName, setAvatarFileName] = useState("");
   const [publicSupporter, setPublicSupporter] = useState(false);
+  const [supporterMode, setSupporterMode] = useState<"reuse" | "separate">("reuse");
   const [supporterImageUrl, setSupporterImageUrl] = useState("");
   const [supporterImageDataUrl, setSupporterImageDataUrl] = useState<string | null>(null);
   const [supporterImageFileName, setSupporterImageFileName] = useState("");
@@ -47,7 +45,6 @@ export default function HomeClient() {
   const [notice, setNotice] = useState<Notice>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDonationPopup, setShowDonationPopup] = useState(false);
-  const membershipRef = useRef<HTMLElement | null>(null);
   const avatarFileRef = useRef<HTMLInputElement | null>(null);
   const supporterFileRef = useRef<HTMLInputElement | null>(null);
 
@@ -59,10 +56,10 @@ export default function HomeClient() {
         if (!active) return;
         if (
           typeof data?.people === "number" &&
-          typeof data?.orgs === "number" &&
-          typeof data?.countries === "number"
+          typeof data?.countries === "number" &&
+          typeof data?.chapters === "number"
         ) {
-          setStats({ people: data.people, orgs: data.orgs, countries: data.countries });
+          setStats({ people: data.people, countries: data.countries, chapters: data.chapters });
         } else {
           setStatsError(true);
         }
@@ -75,15 +72,6 @@ export default function HomeClient() {
       active = false;
     };
   }, []);
-
-  const statItems = useMemo(
-    () => [
-      { label: "Mitglieder", value: formatNumber(stats.people) },
-      { label: "Organisationen", value: formatNumber(stats.orgs) },
-      { label: "Länder", value: formatNumber(stats.countries) },
-    ],
-    [stats],
-  );
 
   const handleImageFile = (
     file: File | null,
@@ -128,6 +116,7 @@ export default function HomeClient() {
     setAvatarDataUrl(null);
     setAvatarFileName("");
     setPublicSupporter(false);
+    setSupporterMode("reuse");
     setSupporterImageUrl("");
     setSupporterImageDataUrl(null);
     setSupporterImageFileName("");
@@ -142,19 +131,13 @@ export default function HomeClient() {
     setAvatarUrl("");
     setAvatarDataUrl(null);
     setAvatarFileName("");
+    setSupporterMode("reuse");
     setSupporterImageUrl("");
     setSupporterImageDataUrl(null);
     setSupporterImageFileName("");
     if (avatarFileRef.current) avatarFileRef.current.value = "";
     if (supporterFileRef.current) supporterFileRef.current.value = "";
   }, [memberType]);
-
-  const scrollToMembership = (options?: { precheckNewsletter?: boolean }) => {
-    if (options?.precheckNewsletter) {
-      setWantsNewsletter(true);
-    }
-    membershipRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -173,16 +156,22 @@ export default function HomeClient() {
     setIsSubmitting(true);
     try {
       const avatarValue =
-        isPublic && memberType === "person"
-          ? avatarDataUrl || undefined
-          : isPublic && memberType === "organisation"
-            ? avatarUrl.trim() || undefined
-            : undefined;
+        memberType === "person" ? avatarDataUrl || undefined : avatarUrl.trim() || undefined;
+
+      if (publicSupporter && supporterMode === "reuse" && !avatarValue) {
+        setNotice({
+          ok: false,
+          msg: "Bitte Profilfoto/Logo hochladen oder 'Anderes Bild' wählen.",
+        });
+        return;
+      }
 
       const supporterImageValue = publicSupporter
-        ? memberType === "person"
-          ? supporterImageDataUrl || undefined
-          : supporterImageUrl.trim() || undefined
+        ? supporterMode === "reuse"
+          ? avatarValue
+          : memberType === "person"
+            ? supporterImageDataUrl || undefined
+            : supporterImageUrl.trim() || undefined
         : undefined;
 
       const payload: Record<string, unknown> = {
@@ -194,7 +183,7 @@ export default function HomeClient() {
         city: city.trim() || undefined,
         country: countryCode || undefined,
         isPublic,
-        avatarUrl: avatarValue,
+        avatarUrl: isPublic ? avatarValue : undefined,
         publicSupporter,
         supporterImageUrl: supporterImageValue,
         wantsNewsletter,
@@ -208,15 +197,14 @@ export default function HomeClient() {
       });
       const data = await res.json().catch(() => ({}));
 
-      if (res.ok && data?.ok) {
-        setNotice({ ok: true, msg: "Bitte E-Mail bestätigen – wir haben dir einen Link geschickt." });
-        setStats((prev) => ({
-          ...prev,
-          people: prev.people + (memberType === "person" ? 1 : 0),
-          orgs: prev.orgs + (memberType === "organisation" ? 1 : 0),
-        }));
-        resetForm();
-      } else {
+        if (res.ok && data?.ok) {
+          setNotice({ ok: true, msg: "Bitte E-Mail bestätigen – wir haben dir einen Link geschickt." });
+          setStats((prev) => ({
+            ...prev,
+            people: prev.people + (memberType === "person" ? 1 : 0),
+          }));
+          resetForm();
+        } else {
         setNotice({ ok: false, msg: "Das hat nicht geklappt. Bitte später erneut versuchen." });
       }
     } catch {
@@ -271,42 +259,16 @@ export default function HomeClient() {
                   </li>
                 </ul>
 
-                <div className="grid grid-cols-3 gap-3 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
-                  {statItems.map((stat) => (
-                    <div key={stat.label} className="text-center">
-                      <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
-                      <p className="text-[11px] uppercase tracking-wide text-slate-500">
-                        {stat.label}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+                <MomentumAndCtas
+                  members={stats.people}
+                  chapters={stats.chapters}
+                  countries={stats.countries}
+                />
                 {statsError && (
-                  <p className="text-xs text-slate-500">Live-Zahlen werden später nachgeladen.</p>
+                  <p className="mt-2 text-xs text-slate-500">
+                    Live-Zahlen werden später nachgeladen.
+                  </p>
                 )}
-
-                <div className="flex flex-wrap items-center gap-3">
-                  <Link href="#mitmachen" className="btn btn-primary">
-                    Kostenfrei beitreten
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => scrollToMembership({ precheckNewsletter: true })}
-                    className="btn btn-ghost"
-                  >
-                    Newsletter
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowDonationPopup(true)}
-                    className="btn btn-ghost"
-                  >
-                    Spenden via Startnext
-                  </button>
-                  <Link href="/initiatives" className="btn btn-ghost">
-                    Chapter starten
-                  </Link>
-                </div>
               </div>
             </div>
 
@@ -394,7 +356,7 @@ export default function HomeClient() {
           </div>
 
           <div className="mt-4 flex flex-wrap gap-3">
-            <Link href="/initiatives" className="btn btn-primary">
+            <Link href="/chapter" className="btn btn-primary">
               Chapter starten
             </Link>
             <Link href="#mitmachen" className="btn btn-ghost">
@@ -501,7 +463,7 @@ export default function HomeClient() {
         </div>
       </section>
 
-      <section id="mitmachen" ref={membershipRef} className="mx-auto mt-12 max-w-6xl px-4">
+      <section id="mitmachen" className="mx-auto mt-12 max-w-6xl px-4">
         <div className="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -628,7 +590,7 @@ export default function HomeClient() {
               </p>
             </div>
 
-            {isPublic && memberType === "organisation" && (
+            {(isPublic || publicSupporter) && memberType === "organisation" && (
               <div className="space-y-1">
                 <label className="text-xs font-medium text-slate-700">Logo-Link (optional)</label>
                 <input
@@ -641,9 +603,11 @@ export default function HomeClient() {
               </div>
             )}
 
-            {isPublic && memberType === "person" && (
+            {(isPublic || publicSupporter) && memberType === "person" && (
               <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-700">Foto hochladen (optional)</label>
+                <label className="text-xs font-medium text-slate-700">
+                  Profilfoto hochladen (optional)
+                </label>
                 <input
                   ref={avatarFileRef}
                   type="file"
@@ -660,25 +624,35 @@ export default function HomeClient() {
               </div>
             )}
 
-            <div className="space-y-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 p-4">
-              <label className="text-xs font-medium text-slate-700">
-                Unterstützer-Banner (optional)
-              </label>
-              <label className="flex items-start gap-2 text-xs text-slate-600">
-                <input
-                  type="checkbox"
-                  checked={publicSupporter}
-                  onChange={(e) => setPublicSupporter(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-slate-300 text-sky-600"
-                />
-                <span>
-                  Ich möchte als Unterstützer genannt werden (Name gekürzt, Logo optional).
-                </span>
-              </label>
-              {publicSupporter && memberType === "organisation" && (
+            <div className="space-y-3">
+              <SupporterSection
+                enabled={publicSupporter}
+                mode={supporterMode}
+                onEnabledChange={(value) => {
+                  setPublicSupporter(value);
+                  if (!value) {
+                    setSupporterMode("reuse");
+                    setSupporterImageUrl("");
+                    setSupporterImageDataUrl(null);
+                    setSupporterImageFileName("");
+                    if (supporterFileRef.current) supporterFileRef.current.value = "";
+                  }
+                }}
+                onModeChange={(mode) => {
+                  setSupporterMode(mode);
+                  if (mode === "reuse") {
+                    setSupporterImageUrl("");
+                    setSupporterImageDataUrl(null);
+                    setSupporterImageFileName("");
+                    if (supporterFileRef.current) supporterFileRef.current.value = "";
+                  }
+                }}
+              />
+
+              {publicSupporter && supporterMode === "separate" && memberType === "organisation" && (
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-700">
-                    Logo-Link (optional)
+                    Unterstützer-Bild (optional)
                   </label>
                   <input
                     type="url"
@@ -690,10 +664,10 @@ export default function HomeClient() {
                 </div>
               )}
 
-              {publicSupporter && memberType === "person" && (
+              {publicSupporter && supporterMode === "separate" && memberType === "person" && (
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-700">
-                    Foto hochladen (optional)
+                    Unterstützer-Bild (optional)
                   </label>
                   <input
                     ref={supporterFileRef}
