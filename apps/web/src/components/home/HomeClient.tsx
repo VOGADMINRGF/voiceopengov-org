@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "@/context/LocaleContext";
 import { getCountryOptions } from "@/lib/countries";
 import {
@@ -272,6 +272,40 @@ export default function HomeClient({
   const [newsletter, setNewsletter] = useState(false);
   const [notice, setNotice] = useState<Notice>(null);
   const [submitting, setSubmitting] = useState(false);
+  const formStarted = useRef(false);
+  const sessionId = useRef("");
+
+  function track(event: "landing_viewed" | "form_started") {
+    const params = new URLSearchParams(window.location.search);
+    void fetch("/api/funnel/event", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      keepalive: true,
+      body: JSON.stringify({
+        event,
+        sessionId: sessionId.current,
+        source: params.get("utm_source") || undefined,
+        medium: params.get("utm_medium") || undefined,
+        campaign: params.get("utm_campaign") || undefined,
+        locale: renderedLocale,
+        landingPath: window.location.pathname,
+      }),
+    }).catch(() => undefined);
+  }
+
+  function markFormStarted() {
+    if (formStarted.current) return;
+    formStarted.current = true;
+    track("form_started");
+  }
+
+  useEffect(() => {
+    const storageKey = "vog_funnel_session";
+    sessionId.current = sessionStorage.getItem(storageKey) || crypto.randomUUID();
+    sessionStorage.setItem(storageKey, sessionId.current);
+    track("landing_viewed");
+    // One landing event per mounted page view; acquisition contains no direct identifier.
+  }, []);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -388,7 +422,7 @@ export default function HomeClient({
         <div className={sectionClass}>
           <div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr]">
             <div><p className="text-sm font-bold uppercase tracking-[0.2em] text-[#d6ff65]">{copy.membershipEyebrow}</p><h2 className="mt-5 text-5xl font-black tracking-tight md:text-7xl">{copy.joinTitle}</h2><p className="mt-6 text-xl leading-relaxed text-white/65">{copy.joinBody}</p><p className="mt-8 text-sm text-white/45">{copy.contactLabel}: {contactEmail}</p></div>
-            <form onSubmit={submit} className="rounded-3xl border border-white/10 bg-white/[0.045] p-6 md:p-8">
+            <form onSubmit={submit} onFocusCapture={markFormStarted} className="rounded-3xl border border-white/10 bg-white/[0.045] p-6 md:p-8">
               <div className="mb-6 flex gap-2"><button type="button" onClick={() => setType("person")} className={`rounded-full px-4 py-2 text-sm font-bold ${type === "person" ? "bg-[#d6ff65] text-[#07110f]" : "border border-white/15"}`}>{copy.person}</button><button type="button" onClick={() => setType("organisation")} className={`rounded-full px-4 py-2 text-sm font-bold ${type === "organisation" ? "bg-[#d6ff65] text-[#07110f]" : "border border-white/15"}`}>{copy.organisation}</button></div>
               <div className="grid gap-4 sm:grid-cols-2">
                 {type === "person" ? <><input value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder={copy.firstName} className="rounded-xl border border-white/15 bg-[#07110f] px-4 py-3 outline-none focus:border-[#d6ff65]" /><input value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder={copy.lastName} className="rounded-xl border border-white/15 bg-[#07110f] px-4 py-3 outline-none focus:border-[#d6ff65]" /><input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} aria-label={copy.birthDate} className="rounded-xl border border-white/15 bg-[#07110f] px-4 py-3 outline-none focus:border-[#d6ff65]" /></> : <input value={organisation} onChange={(e) => setOrganisation(e.target.value)} placeholder={copy.organisationName} className="rounded-xl border border-white/15 bg-[#07110f] px-4 py-3 outline-none focus:border-[#d6ff65] sm:col-span-2" />}

@@ -9,6 +9,7 @@ import {
 } from "@/config/locales";
 import { rateLimitFromRequest, rateLimitHeaders } from "@/utils/rateLimitHelpers";
 import { buildDoiMail, createDoiToken } from "@/lib/membershipDoi";
+import { recordFunnelEvent } from "@/lib/funnelEvents";
 
 export const runtime = "nodejs";
 
@@ -300,6 +301,19 @@ export async function POST(req: NextRequest) {
       },
       { upsert: true }
     );
+    const memberId = String(
+      upsertResult.upsertedId ?? (await col.findOne({ email }, { projection: { _id: 1 } }))?._id ?? "",
+    );
+    await recordFunnelEvent({
+      event: "registration_submitted",
+      memberId,
+      source: doc.acquisition?.utmSource,
+      medium: doc.acquisition?.utmMedium,
+      campaign: doc.acquisition?.utmCampaign,
+      country: doc.country,
+      locale,
+      landingPath: doc.acquisition?.landingPath,
+    }).catch((error) => console.warn("[public-register] funnel event failed", error));
 
     const base =
       process.env.PUBLIC_BASE_URL ||
@@ -352,6 +366,16 @@ export async function POST(req: NextRequest) {
     }
 
     await sendMail({ to: email, ...buildDoiMail(locale, confirmUrl) });
+    await recordFunnelEvent({
+      event: "doi_sent",
+      memberId,
+      source: doc.acquisition?.utmSource,
+      medium: doc.acquisition?.utmMedium,
+      campaign: doc.acquisition?.utmCampaign,
+      country: doc.country,
+      locale,
+      landingPath: doc.acquisition?.landingPath,
+    }).catch((error) => console.warn("[public-register] funnel event failed", error));
 
     const isDev = process.env.NODE_ENV !== "production";
     return NextResponse.json({ ok: true, requestId, devToken: isDev ? token : undefined });

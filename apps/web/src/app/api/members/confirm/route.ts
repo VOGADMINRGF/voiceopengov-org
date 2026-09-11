@@ -2,6 +2,7 @@ import { membersCol } from "@/lib/vogMongo";
 import { getTextDirection } from "@/config/locales";
 import { getDoiCopy, hashDoiToken, resolveDoiLocale } from "@/lib/membershipDoi";
 import { VOG_SUPPORT_URL } from "@/config/links";
+import { recordFunnelEvent } from "@/lib/funnelEvents";
 
 function escapeHtml(value: string) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
@@ -39,5 +40,15 @@ export async function GET(req: Request) {
     { $set: { status: "active", confirmedAt: now, updatedAt: now }, $unset: { doiToken: "", doiTokenHash: "", doiExpiresAt: "" } },
   );
   if (result.modifiedCount !== 1) return renderPage({ locale: memberLocale, title: memberCopy.invalidTitle, message: memberCopy.invalidMessage, ok: false, baseUrl });
+  await recordFunnelEvent({
+    event: "membership_confirmed",
+    memberId: String(member._id),
+    source: member.acquisition?.utmSource,
+    medium: member.acquisition?.utmMedium,
+    campaign: member.acquisition?.utmCampaign,
+    country: member.country,
+    locale: memberLocale,
+    landingPath: member.acquisition?.landingPath,
+  }).catch((error) => console.warn("[members-confirm] funnel event failed", error));
   return renderPage({ locale: memberLocale, title: memberCopy.confirmedTitle, message: memberCopy.confirmedMessage, ok: true, baseUrl });
 }
