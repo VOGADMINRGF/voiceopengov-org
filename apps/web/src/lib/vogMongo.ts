@@ -61,10 +61,51 @@ export type MemberDoc = {
   doiExpiresAt?: Date;
   doiSentAt?: Date;
   locale?: string;
+  acquisition?: {
+    landingPath?: string;
+    referrer?: string;
+    utmSource?: string;
+    utmMedium?: string;
+    utmCampaign?: string;
+  };
   confirmedAt?: Date;
   createdAt: Date;
   updatedAt?: Date;
 };
+
+export type FunnelEventName =
+  | "landing_viewed"
+  | "form_started"
+  | "registration_submitted"
+  | "doi_sent"
+  | "membership_confirmed"
+  | "funding_started"
+  | "payment_succeeded";
+
+export type FunnelEventDoc = {
+  _id?: any;
+  event: FunnelEventName;
+  occurredAt: Date;
+  expiresAt: Date;
+  sessionHash?: string;
+  memberId?: string;
+  source?: string;
+  medium?: string;
+  campaign?: string;
+  country?: string;
+  locale?: string;
+  landingPath?: string;
+};
+
+export async function funnelEventsCol(): Promise<Collection<FunnelEventDoc>> {
+  const db = await vogDb();
+  const col = db.collection<FunnelEventDoc>("membership_funnel_events");
+  await col.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }).catch(() => {});
+  await col.createIndex({ event: 1, occurredAt: -1 }).catch(() => {});
+  await col.createIndex({ campaign: 1, occurredAt: -1 }).catch(() => {});
+  await col.createIndex({ locale: 1, country: 1, occurredAt: -1 }).catch(() => {});
+  return col;
+}
 
 export async function membersCol(): Promise<Collection<MemberDoc>> {
   const db = await vogDb();
