@@ -381,6 +381,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, requestId, devToken: isDev ? token : undefined });
   } catch (err: any) {
     console.error("[public-register]", requestId, err);
+    if (err?.code === "ENOTFOUND" || err?.code === "ECONNREFUSED" || err?.name === "MongoServerSelectionError") {
+      return NextResponse.json(
+        { ok: false, error: "registration_temporarily_unavailable", requestId },
+        { status: 503, headers: { "cache-control": "no-store" } },
+      );
+    }
 
     const msg =
       process.env.NODE_ENV === "development"
