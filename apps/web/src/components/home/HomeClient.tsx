@@ -250,7 +250,7 @@ const cardClass = "rounded-3xl border border-white/10 bg-white/[0.045] p-6 shado
 
 export default function HomeClient({
   contactEmail,
-  copy,
+  copy = HOME_RELAUNCH_COPY.de,
   renderedLocale,
 }: {
   supportBank: Record<string, unknown>;
