@@ -12,6 +12,10 @@ export default async function HomePage() {
     original: HOME_RELAUNCH_COPY.de,
     reviewedEnglish: HOME_RELAUNCH_COPY.en,
   });
+  // Translation is an enhancement, never an availability dependency. A malformed
+  // provider/cache response must not take the membership entry page offline.
+  const fallbackCopy = locale === "en" ? HOME_RELAUNCH_COPY.en : HOME_RELAUNCH_COPY.de;
+  const homeCopy = home?.value ?? fallbackCopy;
   const contactEmail =
     process.env.VOG_MEMBERSHIP_CONTACT_EMAIL || "members@voiceopengov.org";
   const supportBank = {
@@ -26,15 +30,13 @@ export default async function HomePage() {
     <>
       <TranslationStatusNotice
         locale={locale}
-        status={
-          home.status
-        }
+        status={home?.status ?? "missing"}
       />
       <HomeClient
         supportBank={supportBank}
         contactEmail={contactEmail}
-        copy={home.value}
-        renderedLocale={home.renderedLocale}
+        copy={homeCopy}
+        renderedLocale={home?.renderedLocale ?? locale}
       />
       <RegionalActivationTeaser />
       <HomeDiscoverabilityLinks locale={locale} />
