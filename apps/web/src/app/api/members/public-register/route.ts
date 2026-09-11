@@ -2,13 +2,13 @@ import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { membersCol } from "@/lib/vogMongo";
 import { sendMail } from "@/lib/mail/sendMail";
-import { VOG_SUPPORT_URL } from "@/config/links";
 import {
   DEFAULT_LOCALE,
   isSupportedLocale,
   type SupportedLocale,
 } from "@/config/locales";
 import { rateLimitFromRequest, rateLimitHeaders } from "@/utils/rateLimitHelpers";
+import { buildDoiMail, createDoiToken } from "@/lib/membershipDoi";
 
 export const runtime = "nodejs";
 
@@ -76,8 +76,9 @@ type MemberDoc = {
   wantsNewsletterEdDebatte: boolean;
 
   status: "pending" | "active";
-  doiToken: string;
+  doiTokenHash: string;
   doiExpiresAt: Date;
+  doiSentAt: Date;
 
   createdAt: Date;
   updatedAt: Date;
@@ -233,8 +234,7 @@ export async function POST(req: NextRequest) {
       birthDateValue = parsedBirth.toISOString().slice(0, 10);
     }
 
-    const token = crypto.randomBytes(24).toString("hex");
-    const expires = new Date(Date.now() + 48 * 60 * 60 * 1000);
+    const { token, tokenHash, expiresAt: expires } = createDoiToken();
 
     const now = new Date();
 
@@ -275,8 +275,9 @@ export async function POST(req: NextRequest) {
       wantsNewsletterEdDebatte,
 
       status: "pending",
-      doiToken: token,
+      doiTokenHash: tokenHash,
       doiExpiresAt: expires,
+      doiSentAt: now,
 
       createdAt: now,
       updatedAt: now,
@@ -285,6 +286,10 @@ export async function POST(req: NextRequest) {
     };
 
     const col = await membersCol();
+    const existing = await col.findOne({ email }, { projection: { status: 1 } });
+    if (existing?.status === "active") {
+      return NextResponse.json({ ok: true, requestId });
+    }
     const { createdAt, ...docWithoutCreatedAt } = doc;
 
     const upsertResult = await col.updateOne(
@@ -314,8 +319,6 @@ export async function POST(req: NextRequest) {
     const birthDateText = birthDateValue
       ? birthDateValue.split("-").reverse().join(".")
       : undefined;
-    const supportUrl = VOG_SUPPORT_URL;
-    const contactUrl = `${base}/kontakt`;
     const notifyEmail =
       process.env.VOG_MEMBERSHIP_CONTACT_EMAIL || "members@voiceopengov.org";
 
@@ -348,60 +351,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    await sendMail({
-      to: email,
-      subject: "Bitte E-Mail bestätigen – VoiceOpenGov",
-      html: [
-        `<div style="font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; color: #0f172a;">`,
-        `<h2 style="margin: 0 0 12px; font-size: 20px; font-weight: 700;">Bitte E-Mail bestätigen</h2>`,
-        `<p style="margin: 0 0 16px; font-size: 14px; line-height: 1.5;">Danke für deine Eintragung bei VoiceOpenGov. Bitte bestätige deine E-Mail-Adresse, damit wir dich aktivieren können:</p>`,
-        `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 14px;">`,
-        `<tr>`,
-        `<td bgcolor="#0ea5e9" style="border-radius: 999px;">`,
-        `<a href="${confirmUrl}" style="display: inline-block; padding: 10px 18px; font-weight: 600; font-size: 14px; color: #ffffff; text-decoration: none; border-radius: 999px;">E-Mail bestätigen</a>`,
-        `</td>`,
-        `</tr>`,
-        `</table>`,
-        `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 22px;">`,
-        `<tr>`,
-        `<td bgcolor="#06b6d4" style="border-radius: 999px;">`,
-        `<a href="${supportUrl}" style="display: inline-block; padding: 8px 14px; font-weight: 600; font-size: 12px; color: #ffffff; text-decoration: none; border-radius: 999px;">Initiative unterstützen</a>`,
-        `</td>`,
-        `<td style="width: 10px;"></td>`,
-        `<td bgcolor="#e2e8f0" style="border-radius: 999px;">`,
-        `<a href="${contactUrl}" style="display: inline-block; padding: 8px 14px; font-weight: 600; font-size: 12px; color: #0f172a; text-decoration: none; border-radius: 999px;">Fragen?</a>`,
-        `</td>`,
-        `</tr>`,
-        `</table>`,
-        `<div style="margin: 0 0 18px; padding: 14px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc;">`,
-        `<div style="font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 8px;">Deine Angaben</div>`,
-        `<table style="width: 100%; font-size: 13px; color: #0f172a; border-collapse: collapse;">`,
-        `<tr><td style="padding: 4px 0; color: #475569;">Mitgliedschaft</td><td style="padding: 4px 0; font-weight: 600;">${type === "organisation" ? "Organisation" : "Person"}</td></tr>`,
-        displayName
-          ? `<tr><td style="padding: 4px 0; color: #475569;">Name</td><td style="padding: 4px 0; font-weight: 600;">${escapeHtml(displayName)}</td></tr>`
-          : "",
-        birthDateText
-          ? `<tr><td style="padding: 4px 0; color: #475569;">Geburtsdatum</td><td style="padding: 4px 0; font-weight: 600;">${escapeHtml(birthDateText)}</td></tr>`
-          : "",
-        locationParts
-          ? `<tr><td style="padding: 4px 0; color: #475569;">Ort</td><td style="padding: 4px 0; font-weight: 600;">${escapeHtml(locationParts)}</td></tr>`
-          : "",
-        `<tr><td style="padding: 4px 0; color: #475569;">Sichtbarkeit</td><td style="padding: 4px 0; font-weight: 600;">${visibilityText}</td></tr>`,
-        `<tr><td style="padding: 4px 0; color: #475569;">Unterstützer-Banner</td><td style="padding: 4px 0; font-weight: 600;">${supporterText}</td></tr>`,
-        supporterNote
-          ? `<tr><td style="padding: 4px 0; color: #475569;">Motivation</td><td style="padding: 4px 0; font-weight: 600;">${escapeHtml(supporterNote)}</td></tr>`
-          : "",
-        `<tr><td style="padding: 4px 0; color: #475569;">Newsletter VoiceOpenGov</td><td style="padding: 4px 0; font-weight: 600;">${newsletterText}</td></tr>`,
-        `<tr><td style="padding: 4px 0; color: #475569;">Updates eDebatte</td><td style="padding: 4px 0; font-weight: 600;">${newsletterEdText}</td></tr>`,
-        `</table>`,
-        `</div>`,
-        `<p style="margin: 0 0 10px; font-size: 13px; color: #334155;">Wenn du die Initiative unterstützen möchtest, findest du alle Wege und Hinweise auf unserer Unterstützungsseite.</p>`,
-        `<p style="margin: 0 0 10px; font-size: 13px; color: #334155;">Wenn du dich in Marketing, Programmierung oder gesellschaftlich einbringen willst, freuen wir uns auf ein Zeichen an <a href="mailto:members@voiceopengov.org" style="color:#0ea5e9; font-weight:600; text-decoration:none;">members@voiceopengov.org</a>.</p>`,
-        `<p style="margin: 0 0 16px; font-size: 13px; color: #334155;">Ansonsten freuen wir uns erstmal über deine Beteiligung.</p>`,
-        `<p style="margin: 0; font-size: 12px; color: #64748b;">Wenn du dich nicht eingetragen hast, kannst du diese E-Mail ignorieren.</p>`,
-        `</div>`,
-      ].join(""),
-    });
+    await sendMail({ to: email, ...buildDoiMail(locale, confirmUrl) });
 
     const isDev = process.env.NODE_ENV !== "production";
     return NextResponse.json({ ok: true, requestId, devToken: isDev ? token : undefined });

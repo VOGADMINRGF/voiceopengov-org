@@ -57,7 +57,10 @@ export type MemberDoc = {
   wantsNewsletterEdDebatte?: boolean;
   status: MemberStatus;
   doiToken?: string;
+  doiTokenHash?: string;
   doiExpiresAt?: Date;
+  doiSentAt?: Date;
+  locale?: string;
   confirmedAt?: Date;
   createdAt: Date;
   updatedAt?: Date;
