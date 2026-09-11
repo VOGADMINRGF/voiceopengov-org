@@ -65,6 +65,7 @@ export type HomeRelaunchCopy = {
   validationError: string;
   submitSuccess: string;
   submitError: string;
+  submitUnavailable: string;
   supportTitle: string;
   supportBody: string;
   supportCta: string;
@@ -154,6 +155,7 @@ export const HOME_RELAUNCH_COPY: Record<"de" | "en", HomeRelaunchCopy> = {
     validationError: "Bitte E-Mail, Ort und Datenschutz bestätigen.",
     submitSuccess: "Fast geschafft. Bitte bestätige jetzt die E-Mail.",
     submitError: "Das hat noch nicht funktioniert. Bitte versuche es erneut.",
+    submitUnavailable: "Die Anmeldung ist vorübergehend nicht erreichbar. Bitte versuche es später erneut.",
     supportTitle: "Bewegung ermöglichen, ohne Einfluss zu verkaufen.",
     supportBody:
       "Mitgliedschaft und Finanzierung bleiben getrennt. Wer mehr gibt, erhält nicht mehr politische Gewichtung.",
@@ -239,6 +241,7 @@ export const HOME_RELAUNCH_COPY: Record<"de" | "en", HomeRelaunchCopy> = {
     validationError: "Please provide email, city and privacy consent.",
     submitSuccess: "Almost there. Please confirm your email.",
     submitError: "That did not work yet. Please try again.",
+    submitUnavailable: "Registration is temporarily unavailable. Please try again later.",
     supportTitle: "Enable the movement without selling influence.",
     supportBody: "Membership and funding remain separate. Giving more never creates more political weight.",
     supportCta: "Support voluntarily",
@@ -342,11 +345,19 @@ export default function HomeClient({
         }),
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok || !data?.ok) throw new Error("registration_failed");
+      if (!response.ok || !data?.ok) {
+        if (response.status === 503) throw new Error("registration_unavailable");
+        throw new Error("registration_failed");
+      }
       setNotice({ ok: true, msg: copy.submitSuccess });
       setFirstName(""); setLastName(""); setBirthDate(""); setOrganisation(""); setEmail(""); setCity(""); setCountry(""); setPrivacy(false); setNewsletter(false);
-    } catch {
-      setNotice({ ok: false, msg: copy.submitError });
+    } catch (error) {
+      setNotice({
+        ok: false,
+        msg: error instanceof Error && error.message === "registration_unavailable"
+          ? copy.submitUnavailable
+          : copy.submitError,
+      });
     } finally {
       setSubmitting(false);
     }
@@ -420,20 +431,20 @@ export default function HomeClient({
 
       <section id="mitmachen" className="scroll-mt-24 border-t border-white/10 bg-[#0b1714]">
         <div className={sectionClass}>
-          <div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr]">
-            <div><p className="text-sm font-bold uppercase tracking-[0.2em] text-[#d6ff65]">{copy.membershipEyebrow}</p><h2 className="mt-5 text-5xl font-black tracking-tight md:text-7xl">{copy.joinTitle}</h2><p className="mt-6 text-xl leading-relaxed text-white/65">{copy.joinBody}</p><p className="mt-8 text-sm text-white/45">{copy.contactLabel}: {contactEmail}</p></div>
-            <form onSubmit={submit} onFocusCapture={markFormStarted} className="rounded-3xl border border-white/10 bg-white/[0.045] p-6 md:p-8">
+          <div className="grid min-w-0 gap-12 lg:grid-cols-[.8fr_1.2fr]">
+            <div className="min-w-0"><p className="text-sm font-bold uppercase tracking-[0.2em] text-[#d6ff65]">{copy.membershipEyebrow}</p><h2 className="mt-5 text-5xl font-black tracking-tight md:text-7xl">{copy.joinTitle}</h2><p className="mt-6 text-xl leading-relaxed text-white/65">{copy.joinBody}</p><p className="mt-8 break-all text-sm text-white/45">{copy.contactLabel}: {contactEmail}</p></div>
+            <form onSubmit={submit} onFocusCapture={markFormStarted} className="min-w-0 max-w-full overflow-hidden rounded-3xl border border-white/10 bg-white/[0.045] p-5 sm:p-6 md:p-8">
               <div className="mb-6 flex gap-2"><button type="button" onClick={() => setType("person")} className={`rounded-full px-4 py-2 text-sm font-bold ${type === "person" ? "bg-[#d6ff65] text-[#07110f]" : "border border-white/15"}`}>{copy.person}</button><button type="button" onClick={() => setType("organisation")} className={`rounded-full px-4 py-2 text-sm font-bold ${type === "organisation" ? "bg-[#d6ff65] text-[#07110f]" : "border border-white/15"}`}>{copy.organisation}</button></div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {type === "person" ? <><input value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder={copy.firstName} className="rounded-xl border border-white/15 bg-[#07110f] px-4 py-3 outline-none focus:border-[#d6ff65]" /><input value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder={copy.lastName} className="rounded-xl border border-white/15 bg-[#07110f] px-4 py-3 outline-none focus:border-[#d6ff65]" /><input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} aria-label={copy.birthDate} className="rounded-xl border border-white/15 bg-[#07110f] px-4 py-3 outline-none focus:border-[#d6ff65]" /></> : <input value={organisation} onChange={(e) => setOrganisation(e.target.value)} placeholder={copy.organisationName} className="rounded-xl border border-white/15 bg-[#07110f] px-4 py-3 outline-none focus:border-[#d6ff65] sm:col-span-2" />}
-                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={copy.email} className="rounded-xl border border-white/15 bg-[#07110f] px-4 py-3 outline-none focus:border-[#d6ff65]" />
-                <input required value={city} onChange={(e) => setCity(e.target.value)} placeholder={copy.city} className="rounded-xl border border-white/15 bg-[#07110f] px-4 py-3 outline-none focus:border-[#d6ff65]" />
-                <select value={country} onChange={(e) => setCountry(e.target.value)} className="rounded-xl border border-white/15 bg-[#07110f] px-4 py-3 outline-none focus:border-[#d6ff65] sm:col-span-2"><option value="">{copy.countryPlaceholder}</option>{countryOptions.map((option) => <option key={option.code} value={option.code}>{option.label}</option>)}</select>
+              <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+                {type === "person" ? <><input value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder={copy.firstName} className="w-full min-w-0 max-w-full rounded-xl border border-white/15 bg-[#07110f] px-4 py-3 outline-none focus:border-[#d6ff65]" /><input value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder={copy.lastName} className="w-full min-w-0 max-w-full rounded-xl border border-white/15 bg-[#07110f] px-4 py-3 outline-none focus:border-[#d6ff65]" /><input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} aria-label={copy.birthDate} className="w-full min-w-0 max-w-full rounded-xl border border-white/15 bg-[#07110f] px-4 py-3 outline-none focus:border-[#d6ff65]" /></> : <input value={organisation} onChange={(e) => setOrganisation(e.target.value)} placeholder={copy.organisationName} className="w-full min-w-0 max-w-full rounded-xl border border-white/15 bg-[#07110f] px-4 py-3 outline-none focus:border-[#d6ff65] sm:col-span-2" />}
+                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={copy.email} className="w-full min-w-0 max-w-full rounded-xl border border-white/15 bg-[#07110f] px-4 py-3 outline-none focus:border-[#d6ff65]" />
+                <input required value={city} onChange={(e) => setCity(e.target.value)} placeholder={copy.city} className="w-full min-w-0 max-w-full rounded-xl border border-white/15 bg-[#07110f] px-4 py-3 outline-none focus:border-[#d6ff65]" />
+                <select value={country} onChange={(e) => setCountry(e.target.value)} className="w-full min-w-0 max-w-full rounded-xl border border-white/15 bg-[#07110f] px-4 py-3 outline-none focus:border-[#d6ff65] sm:col-span-2"><option value="">{copy.countryPlaceholder}</option>{countryOptions.map((option) => <option key={option.code} value={option.code}>{option.label}</option>)}</select>
               </div>
-              <label className="mt-6 flex gap-3 text-sm text-white/65"><input type="checkbox" checked={privacy} onChange={(e) => setPrivacy(e.target.checked)} className="mt-1" /><span>{copy.privacy}</span></label>
-              <label className="mt-3 flex gap-3 text-sm text-white/65"><input type="checkbox" checked={newsletter} onChange={(e) => setNewsletter(e.target.checked)} className="mt-1" /><span>{copy.newsletter}</span></label>
-              {notice && <p className={`mt-5 rounded-xl px-4 py-3 text-sm ${notice.ok ? "bg-emerald-400/15 text-emerald-200" : "bg-red-400/15 text-red-200"}`}>{notice.msg}</p>}
-              <button disabled={submitting} className="mt-6 w-full rounded-full bg-[#d6ff65] px-6 py-3.5 font-black text-[#07110f] disabled:opacity-60">{submitting ? copy.submitting : copy.submit}</button>
+              <label className="mt-6 flex min-w-0 items-start gap-3 text-sm text-white/65"><input type="checkbox" checked={privacy} onChange={(e) => setPrivacy(e.target.checked)} className="mt-1 shrink-0" /><span className="min-w-0 break-words">{copy.privacy}</span></label>
+              <label className="mt-3 flex min-w-0 items-start gap-3 text-sm text-white/65"><input type="checkbox" checked={newsletter} onChange={(e) => setNewsletter(e.target.checked)} className="mt-1 shrink-0" /><span className="min-w-0 break-words">{copy.newsletter}</span></label>
+              {notice && <p className={`mt-5 min-w-0 break-words rounded-xl px-4 py-3 text-sm ${notice.ok ? "bg-emerald-400/15 text-emerald-200" : "bg-red-400/15 text-red-200"}`}>{notice.msg}</p>}
+              <button disabled={submitting} className="mt-6 w-full min-w-0 whitespace-normal rounded-full bg-[#d6ff65] px-4 py-3.5 text-center font-black leading-snug text-[#07110f] disabled:opacity-60">{submitting ? copy.submitting : copy.submit}</button>
             </form>
           </div>
         </div>
