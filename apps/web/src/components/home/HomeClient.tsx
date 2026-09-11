@@ -9,10 +9,11 @@ import {
   VOG_JOIN_PATH,
   VOG_QUESTIONS_PATH,
 } from "@/config/links";
+import type { SupportedLocale } from "@/config/locales";
 
 type Notice = { ok: boolean; msg: string } | null;
 
-type Copy = {
+export type HomeRelaunchCopy = {
   eyebrow: string;
   title: string;
   intro: string;
@@ -61,12 +62,15 @@ type Copy = {
   newsletter: string;
   submit: string;
   submitting: string;
+  validationError: string;
+  submitSuccess: string;
+  submitError: string;
   supportTitle: string;
   supportBody: string;
   supportCta: string;
 };
 
-const COPY: Record<"de" | "en", Copy> = {
+export const HOME_RELAUNCH_COPY: Record<"de" | "en", HomeRelaunchCopy> = {
   de: {
     eyebrow: "Eine internationale Mitgliederbewegung",
     title: "Willkommen Nachbar.",
@@ -147,6 +151,9 @@ const COPY: Record<"de" | "en", Copy> = {
     newsletter: "Ich möchte Updates zu VoiceOpenGov erhalten.",
     submit: "Kostenfrei Mitglied werden",
     submitting: "Wird eingetragen …",
+    validationError: "Bitte E-Mail, Ort und Datenschutz bestätigen.",
+    submitSuccess: "Fast geschafft. Bitte bestätige jetzt die E-Mail.",
+    submitError: "Das hat noch nicht funktioniert. Bitte versuche es erneut.",
     supportTitle: "Bewegung ermöglichen, ohne Einfluss zu verkaufen.",
     supportBody:
       "Mitgliedschaft und Finanzierung bleiben getrennt. Wer mehr gibt, erhält nicht mehr politische Gewichtung.",
@@ -229,6 +236,9 @@ const COPY: Record<"de" | "en", Copy> = {
     newsletter: "I would like updates about VoiceOpenGov.",
     submit: "Join for free",
     submitting: "Joining …",
+    validationError: "Please provide email, city and privacy consent.",
+    submitSuccess: "Almost there. Please confirm your email.",
+    submitError: "That did not work yet. Please try again.",
     supportTitle: "Enable the movement without selling influence.",
     supportBody: "Membership and funding remain separate. Giving more never creates more political weight.",
     supportCta: "Support voluntarily",
@@ -238,10 +248,17 @@ const COPY: Record<"de" | "en", Copy> = {
 const sectionClass = "mx-auto max-w-6xl px-5 py-20 md:px-8 md:py-28";
 const cardClass = "rounded-3xl border border-white/10 bg-white/[0.045] p-6 shadow-2xl shadow-black/10 backdrop-blur";
 
-export default function HomeClient({ contactEmail }: { supportBank: Record<string, unknown>; contactEmail: string }) {
+export default function HomeClient({
+  contactEmail,
+  copy,
+  renderedLocale,
+}: {
+  supportBank: Record<string, unknown>;
+  contactEmail: string;
+  copy: HomeRelaunchCopy;
+  renderedLocale: SupportedLocale;
+}) {
   const { locale } = useLocale();
-  const language = locale === "de" ? "de" : "en";
-  const copy = COPY[language];
   const countryOptions = useMemo(() => getCountryOptions(locale), [locale]);
   const [type, setType] = useState<"person" | "organisation">("person");
   const [firstName, setFirstName] = useState("");
@@ -260,7 +277,7 @@ export default function HomeClient({ contactEmail }: { supportBank: Record<strin
     event.preventDefault();
     setNotice(null);
     if (!privacy || !email.trim() || !city.trim()) {
-      setNotice({ ok: false, msg: language === "de" ? "Bitte E-Mail, Ort und Datenschutz bestätigen." : "Please provide email, city and privacy consent." });
+      setNotice({ ok: false, msg: copy.validationError });
       return;
     }
     setSubmitting(true);
@@ -280,14 +297,22 @@ export default function HomeClient({ contactEmail }: { supportBank: Record<strin
           isPublic: true,
           wantsNewsletter: newsletter,
           wantsNewsletterEdDebatte: false,
+          locale: renderedLocale,
+          acquisition: {
+            landingPath: window.location.pathname,
+            referrer: document.referrer || undefined,
+            utmSource: new URLSearchParams(window.location.search).get("utm_source") || undefined,
+            utmMedium: new URLSearchParams(window.location.search).get("utm_medium") || undefined,
+            utmCampaign: new URLSearchParams(window.location.search).get("utm_campaign") || undefined,
+          },
         }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data?.ok) throw new Error("registration_failed");
-      setNotice({ ok: true, msg: language === "de" ? "Fast geschafft. Bitte bestätige jetzt die E-Mail." : "Almost there. Please confirm your email." });
+      setNotice({ ok: true, msg: copy.submitSuccess });
       setFirstName(""); setLastName(""); setBirthDate(""); setOrganisation(""); setEmail(""); setCity(""); setCountry(""); setPrivacy(false); setNewsletter(false);
     } catch {
-      setNotice({ ok: false, msg: language === "de" ? "Das hat noch nicht funktioniert. Bitte versuche es erneut." : "That did not work yet. Please try again." });
+      setNotice({ ok: false, msg: copy.submitError });
     } finally {
       setSubmitting(false);
     }
