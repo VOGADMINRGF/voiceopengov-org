@@ -7,22 +7,24 @@ import {
   createSupportCookie,
   isSupportPasswordValid,
 } from "@/lib/supportSession";
+import { readSecret } from "@/lib/runtimeSecrets";
 
 const COOKIE_TTL_DAYS = 7;
 
 function getSupportPassword() {
-  return process.env.VOG_SUPPORT_PASSWORD || process.env.EDITOR_TOKEN || "";
+  return readSecret("VOG_SUPPORT_PASSWORD");
 }
 
 function getSupportSecret() {
-  return process.env.JWT_SECRET || process.env.EDITOR_TOKEN || "support-session";
+  return readSecret("VOG_SUPPORT_SESSION_SECRET");
 }
 
 export async function loginSupporter(formData: FormData) {
   const password = String(formData.get("password") || "").trim();
   const expected = getSupportPassword();
 
-  if (!expected) {
+  const secret = getSupportSecret();
+  if (!expected || !secret) {
     redirect("/unterstuetzen?error=unconfigured");
   }
 
@@ -30,7 +32,7 @@ export async function loginSupporter(formData: FormData) {
     redirect("/unterstuetzen?error=invalid");
   }
 
-  const { value, expiresAt } = createSupportCookie(getSupportSecret(), COOKIE_TTL_DAYS);
+  const { value, expiresAt } = createSupportCookie(secret, COOKIE_TTL_DAYS);
   cookies().set(SUPPORT_COOKIE, value, {
     httpOnly: true,
     sameSite: "lax",
