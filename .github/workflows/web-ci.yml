@@ -41,4 +41,5 @@ jobs:
           pnpm -C apps/web exec vitest run
           tests/i18n.locale-contract.test.ts
           tests/regional-interest.contract.test.ts
+          tests/security.runtime-secrets.test.ts
       - run: pnpm build

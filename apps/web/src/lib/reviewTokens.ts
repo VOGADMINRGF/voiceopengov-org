@@ -1,9 +1,10 @@
 import { createHash, randomBytes } from "crypto";
+import { requireSecret } from "@/lib/runtimeSecrets";
 
 const DEFAULT_TTL_HOURS = 72;
 
 function getSecret() {
-  return process.env.REVIEW_TOKEN_SECRET || "dev-review-secret";
+  return requireSecret("REVIEW_TOKEN_SECRET");
 }
 
 function getTtlHours() {

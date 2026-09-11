@@ -7,22 +7,24 @@ import {
   createPaymentsCookie,
   isPaymentsPasswordValid,
 } from "@/lib/paymentSession";
+import { readSecret } from "@/lib/runtimeSecrets";
 
 const COOKIE_TTL_DAYS = 7;
 
 function getPaymentsPassword() {
-  return process.env.VOG_PAYMENTS_PASSWORD || "";
+  return readSecret("VOG_PAYMENTS_PASSWORD");
 }
 
 function getPaymentsSecret() {
-  return process.env.JWT_SECRET || process.env.EDITOR_TOKEN || "payments-session";
+  return readSecret("VOG_PAYMENTS_SESSION_SECRET");
 }
 
 export async function loginPayments(formData: FormData) {
   const password = String(formData.get("password") || "").trim();
   const expected = getPaymentsPassword();
 
-  if (!expected) {
+  const secret = getPaymentsSecret();
+  if (!expected || !secret) {
     redirect("/zahlungen?error=unconfigured");
   }
 
@@ -30,7 +32,7 @@ export async function loginPayments(formData: FormData) {
     redirect("/zahlungen?error=invalid");
   }
 
-  const { value, expiresAt } = createPaymentsCookie(getPaymentsSecret(), COOKIE_TTL_DAYS);
+  const { value, expiresAt } = createPaymentsCookie(secret, COOKIE_TTL_DAYS);
   cookies().set(PAYMENTS_COOKIE, value, {
     httpOnly: true,
     sameSite: "lax",

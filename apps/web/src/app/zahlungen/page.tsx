@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { getRequestLocale } from "@/lib/locale";
 import { getAutoTranslatedStrings } from "@/lib/i18n/autoTranslateStrings";
 import { PAYMENTS_COOKIE, verifyPaymentsCookie } from "@/lib/paymentSession";
+import { readSecret } from "@/lib/runtimeSecrets";
 import { loginPayments, logoutPayments } from "./actions";
 import { getPaymentsStrings, getPaymentsStringsOptional } from "./strings";
 
@@ -30,13 +31,11 @@ export default async function PaymentsPage({
     getPaymentsStrings("de"),
     getPaymentsStringsOptional(locale),
   );
-  const paymentsSecret =
-    process.env.JWT_SECRET || process.env.EDITOR_TOKEN || "payments-session";
+  const paymentsSecret = readSecret("VOG_PAYMENTS_SESSION_SECRET");
   const cookieStore = await cookies();
-  const isAuthed = verifyPaymentsCookie(
-    cookieStore.get(PAYMENTS_COOKIE)?.value,
-    paymentsSecret,
-  );
+  const isAuthed = paymentsSecret
+    ? verifyPaymentsCookie(cookieStore.get(PAYMENTS_COOKIE)?.value, paymentsSecret)
+    : false;
   const bankRecipient = process.env.VOG_PAYMENT_BANK_RECIPIENT;
   const bankIban = process.env.VOG_PAYMENT_BANK_IBAN;
   const bankBic = process.env.VOG_PAYMENT_BANK_BIC;
