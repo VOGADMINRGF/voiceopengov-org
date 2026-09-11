@@ -1,8 +1,14 @@
 import crypto from "crypto";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { membersCol } from "@/lib/vogMongo";
 import { sendMail } from "@/lib/mail/sendMail";
 import { VOG_SUPPORT_URL } from "@/config/links";
+import {
+  DEFAULT_LOCALE,
+  isSupportedLocale,
+  type SupportedLocale,
+} from "@/config/locales";
+import { rateLimitFromRequest, rateLimitHeaders } from "@/utils/rateLimitHelpers";
 
 export const runtime = "nodejs";
 
@@ -10,6 +16,7 @@ const MIN_DONATION_CENTS = 500;
 const MAX_IMAGE_DATA_URL_LENGTH = 4_000_000;
 const DATA_URL_PREFIX = "data:image/";
 const MIN_AGE = 16;
+const RATE_LIMIT = { limit: 6, windowMs: 15 * 60 * 1000 };
 
 type Body = {
   type?: "person" | "organisation";
@@ -34,6 +41,14 @@ type Body = {
   wantsNewsletter?: boolean;
   wantsNewsletterEdDebatte?: boolean;
   donationCents?: number;
+  locale?: string;
+  acquisition?: {
+    landingPath?: string;
+    referrer?: string;
+    utmSource?: string;
+    utmMedium?: string;
+    utmCampaign?: string;
+  };
 };
 
 type MemberDoc = {
@@ -66,7 +81,23 @@ type MemberDoc = {
 
   createdAt: Date;
   updatedAt: Date;
+  locale: SupportedLocale;
+  acquisition?: Body["acquisition"];
 };
+
+function cleanAcquisition(input: Body["acquisition"]): Body["acquisition"] | undefined {
+  if (!input || typeof input !== "object") return undefined;
+  const clean = (value: unknown, max: number) =>
+    typeof value === "string" ? value.replace(/[\r\n]/g, " ").trim().slice(0, max) || undefined : undefined;
+  const result = {
+    landingPath: clean(input.landingPath, 240),
+    referrer: clean(input.referrer, 500),
+    utmSource: clean(input.utmSource, 120),
+    utmMedium: clean(input.utmMedium, 120),
+    utmCampaign: clean(input.utmCampaign, 160),
+  };
+  return Object.values(result).some(Boolean) ? result : undefined;
+}
 
 function normEmail(email: string) {
   return email.trim().toLowerCase();
@@ -133,10 +164,20 @@ function isAtLeastAge(date: Date, minAge: number) {
   return date <= cutoff;
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const requestId = crypto.randomUUID();
 
   try {
+    const ipRate = await rateLimitFromRequest(req, RATE_LIMIT.limit, RATE_LIMIT.windowMs, {
+      scope: "public-member-register",
+    });
+    if (!ipRate.ok) {
+      return NextResponse.json(
+        { ok: false, requestId, error: { message: "rate_limited" }, retryIn: ipRate.retryIn },
+        { status: 429, headers: rateLimitHeaders(ipRate) },
+      );
+    }
+
     const body = (await req.json().catch(() => null)) as Body | null;
     if (!body?.email) {
       return NextResponse.json(
@@ -154,6 +195,7 @@ export async function POST(req: Request) {
     }
 
     const email = normEmail(body.email);
+    const locale = isSupportedLocale(body.locale) ? body.locale : DEFAULT_LOCALE;
     const type: "person" | "organisation" = body.type === "organisation" ? "organisation" : "person";
 
     const isPublic =
@@ -238,6 +280,8 @@ export async function POST(req: Request) {
 
       createdAt: now,
       updatedAt: now,
+      locale,
+      acquisition: cleanAcquisition(body.acquisition),
     };
 
     const col = await membersCol();
@@ -256,7 +300,7 @@ export async function POST(req: Request) {
       process.env.PUBLIC_BASE_URL ||
       process.env.NEXT_PUBLIC_BASE_URL ||
       "http://localhost:3000";
-    const confirmUrl = `${base}/api/members/confirm?token=${token}`;
+    const confirmUrl = `${base}/api/members/confirm?token=${token}&lang=${locale}`;
 
     const displayName =
       type === "organisation"
