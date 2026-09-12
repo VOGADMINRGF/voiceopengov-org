@@ -49,14 +49,18 @@ async function hasAdminAccess(request: NextRequest): Promise<boolean> {
   }
 }
 
+function isAdminPath(pathname: string) {
+  return pathname === "/admin" || pathname.startsWith("/admin/") || pathname === "/api/admin" || pathname.startsWith("/api/admin/");
+}
+
 export async function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname.startsWith("/admin/growth") || request.nextUrl.pathname.startsWith("/api/admin/funnel")) {
+  if (isAdminPath(request.nextUrl.pathname)) {
     if (!(await hasAdminAccess(request))) {
       return new Response("Admin authentication required", {
         status: process.env.VOG_ADMIN_USER && process.env.VOG_ADMIN_PASSWORD ? 401 : 503,
         headers: {
           "cache-control": "no-store",
-          "www-authenticate": 'Basic realm="VoiceOpenGov Growth", charset="UTF-8"',
+          "www-authenticate": 'Basic realm="VoiceOpenGov Admin", charset="UTF-8"',
         },
       });
     }
