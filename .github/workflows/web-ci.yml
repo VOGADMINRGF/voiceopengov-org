@@ -43,4 +43,5 @@ jobs:
           tests/regional-interest.contract.test.ts
           tests/security.runtime-secrets.test.ts
           tests/funding.checkout.test.ts
+          tests/funding.webhook.test.ts
       - run: pnpm build

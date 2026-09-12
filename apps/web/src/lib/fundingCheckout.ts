@@ -63,15 +63,18 @@ export function buildStripeCheckoutBody(request: FundingRequest, baseUrl: string
     params.set("line_items[0][price_data][recurring][interval]", request.cadence === "annual" ? "year" : "month");
     params.set("subscription_data[metadata][purpose]", "voluntary_support");
     params.set("subscription_data[metadata][political_voice_weight]", "none");
+    params.set("subscription_data[metadata][attempt_id]", request.attemptId);
   } else {
     params.set("customer_creation", "always");
     params.set("payment_intent_data[metadata][purpose]", "voluntary_support");
     params.set("payment_intent_data[metadata][political_voice_weight]", "none");
+    params.set("payment_intent_data[metadata][attempt_id]", request.attemptId);
   }
   params.set("locale", "auto");
   params.set("metadata[purpose]", "voluntary_support");
   params.set("metadata[political_voice_weight]", "none");
   params.set("metadata[locale]", request.locale);
+  params.set("metadata[attempt_id]", request.attemptId);
   params.set("custom_text[submit][message]", copy.noInfluence);
   return params;
 }

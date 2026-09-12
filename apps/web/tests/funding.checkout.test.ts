@@ -17,6 +17,7 @@ describe("international funding checkout", () => {
     expect(body.get("line_items[0][price_data][recurring][interval]")).toBe("month");
     expect(body.get("metadata[political_voice_weight]")).toBe("none");
     expect(body.get("subscription_data[metadata][political_voice_weight]")).toBe("none");
+    expect(body.get("subscription_data[metadata][attempt_id]")).toBe(VALID.attemptId);
     expect(body.get("success_url")).toContain("{CHECKOUT_SESSION_ID}");
     expect(body.get("custom_text[submit][message]")).toContain("Stimmgewicht");
   });
