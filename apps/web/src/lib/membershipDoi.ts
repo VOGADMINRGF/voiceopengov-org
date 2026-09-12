@@ -32,6 +32,7 @@ export type DoiCopy = {
   support: string;
   questions: string;
   noInfluence: string;
+  accountAccess: string;
 };
 
 const DE: DoiCopy = {
@@ -47,6 +48,20 @@ const DE: DoiCopy = {
   resentTitle: "Neue E-Mail angefordert", resentMessage: "Falls eine offene Anmeldung gefunden wurde, haben wir einen neuen Link gesendet.",
   home: "Zur Startseite", support: "Freiwillig unterstützen", questions: "Fragen?",
   noInfluence: "Finanzielle Unterstützung ist freiwillig und kauft niemals Stimmgewicht oder politischen Einfluss.",
+  accountAccess: "Sicheren Mitgliedszugang einrichten",
+};
+
+const ACCOUNT_ACCESS: Record<SupportedLocale, string> = {
+  de: "Sicheren Mitgliedszugang einrichten",
+  en: "Set up secure member access",
+  fr: "Configurer l’accès membre sécurisé",
+  es: "Configurar el acceso seguro de miembro",
+  tr: "Güvenli üye erişimini ayarla",
+  ar: "إعداد وصول آمن للعضو",
+  pl: "Skonfiguruj bezpieczny dostęp członka",
+  it: "Configura l’accesso sicuro per i membri",
+  ru: "Настроить безопасный доступ участника",
+  zh: "设置安全会员访问",
 };
 
 const COPY: Record<SupportedLocale, DoiCopy> = {
@@ -66,7 +81,9 @@ export function resolveDoiLocale(value?: string | null): SupportedLocale {
   return isSupportedLocale(value) ? value : DEFAULT_LOCALE;
 }
 
-export function getDoiCopy(locale: SupportedLocale) { return COPY[locale]; }
+export function getDoiCopy(locale: SupportedLocale): DoiCopy {
+  return { ...COPY[locale], accountAccess: ACCOUNT_ACCESS[locale] };
+}
 
 export function createDoiToken() {
   const token = crypto.randomBytes(32).toString("base64url");
