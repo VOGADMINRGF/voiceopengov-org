@@ -45,4 +45,5 @@ jobs:
           tests/funding.checkout.test.ts
           tests/funding.webhook.test.ts
           tests/admin.funnel.auth.test.ts
+          tests/newsletter.outbox.test.ts
       - run: pnpm build
