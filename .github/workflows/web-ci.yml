@@ -44,4 +44,5 @@ jobs:
           tests/security.runtime-secrets.test.ts
           tests/funding.checkout.test.ts
           tests/funding.webhook.test.ts
+          tests/admin.funnel.auth.test.ts
       - run: pnpm build
