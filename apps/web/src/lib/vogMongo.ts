@@ -69,6 +69,8 @@ export type MemberDoc = {
     utmCampaign?: string;
   };
   confirmedAt?: Date;
+  newsletterOutboxQueuedAt?: Date;
+  newsletterOutboxPending?: boolean;
   createdAt: Date;
   updatedAt?: Date;
 };
