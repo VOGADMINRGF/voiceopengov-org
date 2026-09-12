@@ -3,6 +3,7 @@ import { getTextDirection } from "@/config/locales";
 import { getDoiCopy, hashDoiToken, resolveDoiLocale } from "@/lib/membershipDoi";
 import { VOG_SUPPORT_URL } from "@/config/links";
 import { recordFunnelEvent } from "@/lib/funnelEvents";
+import { queueConfirmedNewsletterConsent } from "@/lib/newsletterOutbox";
 
 function escapeHtml(value: string) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
@@ -40,6 +41,19 @@ export async function GET(req: Request) {
     { $set: { status: "active", confirmedAt: now, updatedAt: now }, $unset: { doiToken: "", doiTokenHash: "", doiExpiresAt: "" } },
   );
   if (result.modifiedCount !== 1) return renderPage({ locale: memberLocale, title: memberCopy.invalidTitle, message: memberCopy.invalidMessage, ok: false, baseUrl });
+  try {
+    await queueConfirmedNewsletterConsent({
+      memberId: String(member._id),
+      locale: memberLocale,
+      wantsNewsletter: member.wantsNewsletter,
+      wantsNewsletterEdDebatte: member.wantsNewsletterEdDebatte,
+      confirmedAt: now,
+    });
+    await col.updateOne({ _id: member._id }, { $set: { newsletterOutboxQueuedAt: now }, $unset: { newsletterOutboxPending: "" } });
+  } catch (error) {
+    await col.updateOne({ _id: member._id }, { $set: { newsletterOutboxPending: true } }).catch(() => {});
+    console.warn("[members-confirm] newsletter outbox queue failed", { memberId: String(member._id), error: String(error) });
+  }
   await recordFunnelEvent({
     event: "membership_confirmed",
     memberId: String(member._id),
