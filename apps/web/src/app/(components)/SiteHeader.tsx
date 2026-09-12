@@ -21,6 +21,7 @@ type PrimaryCopy = {
   questions: string;
   transparency: string;
   join: string;
+  login: string;
   ecosystem: string;
   edebatte: string;
   vote4gov: string;
@@ -34,6 +35,7 @@ const PRIMARY_COPY: Record<SupportedLocale, PrimaryCopy> = {
     questions: "50 Fragen",
     transparency: "Transparenz",
     join: "Mitglied werden",
+    login: "Anmelden",
     ecosystem: "Das Ökosystem",
     edebatte: "Offene Infrastruktur für Erkenntnis und Beteiligung.",
     vote4gov: "Gesellschaftliche Denkwerkstatt.",
@@ -45,6 +47,7 @@ const PRIMARY_COPY: Record<SupportedLocale, PrimaryCopy> = {
     questions: "50 questions",
     transparency: "Transparency",
     join: "Become a member",
+    login: "Sign in",
     ecosystem: "The ecosystem",
     edebatte: "Open infrastructure for insight and participation.",
     vote4gov: "Civic think tank.",
@@ -56,6 +59,7 @@ const PRIMARY_COPY: Record<SupportedLocale, PrimaryCopy> = {
     questions: "50 questions",
     transparency: "Transparence",
     join: "Devenir membre",
+    login: "Se connecter",
     ecosystem: "L’écosystème",
     edebatte: "Infrastructure ouverte pour comprendre et participer.",
     vote4gov: "Atelier de réflexion citoyenne.",
@@ -67,6 +71,7 @@ const PRIMARY_COPY: Record<SupportedLocale, PrimaryCopy> = {
     questions: "50 pytań",
     transparency: "Przejrzystość",
     join: "Zostań członkiem",
+    login: "Zaloguj się",
     ecosystem: "Ekosystem",
     edebatte: "Otwarta infrastruktura wiedzy i uczestnictwa.",
     vote4gov: "Społeczna pracownia idei.",
@@ -78,6 +83,7 @@ const PRIMARY_COPY: Record<SupportedLocale, PrimaryCopy> = {
     questions: "50 preguntas",
     transparency: "Transparencia",
     join: "Hazte miembro",
+    login: "Iniciar sesión",
     ecosystem: "El ecosistema",
     edebatte: "Infraestructura abierta para comprender y participar.",
     vote4gov: "Laboratorio de pensamiento cívico.",
@@ -89,6 +95,7 @@ const PRIMARY_COPY: Record<SupportedLocale, PrimaryCopy> = {
     questions: "50 domande",
     transparency: "Trasparenza",
     join: "Diventa membro",
+    login: "Accedi",
     ecosystem: "L’ecosistema",
     edebatte: "Infrastruttura aperta per conoscenza e partecipazione.",
     vote4gov: "Laboratorio di pensiero civico.",
@@ -100,6 +107,7 @@ const PRIMARY_COPY: Record<SupportedLocale, PrimaryCopy> = {
     questions: "50 soru",
     transparency: "Şeffaflık",
     join: "Üye ol",
+    login: "Giriş yap",
     ecosystem: "Ekosistem",
     edebatte: "Bilgi ve katılım için açık altyapı.",
     vote4gov: "Toplumsal düşünce atölyesi.",
@@ -111,6 +119,7 @@ const PRIMARY_COPY: Record<SupportedLocale, PrimaryCopy> = {
     questions: "50 سؤالاً",
     transparency: "الشفافية",
     join: "انضم كعضو",
+    login: "تسجيل الدخول",
     ecosystem: "المنظومة",
     edebatte: "بنية مفتوحة للمعرفة والمشاركة.",
     vote4gov: "مختبر للتفكير المجتمعي.",
@@ -122,6 +131,7 @@ const PRIMARY_COPY: Record<SupportedLocale, PrimaryCopy> = {
     questions: "50 вопросов",
     transparency: "Прозрачность",
     join: "Стать участником",
+    login: "Войти",
     ecosystem: "Экосистема",
     edebatte: "Открытая инфраструктура знаний и участия.",
     vote4gov: "Общественная лаборатория идей.",
@@ -133,6 +143,7 @@ const PRIMARY_COPY: Record<SupportedLocale, PrimaryCopy> = {
     questions: "50 个问题",
     transparency: "透明度",
     join: "成为成员",
+    login: "登录",
     ecosystem: "生态系统",
     edebatte: "用于认知与参与的开放基础设施。",
     vote4gov: "社会思考实验室。",
@@ -242,6 +253,12 @@ export function SiteHeader() {
           </div>
 
           <Link
+            href="/login"
+            className="hidden rounded-full px-3 py-2.5 text-sm font-bold text-[#f4f1e8]/75 transition hover:text-[#d6ff65] lg:inline-flex"
+          >
+            {copy.login}
+          </Link>
+          <Link
             href={VOG_JOIN_PATH}
             className="hidden rounded-full bg-[#d6ff65] px-4 py-2.5 text-sm font-black text-[#07110f] transition hover:-translate-y-0.5 hover:bg-[#e2ff8a] sm:inline-flex"
           >
@@ -311,6 +328,13 @@ export function SiteHeader() {
                 className="mt-4 inline-flex w-full justify-center rounded-full bg-[#d6ff65] px-5 py-3 font-black text-[#07110f] sm:hidden"
               >
                 {copy.join}
+              </Link>
+              <Link
+                href="/login"
+                onClick={() => setMobileOpen(false)}
+                className="mt-3 inline-flex w-full justify-center rounded-full border border-[#f4f1e8]/20 px-5 py-3 font-bold text-[#f4f1e8] lg:hidden"
+              >
+                {copy.login}
               </Link>
             </div>
 
