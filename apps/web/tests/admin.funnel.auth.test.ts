@@ -7,7 +7,7 @@ afterEach(() => {
   delete process.env.VOG_ADMIN_PASSWORD;
 });
 
-describe("growth dashboard authentication", () => {
+describe("admin authentication boundary", () => {
   it("fails closed when credentials are not configured", async () => {
     const response = await middleware(new NextRequest("https://voiceopengov.org/admin/growth"));
     expect(response.status).toBe(503);
@@ -21,11 +21,24 @@ describe("growth dashboard authentication", () => {
       headers: { authorization: `Basic ${btoa("growth-admin:wrong")}` },
     }));
     expect(denied.status).toBe(401);
-    expect(denied.headers.get("www-authenticate")).toContain("VoiceOpenGov Growth");
+    expect(denied.headers.get("www-authenticate")).toContain("VoiceOpenGov Admin");
 
     const allowed = await middleware(new NextRequest("https://voiceopengov.org/admin/growth", {
       headers: { authorization: `Basic ${btoa("growth-admin:a-long-random-password")}` },
     }));
     expect(allowed.status).toBe(200);
+  });
+
+  it("protects every admin API alias without capturing lookalike public paths", async () => {
+    process.env.VOG_ADMIN_USER = "growth-admin";
+    process.env.VOG_ADMIN_PASSWORD = "a-long-random-password";
+    const analytics = await middleware(new NextRequest("https://voiceopengov.org/api/admin/analytics/summary"));
+    expect(analytics.status).toBe(401);
+
+    const futureAdminRoute = await middleware(new NextRequest("https://voiceopengov.org/api/admin/newsletter/outbox"));
+    expect(futureAdminRoute.status).toBe(401);
+
+    const publicLookalike = await middleware(new NextRequest("https://voiceopengov.org/api/administrator-info"));
+    expect(publicLookalike.status).toBe(200);
   });
 });
