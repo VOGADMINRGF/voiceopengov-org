@@ -13,6 +13,9 @@ export async function sendMail(opts: {
 
   const wantsSmtp = Boolean(process.env.SMTP_HOST || process.env.SMTP_USER);
   if (!wantsSmtp) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("SMTP is required in production");
+    }
     console.warn("[mailer] SMTP not configured; falling back to console output.");
     console.log(`[MAIL->${to}] ${subject}\n${html}\n`);
     return { ok: true, fallback: true as const };

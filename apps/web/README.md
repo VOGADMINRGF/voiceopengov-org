@@ -40,6 +40,10 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 Relevant variables for the contact form and protections:
 
 - `CONTACT_INBOX` – Zieladresse für Kontaktmails (Fallback: kontakt@voiceopengov.org)
-- `MAIL_FROM`, `SMTP_URL` oder `SMTP_HOST`/`SMTP_PORT`/`SMTP_USER`/`SMTP_PASS`/`SMTP_SECURE` – SMTP Versand
+- `MAIL_FROM` und `SMTP_HOST`/`SMTP_PORT`/`SMTP_USER`/`SMTP_PASS`/`SMTP_SECURE` – SMTP-Versand
+- `PII_MONGODB_URI` und optional `PII_DB_NAME` – getrennte Ablage für Mitgliedszugänge und gehashte Sessions; in Produktion zwingend
+- `BCRYPT_ROUNDS` (10–14) und `SESSION_TTL_DAYS` (1–90) – Passwort- und Sitzungsparameter
+
+In Produktion ist SMTP zwingend. Ohne konfigurierte SMTP-Verbindung werden DOI- und Zugangstokens weder in Logs ausgegeben noch als erfolgreich versendet behandelt.
 - `CONTACT_LOG_SALT` – Salt zum Hashen von IPs in Kontakt-Logs
 - `TURNSTILE_SECRET_KEY` und `NEXT_PUBLIC_TURNSTILE_SITE_KEY` – aktivieren Cloudflare Turnstile Schutz
