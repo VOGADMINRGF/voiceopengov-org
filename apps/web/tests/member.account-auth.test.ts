@@ -28,6 +28,8 @@ describe("member account authentication", () => {
     expect(auth).toContain('crypto.createHash("sha256")');
     expect(auth).toContain('db.collection<MemberSessionDoc>("member_sessions")');
     expect(auth).not.toMatch(/insertOne\(\{\s*token:/);
+    expect(auth).not.toMatch(/insertOne\(\{[\s\S]{0,400}setupToken\s*:/);
+    expect(auth).not.toMatch(/insertOne\(\{[\s\S]{0,400}sessionToken\s*:/);
   });
 
   it("gates login and session data on an active membership", () => {
