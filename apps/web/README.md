@@ -47,3 +47,9 @@ Relevant variables for the contact form and protections:
 In Produktion ist SMTP zwingend. Ohne konfigurierte SMTP-Verbindung werden DOI- und Zugangstokens weder in Logs ausgegeben noch als erfolgreich versendet behandelt.
 - `CONTACT_LOG_SALT` – Salt zum Hashen von IPs in Kontakt-Logs
 - `TURNSTILE_SECRET_KEY` und `NEXT_PUBLIC_TURNSTILE_SITE_KEY` – aktivieren Cloudflare Turnstile Schutz
+
+Das vollständige Produktions-Runbook, die Environment-Checkliste und die E2E-Freigabeschritte stehen in [`../../docs/VOICEOPENGOV_MEMBERSHIP_FUNDING_OPERATIONS.md`](../../docs/VOICEOPENGOV_MEMBERSHIP_FUNDING_OPERATIONS.md). Vor einer Freigabe kann die Konfiguration ohne Ausgabe von Secret-Werten geprüft werden:
+
+```bash
+node scripts/check-membership-funding-env.mjs --profile=full
+```

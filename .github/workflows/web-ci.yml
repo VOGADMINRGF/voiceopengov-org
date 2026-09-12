@@ -37,14 +37,16 @@ jobs:
           fi
       - run: pnpm lint
       - run: pnpm -C apps/web exec tsc --noEmit -p tsconfig.json
-      - run: >-
-          pnpm -C apps/web exec vitest run
-          tests/i18n.locale-contract.test.ts
-          tests/regional-interest.contract.test.ts
-          tests/security.runtime-secrets.test.ts
-          tests/funding.checkout.test.ts
-          tests/funding.webhook.test.ts
-          tests/admin.funnel.auth.test.ts
-          tests/newsletter.outbox.test.ts
-          tests/member.account-auth.test.ts
+      - run: pnpm -C apps/web run test:membership-funding
       - run: pnpm build
+      - name: Membership and funding production smoke
+        run: |
+          pnpm -C apps/web start > /tmp/vog-next.log 2>&1 &
+          app_pid=$!
+          trap 'kill "$app_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:3000/ >/dev/null; then break; fi
+            if [ "$attempt" -eq 40 ]; then cat /tmp/vog-next.log; exit 1; fi
+            sleep 1
+          done
+          SMOKE_BASE_URL=http://127.0.0.1:3000 node apps/web/scripts/smoke-membership-funding.mjs

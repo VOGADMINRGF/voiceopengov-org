@@ -130,7 +130,7 @@ export default function PasswortPage() {
               <input required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="min-w-0 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 font-normal text-slate-50 outline-none focus:border-cyan-400" />
             </label>
             {message ? (
-              <div className="rounded-2xl border border-cyan-500/25 bg-cyan-500/10 px-4 py-3 text-sm text-slate-200">{message}</div>
+              <div role="status" aria-live="polite" className="rounded-2xl border border-cyan-500/25 bg-cyan-500/10 px-4 py-3 text-sm text-slate-200">{message}</div>
             ) : null}
             {error ? <ErrorBox>{error}</ErrorBox> : null}
             <button type="submit" disabled={submitting} className="rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 px-6 py-3 font-black text-[#071727] disabled:opacity-60">
