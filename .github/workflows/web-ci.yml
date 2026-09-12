@@ -42,4 +42,5 @@ jobs:
           tests/i18n.locale-contract.test.ts
           tests/regional-interest.contract.test.ts
           tests/security.runtime-secrets.test.ts
+          tests/funding.checkout.test.ts
       - run: pnpm build
