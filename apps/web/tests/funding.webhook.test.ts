@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { createFundingPortalToken, verifyFundingPortalToken } from "../src/lib/fundingPortalToken";
 import { fundingUpdateFromStripeEvent, parseStripeEvent, publicFundingStatus, verifyStripeSignature } from "../src/lib/stripeFunding";
 
-const META = { purpose: "voluntary_support", political_voice_weight: "none", locale: "de", attempt_id: "550e8400-e29b-41d4-a716-446655440000" };
+const META = { purpose: "voluntary_support", political_voice_weight: "none", locale: "de", attempt_id: "550e8400-e29b-41d4-a716-446655440000", support_level: "funding", edebatte_entitlement: "pro" };
 
 describe("Stripe funding webhook contract", () => {
   it("verifies only a current signature over the unmodified raw body", () => {
@@ -23,6 +23,8 @@ describe("Stripe funding webhook contract", () => {
     expect(update.status).toBe("succeeded");
     expect(update.cadence).toBe("recurring");
     expect(update.attemptId).toBe(META.attempt_id);
+    expect(update.supportLevel).toBe("funding");
+    expect(update.edebatteEntitlement).toBe("pro");
     expect(fundingUpdateFromStripeEvent({ ...event, data: { object: { ...event.data.object, metadata: {} } } })).toBeNull();
   });
 

@@ -28,6 +28,8 @@ export type FundingProviderUpdate = {
   currency?: string;
   locale?: SupportedLocale;
   cadence: "one_time" | "recurring";
+  supportLevel?: "one_time" | "supporting" | "funding";
+  edebatteEntitlement?: "none" | "plus" | "pro";
   status: FundingStatus;
   occurredAt: Date;
 };
@@ -99,6 +101,14 @@ function attemptId(value: unknown) {
   return typeof value === "string" && /^[A-Za-z0-9_-]{16,80}$/.test(value) ? value : undefined;
 }
 
+function supportLevel(value: unknown): FundingProviderUpdate["supportLevel"] {
+  return value === "one_time" || value === "supporting" || value === "funding" ? value : undefined;
+}
+
+function edebatteEntitlement(value: unknown): FundingProviderUpdate["edebatteEntitlement"] {
+  return value === "none" || value === "plus" || value === "pro" ? value : undefined;
+}
+
 function base(event: StripeEvent, object: StripeObject, meta: Record<string, unknown>) {
   return {
     eventId: event.id,
@@ -108,6 +118,8 @@ function base(event: StripeEvent, object: StripeObject, meta: Record<string, unk
     subscriptionId: id(object.subscription, "sub"),
     paymentIntentId: id(object.payment_intent, "pi"),
     locale: locale(meta.locale),
+    supportLevel: supportLevel(meta.support_level),
+    edebatteEntitlement: edebatteEntitlement(meta.edebatte_entitlement),
     occurredAt: new Date((event.created || Math.floor(Date.now() / 1000)) * 1000),
   };
 }
