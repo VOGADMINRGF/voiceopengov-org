@@ -13,6 +13,8 @@ type FundingPaymentDoc = {
   currency?: string;
   locale?: string;
   cadence: "one_time" | "recurring";
+  supportLevel?: "one_time" | "supporting" | "funding";
+  edebatteEntitlement?: "none" | "plus" | "pro";
   status: FundingStatus;
   politicalVoiceWeight: "none";
   lastStripeEventId: string;
@@ -99,6 +101,8 @@ export async function applyFundingProviderUpdate(update: FundingProviderUpdate) 
     ...(update.amountCents !== undefined ? { amountCents: update.amountCents } : {}),
     ...(update.currency ? { currency: update.currency } : {}),
     ...(update.locale ? { locale: update.locale } : {}),
+    ...(update.supportLevel ? { supportLevel: update.supportLevel } : {}),
+    ...(update.edebatteEntitlement ? { edebatteEntitlement: update.edebatteEntitlement } : {}),
     cadence: update.cadence,
     status: update.status,
     politicalVoiceWeight: "none" as const,

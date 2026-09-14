@@ -1,7 +1,8 @@
 import { createHash } from "crypto";
 import type { SupportedLocale } from "@/config/locales";
+import { classifyVogSupport } from "@/lib/vogPricing";
 
-export const MIN_FUNDING_CENTS = 500;
+export const MIN_FUNDING_CENTS = 499;
 export const MAX_FUNDING_CENTS = 1_000_000;
 export type FundingCadence = "one_time" | "monthly" | "annual";
 
@@ -52,6 +53,7 @@ export function buildStripeCheckoutBody(request: FundingRequest, baseUrl: string
   const params = new URLSearchParams();
   const recurring = request.cadence !== "one_time";
   const copy = CHECKOUT_COPY[request.locale];
+  const classification = classifyVogSupport(request.amountCents, request.cadence);
   params.set("mode", recurring ? "subscription" : "payment");
   params.set("success_url", `${baseUrl}/unterstuetzen/erfolg?lang=${request.locale}&session_id={CHECKOUT_SESSION_ID}`);
   params.set("cancel_url", `${baseUrl}/unterstuetzen?lang=${request.locale}&cancelled=1`);
@@ -64,6 +66,9 @@ export function buildStripeCheckoutBody(request: FundingRequest, baseUrl: string
     params.set("subscription_data[metadata][purpose]", "voluntary_support");
     params.set("subscription_data[metadata][political_voice_weight]", "none");
     params.set("subscription_data[metadata][attempt_id]", request.attemptId);
+    params.set("subscription_data[metadata][support_level]", classification.level);
+    params.set("subscription_data[metadata][edebatte_entitlement]", classification.edebatteEntitlement);
+    params.set("subscription_data[metadata][entitlement_source]", "vog_recurring_support");
   } else {
     params.set("customer_creation", "always");
     params.set("payment_intent_data[metadata][purpose]", "voluntary_support");
@@ -75,6 +80,9 @@ export function buildStripeCheckoutBody(request: FundingRequest, baseUrl: string
   params.set("metadata[political_voice_weight]", "none");
   params.set("metadata[locale]", request.locale);
   params.set("metadata[attempt_id]", request.attemptId);
+  params.set("metadata[support_level]", classification.level);
+  params.set("metadata[edebatte_entitlement]", classification.edebatteEntitlement);
+  params.set("metadata[entitlement_source]", request.cadence === "one_time" ? "none" : "vog_recurring_support");
   params.set("custom_text[submit][message]", copy.noInfluence);
   return params;
 }

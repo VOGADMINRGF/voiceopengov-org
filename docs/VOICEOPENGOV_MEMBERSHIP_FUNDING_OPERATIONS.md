@@ -6,7 +6,12 @@ Dieses Runbook beschreibt den technisch implementierten Mitglieder- und Funding-
 
 ## Unveränderliche Leitplanke
 
-Mitgliedschaft ist kostenfrei. Freiwillige Unterstützung ist davon unabhängig. Betrag, Zahlungsrhythmus und Zahlungsstatus verändern niemals Stimmgewicht, Zugang oder politischen Einfluss. Der technische Zahlungsdatensatz speichert deshalb `politicalVoiceWeight: "none"`.
+Mitgliedschaft ist kostenfrei. Freiwillige Unterstützung ist davon unabhängig. Der produktive
+Preiskanon steht in `docs/VOG_EDEBATTE_PRICING_2026-09-14.md`: laufende Unterstützung ab
+4,99 €/Monat enthält eDebatte Plus, laufende Förderung ab 15 €/Monat enthält eDebatte Pro.
+Einmalzahlungen erzeugen kein Software-Abo. Betrag, Zahlungsrhythmus und Zahlungsstatus verändern
+niemals Stimmgewicht oder politischen Einfluss. Der technische Zahlungsdatensatz speichert deshalb
+`politicalVoiceWeight: "none"` sowie die getrennte, widerrufbare eDebatte-Entitlement-Stufe.
 
 ## Produktionsfreigabe
 

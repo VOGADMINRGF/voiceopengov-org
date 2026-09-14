@@ -30,8 +30,8 @@ type CalculatorStrings = {
   mailListHint: string;
 };
 
-const MIN_SUGGESTION = 5.63;
-const PRESETS = [5.63, 10, 20, 35];
+const MIN_SUGGESTION = 4.99;
+const PRESETS = [4.99, 15, 25, 50];
 
 function parseAmount(value: string) {
   if (!value) return null;
