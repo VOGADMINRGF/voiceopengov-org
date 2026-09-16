@@ -39,11 +39,16 @@ export type MemberStatus = "pending" | "active";
 export type MemberDoc = {
   _id?: any;
   type: MemberType;
+  participationMode?: "active" | "member";
   email: string;
   firstName?: string;
   lastName?: string;
   birthDate?: string;
   orgName?: string;
+  street?: string;
+  houseNumber?: string;
+  addressLine2?: string;
+  postalCode?: string;
   city?: string;
   country?: string;
   lat?: number;
@@ -69,6 +74,10 @@ export type MemberDoc = {
     utmCampaign?: string;
   };
   confirmedAt?: Date;
+  edebatteUserId?: string;
+  edebatteProvisionedAt?: Date;
+  edebatteProvisioningPending?: boolean;
+  edebatteProvisioningLastError?: string;
   newsletterOutboxQueuedAt?: Date;
   newsletterOutboxPending?: boolean;
   createdAt: Date;
@@ -127,6 +136,7 @@ export async function membersCol(): Promise<Collection<MemberDoc>> {
   await col.createIndex({ publicSupporter: 1 }).catch(() => {});
   await col.createIndex({ city: 1 }).catch(() => {});
   await col.createIndex({ lat: 1, lng: 1 }).catch(() => {});
+  await col.createIndex({ edebatteUserId: 1 }).catch(() => {});
 
   return col;
 }
