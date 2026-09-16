@@ -7,6 +7,8 @@ export const PROFILES = {
     "PUBLIC_BASE_URL",
     "MONGODB_URI",
     "VOG_DB_NAME",
+    "CORE_MONGODB_URI",
+    "CORE_DB_NAME",
     "PII_MONGODB_URI",
     "PII_DB_NAME",
     "SMTP_HOST",
@@ -55,9 +57,16 @@ export function validateProductionEnvironment(environment, profile = "full") {
   if (baseUrl && !isHttpsUrl(baseUrl)) errors.push("PUBLIC_BASE_URL must be an HTTPS URL");
 
   const publicDb = value(environment, "VOG_DB_NAME");
+  const coreDb = value(environment, "CORE_DB_NAME");
   const piiDb = value(environment, "PII_DB_NAME");
   if (publicDb && piiDb && publicDb === piiDb) {
     errors.push("VOG_DB_NAME and PII_DB_NAME must be different databases");
+  }
+  if (publicDb && coreDb && publicDb === coreDb) {
+    errors.push("VOG_DB_NAME and CORE_DB_NAME must be different databases");
+  }
+  if (coreDb && piiDb && coreDb === piiDb) {
+    errors.push("CORE_DB_NAME and PII_DB_NAME must be different databases");
   }
 
   const adminPassword = value(environment, "VOG_ADMIN_PASSWORD");
