@@ -2,7 +2,7 @@ import Link from "next/link";
 import { VOG_JOIN_PATH, VOG_QUESTIONS_PATH, VOG_ROLES_PATH } from "@/config/links";
 
 export const metadata = {
-  title: "Mitmachen | VoiceOpenGov",
+  title: "Mitmachen",
   description:
     "Mitglied werden, an öffentlichen Fragen mitarbeiten oder regional aktiv werden: drei einfache Einstiege in VoiceOpenGov.",
 };
@@ -24,11 +24,11 @@ export default function JoinPage() {
       cta: "Frage auswählen",
     },
     {
-      eyebrow: "Rollen & Region",
-      title: "Verantwortung übernehmen",
-      body: "Finde eine Rolle, die zu dir passt – von Quellenarbeit und Moderation bis zur regionalen Aktivierung vor Ort.",
+      eyebrow: "Mitwirken & Region",
+      title: "So kannst du mitwirken",
+      body: "Wähle keinen Titel, sondern einen nächsten Schritt: Quellen beitragen, prüfen, erklären, moderieren oder Menschen vor Ort zusammenbringen.",
       href: VOG_ROLES_PATH,
-      cta: "Mitwirkungsrollen ansehen",
+      cta: "Möglichkeiten ansehen",
     },
   ] as const;
 
