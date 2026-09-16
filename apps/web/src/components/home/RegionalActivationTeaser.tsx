@@ -11,7 +11,7 @@ const COPY = {
     note:
       "Noch keine fertige Gruppe? Kein Problem. Du musst auch nicht alles allein organisieren.",
     primary: "In meiner Region aktiv werden",
-    secondary: "Möglichkeiten ansehen",
+    secondary: "Mitmachen ansehen",
   },
   en: {
     eyebrow: "VoiceOpenGov locally",
@@ -21,7 +21,7 @@ const COPY = {
     note:
       "No existing group yet? That is fine. You do not need to organise everything alone.",
     primary: "Get active in my region",
-    secondary: "See ways to contribute",
+    secondary: "See participation options",
   },
 };
 
@@ -48,13 +48,13 @@ export default async function RegionalActivationTeaser() {
         </div>
         <div className="flex flex-col gap-3 sm:flex-row md:flex-col">
           <Link
-            href="/vor-ort"
+            href="/mitmachen#vor-ort"
             className="inline-flex justify-center rounded-full bg-[#d6ff65] px-6 py-3.5 font-black text-[#07110f] transition hover:-translate-y-0.5 hover:bg-[#e2ff8a]"
           >
             {copy.primary}
           </Link>
           <Link
-            href="/mitmachen/rollen"
+            href="/mitmachen"
             className="inline-flex justify-center rounded-full border border-[#f4f1e8]/18 px-6 py-3.5 font-bold transition hover:border-[#d6ff65]/55 hover:text-[#d6ff65]"
           >
             {copy.secondary}
