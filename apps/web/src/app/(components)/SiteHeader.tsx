@@ -9,6 +9,7 @@ import {
   EDEBATTE_URL,
   VOG_JOIN_PATH,
   VOG_QUESTIONS_PATH,
+  VOG_SUPPORT_PATH,
   VOG_TRANSPARENCY_PATH,
 } from "@/config/links";
 import { getHeaderStrings } from "./headerStrings";
@@ -18,21 +19,22 @@ type HeaderCopy = {
   why: string;
   questions: string;
   transparency: string;
+  support: string;
   join: string;
   login: string;
 };
 
 const COPY: Record<SupportedLocale, HeaderCopy> = {
-  de: { tagline: "Infrastruktur für informierte Demokratie", why: "Warum", questions: "50 Fragen", transparency: "Transparenz", join: "Mitmachen", login: "Anmelden" },
-  en: { tagline: "Infrastructure for informed democracy", why: "Why", questions: "50 questions", transparency: "Transparency", join: "Participate", login: "Sign in" },
-  fr: { tagline: "Infrastructure pour une démocratie informée", why: "Pourquoi", questions: "50 questions", transparency: "Transparence", join: "Participer", login: "Se connecter" },
-  pl: { tagline: "Infrastruktura świadomej demokracji", why: "Dlaczego", questions: "50 pytań", transparency: "Przejrzystość", join: "Dołącz", login: "Zaloguj się" },
-  es: { tagline: "Infraestructura para una democracia informada", why: "Por qué", questions: "50 preguntas", transparency: "Transparencia", join: "Participar", login: "Iniciar sesión" },
-  it: { tagline: "Infrastruttura per una democrazia informata", why: "Perché", questions: "50 domande", transparency: "Trasparenza", join: "Partecipa", login: "Accedi" },
-  tr: { tagline: "Bilgili demokrasi için altyapı", why: "Neden", questions: "50 soru", transparency: "Şeffaflık", join: "Katıl", login: "Giriş yap" },
-  ar: { tagline: "بنية تحتية لديمقراطية واعية", why: "لماذا", questions: "50 سؤالاً", transparency: "الشفافية", join: "شارك", login: "تسجيل الدخول" },
-  ru: { tagline: "Инфраструктура информированной демократии", why: "Почему", questions: "50 вопросов", transparency: "Прозрачность", join: "Участвовать", login: "Войти" },
-  zh: { tagline: "知情民主的基础设施", why: "为什么", questions: "50 个问题", transparency: "透明度", join: "参与", login: "登录" },
+  de: { tagline: "Infrastruktur für informierte Demokratie", why: "Warum", questions: "50 Fragen", transparency: "Transparenz", support: "Unterstützen", join: "Mitmachen", login: "Anmelden" },
+  en: { tagline: "Infrastructure for informed democracy", why: "Why", questions: "50 questions", transparency: "Transparency", support: "Support", join: "Participate", login: "Sign in" },
+  fr: { tagline: "Infrastructure pour une démocratie informée", why: "Pourquoi", questions: "50 questions", transparency: "Transparence", support: "Soutenir", join: "Participer", login: "Se connecter" },
+  pl: { tagline: "Infrastruktura świadomej demokracji", why: "Dlaczego", questions: "50 pytań", transparency: "Przejrzystość", support: "Wesprzyj", join: "Dołącz", login: "Zaloguj się" },
+  es: { tagline: "Infraestructura para una democracia informada", why: "Por qué", questions: "50 preguntas", transparency: "Transparencia", support: "Apoyar", join: "Participar", login: "Iniciar sesión" },
+  it: { tagline: "Infrastruttura per una democrazia informata", why: "Perché", questions: "50 domande", transparency: "Trasparenza", support: "Sostieni", join: "Partecipa", login: "Accedi" },
+  tr: { tagline: "Bilgili demokrasi için altyapı", why: "Neden", questions: "50 soru", transparency: "Şeffaflık", support: "Destekle", join: "Katıl", login: "Giriş yap" },
+  ar: { tagline: "بنية تحتية لديمقراطية واعية", why: "لماذا", questions: "50 سؤالاً", transparency: "الشفافية", support: "ادعم", join: "شارك", login: "تسجيل الدخول" },
+  ru: { tagline: "Инфраструктура информированной демократии", why: "Почему", questions: "50 вопросов", transparency: "Прозрачность", support: "Поддержать", join: "Участвовать", login: "Войти" },
+  zh: { tagline: "知情民主的基础设施", why: "为什么", questions: "50 个问题", transparency: "透明度", support: "支持", join: "参与", login: "登录" },
 };
 
 export function SiteHeader() {
@@ -65,17 +67,13 @@ export function SiteHeader() {
     { href: EDEBATTE_URL, label: "eDebatte ↗" },
     { href: VOG_QUESTIONS_PATH, label: copy.questions },
     { href: VOG_TRANSPARENCY_PATH, label: copy.transparency },
+    { href: VOG_SUPPORT_PATH, label: copy.support },
   ];
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[#020617]/82 text-[#f8fafc] backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3 md:px-8">
-        <Link href="/" aria-label="VoiceOpenGov Startseite" className="group flex min-w-0 items-center gap-3">
-          <span className="relative flex h-9 w-9 shrink-0 items-center justify-center" aria-hidden="true">
-            <span className="absolute h-7 w-7 rounded-full border border-[#18cfc8]/55" />
-            <span className="h-2 w-2 rounded-full bg-[#18cfc8] shadow-[0_0_20px_rgba(24,207,200,.7)]" />
-            <span className="absolute right-0 top-1 h-1.5 w-1.5 rounded-full bg-[#1a8cff]" />
-          </span>
+        <Link href="/" aria-label="VoiceOpenGov Startseite" className="group flex min-w-0 items-center">
           <span className="min-w-0 leading-none">
             <span className="block truncate text-[17px] font-semibold tracking-[-0.03em]">
               <span className="text-white">Voice</span><span className="bg-gradient-to-r from-[#18cfc8] to-[#1a8cff] bg-clip-text text-transparent">OpenGov</span>
@@ -86,7 +84,7 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <nav aria-label={strings.navigationLabel} className="hidden items-center gap-6 text-sm font-semibold text-slate-300 lg:flex">
+        <nav aria-label={strings.navigationLabel} className="hidden items-center gap-5 text-sm font-semibold text-slate-300 lg:flex">
           {primaryLinks.map((item) => (
             <Link key={item.href} href={item.href} className="transition hover:text-[#18cfc8]">
               {item.label}
