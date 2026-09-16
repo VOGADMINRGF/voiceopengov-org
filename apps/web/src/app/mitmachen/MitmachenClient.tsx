@@ -35,7 +35,7 @@ const COPY = {
     supportCta: "Unterstützen",
     formTitle: "Mitgliedschaft starten",
     formHint:
-      "VoiceOpenGov befindet sich in der Aufbauphase. Die Anmeldung dokumentiert deine Community-Mitgliedschaft; die endgültige rechtliche Träger- und Mitgliedschaftsstruktur wird transparent veröffentlicht, sobald sie feststeht.",
+      "VoiceOpenGov befindet sich in der Aufbauphase. Name und Anschrift dienen der eindeutigen Mitgliedschaftszuordnung und dem gemeinsamen VoiceOpenGov-/eDebatte-Konto. Die Anschrift wird nicht öffentlich angezeigt.",
     selectedActive: "Aktiv mitwirken",
     selectedMember: "Mitglied werden",
     modeQuestion: "Wie möchtest du starten?",
@@ -50,6 +50,10 @@ const COPY = {
     birthDate: "Geburtsdatum",
     birthDateHint: "Erforderlich, weil die Mitgliedschaft derzeit ab 16 Jahren möglich ist.",
     email: "E-Mail",
+    street: "Straße",
+    houseNumber: "Hausnummer",
+    addressLine2: "Adresszusatz (optional)",
+    postalCode: "PLZ",
     city: "Ort",
     country: "Land",
     countryPlaceholder: "Land wählen",
@@ -59,12 +63,12 @@ const COPY = {
     submitting: "Wird eingetragen …",
     successTitle: "Fast geschafft.",
     successBody:
-      "Bitte bestätige jetzt die E-Mail. Erst danach ist deine Anmeldung abgeschlossen.",
+      "Bitte bestätige jetzt die E-Mail. Erst danach ist deine Anmeldung abgeschlossen und kann mit deinem eDebatte-Konto verknüpft werden.",
     successActiveNext:
       "Als nächstes kannst du angeben, wo und wie du aktiv mitwirken möchtest.",
     successMemberNext:
       "Du kannst später jederzeit zu einer aktiveren Mitwirkung wechseln.",
-    validation: "Bitte Geburtsdatum, E-Mail, Ort und Datenschutz vollständig angeben.",
+    validation: "Bitte Name, Geburtsdatum, E-Mail, vollständige Anschrift und Datenschutz vollständig angeben.",
     invalidBirthDate: "Bitte gib ein gültiges Geburtsdatum an.",
     underage: "Die Mitgliedschaft ist derzeit ab 16 Jahren möglich.",
     rateLimited: "Zu viele Versuche in kurzer Zeit. Bitte versuche es später erneut.",
@@ -98,7 +102,7 @@ const COPY = {
     supportCta: "Support",
     formTitle: "Start membership",
     formHint:
-      "VoiceOpenGov is currently in its build-up phase. Registration records your community membership; the final legal entity and membership structure will be published transparently once established.",
+      "VoiceOpenGov is currently in its build-up phase. Your name and address are used for unambiguous membership assignment and the shared VoiceOpenGov/eDebatte account. Your address is not shown publicly.",
     selectedActive: "Contribute actively",
     selectedMember: "Become a member",
     modeQuestion: "How would you like to start?",
@@ -113,6 +117,10 @@ const COPY = {
     birthDate: "Date of birth",
     birthDateHint: "Required because membership is currently available from age 16.",
     email: "Email",
+    street: "Street",
+    houseNumber: "House number",
+    addressLine2: "Address line 2 (optional)",
+    postalCode: "Postal code",
     city: "City",
     country: "Country",
     countryPlaceholder: "Choose country",
@@ -122,12 +130,12 @@ const COPY = {
     submitting: "Joining …",
     successTitle: "Almost there.",
     successBody:
-      "Please confirm the email now. Your registration is only complete after confirmation.",
+      "Please confirm the email now. Your registration is only complete after confirmation and can then be linked to your eDebatte account.",
     successActiveNext:
       "Next, you can tell us where and how you would like to contribute actively.",
     successMemberNext:
       "You can switch to more active participation at any time later.",
-    validation: "Please provide date of birth, email, city and privacy consent.",
+    validation: "Please provide your name, date of birth, email, full address and privacy consent.",
     invalidBirthDate: "Please provide a valid date of birth.",
     underage: "Membership is currently available from age 16.",
     rateLimited: "Too many attempts in a short time. Please try again later.",
@@ -170,6 +178,10 @@ export default function MitmachenClient({
   const [lastName, setLastName] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [email, setEmail] = useState("");
+  const [street, setStreet] = useState("");
+  const [houseNumber, setHouseNumber] = useState("");
+  const [addressLine2, setAddressLine2] = useState("");
+  const [postalCode, setPostalCode] = useState("");
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
   const [privacy, setPrivacy] = useState(false);
@@ -194,7 +206,18 @@ export default function MitmachenClient({
     setNotice(null);
     setRegistrationComplete(false);
 
-    if (!birthDate || !email.trim() || !city.trim() || !privacy) {
+    if (
+      !firstName.trim() ||
+      !lastName.trim() ||
+      !birthDate ||
+      !email.trim() ||
+      !street.trim() ||
+      !houseNumber.trim() ||
+      !postalCode.trim() ||
+      !city.trim() ||
+      !country ||
+      !privacy
+    ) {
       setNotice({ ok: false, text: copy.validation });
       return;
     }
@@ -208,11 +231,15 @@ export default function MitmachenClient({
           type: "person",
           participationMode,
           email: email.trim(),
-          firstName: firstName.trim() || undefined,
-          lastName: lastName.trim() || undefined,
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
           birthDate,
+          street: street.trim(),
+          houseNumber: houseNumber.trim(),
+          addressLine2: addressLine2.trim() || undefined,
+          postalCode: postalCode.trim(),
           city: city.trim(),
-          country: country || undefined,
+          country,
           isPublic: true,
           wantsNewsletter: newsletter,
           wantsNewsletterEdDebatte: false,
@@ -254,6 +281,10 @@ export default function MitmachenClient({
       setLastName("");
       setBirthDate("");
       setEmail("");
+      setStreet("");
+      setHouseNumber("");
+      setAddressLine2("");
+      setPostalCode("");
       setCity("");
       setCountry("");
       setPrivacy(false);
@@ -295,254 +326,100 @@ export default function MitmachenClient({
 
       <section className="mx-auto max-w-6xl px-5 py-12 md:px-8">
         <div className="grid gap-4 md:grid-cols-3">
-          <button
-            type="button"
-            onClick={() => chooseMembership("active")}
-            className="group rounded-3xl border border-[#18cfc8]/25 bg-white/[0.045] p-6 text-left transition hover:-translate-y-0.5 hover:border-[#18cfc8]/60"
-          >
+          <button type="button" onClick={() => chooseMembership("active")} className="group rounded-3xl border border-[#18cfc8]/25 bg-white/[0.045] p-6 text-left transition hover:-translate-y-0.5 hover:border-[#18cfc8]/60">
             <span className="font-mono text-xs text-[#18cfc8]">01</span>
-            <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-slate-500">
-              {copy.activeKicker}
-            </p>
+            <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-slate-500">{copy.activeKicker}</p>
             <h2 className="mt-2 text-2xl">{copy.active}</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-400">
-              {copy.activeBody}
-            </p>
+            <p className="mt-3 text-sm leading-6 text-slate-400">{copy.activeBody}</p>
           </button>
-
-          <button
-            type="button"
-            onClick={() => chooseMembership("member")}
-            className="group rounded-3xl border border-white/10 bg-white/[0.035] p-6 text-left transition hover:-translate-y-0.5 hover:border-[#18cfc8]/50"
-          >
+          <button type="button" onClick={() => chooseMembership("member")} className="group rounded-3xl border border-white/10 bg-white/[0.035] p-6 text-left transition hover:-translate-y-0.5 hover:border-[#18cfc8]/50">
             <span className="font-mono text-xs text-[#18cfc8]">02</span>
-            <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-slate-500">
-              {copy.memberKicker}
-            </p>
+            <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-slate-500">{copy.memberKicker}</p>
             <h2 className="mt-2 text-2xl">{copy.member}</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-400">
-              {copy.memberBody}
-            </p>
+            <p className="mt-3 text-sm leading-6 text-slate-400">{copy.memberBody}</p>
           </button>
-
-          <a
-            href="#vor-ort"
-            className="group rounded-3xl border border-white/10 bg-white/[0.035] p-6 transition hover:-translate-y-0.5 hover:border-[#18cfc8]/50"
-          >
+          <a href="#vor-ort" className="group rounded-3xl border border-white/10 bg-white/[0.035] p-6 transition hover:-translate-y-0.5 hover:border-[#18cfc8]/50">
             <span className="font-mono text-xs text-[#18cfc8]">03</span>
-            <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-slate-500">
-              {copy.regionKicker}
-            </p>
+            <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-slate-500">{copy.regionKicker}</p>
             <h2 className="mt-2 text-2xl">{copy.region}</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-400">
-              {copy.regionBody}
-            </p>
+            <p className="mt-3 text-sm leading-6 text-slate-400">{copy.regionBody}</p>
           </a>
         </div>
       </section>
 
-      <section
-        id="mitglied"
-        className="scroll-mt-24 border-t border-white/10 bg-[#0b1220]/70"
-      >
+      <section id="mitglied" className="scroll-mt-24 border-t border-white/10 bg-[#0b1220]/70">
         <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:px-8 lg:grid-cols-[.72fr_1.28fr]">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-[#18cfc8]">
-              Mitgliedschaft
-            </p>
+            <p className="text-xs font-black uppercase tracking-[0.22em] text-[#18cfc8]">Mitgliedschaft</p>
             <h2 className="mt-4 text-4xl">{copy.formTitle}</h2>
-            <p className="mt-5 text-sm leading-7 text-slate-400">
-              {copy.formHint}
-            </p>
+            <p className="mt-5 text-sm leading-7 text-slate-400">{copy.formHint}</p>
             <div className="mt-6 rounded-2xl border border-[#18cfc8]/20 bg-[#18cfc8]/[0.06] p-4">
-              <p className="text-sm font-black text-[#bff7f3]">
-                {participationMode === "active"
-                  ? copy.selectedActive
-                  : copy.selectedMember}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-slate-400">
-                {participationMode === "active"
-                  ? copy.modeActiveHint
-                  : copy.modeMemberHint}
-              </p>
+              <p className="text-sm font-black text-[#bff7f3]">{participationMode === "active" ? copy.selectedActive : copy.selectedMember}</p>
+              <p className="mt-2 text-sm leading-6 text-slate-400">{participationMode === "active" ? copy.modeActiveHint : copy.modeMemberHint}</p>
             </div>
           </div>
 
           {registrationComplete ? (
-            <section
-              aria-live="polite"
-              className="rounded-3xl border border-[#18cfc8]/30 bg-[#18cfc8]/[0.07] p-7 md:p-9"
-            >
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-[#18cfc8]">
-                E-Mail bestätigen
-              </p>
+            <section aria-live="polite" className="rounded-3xl border border-[#18cfc8]/30 bg-[#18cfc8]/[0.07] p-7 md:p-9">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-[#18cfc8]">E-Mail bestätigen</p>
               <h3 className="mt-3 text-3xl">{copy.successTitle}</h3>
-              <p className="mt-4 max-w-2xl leading-7 text-slate-300">
-                {copy.successBody}
-              </p>
-              <p className="mt-4 rounded-2xl border border-white/10 bg-white/[0.035] p-4 text-sm leading-6 text-slate-300">
-                {participationMode === "active"
-                  ? copy.successActiveNext
-                  : copy.successMemberNext}
-              </p>
+              <p className="mt-4 max-w-2xl leading-7 text-slate-300">{copy.successBody}</p>
+              <p className="mt-4 rounded-2xl border border-white/10 bg-white/[0.035] p-4 text-sm leading-6 text-slate-300">{participationMode === "active" ? copy.successActiveNext : copy.successMemberNext}</p>
             </section>
           ) : (
-            <form
-              onSubmit={submit}
-              className="rounded-3xl border border-white/10 bg-white/[0.045] p-6 md:p-8"
-            >
+            <form onSubmit={submit} className="rounded-3xl border border-white/10 bg-white/[0.045] p-6 md:p-8">
               <fieldset>
-                <legend className="text-sm font-black uppercase tracking-[0.16em] text-[#18cfc8]">
-                  {copy.modeQuestion}
-                </legend>
+                <legend className="text-sm font-black uppercase tracking-[0.16em] text-[#18cfc8]">{copy.modeQuestion}</legend>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  <button
-                    type="button"
-                    aria-pressed={participationMode === "active"}
-                    onClick={() => setParticipationMode("active")}
-                    className={`rounded-2xl border p-4 text-left transition ${
-                      participationMode === "active"
-                        ? "border-[#18cfc8]/70 bg-[#18cfc8]/10"
-                        : "border-white/10 bg-[#020617]"
-                    }`}
-                  >
+                  <button type="button" aria-pressed={participationMode === "active"} onClick={() => setParticipationMode("active")} className={`rounded-2xl border p-4 text-left transition ${participationMode === "active" ? "border-[#18cfc8]/70 bg-[#18cfc8]/10" : "border-white/10 bg-[#020617]"}`}>
                     <span className="font-bold">{copy.modeActive}</span>
-                    <span className="mt-2 block text-xs leading-5 text-slate-400">
-                      {copy.modeActiveHint}
-                    </span>
+                    <span className="mt-2 block text-xs leading-5 text-slate-400">{copy.modeActiveHint}</span>
                   </button>
-
-                  <button
-                    type="button"
-                    aria-pressed={participationMode === "member"}
-                    onClick={() => setParticipationMode("member")}
-                    className={`rounded-2xl border p-4 text-left transition ${
-                      participationMode === "member"
-                        ? "border-[#18cfc8]/70 bg-[#18cfc8]/10"
-                        : "border-white/10 bg-[#020617]"
-                    }`}
-                  >
+                  <button type="button" aria-pressed={participationMode === "member"} onClick={() => setParticipationMode("member")} className={`rounded-2xl border p-4 text-left transition ${participationMode === "member" ? "border-[#18cfc8]/70 bg-[#18cfc8]/10" : "border-white/10 bg-[#020617]"}`}>
                     <span className="font-bold">{copy.modeMember}</span>
-                    <span className="mt-2 block text-xs leading-5 text-slate-400">
-                      {copy.modeMemberHint}
-                    </span>
+                    <span className="mt-2 block text-xs leading-5 text-slate-400">{copy.modeMemberHint}</span>
                   </button>
                 </div>
               </fieldset>
 
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                <input
-                  aria-label={copy.firstName}
-                  autoComplete="given-name"
-                  value={firstName}
-                  onChange={(event) => setFirstName(event.target.value)}
-                  placeholder={copy.firstName}
-                  className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8]"
-                />
-                <input
-                  aria-label={copy.lastName}
-                  autoComplete="family-name"
-                  value={lastName}
-                  onChange={(event) => setLastName(event.target.value)}
-                  placeholder={copy.lastName}
-                  className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8]"
-                />
+                <input required aria-label={copy.firstName} autoComplete="given-name" value={firstName} onChange={(event) => setFirstName(event.target.value)} placeholder={copy.firstName} className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8]" />
+                <input required aria-label={copy.lastName} autoComplete="family-name" value={lastName} onChange={(event) => setLastName(event.target.value)} placeholder={copy.lastName} className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8]" />
 
                 <label className="grid gap-2 text-sm font-bold text-slate-300">
                   {copy.birthDate}
-                  <input
-                    type="date"
-                    required
-                    aria-label={copy.birthDate}
-                    autoComplete="bday"
-                    value={birthDate}
-                    onChange={(event) => setBirthDate(event.target.value)}
-                    className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 font-normal outline-none focus:border-[#18cfc8]"
-                  />
-                  <span className="text-xs font-normal leading-5 text-slate-500">
-                    {copy.birthDateHint}
-                  </span>
+                  <input type="date" required aria-label={copy.birthDate} autoComplete="bday" value={birthDate} onChange={(event) => setBirthDate(event.target.value)} className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 font-normal outline-none focus:border-[#18cfc8]" />
+                  <span className="text-xs font-normal leading-5 text-slate-500">{copy.birthDateHint}</span>
                 </label>
 
                 <label className="grid gap-2 text-sm font-bold text-slate-300">
                   {copy.email}
-                  <input
-                    type="email"
-                    required
-                    aria-label={copy.email}
-                    autoComplete="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    placeholder={copy.email}
-                    className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 font-normal outline-none focus:border-[#18cfc8]"
-                  />
+                  <input type="email" required aria-label={copy.email} autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder={copy.email} className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 font-normal outline-none focus:border-[#18cfc8]" />
                 </label>
 
-                <input
-                  required
-                  aria-label={copy.city}
-                  autoComplete="address-level2"
-                  value={city}
-                  onChange={(event) => setCity(event.target.value)}
-                  placeholder={copy.city}
-                  className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8]"
-                />
-
-                <select
-                  aria-label={copy.country}
-                  autoComplete="country"
-                  value={country}
-                  onChange={(event) => setCountry(event.target.value)}
-                  className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8]"
-                >
+                <input required aria-label={copy.street} autoComplete="address-line1" value={street} onChange={(event) => setStreet(event.target.value)} placeholder={copy.street} className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8]" />
+                <input required aria-label={copy.houseNumber} value={houseNumber} onChange={(event) => setHouseNumber(event.target.value)} placeholder={copy.houseNumber} className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8]" />
+                <input aria-label={copy.addressLine2} autoComplete="address-line2" value={addressLine2} onChange={(event) => setAddressLine2(event.target.value)} placeholder={copy.addressLine2} className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8] sm:col-span-2" />
+                <input required aria-label={copy.postalCode} autoComplete="postal-code" value={postalCode} onChange={(event) => setPostalCode(event.target.value)} placeholder={copy.postalCode} className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8]" />
+                <input required aria-label={copy.city} autoComplete="address-level2" value={city} onChange={(event) => setCity(event.target.value)} placeholder={copy.city} className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8]" />
+                <select required aria-label={copy.country} autoComplete="country" value={country} onChange={(event) => setCountry(event.target.value)} className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8] sm:col-span-2">
                   <option value="">{copy.countryPlaceholder}</option>
-                  {countries.map((option) => (
-                    <option key={option.code} value={option.code}>
-                      {option.label}
-                    </option>
-                  ))}
+                  {countries.map((option) => <option key={option.code} value={option.code}>{option.label}</option>)}
                 </select>
               </div>
 
               <label className="mt-6 flex items-start gap-3 text-sm text-slate-300">
-                <input
-                  type="checkbox"
-                  required
-                  checked={privacy}
-                  onChange={(event) => setPrivacy(event.target.checked)}
-                  className="mt-1 shrink-0"
-                />
+                <input type="checkbox" required checked={privacy} onChange={(event) => setPrivacy(event.target.checked)} className="mt-1 shrink-0" />
                 <span>{copy.privacy}</span>
               </label>
-
               <label className="mt-3 flex items-start gap-3 text-sm text-slate-300">
-                <input
-                  type="checkbox"
-                  checked={newsletter}
-                  onChange={(event) => setNewsletter(event.target.checked)}
-                  className="mt-1 shrink-0"
-                />
+                <input type="checkbox" checked={newsletter} onChange={(event) => setNewsletter(event.target.checked)} className="mt-1 shrink-0" />
                 <span>{copy.newsletter}</span>
               </label>
 
-              {notice ? (
-                <p
-                  role={notice.ok ? "status" : "alert"}
-                  aria-live="polite"
-                  className={`mt-5 rounded-xl px-4 py-3 text-sm ${
-                    notice.ok
-                      ? "bg-emerald-400/15 text-emerald-200"
-                      : "bg-red-400/15 text-red-200"
-                  }`}
-                >
-                  {notice.text}
-                </p>
-              ) : null}
+              {notice ? <p role={notice.ok ? "status" : "alert"} aria-live="polite" className={`mt-5 rounded-xl px-4 py-3 text-sm ${notice.ok ? "bg-emerald-400/15 text-emerald-200" : "bg-red-400/15 text-red-200"}`}>{notice.text}</p> : null}
 
-              <button
-                disabled={submitting}
-                className="mt-6 w-full rounded-full bg-gradient-to-r from-[#1a8cff] to-[#18cfc8] px-5 py-3.5 font-black text-[#071727] disabled:opacity-60"
-              >
+              <button disabled={submitting} className="mt-6 w-full rounded-full bg-gradient-to-r from-[#1a8cff] to-[#18cfc8] px-5 py-3.5 font-black text-[#071727] disabled:opacity-60">
                 {submitting ? copy.submitting : copy.submit}
               </button>
             </form>
@@ -552,38 +429,17 @@ export default function MitmachenClient({
 
       <section id="vor-ort" className="scroll-mt-24 border-t border-white/10">
         <div className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-20">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#18cfc8]">
-            03 · {copy.regionalEyebrow}
-          </p>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400">
-            {copy.regionalLead}
-          </p>
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#18cfc8]">03 · {copy.regionalEyebrow}</p>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400">{copy.regionalLead}</p>
           <div className="mt-5 grid gap-8 lg:grid-cols-[.78fr_1.22fr] lg:items-start">
             <div>
               <h2 className="text-4xl md:text-5xl">{regional.page.title}</h2>
-              <p className="mt-5 text-lg leading-8 text-slate-300">
-                {regional.page.intro}
-              </p>
-              <p className="mt-5 rounded-2xl border border-[#18cfc8]/20 bg-[#18cfc8]/[0.06] px-5 py-4 text-sm leading-7 text-slate-300">
-                {regional.page.promise}
-              </p>
+              <p className="mt-5 text-lg leading-8 text-slate-300">{regional.page.intro}</p>
+              <p className="mt-5 rounded-2xl border border-[#18cfc8]/20 bg-[#18cfc8]/[0.06] px-5 py-4 text-sm leading-7 text-slate-300">{regional.page.promise}</p>
               <div className="mt-6 grid gap-3">
-                {regional.page.steps.map((step) => (
-                  <div
-                    key={step.title}
-                    className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"
-                  >
-                    <h3 className="font-bold text-[#18cfc8]">
-                      {step.title}
-                    </h3>
-                    <p className="mt-1 text-sm leading-6 text-slate-400">
-                      {step.body}
-                    </p>
-                  </div>
-                ))}
+                {regional.page.steps.map((step) => <div key={step.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"><h3 className="font-bold text-[#18cfc8]">{step.title}</h3><p className="mt-1 text-sm leading-6 text-slate-400">{step.body}</p></div>)}
               </div>
             </div>
-
             <RegionalInterestForm strings={regional} />
           </div>
         </div>
@@ -591,24 +447,8 @@ export default function MitmachenClient({
 
       <section className="border-t border-white/10">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-8 text-sm text-slate-400 md:px-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8">
-          <span>
-            {copy.contentHint}{" "}
-            <Link
-              href={EDEBATTE_URL}
-              className="font-bold text-[#18cfc8] hover:underline"
-            >
-              {copy.contentCta} ↗
-            </Link>
-          </span>
-          <span>
-            {copy.supportHint}{" "}
-            <Link
-              href={VOG_SUPPORT_PATH}
-              className="font-bold text-[#18cfc8] hover:underline"
-            >
-              {copy.supportCta}
-            </Link>
-          </span>
+          <span>{copy.contentHint}{" "}<Link href={EDEBATTE_URL} className="font-bold text-[#18cfc8] hover:underline">{copy.contentCta} ↗</Link></span>
+          <span>{copy.supportHint}{" "}<Link href={VOG_SUPPORT_PATH} className="font-bold text-[#18cfc8] hover:underline">{copy.supportCta}</Link></span>
         </div>
       </section>
     </main>
