@@ -185,7 +185,7 @@ export default function MitmachenClient({ initialLocale }: { initialLocale: Supp
             </label>
 
             {notice ? (
-              <p role={notice.ok ? "status" : "alert"} className={`mt-5 rounded-xl px-4 py-3 text-sm ${notice.ok ? "bg-emerald-400/15 text-emerald-200" : "bg-red-400/15 text-red-200"}`}>
+              <p role={notice.ok ? "status" : "alert"} aria-live="polite" className={`mt-5 rounded-xl px-4 py-3 text-sm ${notice.ok ? "bg-emerald-400/15 text-emerald-200" : "bg-red-400/15 text-red-200"}`}>
                 {notice.text}
               </p>
             ) : null}
