@@ -24,7 +24,7 @@ export const VOTE4GOV_CANONICAL_URL = "https://vote4gov.eu";
 export const EDEBATTE_URL = "/go/edebatte";
 export const VOTE4GOV_URL = "/go/vote4gov";
 
-export const VOG_JOIN_PATH = "/#mitmachen";
+export const VOG_JOIN_PATH = "/mitmachen";
 export const VOG_SUPPORT_PATH = "/unterstuetzen";
 export const VOG_QUESTIONS_PATH = "/fragen";
 export const VOG_TRANSPARENCY_PATH = "/transparenz";
