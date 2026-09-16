@@ -4,6 +4,7 @@ import { getDoiCopy, hashDoiToken, resolveDoiLocale } from "@/lib/membershipDoi"
 import { VOG_SUPPORT_URL } from "@/config/links";
 import { recordFunnelEvent } from "@/lib/funnelEvents";
 import { queueConfirmedNewsletterConsent } from "@/lib/newsletterOutbox";
+import { provisionConfirmedVogMember } from "@/lib/edebatteIdentityProvisioning";
 
 function escapeHtml(value: string) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
@@ -44,6 +45,77 @@ export async function GET(req: Request) {
     { $set: { status: "active", confirmedAt: now, updatedAt: now }, $unset: { doiToken: "", doiTokenHash: "", doiExpiresAt: "" } },
   );
   if (result.modifiedCount !== 1) return renderPage({ locale: memberLocale, title: memberCopy.invalidTitle, message: memberCopy.invalidMessage, ok: false, baseUrl });
+
+  try {
+    if (
+      member.type === "person" &&
+      member.firstName &&
+      member.lastName &&
+      member.birthDate &&
+      member.street &&
+      member.houseNumber &&
+      member.postalCode &&
+      member.city &&
+      member.country
+    ) {
+      const provisioned = await provisionConfirmedVogMember({
+        externalMemberId: String(member._id),
+        email: member.email,
+        firstName: member.firstName,
+        lastName: member.lastName,
+        birthDate: member.birthDate,
+        participationMode: member.participationMode === "active" ? "active" : "member",
+        locale: memberLocale,
+        address: {
+          street: member.street,
+          houseNumber: member.houseNumber,
+          line2: member.addressLine2,
+          postalCode: member.postalCode,
+          city: member.city,
+          country: member.country,
+        },
+      });
+      await col.updateOne(
+        { _id: member._id },
+        {
+          $set: {
+            edebatteUserId: provisioned.userId,
+            edebatteProvisionedAt: now,
+            edebatteProvisioningPending: false,
+            updatedAt: now,
+          },
+          $unset: { edebatteProvisioningLastError: "" },
+        },
+      );
+    } else {
+      await col.updateOne(
+        { _id: member._id },
+        {
+          $set: {
+            edebatteProvisioningPending: true,
+            edebatteProvisioningLastError: "identity_address_incomplete",
+            updatedAt: now,
+          },
+        },
+      );
+    }
+  } catch (error) {
+    await col.updateOne(
+      { _id: member._id },
+      {
+        $set: {
+          edebatteProvisioningPending: true,
+          edebatteProvisioningLastError: error instanceof Error ? error.message.slice(0, 240) : "unknown",
+          updatedAt: now,
+        },
+      },
+    ).catch(() => {});
+    console.warn("[members-confirm] eDebatte identity provisioning failed", {
+      memberId: String(member._id),
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+
   try {
     await queueConfirmedNewsletterConsent({
       memberId: String(member._id),
