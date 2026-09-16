@@ -1,7 +1,7 @@
 import { createHash } from "crypto";
 import type { SupportedLocale } from "@/config/locales";
 
-export const MIN_FUNDING_CENTS = 500;
+export const MIN_FUNDING_CENTS = 499;
 export const MAX_FUNDING_CENTS = 1_000_000;
 export type FundingCadence = "one_time" | "monthly" | "annual";
 

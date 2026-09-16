@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { buildStripeCheckoutBody, fundingIdempotencyKey, parseFundingRequest } from "../src/lib/fundingCheckout";
 
-const VALID = { amountCents: 2500, cadence: "monthly", locale: "de", attemptId: "550e8400-e29b-41d4-a716-446655440000", termsAccepted: true } as const;
+const VALID = { amountCents: 1500, cadence: "monthly", locale: "de", attemptId: "550e8400-e29b-41d4-a716-446655440000", termsAccepted: true } as const;
 
 describe("international funding checkout", () => {
-  it("rejects invalid amounts, cadence and missing consent", () => {
-    expect(parseFundingRequest({ ...VALID, amountCents: 499 })).toBeNull();
+  it("accepts the 4.99 EUR entry and rejects lower amounts, invalid cadence and missing consent", () => {
+    expect(parseFundingRequest({ ...VALID, amountCents: 499 })).not.toBeNull();
+    expect(parseFundingRequest({ ...VALID, amountCents: 498 })).toBeNull();
     expect(parseFundingRequest({ ...VALID, cadence: "weekly" })).toBeNull();
     expect(parseFundingRequest({ ...VALID, termsAccepted: false })).toBeNull();
   });
