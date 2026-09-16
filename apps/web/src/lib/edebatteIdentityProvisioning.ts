@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import { MongoClient, ObjectId } from "mongodb";
 
 export type ConfirmedVogIdentity = {
@@ -163,4 +164,46 @@ export async function provisionConfirmedVogMember(
   );
 
   return { userId: String(userId), created };
+}
+
+export async function initializeEdebateCredentialFromVogPassword(opts: {
+  userId: string;
+  email: string;
+  password: string;
+}) {
+  if (!ObjectId.isValid(opts.userId)) {
+    return { ok: false as const, reason: "invalid_user_id" as const };
+  }
+
+  const pii = await piiDb();
+  const credentials = pii.collection("user_credentials");
+  const coreUserId = new ObjectId(opts.userId);
+  const existing = await credentials.findOne(
+    { coreUserId },
+    { projection: { passwordHash: 1 } },
+  );
+
+  if (existing?.passwordHash) {
+    return { ok: true as const, created: false as const, preservedExistingCredential: true as const };
+  }
+
+  const rounds = Math.min(14, Math.max(10, Number.parseInt(process.env.BCRYPT_ROUNDS || "12", 10) || 12));
+  const passwordHash = await bcrypt.hash(opts.password, rounds);
+  const now = new Date();
+  await credentials.updateOne(
+    { coreUserId },
+    {
+      $set: {
+        coreUserId,
+        email: opts.email.trim().toLowerCase(),
+        passwordHash,
+        twoFactorEnabled: false,
+        updatedAt: now,
+      },
+      $setOnInsert: { createdAt: now },
+    },
+    { upsert: true },
+  );
+
+  return { ok: true as const, created: true as const, preservedExistingCredential: false as const };
 }
