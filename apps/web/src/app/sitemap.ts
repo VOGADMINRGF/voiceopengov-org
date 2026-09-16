@@ -7,7 +7,6 @@ const PUBLIC_PATHS = [
   "/transparenz",
   "/mitmachen",
   "/mitmachen/rollen",
-  "/vor-ort",
   "/regionen",
   "/regionen/deutschland",
   "/regionen/deutschland/berlin",
