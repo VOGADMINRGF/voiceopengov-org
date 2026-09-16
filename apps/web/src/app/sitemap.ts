@@ -5,6 +5,7 @@ const PUBLIC_PATHS = [
   "",
   "/fragen",
   "/transparenz",
+  "/mitmachen",
   "/mitmachen/rollen",
   "/vor-ort",
   "/regionen",
