@@ -8,6 +8,7 @@ import {
   setMemberPassword,
   validateMemberPassword,
 } from "@/lib/memberAuth";
+import { initializeEdebateCredentialFromVogPassword } from "@/lib/edebatteIdentityProvisioning";
 import { rateLimitFromRequest, rateLimitHeaders } from "@/utils/rateLimitHelpers";
 
 export const runtime = "nodejs";
@@ -52,13 +53,30 @@ export async function POST(req: NextRequest) {
   const members = await membersCol();
   const member = await members.findOne(
     { _id: new ObjectId(token.memberId), status: "active" },
-    { projection: { _id: 1, email: 1 } },
+    { projection: { _id: 1, email: 1, edebatteUserId: 1 } },
   );
   if (!member?._id || !member.email) {
     return NextResponse.json({ ok: false, error: "invalid_or_expired_token" }, { status: 400 });
   }
 
   await setMemberPassword(String(member._id), member.email, parsed.data.password);
+
+  if (member.edebatteUserId) {
+    try {
+      await initializeEdebateCredentialFromVogPassword({
+        userId: member.edebatteUserId,
+        email: member.email,
+        password: parsed.data.password,
+      });
+    } catch (error) {
+      console.warn("[member-password-confirm] eDebatte credential initialization failed", {
+        memberId: String(member._id),
+        edebatteUserId: member.edebatteUserId,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
   await revokeAllMemberSessions(String(member._id));
   return NextResponse.json({ ok: true, redirectUrl: "/login" });
 }
