@@ -13,7 +13,7 @@ const COPY = {
     eyebrow: "Mitmachen",
     title: "Du musst nicht alles können. Du musst nur irgendwo anfangen.",
     intro:
-      "Eine Bewegung wird nicht dadurch groß, dass alle dasselbe tun. Sie wird stark, wenn Menschen ihre unterschiedlichen Fähigkeiten verantwortlich einbringen können.",
+      "VoiceOpenGov wird stark, wenn Menschen ihre unterschiedlichen Fähigkeiten verantwortlich einbringen können.",
     roles: [
       {
         title: "Nachbar",
@@ -54,10 +54,10 @@ const COPY = {
     ],
     nextEyebrow: "Dein erster Schritt",
     nextTitle:
-      "Du kannst Mitglied werden – oder erst einmal sagen, was du vor Ort suchst.",
+      "Mitglied werden, an einer Frage arbeiten oder vor Ort beginnen.",
     nextBody:
-      "Du brauchst keine fertige Rolle und musst keinen Regionalverband aufbauen. Vielleicht möchtest du nur bei einem ersten Stammtisch dabei sein, bei einem überschaubaren Teil helfen oder den ersten Impuls geben. Alles davon ist ein guter Anfang.",
-    regional: "In meiner Region aktiv werden",
+      "Du brauchst keine fertige Rolle und musst keinen Regionalverband aufbauen. Wähle einfach den Einstieg, der gerade zu dir passt.",
+    regional: "Vor Ort aktiv werden",
     join: "Kostenfrei Mitglied werden",
     question: "Eine Frage auswählen",
   },
@@ -68,7 +68,7 @@ const COPY = {
     eyebrow: "Take part",
     title: "You do not need to do everything. You only need somewhere to begin.",
     intro:
-      "A movement does not grow strong because everyone does the same thing. It grows strong when people can contribute their different abilities responsibly.",
+      "VoiceOpenGov grows stronger when people can contribute their different abilities responsibly.",
     roles: [
       {
         title: "Neighbour",
@@ -109,10 +109,10 @@ const COPY = {
     ],
     nextEyebrow: "Your first step",
     nextTitle:
-      "You can become a member – or first tell us what you are looking for locally.",
+      "Become a member, work on a question or start locally.",
     nextBody:
-      "You do not need a finished role or an entire regional organisation. You may simply want to join a first meetup, help with one manageable part or provide the initial impulse. All are good ways to begin.",
-    regional: "Get active in my region",
+      "You do not need a finished role or an entire regional organisation. Choose the entry point that fits you now.",
+    regional: "Get active locally",
     join: "Become a member for free",
     question: "Choose a question",
   },
@@ -184,7 +184,7 @@ export default async function RolesPage() {
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
-                href="/vor-ort"
+                href="/mitmachen#vor-ort"
                 className="rounded-full bg-[#d6ff65] px-5 py-3 font-black text-[#07110f] transition hover:-translate-y-0.5"
               >
                 {copy.regional}
