@@ -82,7 +82,7 @@ jobs:
 
           SMOKE_BASE_URL=http://127.0.0.1:3000 node apps/web/scripts/smoke-membership-funding.mjs
 
-          curl -fsS http://127.0.0.1:3000/mitmachen | grep -F 'Drei Wege'
+          curl -fsS http://127.0.0.1:3000/mitmachen | grep -F 'Nicht nur zuschauen'
           curl -fsS http://127.0.0.1:3000/mitwirken | grep -F 'Kein Amt. Keine Bewerbung.'
           curl -fsS http://127.0.0.1:3000/vor-ort | grep -F 'Was möchtest du in deiner Region tun?'
           curl -fsS http://127.0.0.1:3000/fragen | grep -F 'Frage öffnen'
