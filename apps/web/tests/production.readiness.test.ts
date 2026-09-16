@@ -44,13 +44,13 @@ describe("membership and funding production readiness", () => {
     expect(result.errors.join(" ")).not.toContain(READY_ENV.SMTP_PASS);
   });
 
-  it("keeps critical form feedback and selection state accessible", () => {
-    const home = source("components/home/HomeClient.tsx");
+  it("keeps critical form feedback accessible on the canonical participation route", () => {
+    const join = source("app/mitmachen/MitmachenClient.tsx");
     const funding = source("app/unterstuetzen/FundingCheckoutForm.tsx");
     const password = source("app/konto/passwort/page.tsx");
-    expect(home).toContain('aria-pressed={type === "person"}');
-    expect(home).toContain('role={notice.ok ? "status" : "alert"}');
-    expect(home).toContain('aria-live="polite"');
+    expect(join).toContain('role={notice.ok ? "status" : "alert"}');
+    expect(join).toContain('aria-live="polite"');
+    expect(join).toContain('type="checkbox" required checked={privacy}');
     expect(funding).toContain("aria-pressed={cadence === value}");
     expect(funding).toContain("aria-pressed={amount === value}");
     expect(password).toContain('role="status" aria-live="polite"');
