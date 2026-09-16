@@ -19,8 +19,11 @@ const DATA_URL_PREFIX = "data:image/";
 const MIN_AGE = 16;
 const RATE_LIMIT = { limit: 6, windowMs: 15 * 60 * 1000 };
 
+type ParticipationMode = "active" | "member";
+
 type Body = {
   type?: "person" | "organisation";
+  participationMode?: ParticipationMode;
   email?: string;
   firstName?: string;
   lastName?: string;
@@ -54,6 +57,7 @@ type Body = {
 
 type MemberDoc = {
   type: "person" | "organisation";
+  participationMode: ParticipationMode;
   email: string;
 
   firstName?: string;
@@ -199,6 +203,7 @@ export async function POST(req: NextRequest) {
     const email = normEmail(body.email);
     const locale = isSupportedLocale(body.locale) ? body.locale : DEFAULT_LOCALE;
     const type: "person" | "organisation" = body.type === "organisation" ? "organisation" : "person";
+    const participationMode: ParticipationMode = body.participationMode === "active" ? "active" : "member";
 
     const isPublic =
       typeof body.isPublic === "boolean" ? body.isPublic : body.visibility === "public";
@@ -236,7 +241,6 @@ export async function POST(req: NextRequest) {
     }
 
     const { token, tokenHash, expiresAt: expires } = createDoiToken();
-
     const now = new Date();
 
     const avatarUrl = isPublic
@@ -253,33 +257,27 @@ export async function POST(req: NextRequest) {
 
     const doc: MemberDoc = {
       type,
+      participationMode,
       email,
-
       firstName: body.firstName?.trim() || undefined,
       lastName: body.lastName?.trim() || undefined,
       birthDate: birthDateValue,
       orgName: body.orgName?.trim() || undefined,
-
       city: body.city?.trim() || undefined,
       country: body.country?.trim() || undefined,
       lat: typeof body.lat === "number" ? body.lat : undefined,
       lng: typeof body.lng === "number" ? body.lng : undefined,
-
       isPublic,
       avatarUrl,
-
       publicSupporter,
       supporterImageUrl,
       supporterNote,
-
       wantsNewsletter,
       wantsNewsletterEdDebatte,
-
       status: "pending",
       doiTokenHash: tokenHash,
       doiExpiresAt: expires,
       doiSentAt: now,
-
       createdAt: now,
       updatedAt: now,
       locale,
@@ -289,6 +287,7 @@ export async function POST(req: NextRequest) {
     const col = await membersCol();
     const existing = await col.findOne({ email }, { projection: { status: 1 } });
     if (existing?.status === "active") {
+      await col.updateOne({ email }, { $set: { participationMode, updatedAt: new Date() } });
       return NextResponse.json({ ok: true, requestId });
     }
     const { createdAt, ...docWithoutCreatedAt } = doc;
@@ -330,6 +329,7 @@ export async function POST(req: NextRequest) {
     const supporterText = publicSupporter ? "Ja" : "Nein";
     const newsletterText = wantsNewsletter ? "Ja" : "Nein";
     const newsletterEdText = wantsNewsletterEdDebatte ? "Ja" : "Nein";
+    const participationText = participationMode === "active" ? "Aktivmitglied" : "Mitglied";
     const birthDateText = birthDateValue
       ? birthDateValue.split("-").reverse().join(".")
       : undefined;
@@ -338,7 +338,7 @@ export async function POST(req: NextRequest) {
 
     if (upsertResult.upsertedId) {
       const summaryLines = [
-        `Mitgliedschaft: ${type === "organisation" ? "Organisation" : "Person"}`,
+        `Mitgliedschaft: ${type === "organisation" ? "Organisation" : participationText}`,
         `Name: ${displayName ? escapeHtml(displayName) : "—"}`,
         `Ort: ${locationParts ? escapeHtml(locationParts) : "—"}`,
         `Sichtbarkeit: ${visibilityText}`,
