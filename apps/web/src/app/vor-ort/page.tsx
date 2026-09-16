@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getRequestLocale } from "@/lib/locale";
 import TranslationStatusNotice from "@/components/i18n/TranslationStatusNotice";
 import { getTranslatedBundle } from "@/lib/i18n/getTranslatedBundle";
+import { VOG_ROLES_PATH } from "@/config/links";
 import RegionalInterestForm from "./RegionalInterestForm";
 import { getRegionalActivationStrings } from "./strings";
 
@@ -17,7 +18,10 @@ async function getPageBundle() {
 
 export async function generateMetadata() {
   const { bundle } = await getPageBundle();
-  return bundle.value.meta;
+  return {
+    ...bundle.value.meta,
+    title: bundle.value.meta.title.replace(/\s*\|\s*VoiceOpenGov$/, ""),
+  };
 }
 
 export default async function RegionalActivationPage() {
@@ -86,7 +90,7 @@ export default async function RegionalActivationPage() {
               </p>
             </article>
             <Link
-              href="/mitmachen/rollen"
+              href={VOG_ROLES_PATH}
               className="inline-flex rounded-full border border-[#f4f1e8]/18 px-5 py-3 font-bold transition hover:border-[#d6ff65]/55 hover:text-[#d6ff65]"
             >
               {strings.page.rolesLink}
