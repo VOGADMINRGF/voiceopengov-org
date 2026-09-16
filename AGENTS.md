@@ -13,6 +13,16 @@ VoiceOpenGov belongs to the same visual product family as eDebatte. The public m
 - Primary light text: `#f8fafc`
 - Primary dark text on bright CTA: `#071727`
 
+### Canonical typography and composition
+
+Human-approved editorial refinement 2026-09-16:
+
+- Display headlines use an editorial serif stack (`Georgia`, `Times New Roman`, serif fallback) to create a more institutional, civic-infrastructure character.
+- UI, navigation, controls and body copy stay in a neutral system sans stack (`Inter` when available, otherwise platform sans fallbacks).
+- The visual language may use cinematic dark surfaces, restrained glass layers, subtle cyan/blue glow and fine divider lines.
+- The system must remain sober, legible and institutional. It must not drift into party-campaign aesthetics, neon-gaming aesthetics or a separate luxury brand disconnected from eDebatte.
+- Blue/turquoise stays the identity anchor; typography and depth create the premium editorial character, not a new color family.
+
 The canonical runtime brand layer is `apps/web/src/app/brand-ci.css` and MUST be imported by `apps/web/src/app/layout.tsx` after `globals.css`.
 
 `apps/web/public/edebatte-ci.css` remains a legacy compatibility surface only. Public rendering must not depend on that separately linked stylesheet to restore the canonical palette.
