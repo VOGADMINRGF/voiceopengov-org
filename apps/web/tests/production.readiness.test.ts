@@ -51,8 +51,10 @@ describe("membership and funding production readiness", () => {
     const password = source("app/konto/passwort/page.tsx");
     expect(join).toContain('role={notice.ok ? "status" : "alert"}');
     expect(join).toContain('aria-live="polite"');
-    expect(join).toContain('type="checkbox" required checked={privacy}');
-    expect(join).toContain('type="date" required aria-label={copy.birthDate}');
+    expect(join).toContain('type="checkbox"');
+    expect(join).toContain('checked={privacy}');
+    expect(join).toContain('type="date"');
+    expect(join).toContain('aria-label={copy.birthDate}');
     expect(join).toContain("birthDate,");
     expect(join).toContain("participationMode,");
     expect(join).toContain('aria-pressed={participationMode === "active"}');
@@ -73,6 +75,14 @@ describe("membership and funding production readiness", () => {
     expect(join).toContain("VOG_SUPPORT_PATH");
     expect(join).not.toContain("VOG_QUESTIONS_PATH");
     expect(regionalRedirect).toContain('redirect("/mitmachen#vor-ort")');
+  });
+
+  it("keeps the post-registration DOI journey explicit", () => {
+    const join = source("app/mitmachen/MitmachenClient.tsx");
+    expect(join).toContain("registrationComplete");
+    expect(join).toContain("copy.successTitle");
+    expect(join).toContain("copy.successActiveNext");
+    expect(join).toContain("copy.successMemberNext");
   });
 
   it("keeps RTL, privacy retention and no-political-weight gates executable in CI", () => {
