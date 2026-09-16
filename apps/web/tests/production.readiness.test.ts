@@ -46,6 +46,7 @@ describe("membership and funding production readiness", () => {
 
   it("keeps critical form feedback and the membership API contract on /mitmachen", () => {
     const join = source("app/mitmachen/MitmachenClient.tsx");
+    const register = source("app/api/members/public-register/route.ts");
     const funding = source("app/unterstuetzen/FundingCheckoutForm.tsx");
     const password = source("app/konto/passwort/page.tsx");
     expect(join).toContain('role={notice.ok ? "status" : "alert"}');
@@ -53,17 +54,24 @@ describe("membership and funding production readiness", () => {
     expect(join).toContain('type="checkbox" required checked={privacy}');
     expect(join).toContain('type="date" required aria-label={copy.birthDate}');
     expect(join).toContain("birthDate,");
+    expect(join).toContain("participationMode,");
+    expect(join).toContain('aria-pressed={participationMode === "active"}');
     expect(join).toContain('fetch("/api/members/public-register"');
+    expect(register).toContain('type ParticipationMode = "active" | "member"');
+    expect(register).toContain("participationMode,");
     expect(funding).toContain("aria-pressed={cadence === value}");
     expect(funding).toContain("aria-pressed={amount === value}");
     expect(password).toContain('role="status" aria-live="polite"');
   });
 
-  it("keeps regional participation under the canonical participation route", () => {
+  it("keeps /mitmachen focused on membership and local enabling", () => {
     const join = source("app/mitmachen/MitmachenClient.tsx");
     const regionalRedirect = source("app/vor-ort/page.tsx");
     expect(join).toContain('id="vor-ort"');
     expect(join).toContain("<RegionalInterestForm strings={regional} />");
+    expect(join).toContain("EDEBATTE_URL");
+    expect(join).toContain("VOG_SUPPORT_PATH");
+    expect(join).not.toContain("VOG_QUESTIONS_PATH");
     expect(regionalRedirect).toContain('redirect("/mitmachen#vor-ort")');
   });
 
