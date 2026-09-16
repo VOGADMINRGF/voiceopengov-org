@@ -16,9 +16,14 @@ export default async function SupportPage({ searchParams }: { searchParams?: Pro
   };
   const hasBank = Object.values(bank).every(Boolean);
   const stripeEnabled = Boolean(process.env.STRIPE_SECRET_KEY);
+  const providerStatus = locale === "de"
+    ? "Aufbauphase: VoiceOpenGov wird derzeit von Ricky G. Fleischer als natürlicher Person betrieben. Es besteht aktuell kein eigener Rechtsträger für VoiceOpenGov; insbesondere sind eine VOG Holding oder eine Gesellschaft derzeit nicht Vertragspartner oder Zahlungsempfänger. Bis zu einer wirksamen späteren Umstellung ist Ricky G. Fleischer Zahlungsempfänger. Die Unterstützung ist freiwillig, von der kostenfreien Mitgliedschaft getrennt und wird nicht als steuerbegünstigte Spende angeboten; Zuwendungsbestätigungen werden nicht ausgestellt."
+    : "Build phase: VoiceOpenGov is currently operated by Ricky G. Fleischer as a natural person. VoiceOpenGov currently has no separate legal entity; in particular, no VOG Holding or company is currently the contractual partner or payment recipient. Until a later effective transition, Ricky G. Fleischer is the payment recipient. Support is voluntary, separate from free membership and is not offered as a tax-privileged charitable donation; no charitable contribution receipts are issued.";
+
   return <main className="min-h-screen bg-[#020617] px-4 py-16 text-[#f8fafc] sm:px-6" dir={locale === "ar" ? "rtl" : "ltr"}>
     <div className="mx-auto max-w-5xl"><p className="text-sm font-bold uppercase tracking-[.2em] text-cyan-300">{strings.eyebrow}</p><h1 className="mt-4 max-w-4xl text-4xl font-black tracking-tight sm:text-6xl">{strings.title}</h1><p className="mt-5 max-w-3xl text-lg leading-relaxed text-slate-300">{strings.body}</p>
       <p className="mt-6 rounded-2xl border border-cyan-400/30 bg-cyan-400/10 p-4 font-bold text-cyan-100">{strings.noInfluence}</p>
+      <p className="mt-4 rounded-2xl border border-amber-300/25 bg-amber-300/10 p-4 text-sm leading-relaxed text-amber-50">{providerStatus}</p>
       {params?.cancelled === "1" && <p className="mt-5 rounded-xl bg-slate-800 p-4">{strings.cancelled}</p>}
       <div className="mt-10 grid gap-8 lg:grid-cols-[1.1fr_.9fr]"><FundingCheckoutForm locale={locale} strings={strings} enabled={stripeEnabled} />
         <aside className="space-y-5"><section className="rounded-3xl border border-slate-800 bg-slate-900/65 p-6"><p className="text-sm leading-relaxed text-slate-300">{strings.provider}</p><p className="mt-4 text-sm leading-relaxed text-slate-300">{strings.fees}</p><p className="mt-4 text-sm leading-relaxed text-slate-300">{strings.withdrawal}</p></section>
