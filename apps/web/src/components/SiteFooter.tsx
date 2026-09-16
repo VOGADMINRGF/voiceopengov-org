@@ -15,6 +15,7 @@ const ECOSYSTEM_COPY = {
     title: "Gemeinsame Haltung. Eigenständige Aufgaben.",
     body: "VoiceOpenGov nutzt eDebatte. Es besitzt eDebatte nicht. Vote4Gov denkt gesellschaftliche Entwicklung weiter. Voxy verbindet die Ebenen, ohne Entscheidungen zu treffen.",
     footerLine: "Transparenz ist unser gemeinsames Betriebssystem.",
+    providerStatus: "Aufbauphase: VoiceOpenGov wird derzeit von Ricky G. Fleischer als natürlicher Person betrieben. Eine VOG Holding oder andere Gesellschaft ist aktuell nicht Anbieter oder Vertragspartner.",
     items: {
       edebatte: {
         role: "Offene Infrastruktur",
@@ -39,6 +40,7 @@ const ECOSYSTEM_COPY = {
     title: "Shared principles. Independent responsibilities.",
     body: "VoiceOpenGov uses eDebatte. It does not own eDebatte. Vote4Gov explores how society can evolve. Voxy connects the layers without making decisions.",
     footerLine: "Transparency is our shared operating system.",
+    providerStatus: "Build phase: VoiceOpenGov is currently operated by Ricky G. Fleischer as a natural person. No VOG Holding or other company is currently the provider or contractual partner.",
     items: {
       edebatte: {
         role: "Open infrastructure",
@@ -117,9 +119,12 @@ export default function SiteFooter({ locale }: SiteFooterProps) {
           <FooterNav title={strings.columns.legal} ariaLabel={strings.aria.legal} links={strings.links.legal} />
         </div>
 
-        <div className="mt-10 border-t border-[#f4f1e8]/10 pt-6 text-xs text-[#f4f1e8]/36 md:flex md:items-center md:justify-between">
-          <p>© {currentYear} VoiceOpenGov</p>
-          <p className="mt-2 md:mt-0">{ecosystem.footerLine}</p>
+        <div className="mt-10 border-t border-[#f4f1e8]/10 pt-6 text-xs text-[#f4f1e8]/36 md:flex md:items-start md:justify-between md:gap-8">
+          <div>
+            <p>© {currentYear} VoiceOpenGov</p>
+            <p className="mt-2 max-w-3xl text-[11px] leading-5 text-[#f4f1e8]/42">{ecosystem.providerStatus}</p>
+          </div>
+          <p className="mt-3 shrink-0 md:mt-0">{ecosystem.footerLine}</p>
         </div>
       </div>
     </footer>
