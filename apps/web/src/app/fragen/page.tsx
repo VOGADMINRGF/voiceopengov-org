@@ -41,14 +41,14 @@ const DE_CONTENT: PageContent = {
   copy: {
     title: "50 Fragen. Keine 50 fertigen Antworten.",
     description:
-      "Die ersten 50 offenen Orientierungsfragen der VoiceOpenGov-Bewegung mit stabilen IDs und eDebatte-Handoff.",
+      "Die ersten 50 offenen Orientierungsfragen der VoiceOpenGov-Bewegung mit stabilen IDs und direktem eDebatte-Arbeitsraum-Handoff.",
     eyebrow: "Offener Kompass",
     intro:
       "Diese Fragen sind kein Parteiprogramm. Sie sind der öffentliche Arbeitsbeginn: mit Quellen, Gegenargumenten, Zielkonflikten, Alternativen und einem sichtbaren Lernstand. Jede Frage bleibt in allen Sprachen fachlich dieselbe Frage.",
     join: "Mitglied werden",
     transparency: "So machen wir den Stand sichtbar",
-    status: "Status: Seed · eDebatte-Handoff vorbereitet",
-    openRoom: "Auf eDebatte weiterverfolgen",
+    status: "Status: Seed · direkter Arbeitsraum-Handoff",
+    openRoom: "Frage öffnen & beteiligen",
     qrSummary: "QR-Code öffnen",
     qrAlt: "QR-Code zur Frage",
     stableId: "Stabile ID",
@@ -67,14 +67,14 @@ const EN_CONTENT: PageContent = {
   copy: {
     title: "50 questions. Not 50 finished answers.",
     description:
-      "The first 50 open questions guiding VoiceOpenGov, with stable IDs and an eDebatte handoff.",
+      "The first 50 open questions guiding VoiceOpenGov, with stable IDs and a direct eDebatte workspace handoff.",
     eyebrow: "An open compass",
     intro:
       "These questions are not a party manifesto. They are where the public work begins: with sources, counterarguments, trade-offs, alternatives and a visible state of learning. Each translation remains the same canonical question.",
     join: "Become a member",
     transparency: "See how we make progress visible",
-    status: "Status: seed · eDebatte handoff prepared",
-    openRoom: "Continue on eDebatte",
+    status: "Status: seed · direct workspace handoff",
+    openRoom: "Open question & take part",
     qrSummary: "Open QR code",
     qrAlt: "QR code for this question",
     stableId: "Stable ID",
@@ -205,7 +205,7 @@ export default async function QuestionsPage() {
               <ol className="mt-5 space-y-5">
                 {group.questions.map((question) => {
                   const current = Number(question.id.slice(-2));
-                  const handoffHref = `${EDEBATTE_URL}?canonicalId=${encodeURIComponent(question.id)}&lang=${locale}`;
+                  const handoffHref = `${EDEBATTE_URL}?destination=vog-question&canonicalId=${encodeURIComponent(question.id)}&sourceTitle=${encodeURIComponent(question.text)}&lang=${locale}`;
                   const qrSrc = `/api/questions/qr?id=${encodeURIComponent(question.id)}&lang=${locale}`;
 
                   return (
