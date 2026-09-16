@@ -22,7 +22,10 @@ const EDEBATTE_DESTINATIONS: Record<string, string> = {
   home: "/",
   pricing: "/pricing",
   create: "/create",
+  runden: "/runden",
 };
+
+const CANONICAL_ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,159}$/;
 
 export async function GET(
   request: NextRequest,
@@ -45,7 +48,17 @@ export async function GET(
   const targetUrl = new URL(TARGETS[rawTarget]);
   if (rawTarget === "edebatte") {
     const destination = query.get("destination") || "home";
-    targetUrl.pathname = EDEBATTE_DESTINATIONS[destination] || "/";
+    const canonicalId = query.get("canonicalId")?.trim() || "";
+
+    if (destination === "vog-question" && CANONICAL_ID_PATTERN.test(canonicalId)) {
+      targetUrl.pathname = `/runden/vog/${encodeURIComponent(canonicalId)}`;
+      const sourceTitle = query.get("sourceTitle")?.trim();
+      if (sourceTitle) {
+        targetUrl.searchParams.set("sourceTitle", sourceTitle.slice(0, 300));
+      }
+    } else {
+      targetUrl.pathname = EDEBATTE_DESTINATIONS[destination] || "/";
+    }
   }
 
   const redirectUrl = buildLocaleHandoffUrl(targetUrl.toString(), dimensions, {
