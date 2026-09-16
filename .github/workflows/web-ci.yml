@@ -5,22 +5,37 @@ on:
     branches: [main]
   pull_request:
 
+concurrency:
+  group: web-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
+    name: Web quality + production smoke
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
           version: 10.17.1
           run_install: false
-      - uses: actions/setup-node@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
+
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Brand CI contract
         run: |
+          set -euo pipefail
           test -f apps/web/src/app/brand-ci.css
           globals_line="$(grep -nF 'import "./globals.css";' apps/web/src/app/layout.tsx | head -1 | cut -d: -f1)"
           brand_line="$(grep -nF 'import "./brand-ci.css";' apps/web/src/app/layout.tsx | head -1 | cut -d: -f1)"
@@ -35,18 +50,54 @@ jobs:
             echo 'Legacy lime/green must not become canonical VoiceOpenGov brand tokens.' >&2
             exit 1
           fi
-      - run: pnpm lint
-      - run: pnpm -C apps/web exec tsc --noEmit -p tsconfig.json
-      - run: pnpm -C apps/web run test:membership-funding
-      - run: pnpm build
-      - name: Membership and funding production smoke
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck web
+        run: pnpm -C apps/web exec tsc --noEmit -p tsconfig.json
+
+      - name: Membership + funding contract tests
+        run: pnpm -C apps/web run test:membership-funding
+
+      - name: Production build
+        run: pnpm build
+
+      - name: "Production smoke: membership and public participation journeys"
         run: |
+          set -euo pipefail
           pnpm -C apps/web start > /tmp/vog-next.log 2>&1 &
           app_pid=$!
           trap 'kill "$app_pid" 2>/dev/null || true' EXIT
+
           for attempt in $(seq 1 40); do
-            if curl -fsS http://127.0.0.1:3000/ >/dev/null; then break; fi
-            if [ "$attempt" -eq 40 ]; then cat /tmp/vog-next.log; exit 1; fi
+            if curl -fsS http://127.0.0.1:3000/ >/dev/null; then
+              break
+            fi
+            if [ "$attempt" -eq 40 ]; then
+              cat /tmp/vog-next.log
+              exit 1
+            fi
             sleep 1
           done
+
           SMOKE_BASE_URL=http://127.0.0.1:3000 node apps/web/scripts/smoke-membership-funding.mjs
+
+          curl -fsS http://127.0.0.1:3000/mitmachen >/dev/null
+          curl -fsS http://127.0.0.1:3000/fragen >/dev/null
+
+          curl -sSI http://127.0.0.1:3000/rollen \
+            | tr -d '\r' \
+            | grep -Ei '^location: (https?://[^/]+)?/mitmachen([?#].*)?$'
+
+          curl -sSI http://127.0.0.1:3000/mitmachen/rollen \
+            | tr -d '\r' \
+            | grep -Ei '^location: (https?://[^/]+)?/mitmachen([?#].*)?$'
+
+          curl -sSI http://127.0.0.1:3000/vor-ort \
+            | tr -d '\r' \
+            | grep -Ei '^location: (https?://[^/]+)?/mitmachen#vor-ort$'
+
+      - name: Print app log on failure
+        if: failure()
+        run: tail -n 250 /tmp/vog-next.log 2>/dev/null || true
