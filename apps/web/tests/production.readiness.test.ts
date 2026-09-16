@@ -44,16 +44,27 @@ describe("membership and funding production readiness", () => {
     expect(result.errors.join(" ")).not.toContain(READY_ENV.SMTP_PASS);
   });
 
-  it("keeps critical form feedback accessible on the canonical participation route", () => {
+  it("keeps critical form feedback and the membership API contract on /mitmachen", () => {
     const join = source("app/mitmachen/MitmachenClient.tsx");
     const funding = source("app/unterstuetzen/FundingCheckoutForm.tsx");
     const password = source("app/konto/passwort/page.tsx");
     expect(join).toContain('role={notice.ok ? "status" : "alert"}');
     expect(join).toContain('aria-live="polite"');
     expect(join).toContain('type="checkbox" required checked={privacy}');
+    expect(join).toContain('type="date" required aria-label={copy.birthDate}');
+    expect(join).toContain("birthDate,");
+    expect(join).toContain('fetch("/api/members/public-register"');
     expect(funding).toContain("aria-pressed={cadence === value}");
     expect(funding).toContain("aria-pressed={amount === value}");
     expect(password).toContain('role="status" aria-live="polite"');
+  });
+
+  it("keeps regional participation under the canonical participation route", () => {
+    const join = source("app/mitmachen/MitmachenClient.tsx");
+    const regionalRedirect = source("app/vor-ort/page.tsx");
+    expect(join).toContain('id="vor-ort"');
+    expect(join).toContain("<RegionalInterestForm strings={regional} />");
+    expect(regionalRedirect).toContain('redirect("/mitmachen#vor-ort")');
   });
 
   it("keeps RTL, privacy retention and no-political-weight gates executable in CI", () => {
