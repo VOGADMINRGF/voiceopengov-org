@@ -28,7 +28,7 @@ export const VOG_JOIN_PATH = "/#mitmachen";
 export const VOG_SUPPORT_PATH = "/unterstuetzen";
 export const VOG_QUESTIONS_PATH = "/fragen";
 export const VOG_TRANSPARENCY_PATH = "/transparenz";
-export const VOG_ROLES_PATH = "/mitmachen/rollen";
+export const VOG_ROLES_PATH = "/mitwirken";
 
 export const VOG_SUPPORT_URL = `${VOICEOPENGOV_URL}${VOG_SUPPORT_PATH}`;
 export const EDEBATTE_SIGNUP_URL = `${EDEBATTE_URL}?destination=home`;
