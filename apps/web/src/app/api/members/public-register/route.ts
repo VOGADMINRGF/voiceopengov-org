@@ -29,6 +29,10 @@ type Body = {
   lastName?: string;
   birthDate?: string;
   orgName?: string;
+  street?: string;
+  houseNumber?: string;
+  addressLine2?: string;
+  postalCode?: string;
   city?: string;
   country?: string;
   lat?: number;
@@ -64,7 +68,10 @@ type MemberDoc = {
   lastName?: string;
   birthDate?: string;
   orgName?: string;
-
+  street?: string;
+  houseNumber?: string;
+  addressLine2?: string;
+  postalCode?: string;
   city?: string;
   country?: string;
   lat?: number;
@@ -103,6 +110,12 @@ function cleanAcquisition(input: Body["acquisition"]): Body["acquisition"] | und
     utmCampaign: clean(input.utmCampaign, 160),
   };
   return Object.values(result).some(Boolean) ? result : undefined;
+}
+
+function cleanText(value: unknown, max: number) {
+  return typeof value === "string"
+    ? value.replace(/[\r\n]/g, " ").trim().slice(0, max)
+    : "";
 }
 
 function normEmail(email: string) {
@@ -205,6 +218,22 @@ export async function POST(req: NextRequest) {
     const type: "person" | "organisation" = body.type === "organisation" ? "organisation" : "person";
     const participationMode: ParticipationMode = body.participationMode === "active" ? "active" : "member";
 
+    const firstName = cleanText(body.firstName, 120);
+    const lastName = cleanText(body.lastName, 160);
+    const street = cleanText(body.street, 200);
+    const houseNumber = cleanText(body.houseNumber, 20);
+    const addressLine2 = cleanText(body.addressLine2, 200) || undefined;
+    const postalCode = cleanText(body.postalCode, 20);
+    const city = cleanText(body.city, 120);
+    const country = cleanText(body.country, 120);
+
+    if (type === "person" && (!firstName || !lastName || !street || !houseNumber || !postalCode || !city || !country)) {
+      return NextResponse.json(
+        { ok: false, requestId, error: { message: "missing_identity_address" } },
+        { status: 400 },
+      );
+    }
+
     const isPublic =
       typeof body.isPublic === "boolean" ? body.isPublic : body.visibility === "public";
 
@@ -259,12 +288,16 @@ export async function POST(req: NextRequest) {
       type,
       participationMode,
       email,
-      firstName: body.firstName?.trim() || undefined,
-      lastName: body.lastName?.trim() || undefined,
+      firstName: firstName || undefined,
+      lastName: lastName || undefined,
       birthDate: birthDateValue,
       orgName: body.orgName?.trim() || undefined,
-      city: body.city?.trim() || undefined,
-      country: body.country?.trim() || undefined,
+      street: street || undefined,
+      houseNumber: houseNumber || undefined,
+      addressLine2,
+      postalCode: postalCode || undefined,
+      city: city || undefined,
+      country: country || undefined,
       lat: typeof body.lat === "number" ? body.lat : undefined,
       lng: typeof body.lng === "number" ? body.lng : undefined,
       isPublic,
@@ -287,7 +320,24 @@ export async function POST(req: NextRequest) {
     const col = await membersCol();
     const existing = await col.findOne({ email }, { projection: { status: 1 } });
     if (existing?.status === "active") {
-      await col.updateOne({ email }, { $set: { participationMode, updatedAt: new Date() } });
+      await col.updateOne(
+        { email },
+        {
+          $set: {
+            participationMode,
+            firstName: firstName || undefined,
+            lastName: lastName || undefined,
+            birthDate: birthDateValue,
+            street: street || undefined,
+            houseNumber: houseNumber || undefined,
+            addressLine2,
+            postalCode: postalCode || undefined,
+            city: city || undefined,
+            country: country || undefined,
+            updatedAt: new Date(),
+          },
+        },
+      );
       return NextResponse.json({ ok: true, requestId });
     }
     const { createdAt, ...docWithoutCreatedAt } = doc;
@@ -323,8 +373,8 @@ export async function POST(req: NextRequest) {
     const displayName =
       type === "organisation"
         ? body.orgName?.trim()
-        : [body.firstName?.trim(), body.lastName?.trim()].filter(Boolean).join(" ");
-    const locationParts = [body.city?.trim(), body.country?.trim()].filter(Boolean).join(", ");
+        : [firstName, lastName].filter(Boolean).join(" ");
+    const locationParts = [city, country].filter(Boolean).join(", ");
     const visibilityText = isPublic ? "Anonym (nur Orts-Summen)" : "Privat";
     const supporterText = publicSupporter ? "Ja" : "Nein";
     const newsletterText = wantsNewsletter ? "Ja" : "Nein";
