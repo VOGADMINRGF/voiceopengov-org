@@ -63,6 +63,9 @@ const ECOSYSTEM_COPY = {
 export default function SiteFooter({ locale }: SiteFooterProps) {
   const strings = getFooterStrings(locale);
   const ecosystem = locale === "de" ? ECOSYSTEM_COPY.de : ECOSYSTEM_COPY.en;
+  const providerStatus = locale === "de"
+    ? "Aufbauphase: VoiceOpenGov wird derzeit von Ricky G. Fleischer als natürlicher Person betrieben. Es besteht aktuell keine VOG Holding oder sonstige eigene Gesellschaft als Anbieter, Vertragspartner oder Zahlungsempfänger."
+    : "Build phase: VoiceOpenGov is currently operated by Ricky G. Fleischer as a natural person. No VOG Holding or other separate company currently acts as provider, contractual partner or payment recipient.";
 
   return (
     <footer className="border-t border-[#f4f1e8]/10 bg-[#07110f] text-[#f4f1e8]" role="contentinfo">
@@ -71,9 +74,7 @@ export default function SiteFooter({ locale }: SiteFooterProps) {
           <div className="grid gap-8 lg:grid-cols-[.75fr_1.25fr] lg:items-end">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.22em] text-[#d6ff65]">{ecosystem.eyebrow}</p>
-              <h2 id="ecosystem-heading" className="mt-4 text-3xl font-black tracking-tight md:text-4xl">
-                {ecosystem.title}
-              </h2>
+              <h2 id="ecosystem-heading" className="mt-4 text-3xl font-black tracking-tight md:text-4xl">{ecosystem.title}</h2>
             </div>
             <p className="max-w-3xl text-base leading-7 text-[#f4f1e8]/58">{ecosystem.body}</p>
           </div>
@@ -106,9 +107,7 @@ export default function SiteFooter({ locale }: SiteFooterProps) {
       <div className="mx-auto max-w-6xl px-5 py-12 md:px-8">
         <div className="grid gap-9 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <Link href="/" className="text-sm font-black uppercase tracking-[0.2em] transition hover:text-[#d6ff65]">
-              VoiceOpenGov
-            </Link>
+            <Link href="/" className="text-sm font-black uppercase tracking-[0.2em] transition hover:text-[#d6ff65]">VoiceOpenGov</Link>
             <p className="mt-3 font-bold text-[#f4f1e8]">{strings.brand.claim}</p>
             <p className="mt-3 text-sm leading-6 text-[#f4f1e8]/48">{strings.brand.body}</p>
           </div>
@@ -117,9 +116,12 @@ export default function SiteFooter({ locale }: SiteFooterProps) {
           <FooterNav title={strings.columns.legal} ariaLabel={strings.aria.legal} links={strings.links.legal} />
         </div>
 
-        <div className="mt-10 border-t border-[#f4f1e8]/10 pt-6 text-xs text-[#f4f1e8]/36 md:flex md:items-center md:justify-between">
+        <div className="mt-10 border-t border-[#f4f1e8]/10 pt-6 text-xs text-[#f4f1e8]/36 md:flex md:items-start md:justify-between md:gap-8">
           <p>© {currentYear} VoiceOpenGov</p>
-          <p className="mt-2 md:mt-0">{ecosystem.footerLine}</p>
+          <div className="mt-3 max-w-3xl space-y-2 md:mt-0 md:text-right">
+            <p>{providerStatus}</p>
+            <p>{ecosystem.footerLine}</p>
+          </div>
         </div>
       </div>
     </footer>
@@ -140,13 +142,9 @@ function FooterNav({ title, ariaLabel, links }: FooterNavProps) {
         {links.map((link) => (
           <li key={`${link.href}-${link.label}`}>
             {link.external ? (
-              <a href={link.href} className="transition hover:text-[#d6ff65]">
-                {link.label}
-              </a>
+              <a href={link.href} className="transition hover:text-[#d6ff65]">{link.label}</a>
             ) : (
-              <Link href={link.href} className="transition hover:text-[#d6ff65]">
-                {link.label}
-              </Link>
+              <Link href={link.href} className="transition hover:text-[#d6ff65]">{link.label}</Link>
             )}
           </li>
         ))}
