@@ -62,7 +62,7 @@ jobs:
       - name: Production build
         run: pnpm build
 
-      - name: Production smoke: membership, funding and public journeys
+      - name: "Production smoke: membership, funding and public journeys"
         run: |
           set -euo pipefail
           pnpm -C apps/web start > /tmp/vog-next.log 2>&1 &
