@@ -23,6 +23,13 @@ describe("international funding checkout", () => {
     expect(body.get("custom_text[submit][message]")).toContain("Stimmgewicht");
   });
 
+  it("keeps Stripe Checkout eligible for dynamic payment methods such as PayPal when enabled", () => {
+    const parsed = parseFundingRequest(VALID)!;
+    const body = buildStripeCheckoutBody(parsed, "https://www.voiceopengov.org");
+    expect(body.has("payment_method_types")).toBe(false);
+    expect([...body.keys()].some((key) => key.startsWith("payment_method_types["))).toBe(false);
+  });
+
   it("uses a deterministic request-specific idempotency key", () => {
     const parsed = parseFundingRequest(VALID)!;
     expect(fundingIdempotencyKey(parsed)).toBe(fundingIdempotencyKey(parsed));

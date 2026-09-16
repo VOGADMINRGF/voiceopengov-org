@@ -19,8 +19,8 @@ const STRINGS = {
   } as LocaleValue<string>,
 
   intro: {
-    de: "VoiceOpenGov ist eine Initiative – keine Partei, kein Verein und keine Stiftung. Wir verarbeiten personenbezogene Daten so sparsam wie möglich und passen diese Hinweise an, sobald sich Funktionen oder rechtliche Rahmenbedingungen ändern. Diese Hinweise sollen einen Überblick nach Art. 12 ff. DSGVO geben und ersetzen keine individuelle Rechtsberatung.",
-    en: "VoiceOpenGov is an initiative – not a party, association or foundation. We process personal data as sparingly as possible and update this notice whenever features or legal requirements change. This notice is intended to provide an overview under Arts. 12 et seq. GDPR and does not constitute individual legal advice.",
+    de: "VoiceOpenGov ist eine Initiative – keine Partei, kein Verein, keine Stiftung und derzeit keine eigene Gesellschaft. Wir verarbeiten personenbezogene Daten so sparsam wie möglich und passen diese Hinweise an, sobald sich Funktionen, Anbieter oder rechtliche Rahmenbedingungen ändern. Diese Hinweise sollen einen Überblick nach Art. 12 ff. DSGVO geben und ersetzen keine individuelle Rechtsberatung.",
+    en: "VoiceOpenGov is an initiative – not a party, association, foundation or currently a separate company. We process personal data as sparingly as possible and update this notice whenever features, providers or legal requirements change. This notice is intended to provide an overview under Arts. 12 et seq. GDPR and does not constitute individual legal advice.",
   } as LocaleValue<string>,
 
   controllerTitle: {
@@ -33,22 +33,24 @@ const STRINGS = {
       "Verantwortlich für die Verarbeitung personenbezogener Daten im Rahmen dieser Website und der angebundenen Dienste ist:",
       "",
       "Ricky G. Fleischer",
-      "(VoiceOpenGov – Initiative)",
+      "(VoiceOpenGov – Initiative; natürliche Person)",
       "Clara-Müller-Jahnke-Str. 41",
       "12589 Berlin",
       "Deutschland",
       "",
+      "Eine VOG Holding oder sonstige eigene Gesellschaft ist derzeit nicht Verantwortlicher, Anbieter, Vertragspartner oder Zahlungsempfänger.",
       "E-Mail: privacy@voiceopengov.org",
     ].join("\n"),
     en: [
       "The controller responsible for processing personal data in connection with this website and related services is:",
       "",
       "Ricky G. Fleischer",
-      "(VoiceOpenGov – initiative)",
+      "(VoiceOpenGov – initiative; natural person)",
       "Clara-Müller-Jahnke-Str. 41",
       "12589 Berlin",
       "Germany",
       "",
+      "No VOG Holding or other separate company currently acts as controller, provider, contractual partner or payment recipient.",
       "E-mail: privacy@voiceopengov.org",
     ].join("\n"),
   } as LocaleValue<string>,
@@ -61,24 +63,34 @@ const STRINGS = {
   dataPoints: {
     de: [
       {
-        label: "Unterstuetzer:innen",
+        label: "Unterstützer:innen",
         description:
-          "Angaben aus dem Mitmachen-Formular (z. B. Name, E-Mail, Geburtsdatum und -ort, Land, Support-Modus, optionale Motivationstexte und Skills). Wir nutzen diese Daten fuer Moderation, Rueckfragen und interne Abstimmungen. Fuer den Globus und die Live-Zahlen verwenden wir nur aggregierte Werte.",
+          "Angaben aus dem Mitmachen-Formular (z. B. Name, E-Mail, Geburtsdatum und -ort, Land, Support-Modus, optionale Motivationstexte und Skills). Wir nutzen diese Daten für Moderation, Rückfragen und interne Abstimmungen. Für den Globus und die Live-Zahlen verwenden wir nur aggregierte Werte.",
+      },
+      {
+        label: "Freiwillige Unterstützung & Zahlungsstatus",
+        description:
+          "Wenn du VoiceOpenGov freiwillig finanziell unterstützt, verarbeiten wir insbesondere Betrag, Zahlungsrhythmus, Zahlungsstatus sowie technische Zahlungs- und Kund:innen-IDs. Die Mitgliedschaft bei VoiceOpenGov ist davon getrennt und derzeit kostenfrei. Die Zahlungsabwicklung erfolgt über Stripe. Wenn PayPal im Stripe-Checkout angeboten und von dir gewählt wird, werden die für diese Zahlung erforderlichen Daten zusätzlich im Rahmen der Stripe-/PayPal-Zahlungsabwicklung verarbeitet. VoiceOpenGov speichert keine vollständigen Karten- oder PayPal-Zugangsdaten.",
+      },
+      {
+        label: "Zahlungsdienstleister",
+        description:
+          "Stripe verarbeitet Zahlungs- und Betrugspräventionsdaten nach seinen eigenen Datenschutzbestimmungen. Bei Auswahl von PayPal gelten zusätzlich die Datenschutzbestimmungen von PayPal. Welche Zahlungsart tatsächlich verfügbar ist, zeigt der konkrete Checkout. Eine Unterstützung verschafft keine zusätzlichen Stimm-, Beteiligungs- oder Zugangsrechte.",
       },
       {
         label: "Initiativen-Intake",
         description:
-          "Angaben zu Organisationen oder Initiativen (z. B. Name, Kontakt, Thema, Region, Ziel und Notizen), damit wir das Anliegen strukturiert pruefen und rueckmelden koennen.",
+          "Angaben zu Organisationen oder Initiativen (z. B. Name, Kontakt, Thema, Region, Ziel und Notizen), damit wir das Anliegen strukturiert prüfen und rückmelden können.",
       },
       {
         label: "Kontakt & Support",
         description:
-          "Nachrichten und Kontaktdaten aus Formularen oder E-Mails, die fuer die Bearbeitung deiner Anfrage erforderlich sind.",
+          "Nachrichten und Kontaktdaten aus Formularen oder E-Mails, die für die Bearbeitung deiner Anfrage erforderlich sind.",
       },
       {
         label: "Technische Sicherheitsdaten",
         description:
-          "Protokolldaten zur Absicherung der Formulare (z. B. Zeitstempel, IP/Agent-Hashes, Rate-Limits). Diese Daten dienen Missbrauchsschutz und Stabilitaet.",
+          "Protokolldaten zur Absicherung der Formulare (z. B. Zeitstempel, IP-/Agent-Hashes, Rate-Limits). Diese Daten dienen Missbrauchsschutz und Stabilität.",
       },
     ],
     en: [
@@ -86,6 +98,16 @@ const STRINGS = {
         label: "Supporters",
         description:
           "Details submitted via the join form (e.g. name, e-mail, birth date/place, country, support mode, optional motivation text and skills). We use these details for moderation, follow-ups and internal coordination. The globe and live stats show aggregated data only.",
+      },
+      {
+        label: "Voluntary support & payment status",
+        description:
+          "If you voluntarily support VoiceOpenGov financially, we process, in particular, the amount, payment cadence, payment status, and technical payment and customer IDs. VoiceOpenGov membership is separate from this and is currently free of charge. Payments are processed through Stripe. If PayPal is offered in Stripe Checkout and selected by you, the data required for that payment is also processed as part of the Stripe/PayPal payment flow. VoiceOpenGov does not store full card details or PayPal login credentials.",
+      },
+      {
+        label: "Payment service providers",
+        description:
+          "Stripe processes payment and fraud-prevention data under its own privacy policy. If PayPal is selected, PayPal's privacy policy also applies. The payment methods actually available are shown in the specific checkout. Financial support does not grant additional voting, participation or access rights.",
       },
       {
         label: "Initiatives intake",
@@ -116,14 +138,14 @@ const STRINGS = {
       "",
       "Optionale Cookies bzw. Speichertechnologien – etwa für Komfortfunktionen oder einfache Reichweitenmessung – setzen wir nur ein, wenn du im Cookie-Banner ausdrücklich eingewilligt hast (§ 25 Abs. 1 TDDDG i. V. m. Art. 6 Abs. 1 lit. a DSGVO). Du kannst deine Einwilligung über die Einstellungen im Banner jederzeit mit Wirkung für die Zukunft widerrufen.",
       "",
-      "Wir verzichten aktuell auf Tracking-Cookies für Werbenetzwerke. Details zu den jeweils eingesetzten Diensten und Speicherdauern ergänzen wir, sobald neue Funktionen produktiv gehen.",
+      "Wir verzichten aktuell auf Tracking-Cookies für Werbenetzwerke. Für einen von dir gestarteten Zahlungsvorgang können Stripe und – bei Auswahl von PayPal – PayPal technisch erforderliche Cookies oder vergleichbare Technologien auf ihren Zahlungsseiten einsetzen. Details richten sich nach den Datenschutzhinweisen des jeweiligen Zahlungsdienstleisters.",
     ].join("\n"),
     en: [
       "We use technically necessary cookies and similar technologies (§ 25 (2) TDDDG) to operate this website, for example to enable logins, security features (such as CSRF protection) and load balancing.",
       "",
       "Optional cookies or storage technologies – for comfort features or simple reach measurement – are only used if you have explicitly consented via the cookie banner (§ 25 (1) TDDDG in conjunction with Art. 6 (1) (a) GDPR). You can withdraw your consent at any time with effect for the future via the banner settings.",
       "",
-      "We currently do not use tracking cookies for advertising networks. Details on specific services and storage periods will be added as new features go live.",
+      "We currently do not use tracking cookies for advertising networks. For a payment flow initiated by you, Stripe and – if PayPal is selected – PayPal may use technically necessary cookies or similar technologies on their payment pages. Details are governed by the privacy notices of the respective payment provider.",
     ].join("\n"),
   } as LocaleValue<string>,
 
@@ -159,12 +181,8 @@ const STRINGS = {
   } as LocaleValue<string[]>,
 
   rightsComplaintHint: {
-    de: [
-      "Du kannst dich außerdem bei einer Datenschutzaufsichtsbehörde beschweren, wenn du der Ansicht bist, dass die Verarbeitung der dich betreffenden personenbezogenen Daten gegen die DSGVO verstößt. Zuständig ist z. B. die Aufsichtsbehörde an deinem Wohnort oder der Berliner Beauftragte für Datenschutz und Informationsfreiheit.",
-    ].join("\n"),
-    en: [
-      "You also have the right to lodge a complaint with a data protection supervisory authority if you believe that the processing of personal data relating to you infringes the GDPR. You may contact, for example, the authority at your place of residence or the Berlin Commissioner for Data Protection and Freedom of Information.",
-    ].join("\n"),
+    de: "Du kannst dich außerdem bei einer Datenschutzaufsichtsbehörde beschweren, wenn du der Ansicht bist, dass die Verarbeitung der dich betreffenden personenbezogenen Daten gegen die DSGVO verstößt. Zuständig ist z. B. die Aufsichtsbehörde an deinem Wohnort oder der Berliner Beauftragte für Datenschutz und Informationsfreiheit.",
+    en: "You also have the right to lodge a complaint with a data protection supervisory authority if you believe that the processing of personal data relating to you infringes the GDPR. You may contact, for example, the authority at your place of residence or the Berlin Commissioner for Data Protection and Freedom of Information.",
   } as LocaleValue<string>,
 
   contactTitle: {
