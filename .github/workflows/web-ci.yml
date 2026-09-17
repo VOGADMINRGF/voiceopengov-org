@@ -66,6 +66,9 @@ jobs:
       - name: SEO + search acquisition contract tests
         run: pnpm -C apps/web run test:seo-search-contract
 
+      - name: Public accessibility + performance + security contract
+        run: pnpm -C apps/web exec vitest run tests/public-hardening.contract.test.ts
+
       - name: Production build
         run: pnpm build
 
@@ -107,6 +110,16 @@ jobs:
           curl -sSI http://127.0.0.1:3000/vor-ort \
             | tr -d '\r' \
             | grep -Ei '^location: (https?://[^/]+)?/mitmachen#vor-ort$'
+
+          curl -sSI http://127.0.0.1:3000/ \
+            | tr -d '\r' \
+            | grep -F 'x-content-type-options: nosniff'
+          curl -sSI http://127.0.0.1:3000/ \
+            | tr -d '\r' \
+            | grep -F 'referrer-policy: strict-origin-when-cross-origin'
+          curl -sSI http://127.0.0.1:3000/ \
+            | tr -d '\r' \
+            | grep -F 'strict-transport-security: max-age=31536000'
 
       - name: Notify IndexNow after successful Vercel production
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
