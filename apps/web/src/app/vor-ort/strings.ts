@@ -56,8 +56,7 @@ const deHumanCheck: HumanCheckStrings = {
   loading: "Lade kurze Bestätigung …",
   promptTitle: "Kurze Bestätigung: Bist du ein Mensch?",
   verified: "✓ geprüft",
-  intro:
-    "Bitte löse die kleine Aufgabe. Sie schützt das Formular vor automatischem Spam.",
+  intro: "Bitte löse die kleine Aufgabe. Sie schützt das Formular vor automatischem Spam.",
   honeypotLabel: "Bitte leer lassen",
   answerLabel: "Ergebnis eintragen",
   buttonChecking: "Prüfen …",
@@ -66,8 +65,7 @@ const deHumanCheck: HumanCheckStrings = {
   messages: {
     alreadySolved: "Sicherheitscheck bereits erledigt.",
     numberRequired: "Bitte trage das Ergebnis als Zahl ein.",
-    verifyFailed:
-      "Die Bestätigung hat nicht geklappt. Bitte versuche es erneut.",
+    verifyFailed: "Die Bestätigung hat nicht geklappt. Bitte versuche es erneut.",
     techError: "Es gab ein technisches Problem. Bitte später erneut versuchen.",
     verified: "Danke – kurz bestätigt.",
   },
@@ -82,8 +80,7 @@ const enHumanCheck: HumanCheckStrings = {
   loading: "Loading confirmation …",
   promptTitle: "Quick confirmation: Are you human?",
   verified: "✓ verified",
-  intro:
-    "Please solve the small task. It protects the form from automated spam.",
+  intro: "Please solve the small task. It protects the form from automated spam.",
   honeypotLabel: "Please leave empty",
   answerLabel: "Enter the result",
   buttonChecking: "Checking …",
@@ -100,57 +97,56 @@ const enHumanCheck: HumanCheckStrings = {
 
 const DE: RegionalActivationStrings = {
   meta: {
-    title: "In deiner Region aktiv werden | VoiceOpenGov",
+    title: "Für deine Nachbarschaft aktiv werden | VoiceOpenGov",
     description:
-      "Melde dich unverbindlich, wenn du Menschen in deiner Region kennenlernen, bei einem Stammtisch dabei sein oder selbst einen ersten Austausch anstoßen möchtest.",
+      "Bring Menschen in deiner Region zusammen, teile ein lokales Anliegen oder hilf beim Aufbau einer regionalen eDebatte × VoiceOpenGov-Anlaufstelle.",
   },
   page: {
     eyebrow: "VoiceOpenGov vor Ort",
-    title: "Du möchtest in deiner Region nicht nur zuschauen?",
+    title: "Für deine Nachbarn. Für deine Region.",
     intro:
-      "Du brauchst keine fertige Gruppe und musst auch nicht sofort Verantwortung übernehmen. Sag uns einfach, wo du lebst und was du dir vorstellen kannst.",
+      "VoiceOpenGov soll dort sichtbar werden, wo Entscheidungen im Alltag ankommen: im Kiez, im Dorf, im Stadtteil, in der Stadt und im Landkreis. Du kannst Menschen zusammenbringen, regionale Anliegen sichtbar machen, eDebatte vor Ort zugänglich machen oder beim Aufbau einer dauerhaften Anlaufstelle helfen.",
     promise:
-      "Wir versprechen dir keine fertige Veranstaltung. Wir schaffen den ehrlichen ersten Schritt, damit Menschen mit ähnlichem Interesse zueinanderfinden können.",
+      "Unser Ziel ist ein wachsendes Netz aus lokalen Teams, Treffpunkten, mobilen Formaten und langfristig rund 400 eDebatte × VoiceOpenGov-Anlaufstellen in Deutschland. Wir bauen es Region für Region mit den Menschen vor Ort auf.",
     steps: [
       {
-        title: "1. Du meldest dich",
-        body: "Unverbindlich und ohne öffentliches Profil.",
+        title: "1. Sag uns, wo du etwas bewegen möchtest",
+        body: "Ort, Region und ein paar Stichworte reichen für den Anfang.",
       },
       {
-        title: "2. Wir schauen nach",
-        body: "Gibt es bereits Interessierte oder eine passende regionale Gruppe?",
+        title: "2. Finde Menschen aus deiner Umgebung",
+        body: "Wir können passende regionale Interessen zusammenführen, sobald die Beteiligten dem Kontakt zustimmen.",
       },
       {
-        title: "3. Du entscheidest",
-        body: "Kontakt entsteht nur, wenn du ausdrücklich zustimmst.",
+        title: "3. Mach daraus sichtbare Präsenz",
+        body: "Ein Treffen, ein Themenabend, ein lokaler Ansprechpartner oder später eine feste Anlaufstelle kann daraus entstehen.",
       },
     ],
-    todayTitle: "Was heute schon möglich ist",
+    todayTitle: "Was du heute schon tun kannst",
     todayBody:
-      "Wir können dein regionales Interesse aufnehmen, unterscheiden, ob du teilnehmen, etwas anstoßen oder helfen möchtest, und dich später über passende nächste Schritte informieren.",
-    laterTitle: "Was als Nächstes entsteht",
+      "Du kannst dein regionales Interesse anmelden, einen Ort oder Kontakte einbringen, ein Thema nennen, andere Menschen aus deiner Region kennenlernen oder selbst den ersten Impuls geben.",
+    laterTitle: "Unser regionales Zielbild",
     laterBody:
-      "Im Mitgliederbereich sollen regionale Räume mit Aufgaben, geschütztem Austausch, Stammtischvorschlägen und einer einfachen Termin- und Ortsplanung entstehen.",
-    responsibilityTitle: "Wer veranstaltet einen Stammtisch?",
+      "Lokale Teams, erreichbare Anlaufstellen, mobile Beteiligungsformate und transparent legitimierte regionale Repräsentation sollen eDebatte und politische Umsetzung vor Ort miteinander verbinden.",
+    responsibilityTitle: "Wer übernimmt vor Ort Verantwortung?",
     responsibilityBody:
-      "VoiceOpenGov ermöglicht Mitgliedern, regionale Treffen vorzubereiten. Solange VoiceOpenGov Veranstaltungen noch nicht selbst operativ anbietet, wird ein konkretes Treffen von benannten Gastgebern verantwortet.",
+      "Regionale Verantwortung soll sichtbar bei benannten Menschen liegen. Sie bringen Nachbarn zusammen, machen den Zugang zu eDebatte leichter und vertreten gültige regionale Entscheidungen nachvollziehbar nach außen.",
     rolesLink: "Weitere Möglichkeiten ansehen",
   },
   form: {
-    title: "Was möchtest du in deiner Region tun?",
+    title: "Was möchtest du für deine Region möglich machen?",
     subtitle:
-      "Mehrere Antworten sind möglich. Deine Angaben bleiben zunächst intern.",
+      "Du musst dich nicht auf eine Rolle festlegen. Mehrere Antworten sind möglich.",
     labels: {
       name: "Dein Name",
       email: "Deine E-Mail",
       location: "Ort oder Region",
-      topic: "Gibt es ein Thema, das dir besonders wichtig ist? (optional)",
+      topic: "Welches Thema ist dir in deiner Region wichtig? (optional)",
       intentions: "Ich möchte …",
       notes: "Was sollten wir noch wissen? (optional)",
-      contactConsent:
-        "VoiceOpenGov darf mich zu dieser regionalen Anfrage kontaktieren.",
+      contactConsent: "VoiceOpenGov darf mich zu dieser regionalen Anfrage kontaktieren.",
       matchingConsent:
-        "Wenn es passt, dürft ihr mich später nach meiner Zustimmung mit anderen Interessierten zusammenbringen.",
+        "Wenn es passt, dürft ihr mich später nach meiner Zustimmung mit anderen Interessierten aus meiner Region zusammenbringen.",
       privacy: {
         before: "Ich akzeptiere die",
         link: "Datenschutzhinweise",
@@ -160,53 +156,49 @@ const DE: RegionalActivationStrings = {
     },
     placeholders: {
       location: "z. B. Berlin-Rahnsdorf, Köln oder Rhein-Main",
-      topic:
-        "z. B. sichere Schulwege, Pflege, Wohnen oder einfach VoiceOpenGov",
-      notes:
-        "Zeiten, Erfahrungen, Kontakte oder etwas, das dir wichtig ist …",
+      topic: "z. B. sichere Schulwege, Pflege, Wohnen, Verkehr oder ein anderes Anliegen",
+      notes: "Zeit, Erfahrung, Kontakte, Räume oder etwas, das dir wichtig ist …",
     },
     intentionOptions: [
       {
         value: "stay_informed",
-        label: "erfahren, was in meiner Region passiert",
-        hint: "Ich möchte zunächst informiert bleiben.",
+        label: "wissen, was in meiner Region passiert",
+        hint: "Ich möchte zunächst verbunden bleiben und regionale Entwicklungen mitbekommen.",
       },
       {
         value: "join_meetup",
-        label: "bei einem Stammtisch dabei sein",
-        hint: "Ich möchte Menschen aus meiner Region kennenlernen.",
+        label: "Menschen aus meiner Nachbarschaft kennenlernen",
+        hint: "Ich möchte bei einem ersten regionalen Treffen dabei sein.",
       },
       {
         value: "start_meetup",
-        label: "einen ersten Stammtisch anstoßen",
-        hint:
-          "Ich gebe gern den Impuls, brauche aber nicht alles allein zu organisieren.",
+        label: "den ersten Impuls geben",
+        hint: "Ich möchte ein Treffen oder einen Austausch anstoßen, ohne alles allein organisieren zu müssen.",
       },
       {
         value: "help_organize",
-        label: "bei Termin oder Organisation helfen",
-        hint: "Ich kann einen überschaubaren Teil übernehmen.",
+        label: "bei Organisation und regionalem Aufbau helfen",
+        hint: "Ich kann einen überschaubaren Teil übernehmen und gemeinsam mit anderen aufbauen.",
       },
       {
         value: "offer_space",
-        label: "einen Raum oder Treffpunkt anbieten",
-        hint: "Ich kenne vielleicht einen passenden Ort.",
+        label: "einen Raum oder Treffpunkt ermöglichen",
+        hint: "Ich kenne oder habe vielleicht einen geeigneten Ort.",
       },
       {
         value: "offer_contacts",
-        label: "Kontakte einbringen",
-        hint:
-          "Ich kenne Menschen, Vereine oder Einrichtungen, die helfen könnten.",
+        label: "Menschen und Kontakte verbinden",
+        hint: "Ich kenne Vereine, Einrichtungen, Initiativen oder Nachbarn, die sich einbringen könnten.",
       },
       {
         value: "offer_expertise",
         label: "Wissen oder Erfahrung einbringen",
-        hint: "Ich kann fachlich oder praktisch unterstützen.",
+        hint: "Ich kann fachlich, organisatorisch oder praktisch unterstützen.",
       },
       {
         value: "regional_long_term",
-        label: "längerfristig regional mitarbeiten",
-        hint: "Ich möchte mit anderen regelmäßig etwas aufbauen.",
+        label: "eine regionale Anlaufstelle mit aufbauen",
+        hint: "Ich möchte längerfristig Verantwortung übernehmen und VoiceOpenGov vor Ort mitentwickeln.",
       },
     ],
     notices: {
@@ -214,11 +206,10 @@ const DE: RegionalActivationStrings = {
       consentRequired: "Bitte bestätige Kontakt und Datenschutz.",
       humanRequired: "Bitte schließe den kurzen Anti-Spam-Check ab.",
       submitOk:
-        "Danke. Wir haben dein regionales Interesse aufgenommen. Noch wurde keine Veranstaltung geplant und niemandem wurden deine Daten gezeigt.",
-      submitFail:
-        "Das hat noch nicht funktioniert. Bitte versuche es später erneut.",
+        "Danke. Dein regionales Interesse ist angekommen. Wir melden uns, sobald sich daraus ein sinnvoller nächster Schritt ergibt.",
+      submitFail: "Das hat noch nicht funktioniert. Bitte versuche es später erneut.",
     },
-    submit: "Regional Interesse anmelden",
+    submit: "Für meine Region eintragen",
     submitting: "Wird übermittelt …",
   },
   humanCheck: deHumanCheck,
@@ -226,57 +217,55 @@ const DE: RegionalActivationStrings = {
 
 const EN: RegionalActivationStrings = {
   meta: {
-    title: "Get active in your region | VoiceOpenGov",
+    title: "Get active for your neighbourhood | VoiceOpenGov",
     description:
-      "Register your interest if you would like to meet people nearby, join a local gathering or help start the first conversation.",
+      "Bring people together locally, share an issue or help build a regional eDebatte × VoiceOpenGov contact point.",
   },
   page: {
     eyebrow: "VoiceOpenGov locally",
-    title: "Would you like to do more than watch in your region?",
+    title: "For your neighbours. For your region.",
     intro:
-      "You do not need an existing group and you do not need to take responsibility immediately. Just tell us where you are and what you could imagine doing.",
+      "VoiceOpenGov should be visible where decisions are felt in everyday life: in neighbourhoods, villages, towns, cities and districts. You can bring people together, make local issues visible, make eDebatte accessible locally or help build a lasting contact point.",
     promise:
-      "We do not promise a ready-made event. We provide an honest first step so people with similar interests can find one another.",
+      "Our goal is a growing network of local teams, meeting places, mobile formats and, over time, around 400 eDebatte × VoiceOpenGov contact points across Germany. We build it region by region with people on the ground.",
     steps: [
       {
-        title: "1. You register",
-        body: "Non-binding and without a public profile.",
+        title: "1. Tell us where you want to make a difference",
+        body: "A place, region and a few words are enough to start.",
       },
       {
-        title: "2. We check",
-        body: "Are there already interested people or a suitable regional group?",
+        title: "2. Meet people nearby",
+        body: "We can connect matching local interests once everyone involved agrees to contact.",
       },
       {
-        title: "3. You decide",
-        body: "Contact only happens with your explicit consent.",
+        title: "3. Turn it into visible local presence",
+        body: "A meeting, issue night, local contact person or later a permanent contact point can grow from it.",
       },
     ],
-    todayTitle: "What is possible today",
+    todayTitle: "What you can do today",
     todayBody:
-      "We can record your regional interest, distinguish whether you want to attend, initiate or help, and inform you later about suitable next steps.",
-    laterTitle: "What we are building next",
+      "Register local interest, contribute a place or contacts, name an issue, meet people nearby or provide the first impulse yourself.",
+    laterTitle: "Our regional direction",
     laterBody:
-      "The member area is intended to provide regional spaces with tasks, protected conversation, meetup proposals and simple date and venue planning.",
-    responsibilityTitle: "Who hosts a meetup?",
+      "Local teams, accessible contact points, mobile participation and transparently legitimised regional representation should connect eDebatte with political implementation on the ground.",
+    responsibilityTitle: "Who takes responsibility locally?",
     responsibilityBody:
-      "VoiceOpenGov enables members to prepare regional meetings. Until VoiceOpenGov can operationally host events itself, each meeting is the responsibility of named hosts.",
+      "Local responsibility should sit visibly with named people. They bring neighbours together, make access to eDebatte easier and represent valid regional decisions transparently.",
     rolesLink: "See more ways to contribute",
   },
   form: {
-    title: "What would you like to do in your region?",
-    subtitle:
-      "You may select several options. Your details initially remain internal.",
+    title: "What would you like to make possible in your region?",
+    subtitle: "You do not need to choose one fixed role. Several answers are possible.",
     labels: {
       name: "Your name",
       email: "Your email",
       location: "City or region",
-      topic: "Is there a topic that matters especially to you? (optional)",
+      topic: "Which local issue matters to you? (optional)",
       intentions: "I would like to …",
       notes: "Anything else we should know? (optional)",
-      contactConsent:
-        "VoiceOpenGov may contact me about this regional request.",
+      contactConsent: "VoiceOpenGov may contact me about this regional request.",
       matchingConsent:
-        "Where appropriate, you may later ask whether I want to be introduced to other interested people.",
+        "Where appropriate, you may later ask whether I want to be introduced to other interested people nearby.",
       privacy: {
         before: "I accept the",
         link: "privacy notice",
@@ -286,51 +275,49 @@ const EN: RegionalActivationStrings = {
     },
     placeholders: {
       location: "e.g. Berlin-Rahnsdorf, Cologne or Rhine-Main",
-      topic:
-        "e.g. safer school routes, care, housing or VoiceOpenGov in general",
-      notes: "Times, experience, contacts or anything important to you …",
+      topic: "e.g. safer school routes, care, housing, transport or another local issue",
+      notes: "Time, experience, contacts, spaces or anything important to you …",
     },
     intentionOptions: [
       {
         value: "stay_informed",
-        label: "learn what is happening in my region",
-        hint: "I would initially like to stay informed.",
+        label: "know what is happening in my region",
+        hint: "I would initially like to stay connected and follow local developments.",
       },
       {
         value: "join_meetup",
-        label: "join a local meetup",
-        hint: "I would like to meet people from my region.",
+        label: "meet people from my neighbourhood",
+        hint: "I would like to join a first local gathering.",
       },
       {
         value: "start_meetup",
-        label: "help start a first meetup",
-        hint:
-          "I can provide the initial impulse without organising everything alone.",
+        label: "provide the first impulse",
+        hint: "I would like to start a gathering or conversation without organising everything alone.",
       },
       {
         value: "help_organize",
-        label: "help with timing or organisation",
-        hint: "I can take on a manageable part.",
+        label: "help organise and build locally",
+        hint: "I can take on a manageable part and build together with others.",
       },
       {
         value: "offer_space",
-        label: "offer a room or meeting place",
-        hint: "I may know a suitable location.",
+        label: "make a room or meeting place available",
+        hint: "I may know or have a suitable place.",
       },
       {
         value: "offer_contacts",
-        label: "contribute contacts",
-        hint: "I know people, associations or institutions that might help.",
+        label: "connect people and contacts",
+        hint: "I know associations, institutions, initiatives or neighbours who may want to contribute.",
       },
       {
         value: "offer_expertise",
         label: "contribute knowledge or experience",
-        hint: "I can provide practical or specialist support.",
+        hint: "I can help with specialist, organisational or practical knowledge.",
       },
       {
         value: "regional_long_term",
-        label: "work locally over the longer term",
-        hint: "I would like to build something with others regularly.",
+        label: "help build a regional contact point",
+        hint: "I want to take on longer-term responsibility and help develop VoiceOpenGov locally.",
       },
     ],
     notices: {
@@ -338,17 +325,15 @@ const EN: RegionalActivationStrings = {
       consentRequired: "Please confirm contact and privacy.",
       humanRequired: "Please complete the short anti-spam check.",
       submitOk:
-        "Thank you. We recorded your regional interest. No event has been planned and your details have not been shown to anyone.",
+        "Thank you. Your regional interest has arrived. We will contact you when there is a meaningful next step.",
       submitFail: "That did not work yet. Please try again later.",
     },
-    submit: "Register regional interest",
+    submit: "Register for my region",
     submitting: "Submitting …",
   },
   humanCheck: enHumanCheck,
 };
 
-export function getRegionalActivationStrings(
-  locale: SupportedLocale,
-): RegionalActivationStrings {
+export function getRegionalActivationStrings(locale: SupportedLocale): RegionalActivationStrings {
   return locale === "en" ? EN : DE;
 }

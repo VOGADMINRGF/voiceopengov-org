@@ -1,5 +1,25 @@
 # VoiceOpenGov agent contract
 
+## Governance / representation is human-locked
+
+VoiceOpenGov is the political representation and implementation layer for valid eDebatte decisions. Agents MUST NOT introduce a parallel VoiceOpenGov political truth that can override a valid eDebatte majority mandate inside its defined scope.
+
+### Canonical authority flow
+
+`eDebatte evidence + participation -> valid versioned decision -> VoiceOpenGov representation mandate -> political implementation/status -> feedback to eDebatte`
+
+A binding VoiceOpenGov representation mandate requires a validly concluded eDebatte process under its published decision rules. Drafts, ongoing deliberation, incomplete votes and informal sentiment are not binding.
+
+VoiceOpenGov representatives MAY hold, publish and advocate personal positions before a decision. After a valid decision, their public representative duty is the current mandate, not their personal preference. Relevant minority positions remain visible and may trigger a new/reopened process, but do not silently replace the current mandate.
+
+VoiceOpenGov has no frozen party manifesto. Its public program is a versioned projection of currently valid eDebatte mandates. New valid decisions may add, refine, replace or revoke earlier program positions at municipal, regional, national, European or international scope where the relevant jurisdiction/scope is explicit.
+
+The first 50 core questions are seed questions, not dogma. They may be improved, clarified, split into subquestions/eventualities, expanded and revisited. Agents MUST preserve version history and must not present an earlier answer as permanently binding after a later valid decision supersedes it.
+
+Confirmed VoiceOpenGov supporters are intended to receive eDebatte usage without an additional usage fee. Shared identity/login MAY be implemented, but VoiceOpenGov affiliation, eDebatte roles, voting eligibility and domain data MUST remain independently traceable. Financial support MUST NOT create extra voting weight or political priority.
+
+Regional eDebatte × VoiceOpenGov contact points are a target operating model. Planned offices, buses, teams, events or representatives MUST never be presented as live unless verified.
+
 ## Brand / CI is human-locked
 
 VoiceOpenGov belongs to the same visual product family as eDebatte. The public movement may use a more human, campaign-oriented composition, but it must not introduce an independent color system or silently redefine the family identity.
