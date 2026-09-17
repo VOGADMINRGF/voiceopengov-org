@@ -50,112 +50,112 @@ export type HomeRelaunchCopy = {
 export const HOME_RELAUNCH_COPY: Record<"de" | "en", HomeRelaunchCopy> = {
   de: {
     eyebrow: "VoiceOpenGov",
-    title: "Die Infrastruktur für informierte Demokratie.",
+    title: "Gemeinsam für informierte demokratische Beteiligung.",
     intro:
-      "Information, Debatte, Beteiligung und Wirkung liegen heute oft in getrennten Systemen. VoiceOpenGov soll sie nachvollziehbar verbinden – digital und regional.",
+      "VoiceOpenGov ist eine internationale Initiative und Community. Wir verbinden Menschen, regionale Beteiligung und nachvollziehbare Entscheidungsgrundlagen – digital und vor Ort.",
     ctaJoin: "Mitmachen",
     ctaModel: "Warum das fehlt",
     whyEyebrow: "Gesellschaftliche Lücke",
-    whyTitle: "Viele Akteure. Keine durchgängige Verbindung.",
+    whyTitle: "Viele Akteure. Oft fehlt die durchgängige Verbindung.",
     whyLead:
-      "Parteien, direkte Demokratie, Wissensplattformen und digitale Bürgerbeteiligung erfüllen jeweils wichtige Aufgaben. Was häufig fehlt, ist die gemeinsame Spur vom Verstehen bis zur Wirkung.",
+      "Parteien, direkte Demokratie, Wissensplattformen und digitale Bürgerbeteiligung erfüllen jeweils wichtige Aufgaben. Häufig fehlt eine nachvollziehbare Spur vom Verstehen über Beteiligung bis zur Wirkung.",
     whyItems: [
       { title: "Parteien", body: "Bündeln Programme, Interessen und Personal." },
-      { title: "Direkte Demokratie", body: "Entscheidet konkrete Sachfragen, wo Verfahren vorgesehen sind." },
+      { title: "Direkte Demokratie", body: "Entscheidet konkrete Sachfragen, wo entsprechende Verfahren vorgesehen sind." },
       { title: "Wissensplattformen", body: "Strukturieren Informationen und Quellen." },
-      { title: "Bürgerbeteiligung", body: "Organisiert meist einzelne Verfahren von Verwaltungen oder Institutionen." },
+      { title: "Bürgerbeteiligung", body: "Organisiert häufig einzelne Verfahren von Verwaltungen oder Institutionen." },
     ],
-    bridge: "VoiceOpenGov soll diese Systeme nicht ersetzen – sondern die Infrastruktur dazwischen bilden.",
-    ecosystemEyebrow: "Das Ökosystem",
-    ecosystemTitle: "Ein Dach. Fünf klar getrennte Bausteine.",
+    bridge: "VoiceOpenGov soll diese Systeme nicht ersetzen. Die Initiative verbindet Beteiligung, regionale Organisation und nachvollziehbare Entscheidungsgrundlagen.",
+    ecosystemEyebrow: "Rollen & Angebote",
+    ecosystemTitle: "Eine Initiative. Klare Werkzeuge und Formate.",
     ecosystemBody:
-      "VoiceOpenGov bildet den Vertrauensrahmen. Die Produkte darunter übernehmen unterschiedliche Aufgaben – mit gemeinsamer Governance und gemeinsamer CI.",
+      "VoiceOpenGov organisiert Community und Beteiligung. eDebatte ist eine eigenständige offene Infrastruktur, die VoiceOpenGov für Quellen, Entscheidungsdossiers und Orientierung nutzt. Weitere Formate werden transparent als Aufbau oder Perspektive gekennzeichnet.",
     ecosystemItems: [
-      { title: "eDebatte", body: "Decision Dossiers, Claims, Pro/Contra, Quellen und Alternativen." },
-      { title: "VoiceOpenGov Platform", body: "Beteiligung, Regionen, Voting, Reports und ImpactTrace." },
-      { title: "eDebatte Mobil", body: "Busse, Roadshows, Workshops und mobile Dialogräume." },
-      { title: "Regionale Hubs & Läden", body: "Präsenz, Community, Veranstaltungen und sichtbare Anlaufpunkte." },
-      { title: "Data & Media Services", body: "API, Dashboards, White-Label und redaktionelle Werkzeuge." },
+      { title: "VoiceOpenGov Community", body: "Heute: Community, Mitwirkung und regionale Vernetzung. Die rechtliche Trägerstruktur befindet sich noch im Aufbau." },
+      { title: "eDebatte", body: "Eigenständige offene Infrastruktur für Entscheidungsdossiers, Aussagen, Gegenpositionen, Quellen und Alternativen." },
+      { title: "Regionale Formate", body: "Im Aufbau: Treffen, Workshops und lokale Beteiligungsformate. Mobile Formate können später hinzukommen." },
+      { title: "Reports & Wirkung", body: "Im Aufbau: nachvollziehbare Auswertungen und Wirkungsverfolgung, ohne politische Entscheidungen vorwegzunehmen." },
+      { title: "Data & Media Services", body: "Perspektive: APIs, Dashboards und redaktionelle Werkzeuge für nachvollziehbare öffentliche Informationen." },
     ],
-    edebatteTitle: "eDebatte macht aus Material einen prüfbaren Entscheidungsraum.",
+    edebatteTitle: "eDebatte strukturiert Material zu nachvollziehbaren Entscheidungsgrundlagen.",
     edebatteBody:
-      "Aus Quellen werden strukturierte Aussagen, Gegenpositionen, Alternativen und offene Unsicherheiten. Die Entscheidung bleibt beim Menschen.",
+      "Aus Quellen werden strukturierte Aussagen, Gegenpositionen, Alternativen und offene Unsicherheiten. eDebatte bereitet Informationen auf; die Entscheidung bleibt beim Menschen.",
     edebatteCta: "eDebatte öffnen",
-    regionalTitle: "Digital reicht nicht. Vertrauen braucht Präsenz.",
+    regionalTitle: "Digital reicht nicht. Beteiligung braucht auch Begegnung.",
     regionalBody:
-      "Busse, Hubs und perspektivisch Stores oder Studios bringen die Infrastruktur dorthin, wo Menschen leben, lernen und arbeiten.",
+      "Regionale Treffen und Workshops sollen Beteiligung dorthin bringen, wo Menschen leben und arbeiten. Hubs, mobile Formate oder weitere Orte sind Perspektiven und werden erst als verfügbar bezeichnet, wenn sie tatsächlich bestehen.",
     regionalItems: [
-      { title: "Bus", body: "Mobiler Debattenraum mit Voting, Workshops und Content." },
-      { title: "Hub", body: "Lokale Veranstaltungen, Community und kontinuierliche Präsenz." },
-      { title: "Store", body: "Merch, Debattenkarten und Prints als sichtbarer Marken- und Begegnungsraum." },
+      { title: "Treffen", body: "Lokaler Austausch und Beteiligung in kleinen, nachvollziehbar organisierten Formaten." },
+      { title: "Workshops", body: "Gemeinsames Arbeiten an Fragen, Zielkonflikten und Entscheidungsgrundlagen." },
+      { title: "Hubs & mobil", body: "Perspektive für dauerhafte oder mobile Anlaufpunkte – noch kein flächendeckendes Angebot." },
     ],
     trustTitle: "Vertrauen beginnt bei der eigenen Architektur.",
-    trustBody: "Finanzierung, Quellen, KI-Einsatz und Governance müssen nachvollziehbar bleiben.",
+    trustBody: "Finanzierung, Quellen, KI-Einsatz, Entscheidungen und Governance sollen nachvollziehbar bleiben – einschließlich offener Lücken und Aufbauphasen.",
     trustItems: ["Finanzierung", "Quellen", "KI-Einsatz", "Entscheidungen", "Governance", "Wirkung"],
     questionsTitle: "50 große Fragen. Keine 50 fertigen Antworten.",
-    questionsBody: "Öffentliche Räume starten mit Zielkonflikten und Evidenz – nicht mit fertigen Parteischubladen.",
+    questionsBody: "Öffentliche Räume starten mit Zielkonflikten und Evidenz – nicht mit vorgegebenen politischen Antworten.",
     questionsCta: "50 Fragen ansehen",
-    joinTitle: "Nicht hier registrieren. Erst den passenden Einstieg wählen.",
+    joinTitle: "Den passenden Einstieg wählen.",
     joinBody:
-      "Mitgliedschaft, Mitarbeit an öffentlichen Fragen und regionale Mitwirkung sind unterschiedliche Wege. Deshalb führt die Startseite jetzt bewusst auf eine eigene Mitmachen-Seite.",
-    joinCta: "Zu /mitmachen",
+      "Community-Zugehörigkeit, aktive Mitarbeit an öffentlichen Fragen und regionale Mitwirkung sind unterschiedliche Wege. Die Mitmachen-Seite erklärt transparent, was heute bereits möglich ist und was noch aufgebaut wird.",
+    joinCta: "Mitmachen ansehen",
     supportTitle: "Aufbau ermöglichen, ohne Einfluss zu verkaufen.",
-    supportBody: "Unterstützung verändert weder Stimmgewicht noch redaktionelle Rechte.",
+    supportBody: "Freiwillige finanzielle Unterstützung verändert weder Stimmgewicht noch redaktionelle Rechte und ist von der Community-Zugehörigkeit getrennt.",
     supportCta: "Unterstützen",
   },
   en: {
     eyebrow: "VoiceOpenGov",
-    title: "Infrastructure for informed democracy.",
+    title: "Together for informed democratic participation.",
     intro:
-      "Information, debate, participation and impact often live in separate systems. VoiceOpenGov aims to connect them transparently – digitally and regionally.",
+      "VoiceOpenGov is an international initiative and community. We connect people, regional participation and traceable decision information — digitally and locally.",
     ctaJoin: "Participate",
-    ctaModel: "Why it is missing",
+    ctaModel: "Why this matters",
     whyEyebrow: "Societal gap",
-    whyTitle: "Many actors. No continuous connection.",
+    whyTitle: "Many actors. The continuous connection is often missing.",
     whyLead:
-      "Parties, direct democracy, knowledge platforms and digital civic participation each serve important roles. What is often missing is one traceable path from understanding to impact.",
+      "Parties, direct democracy, knowledge platforms and digital civic participation each serve important roles. What is often missing is a traceable path from understanding through participation to impact.",
     whyItems: [
       { title: "Parties", body: "Bundle programmes, interests and personnel." },
-      { title: "Direct democracy", body: "Decides specific public questions where procedures exist." },
+      { title: "Direct democracy", body: "Decides specific public questions where corresponding procedures exist." },
       { title: "Knowledge platforms", body: "Structure information and sources." },
-      { title: "Civic participation", body: "Usually organises individual procedures run by administrations or institutions." },
+      { title: "Civic participation", body: "Often organises individual procedures run by administrations or institutions." },
     ],
-    bridge: "VoiceOpenGov is not intended to replace these systems – but to provide the infrastructure between them.",
-    ecosystemEyebrow: "The ecosystem",
-    ecosystemTitle: "One umbrella. Five clearly separated components.",
+    bridge: "VoiceOpenGov is not intended to replace these systems. The initiative connects participation, regional organisation and traceable decision information.",
+    ecosystemEyebrow: "Roles & services",
+    ecosystemTitle: "One initiative. Clear tools and formats.",
     ecosystemBody:
-      "VoiceOpenGov provides the trust framework. The products beneath it serve different purposes with shared governance and a shared visual family.",
+      "VoiceOpenGov organises community and participation. eDebatte is an independent open infrastructure used by VoiceOpenGov for sources, decision dossiers and orientation. Additional formats are transparently labelled as being built or planned.",
     ecosystemItems: [
-      { title: "eDebatte", body: "Decision dossiers, claims, pro/con, sources and alternatives." },
-      { title: "VoiceOpenGov Platform", body: "Participation, regions, voting, reports and ImpactTrace." },
-      { title: "eDebatte Mobile", body: "Buses, roadshows, workshops and mobile dialogue spaces." },
-      { title: "Regional hubs & stores", body: "Presence, community, events and visible local touchpoints." },
-      { title: "Data & Media Services", body: "APIs, dashboards, white-label and newsroom tools." },
+      { title: "VoiceOpenGov Community", body: "Today: community, participation and regional networking. The final legal entity structure is still being established." },
+      { title: "eDebatte", body: "Independent open infrastructure for decision dossiers, claims, counterpositions, sources and alternatives." },
+      { title: "Regional formats", body: "Being built: meetings, workshops and local participation formats. Mobile formats may follow later." },
+      { title: "Reports & impact", body: "Being built: traceable reporting and impact tracking without pre-empting political decisions." },
+      { title: "Data & Media Services", body: "Planned: APIs, dashboards and newsroom tools for traceable public information." },
     ],
-    edebatteTitle: "eDebatte turns material into an inspectable decision space.",
+    edebatteTitle: "eDebatte structures material into traceable decision information.",
     edebatteBody:
-      "Sources become structured claims, counterpositions, alternatives and visible uncertainty. The decision remains human.",
+      "Sources become structured claims, counterpositions, alternatives and visible uncertainty. eDebatte prepares information; the decision remains human.",
     edebatteCta: "Open eDebatte",
-    regionalTitle: "Digital is not enough. Trust needs presence.",
+    regionalTitle: "Digital is not enough. Participation also needs human contact.",
     regionalBody:
-      "Buses, hubs and future stores or studios can bring the infrastructure to where people live, learn and work.",
+      "Regional meetings and workshops are intended to bring participation to where people live and work. Hubs, mobile formats or other locations are future options and will only be described as available once they actually exist.",
     regionalItems: [
-      { title: "Bus", body: "Mobile debate space with voting, workshops and content." },
-      { title: "Hub", body: "Local events, community and continuous presence." },
-      { title: "Store", body: "Merchandise, debate cards and prints as visible brand and meeting space." },
+      { title: "Meetings", body: "Local exchange and participation in small, transparently organised formats." },
+      { title: "Workshops", body: "Working together on questions, trade-offs and decision information." },
+      { title: "Hubs & mobile", body: "A future option for permanent or mobile touchpoints — not yet a broad operating network." },
     ],
     trustTitle: "Trust starts with our own architecture.",
-    trustBody: "Funding, sources, AI use and governance need to remain traceable.",
+    trustBody: "Funding, sources, AI use, decisions and governance should remain traceable — including open gaps and work in progress.",
     trustItems: ["Funding", "Sources", "AI use", "Decisions", "Governance", "Impact"],
     questionsTitle: "50 major questions. Not 50 finished answers.",
-    questionsBody: "Public spaces start with trade-offs and evidence, not pre-filled party categories.",
+    questionsBody: "Public spaces start with trade-offs and evidence, not predetermined political answers.",
     questionsCta: "View 50 questions",
-    joinTitle: "Do not register here. Choose the right entry point first.",
+    joinTitle: "Choose the right way to participate.",
     joinBody:
-      "Membership, work on public questions and regional participation are different paths. The homepage therefore now routes deliberately to one dedicated participation page.",
-    joinCta: "Go to /mitmachen",
+      "Community affiliation, active work on public questions and regional participation are different paths. The participation page explains transparently what is available today and what is still being built.",
+    joinCta: "Explore participation",
     supportTitle: "Enable the build without selling influence.",
-    supportBody: "Financial support changes neither voting weight nor editorial rights.",
+    supportBody: "Voluntary financial support changes neither voting weight nor editorial rights and remains separate from community affiliation.",
     supportCta: "Support",
   },
 };
@@ -192,6 +192,10 @@ export default function HomeClient({
     }).catch(() => undefined);
   }, [renderedLocale]);
 
+  const journeyLabels = renderedLocale === "de"
+    ? ["Information", "Debatte", "Beteiligung", "Entscheidungsgrundlage", "Wirkung"]
+    : ["Information", "Debate", "Participation", "Decision information", "Impact"];
+
   return (
     <main className="min-h-screen overflow-hidden text-[#f8fafc]">
       <section className="relative isolate border-b border-white/10">
@@ -213,7 +217,7 @@ export default function HomeClient({
           <div className="rounded-[2rem] border border-[#18cfc8]/20 bg-white/[0.035] p-7 shadow-2xl shadow-black/20">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-[#18cfc8]">Information → Wirkung</p>
             <div className="mt-6 grid gap-3 text-sm font-semibold text-slate-200">
-              {["Information", "Debatte", "Beteiligung", "Entscheidung", "Wirkung"].map((label, index) => (
+              {journeyLabels.map((label, index) => (
                 <div key={label} className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.025] px-4 py-3">
                   <span className="font-mono text-xs text-[#18cfc8]">0{index + 1}</span>
                   <span>{label}</span>
