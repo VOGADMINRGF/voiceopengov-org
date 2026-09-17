@@ -1,8 +1,37 @@
+import type { Metadata } from "next";
 import { getRequestLocale } from "@/lib/locale";
+import { REQUIRED_LAUNCH_LOCALES } from "@/config/locales";
+import { VOICEOPENGOV_URL } from "@/config/links";
+import { localeAlternates, localizedCanonicalUrl } from "@/lib/i18n/localeContract";
 import FundingCheckoutForm from "./FundingCheckoutForm";
 import { FUNDING_STRINGS } from "./fundingStrings";
 
-export const metadata = { robots: { index: true, follow: true } };
+const META = {
+  de: {
+    title: "VoiceOpenGov freiwillig unterstützen",
+    description: "VoiceOpenGov freiwillig finanziell unterstützen. Beiträge kaufen kein Stimmgewicht und sind von kostenfreier Beteiligung und politischer Repräsentation getrennt.",
+  },
+  en: {
+    title: "Support VoiceOpenGov voluntarily",
+    description: "Support VoiceOpenGov voluntarily. Financial support does not buy voting weight and remains separate from free participation and political representation.",
+  },
+} as const;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  const copy = locale === "de" ? META.de : META.en;
+  const baseCanonical = `${VOICEOPENGOV_URL}/unterstuetzen`;
+  const canonical = localizedCanonicalUrl(baseCanonical, locale);
+
+  return {
+    title: copy.title,
+    description: copy.description,
+    alternates: { canonical, languages: localeAlternates(baseCanonical, REQUIRED_LAUNCH_LOCALES) },
+    openGraph: { title: copy.title, description: copy.description, url: canonical, type: "website" },
+    twitter: { card: "summary", title: copy.title, description: copy.description },
+    robots: { index: true, follow: true },
+  };
+}
 
 export default async function SupportPage({ searchParams }: { searchParams?: Promise<{ cancelled?: string }> }) {
   const locale = await getRequestLocale();
