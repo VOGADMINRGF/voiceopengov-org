@@ -12,334 +12,113 @@ export type QuestionGroup = {
 
 export const VOG_QUESTION_GROUPS: QuestionGroup[] = [
   {
-    id: "vog-group-human-dignity",
-    title: {
-      de: "Menschenbild, Freiheit und Verantwortung",
-      en: "Human dignity, freedom and responsibility",
-    },
+    id: "vog-group-democracy-rights",
+    title: { de: "Demokratie, Grundrechte und Macht", en: "Democracy, rights and power" },
     questions: [
-      {
-        id: "vog-question-01",
-        de: "Wie schützen wir die Würde jedes Menschen, wenn Freiheit, Sicherheit und Gemeinwohl kollidieren?",
-        en: "How do we protect every person’s dignity when freedom, security and the common good conflict?",
-      },
-      {
-        id: "vog-question-02",
-        de: "Welche Verantwortung trägt der Einzelne gegenüber der Gemeinschaft – und wo endet sie?",
-        en: "What responsibility does each person bear towards the community — and where does it end?",
-      },
-      {
-        id: "vog-question-03",
-        de: "Wie sichern wir persönliche Souveränität, ohne gesellschaftlichen Zusammenhalt zu schwächen?",
-        en: "How do we safeguard personal sovereignty without weakening social cohesion?",
-      },
-      {
-        id: "vog-question-04",
-        de: "Welche Rechte dürfen niemals von Mehrheiten aufgehoben werden?",
-        en: "Which rights must never be overturned by majorities?",
-      },
-      {
-        id: "vog-question-05",
-        de: "Wie behandeln wir Menschen fair, wenn ihre Voraussetzungen höchst unterschiedlich sind?",
-        en: "How do we treat people fairly when their starting conditions differ greatly?",
-      },
-      {
-        id: "vog-question-06",
-        de: "Welche Verantwortung tragen heutige Generationen gegenüber Menschen, die noch nicht geboren sind?",
-        en: "What responsibility do present generations bear towards people who have not yet been born?",
-      },
+      { id: "vog-question-01", de: "Welche Grund- und Freiheitsrechte müssen auch gegenüber demokratischen Mehrheiten besonders geschützt bleiben?", en: "Which fundamental rights and freedoms require special protection even against democratic majorities?" },
+      { id: "vog-question-02", de: "Wie soll verbindliche Bürgerbeteiligung zwischen Wahlen funktionieren und wo liegen ihre Grenzen?", en: "How should binding public participation work between elections, and where should its limits lie?" },
+      { id: "vog-question-03", de: "Welche Mehrheiten, Quoren und Schutzregeln sollen je nach Tragweite einer Entscheidung gelten?", en: "Which majorities, quorums and safeguards should apply depending on the impact of a decision?" },
+      { id: "vog-question-04", de: "Wie bleiben Minderheiten wirksam geschützt, ohne den demokratisch festgestellten Mehrheitswillen dauerhaft zu blockieren?", en: "How can minorities remain effectively protected without permanently blocking a democratically established majority will?" },
+      { id: "vog-question-05", de: "Wie müssen politische Zuständigkeit, Verantwortung und Umsetzung so dokumentiert werden, dass sie für Bürger nachvollziehbar bleiben?", en: "How should political authority, responsibility and implementation be documented so citizens can trace them?" },
     ],
   },
   {
-    id: "vog-group-democracy-power",
-    title: {
-      de: "Demokratie, Staat und Macht",
-      en: "Democracy, government and power",
-    },
+    id: "vog-group-state-administration-finance",
+    title: { de: "Staat, Verwaltung und öffentliche Finanzen", en: "Government, administration and public finance" },
     questions: [
-      {
-        id: "vog-question-07",
-        de: "Wann ist eine politische Entscheidung wirklich legitim?",
-        en: "When is a political decision truly legitimate?",
-      },
-      {
-        id: "vog-question-08",
-        de: "Wie verbinden wir repräsentative Demokratie, direkte Beteiligung und fachliche Verantwortung?",
-        en: "How do we combine representative democracy, direct participation and professional responsibility?",
-      },
-      {
-        id: "vog-question-09",
-        de: "Wie verhindern wir, dass Geld, Reichweite oder institutionelle Nähe politische Gewichtung kaufen?",
-        en: "How do we prevent money, reach or institutional access from buying political weight?",
-      },
-      {
-        id: "vog-question-10",
-        de: "Wie schützen wir Minderheiten, ohne demokratische Mehrheiten handlungsunfähig zu machen?",
-        en: "How do we protect minorities without making democratic majorities unable to act?",
-      },
-      {
-        id: "vog-question-11",
-        de: "Wie machen wir politische Verantwortung sichtbar, wenn Entscheidungen verteilt sind?",
-        en: "How do we make political responsibility visible when decisions are distributed?",
-      },
-      {
-        id: "vog-question-12",
-        de: "Wann muss eine politische Entscheidung automatisch neu geprüft werden?",
-        en: "When should a political decision be reviewed automatically?",
-      },
-      {
-        id: "vog-question-13",
-        de: "Wie begrenzen wir Macht, ohne notwendige Handlungsfähigkeit zu verlieren?",
-        en: "How do we limit power without losing the ability to act when necessary?",
-      },
-      {
-        id: "vog-question-14",
-        de: "Wer kontrolliert diejenigen, die Kontrolle ausüben?",
-        en: "Who holds those who exercise oversight accountable?",
-      },
-      {
-        id: "vog-question-15",
-        de: "Wie schaffen wir einen Staat, der wirksam handelt und nachvollziehbar bleibt?",
-        en: "How do we create a government that acts effectively and remains traceable?",
-      },
-      {
-        id: "vog-question-16",
-        de: "Wie verhindern wir, dass Krisen dauerhaft zu weniger Freiheit und Kontrolle führen?",
-        en: "How do we prevent crises from permanently reducing freedom and oversight?",
-      },
+      { id: "vog-question-06", de: "Welche Aufgaben gehören sinnvoll auf kommunale, regionale, nationale oder europäische Ebene?", en: "Which responsibilities are best handled at municipal, regional, national or European level?" },
+      { id: "vog-question-07", de: "Wo brauchen wir einheitliche Standards und wo mehr lokale oder regionale Entscheidungsfreiheit?", en: "Where do we need common standards, and where should local or regional decision-making have more freedom?" },
+      { id: "vog-question-08", de: "Wie sollen Steuern, öffentliche Ausgaben und Verschuldung priorisiert und demokratisch kontrolliert werden?", en: "How should taxes, public spending and debt be prioritised and democratically controlled?" },
+      { id: "vog-question-09", de: "Welche staatlichen Leistungen sollen digital, analog oder grundsätzlich auf beiden Wegen erreichbar sein?", en: "Which public services should be digital, analogue, or always accessible through both channels?" },
+      { id: "vog-question-10", de: "Welche Transparenz-, Lobby- und Antikorruptionsregeln braucht ein nachvollziehbarer Staat?", en: "Which transparency, lobbying and anti-corruption rules does a traceable government need?" },
     ],
   },
   {
-    id: "vog-group-knowledge-media",
-    title: {
-      de: "Wissen, Medien und Orientierung",
-      en: "Knowledge, media and orientation",
-    },
+    id: "vog-group-economy-work-social",
+    title: { de: "Wirtschaft, Arbeit und soziale Sicherheit", en: "Economy, work and social security" },
     questions: [
-      {
-        id: "vog-question-17",
-        de: "Wie unterscheiden wir belastbares Wissen, plausible Annahmen und bloße Behauptungen?",
-        en: "How do we distinguish robust knowledge, plausible assumptions and mere claims?",
-      },
-      {
-        id: "vog-question-18",
-        de: "Wie gehen wir öffentlich mit wissenschaftlicher Unsicherheit um?",
-        en: "How do we communicate scientific uncertainty in public?",
-      },
-      {
-        id: "vog-question-19",
-        de: "Wie verhindern wir Desinformation, ohne legitimen Widerspruch zu unterdrücken?",
-        en: "How do we counter disinformation without suppressing legitimate dissent?",
-      },
-      {
-        id: "vog-question-20",
-        de: "Welche Verantwortung tragen Medien, Plattformen und Bürger für gemeinsame Orientierung?",
-        en: "What responsibility do media, platforms and citizens bear for shared orientation?",
-      },
-      {
-        id: "vog-question-21",
-        de: "Wie machen wir Interessenkonflikte sichtbar, ohne Menschen pauschal zu diskreditieren?",
-        en: "How do we expose conflicts of interest without discrediting people wholesale?",
-      },
-      {
-        id: "vog-question-22",
-        de: "Wie können Menschen komplexe Entscheidungen ohne Expertenwissen verstehen?",
-        en: "How can people understand complex decisions without specialist knowledge?",
-      },
-      {
-        id: "vog-question-23",
-        de: "Wie bewerten wir Quellen transparent, ohne eine zentrale Wahrheitsbehörde zu schaffen?",
-        en: "How do we assess sources transparently without creating a central authority on truth?",
-      },
-      {
-        id: "vog-question-24",
-        de: "Wie schaffen wir Raum für Kursänderungen, ohne sie als Schwäche auszulegen?",
-        en: "How do we make room for changes of course without treating them as weakness?",
-      },
+      { id: "vog-question-11", de: "Wie sollen Steuern, Wettbewerb und Regulierung gestaltet sein, damit Wertschöpfung, Innovation und faire Chancen zusammenpassen?", en: "How should taxation, competition and regulation balance value creation, innovation and fair opportunity?" },
+      { id: "vog-question-12", de: "Welche Regeln für Löhne, Arbeitszeit, Tarifbindung und flexible Arbeit schaffen einen fairen Ausgleich zwischen Beschäftigten und Unternehmen?", en: "Which rules for wages, working time, collective bargaining and flexible work create a fair balance between workers and businesses?" },
+      { id: "vog-question-13", de: "Welche soziale Mindestsicherung soll jedem Menschen zustehen und welche Erwartungen dürfen damit verbunden sein?", en: "What minimum social protection should every person receive, and what expectations may reasonably accompany it?" },
+      { id: "vog-question-14", de: "Wie soll Alterssicherung langfristig finanzierbar, verlässlich und generationengerecht organisiert werden?", en: "How should retirement security be organised to remain affordable, reliable and fair across generations?" },
+      { id: "vog-question-15", de: "Woran sollen Wohlstand, gesellschaftlicher Fortschritt und Verteilungsgerechtigkeit gemessen werden?", en: "How should prosperity, social progress and distributive fairness be measured?" },
     ],
   },
   {
-    id: "vog-group-technology-ai",
-    title: {
-      de: "Technologie, KI und digitale Souveränität",
-      en: "Technology, AI and digital sovereignty",
-    },
+    id: "vog-group-health-care-family",
+    title: { de: "Gesundheit, Pflege und Familie", en: "Health, care and family" },
     questions: [
-      {
-        id: "vog-question-25",
-        de: "Wie nutzen wir KI so, dass sie Menschen stärkt und nicht beherrscht?",
-        en: "How do we use AI so that it strengthens people rather than controlling them?",
-      },
-      {
-        id: "vog-question-26",
-        de: "Welche Entscheidungen dürfen niemals vollständig automatisiert werden?",
-        en: "Which decisions must never be fully automated?",
-      },
-      {
-        id: "vog-question-27",
-        de: "Wie schützen wir Privatsphäre, ohne gesellschaftlich nützliche Erkenntnisse unmöglich zu machen?",
-        en: "How do we protect privacy without making socially valuable insight impossible?",
-      },
-      {
-        id: "vog-question-28",
-        de: "Wie verhindern wir digitale Machtkonzentration bei Staaten und Unternehmen?",
-        en: "How do we prevent digital power from becoming concentrated in governments and companies?",
-      },
-      {
-        id: "vog-question-29",
-        de: "Wem gehören öffentlich relevante Daten und Modelle?",
-        en: "Who should own data and models that matter to the public?",
-      },
-      {
-        id: "vog-question-30",
-        de: "Wie machen wir algorithmische Entscheidungen verständlich, anfechtbar und korrigierbar?",
-        en: "How do we make algorithmic decisions understandable, contestable and correctable?",
-      },
-      {
-        id: "vog-question-31",
-        de: "Wie sichern wir digitale Teilhabe, ohne permanente Vernetzung zu erzwingen?",
-        en: "How do we secure digital participation without forcing permanent connectivity?",
-      },
+      { id: "vog-question-16", de: "Wie soll eine hochwertige Gesundheitsversorgung finanziert und für alle verlässlich zugänglich bleiben?", en: "How should high-quality healthcare be funded and remain reliably accessible to everyone?" },
+      { id: "vog-question-17", de: "Wie sollen ambulante Versorgung, Krankenhäuser und Notfallversorgung regional zusammenspielen?", en: "How should primary care, hospitals and emergency care work together across regions?" },
+      { id: "vog-question-18", de: "Wie organisieren und finanzieren wir Pflege so, dass Würde, Qualität, Angehörige und Fachkräfte gleichermaßen berücksichtigt werden?", en: "How should care be organised and funded to respect dignity, quality, families and care professionals alike?" },
+      { id: "vog-question-19", de: "Welche Rolle sollen Prävention, Eigenverantwortung und solidarische Finanzierung im Gesundheitssystem jeweils spielen?", en: "What roles should prevention, personal responsibility and solidarity-based funding play in healthcare?" },
+      { id: "vog-question-20", de: "Welche Rahmenbedingungen brauchen Kinder, Familien und Jugendliche für verlässliche Teilhabe und Entwicklungschancen?", en: "Which conditions do children, families and young people need for reliable participation and development opportunities?" },
     ],
   },
   {
-    id: "vog-group-society-work",
-    title: {
-      de: "Soziales, Arbeit und Wohlstand",
-      en: "Society, work and prosperity",
-    },
+    id: "vog-group-education-research-culture",
+    title: { de: "Bildung, Forschung, Medien und Kultur", en: "Education, research, media and culture" },
     questions: [
-      {
-        id: "vog-question-32",
-        de: "Wie sichern wir Teilhabe, ohne Eigenverantwortung und Leistung zu entwerten?",
-        en: "How do we secure participation without devaluing personal responsibility and achievement?",
-      },
-      {
-        id: "vog-question-33",
-        de: "Wie verteilen wir Chancen fairer, ohne Ergebnisse künstlich gleichzumachen?",
-        en: "How do we distribute opportunities more fairly without artificially equalising outcomes?",
-      },
-      {
-        id: "vog-question-34",
-        de: "Wie gestalten wir Arbeit in einer von Automatisierung und KI geprägten Welt?",
-        en: "How do we shape work in a world transformed by automation and AI?",
-      },
-      {
-        id: "vog-question-35",
-        de: "Wie finanzieren wir einen leistungsfähigen Sozialstaat dauerhaft und generationengerecht?",
-        en: "How do we fund a capable welfare state sustainably and fairly across generations?",
-      },
-      {
-        id: "vog-question-36",
-        de: "Wie verhindern wir Armut, ohne Abhängigkeit von undurchsichtigen Systemen zu verstärken?",
-        en: "How do we prevent poverty without increasing dependence on opaque systems?",
-      },
-      {
-        id: "vog-question-37",
-        de: "Wie messen wir Wohlstand jenseits von Wachstum und Einkommen?",
-        en: "How do we measure prosperity beyond growth and income?",
-      },
-      {
-        id: "vog-question-38",
-        de: "Wie schaffen wir bezahlbaren Wohnraum, ohne Eigentum und Investitionen zu blockieren?",
-        en: "How do we create affordable housing without blocking ownership and investment?",
-      },
+      { id: "vog-question-21", de: "Welche Bildungsstandards sollen überall gelten und welche Unterschiede zwischen Regionen oder Schulformen sind sinnvoll?", en: "Which education standards should apply everywhere, and which regional or school-level differences are useful?" },
+      { id: "vog-question-22", de: "Wie sollen frühkindliche Bildung, Schule, Ausbildung und lebenslanges Lernen ineinandergreifen?", en: "How should early education, school, vocational training and lifelong learning connect?" },
+      { id: "vog-question-23", de: "Welche Rolle sollen politische Bildung, Medienkompetenz, Quellenprüfung und demokratische Entscheidungsfähigkeit spielen?", en: "What role should civic education, media literacy, source checking and democratic decision skills play?" },
+      { id: "vog-question-24", de: "Wie viel öffentliche Förderung brauchen Forschung und Innovation und wie sichern wir dabei Freiheit, Offenheit und Transfer?", en: "How much public support should research and innovation receive, and how do we protect freedom, openness and transfer?" },
+      { id: "vog-question-25", de: "Wie sollen unabhängige Medien, öffentlich finanzierte Angebote, Kultur und Meinungsvielfalt in einer digitalen Öffentlichkeit gesichert werden?", en: "How should independent media, publicly funded services, culture and pluralism be sustained in a digital public sphere?" },
     ],
   },
   {
-    id: "vog-group-education",
-    title: {
-      de: "Bildung und Befähigung",
-      en: "Education and agency",
-    },
+    id: "vog-group-housing-transport-infrastructure",
+    title: { de: "Wohnen, Verkehr und Infrastruktur", en: "Housing, transport and infrastructure" },
     questions: [
-      {
-        id: "vog-question-39",
-        de: "Was muss Bildung leisten, damit Menschen souverän handeln können?",
-        en: "What must education provide so that people can act with confidence and agency?",
-      },
-      {
-        id: "vog-question-40",
-        de: "Wie verbinden wir gleiche Chancen mit unterschiedlichen Talenten und Lebenswegen?",
-        en: "How do we combine equal opportunity with different talents and life paths?",
-      },
-      {
-        id: "vog-question-41",
-        de: "Wie bereiten wir Kinder und Erwachsene auf eine sich ständig verändernde Welt vor?",
-        en: "How do we prepare children and adults for a constantly changing world?",
-      },
-      {
-        id: "vog-question-42",
-        de: "Welche Rolle spielen Medienkompetenz, Quellenprüfung und demokratische Entscheidungsfähigkeit?",
-        en: "What role should media literacy, source checking and democratic decision-making skills play?",
-      },
+      { id: "vog-question-26", de: "Wie schaffen wir ausreichend bezahlbaren Wohnraum und welche Rolle sollen Markt, öffentliche Hand und gemeinwohlorientierte Träger spielen?", en: "How do we create enough affordable housing, and what roles should markets, public authorities and public-interest providers play?" },
+      { id: "vog-question-27", de: "Wie sollen Flächen für Wohnen, Gewerbe, Natur, Landwirtschaft und öffentliche Infrastruktur gegeneinander abgewogen werden?", en: "How should land for housing, business, nature, agriculture and public infrastructure be balanced?" },
+      { id: "vog-question-28", de: "Welche Prioritäten sollen öffentlicher Verkehr, Auto, Fahrrad und Fußverkehr in unterschiedlichen Regionen erhalten?", en: "What priorities should public transport, cars, cycling and walking receive in different regions?" },
+      { id: "vog-question-29", de: "Wie sollen Bahn, Straßen, Netze und andere kritische Infrastruktur finanziert, erhalten und modernisiert werden?", en: "How should rail, roads, networks and other critical infrastructure be funded, maintained and modernised?" },
+      { id: "vog-question-30", de: "Welche öffentlichen Angebote müssen auch in ländlichen oder strukturschwachen Regionen verlässlich erreichbar bleiben?", en: "Which public services must remain reliably accessible in rural or structurally weaker regions?" },
     ],
   },
   {
-    id: "vog-group-health",
-    title: {
-      de: "Gesundheit und Lebensqualität",
-      en: "Health and quality of life",
-    },
+    id: "vog-group-climate-energy-resources",
+    title: { de: "Klima, Energie, Umwelt und Ernährung", en: "Climate, energy, environment and food" },
     questions: [
-      {
-        id: "vog-question-43",
-        de: "Wie sichern wir eine hochwertige, solidarische und finanzierbare Gesundheitsversorgung?",
-        en: "How do we secure high-quality, solidarity-based and affordable healthcare?",
-      },
-      {
-        id: "vog-question-44",
-        de: "Wie verteilen wir knappe medizinische Ressourcen gerecht und transparent?",
-        en: "How do we distribute scarce medical resources fairly and transparently?",
-      },
-      {
-        id: "vog-question-45",
-        de: "Wie stärken wir Prävention, ohne Menschen zu bevormunden?",
-        en: "How do we strengthen prevention without patronising people?",
-      },
+      { id: "vog-question-31", de: "Welche Klimaziele sollen gelten und mit welchen Instrumenten sollen sie erreicht, überprüft und angepasst werden?", en: "Which climate targets should apply, and which instruments should be used to achieve, review and adjust them?" },
+      { id: "vog-question-32", de: "Wie sollen Versorgungssicherheit, Energiepreise, Klimaschutz und technologische Offenheit beim Energiemix gewichtet werden?", en: "How should security of supply, energy prices, climate goals and technological openness be balanced in the energy mix?" },
+      { id: "vog-question-33", de: "Wie viel Schutz brauchen Natur, Wasser, Böden und Artenvielfalt und wie werden Nutzungskonflikte entschieden?", en: "How much protection do nature, water, soils and biodiversity require, and how should conflicts over use be decided?" },
+      { id: "vog-question-34", de: "Welche Regeln für Landwirtschaft, Tierhaltung, Lebensmittelqualität und Preise schaffen einen tragfähigen Ausgleich?", en: "Which rules for agriculture, animal welfare, food quality and prices create a sustainable balance?" },
+      { id: "vog-question-35", de: "Wie reduzieren wir Rohstoffverbrauch und Abfall und welche Verantwortung tragen Produzenten, Verbraucher und Staat?", en: "How should resource use and waste be reduced, and what responsibilities should producers, consumers and government bear?" },
     ],
   },
   {
-    id: "vog-group-climate-resources",
-    title: {
-      de: "Klima, Ressourcen und Generationen",
-      en: "Climate, resources and generations",
-    },
+    id: "vog-group-digital-ai-data",
+    title: { de: "Digitalisierung, Daten und KI", en: "Digitalisation, data and AI" },
     questions: [
-      {
-        id: "vog-question-46",
-        de: "Wie schützen wir Lebensgrundlagen, ohne Wohlstand und soziale Stabilität gegeneinander auszuspielen?",
-        en: "How do we protect the foundations of life without setting prosperity against social stability?",
-      },
-      {
-        id: "vog-question-47",
-        de: "Wie verteilen wir Kosten und Chancen des ökologischen Wandels fair?",
-        en: "How do we distribute the costs and opportunities of ecological change fairly?",
-      },
-      {
-        id: "vog-question-48",
-        de: "Wie entscheiden wir unter großer Unsicherheit über langfristige, irreversible Folgen?",
-        en: "How do we decide under great uncertainty about long-term, irreversible consequences?",
-      },
+      { id: "vog-question-36", de: "Wie sollen Datenschutz, Datennutzung, offene Daten und gesellschaftlicher Nutzen miteinander ausbalanciert werden?", en: "How should privacy, data use, open data and public benefit be balanced?" },
+      { id: "vog-question-37", de: "Welche digitale Identität und welche digitalen Verwaltungsdienste braucht eine demokratische Gesellschaft?", en: "What kind of digital identity and digital public services does a democratic society need?" },
+      { id: "vog-question-38", de: "Welche Entscheidungen dürfen KI-Systeme unterstützen oder automatisieren und wo muss menschliche Verantwortung zwingend bleiben?", en: "Which decisions may AI systems support or automate, and where must human responsibility remain mandatory?" },
+      { id: "vog-question-39", de: "Welche Transparenz-, Haftungs- und Kontrollregeln brauchen Algorithmen und KI mit erheblicher gesellschaftlicher Wirkung?", en: "Which transparency, liability and oversight rules are needed for algorithms and AI with significant social impact?" },
+      { id: "vog-question-40", de: "Wie sichern wir digitale Infrastruktur, Wettbewerb und Zugang, ohne neue private oder staatliche Machtmonopole zu schaffen?", en: "How do we secure digital infrastructure, competition and access without creating new private or state monopolies of power?" },
     ],
   },
   {
-    id: "vog-group-europe-world-peace",
-    title: {
-      de: "Europa, Welt und Frieden",
-      en: "Europe, the world and peace",
-    },
+    id: "vog-group-migration-security-justice",
+    title: { de: "Migration, Sicherheit und Rechtsstaat", en: "Migration, security and rule of law" },
     questions: [
-      {
-        id: "vog-question-49",
-        de: "Wie verbinden wir nationale Souveränität, europäische Handlungsfähigkeit und globale Verantwortung?",
-        en: "How do we combine national sovereignty, European capacity to act and global responsibility?",
-      },
-      {
-        id: "vog-question-50",
-        de: "Wie schaffen wir Frieden und Zusammenarbeit bei ungleich verteilter Macht?",
-        en: "How do we build peace and cooperation when power is distributed unequally?",
-      },
+      { id: "vog-question-41", de: "Welche Regeln sollen für Flucht, Asyl, Einwanderung und Rückkehr gelten und wie werden humanitäre, rechtliche und praktische Anforderungen verbunden?", en: "Which rules should govern refuge, asylum, immigration and return, and how should humanitarian, legal and practical requirements be combined?" },
+      { id: "vog-question-42", de: "Welche Rechte, Pflichten und Wege zur gesellschaftlichen Teilhabe sollen Integration und Einbürgerung bestimmen?", en: "Which rights, duties and paths to participation should shape integration and citizenship?" },
+      { id: "vog-question-43", de: "Welche Befugnisse brauchen Polizei und Sicherheitsbehörden und welche Kontrollen schützen Freiheitsrechte und Rechtsstaat?", en: "Which powers do police and security authorities need, and which controls protect civil liberties and the rule of law?" },
+      { id: "vog-question-44", de: "Wie machen wir Justiz schnell, zugänglich und wirksam, ohne Unabhängigkeit und Verfahrensrechte zu schwächen?", en: "How can justice be made timely, accessible and effective without weakening independence and due process?" },
+      { id: "vog-question-45", de: "Wie sollen Bevölkerungsschutz, Katastrophenvorsorge und Krisenentscheidungen organisiert und demokratisch kontrolliert werden?", en: "How should civil protection, disaster preparedness and crisis decisions be organised and democratically controlled?" },
+    ],
+  },
+  {
+    id: "vog-group-europe-world-future",
+    title: { de: "Europa, Welt, Frieden und Zukunft", en: "Europe, the world, peace and the future" },
+    questions: [
+      { id: "vog-question-46", de: "Welche Aufgaben und Kompetenzen sollen künftig bei EU, Mitgliedstaaten, Regionen und Kommunen liegen?", en: "Which responsibilities and powers should in future lie with the EU, member states, regions and municipalities?" },
+      { id: "vog-question-47", de: "Wie sollen Verteidigung, Bündnisse, zivile Sicherheit und demokratische Kontrolle miteinander verbunden werden?", en: "How should defence, alliances, civilian security and democratic oversight fit together?" },
+      { id: "vog-question-48", de: "Nach welchen Regeln sollen Außen-, Handels- und Entwicklungspolitik Interessen, Menschenrechte, Frieden und gegenseitige Abhängigkeiten abwägen?", en: "By which rules should foreign, trade and development policy balance interests, human rights, peace and interdependence?" },
+      { id: "vog-question-49", de: "Welche internationale Zusammenarbeit brauchen grenzüberschreitende Probleme, ohne demokratische Verantwortung unklar werden zu lassen?", en: "What international cooperation do cross-border problems require without making democratic accountability unclear?" },
+      { id: "vog-question-50", de: "Wann und nach welchen Regeln muss eine frühere demokratische Entscheidung wegen neuer Evidenz, veränderter Umstände oder eines veränderten Mehrheitswillens erneut geöffnet werden?", en: "When and under which rules should an earlier democratic decision be reopened because of new evidence, changed circumstances or a changed majority will?" },
     ],
   },
 ];
