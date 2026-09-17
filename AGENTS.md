@@ -1,8 +1,44 @@
 # VoiceOpenGov agent contract
 
+## Public identity / status is human-locked
+
+Public VoiceOpenGov copy must reflect the current legal and product state. Agents MUST NOT silently promote a future target state into a present-tense fact.
+
+### Canonical public roles
+
+- **VoiceOpenGov** is currently an international initiative and community for participation, regional organisation and traceable decision information.
+- **eDebatte** is an independent open information and decision infrastructure used by VoiceOpenGov. VoiceOpenGov and eDebatte must not be described as the same legal/product entity or as a parent/owned product relationship unless that becomes factually true and is explicitly approved.
+- **Vote4Gov** is a separate project. Its positions must not be presented as binding VoiceOpenGov positions.
+- **Voxy** is an assistive layer for explanation, structuring and translation. Voxy does not make political or organisational decisions.
+
+### Current community / legal-status contract
+
+VoiceOpenGov is currently not a registered association, foundation or separate company. The current `/mitmachen` registration records affiliation with the VoiceOpenGov community; it is not a Vereins- or corporate-law membership.
+
+Agents MUST NOT use public present-tense wording such as `Mitgliederbewegung`, `membership movement`, `Mitglied werden`, `Become a member`, `Mitgliedschaft aktiv` or equivalent translations in a way that implies an already established legal membership structure. Internal legacy model/type names may remain where changing them would create migration risk, but public copy must use the current community/status wording.
+
+Financial support is separate from community affiliation and must never be described as purchasing political weight, editorial rights, voting weight or privileged participation.
+
+### Capability truth
+
+Public capabilities must distinguish current availability from roadmap intent. Use explicit status language such as `live`, `beta`, `im Aufbau` / `being built`, or `Perspektive` / `planned` where appropriate. Hubs, mobile formats, stores/studios, reports, APIs, white-label services and similar future formats must not be described as broadly available unless the corresponding runtime/service is actually operating.
+
+The public journey should describe VoiceOpenGov as producing or supporting **decision information / Entscheidungsgrundlagen**, not as making binding political decisions. Binding decisions remain with people or the legitimately authorised democratic/institutional procedure.
+
+### Source-of-truth hierarchy
+
+For current public positioning, use this precedence:
+
+1. runtime public copy and current legal/privacy notices;
+2. this `AGENTS.md` contract;
+3. the current `README.md`;
+4. historical planning/relaunch documents under `docs/`.
+
+Historical documents may preserve prior terminology for audit/history, but they MUST NOT override current runtime, legal or public-status truth.
+
 ## Brand / CI is human-locked
 
-VoiceOpenGov belongs to the same visual product family as eDebatte. The public movement may use a more human, campaign-oriented composition, but it must not introduce an independent color system or silently redefine the family identity.
+VoiceOpenGov belongs to the same visual product family as eDebatte. The public initiative may use a more human, campaign-oriented composition, but it must not introduce an independent color system or silently redefine the family identity.
 
 ### Canonical family palette
 
