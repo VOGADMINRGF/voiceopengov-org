@@ -1,6 +1,6 @@
 # VoiceOpenGov
 
-> **Willkommen Nachbar.**
+> Hallo Nachbar.
 >
 > Wir kennen uns wahrscheinlich nicht. Trotzdem treffen wir jeden Tag Entscheidungen, die unser gemeinsames Leben beeinflussen. Vielleicht wird es Zeit, dass wir anfangen, sie gemeinsam besser zu verstehen.
 
@@ -52,6 +52,14 @@ Ein VOG-Repräsentant darf ein gültiges Ergebnis nicht durch seine persönliche
 
 Das Mehrheitsprinzip beseitigt Minderheitenpositionen nicht. Minderheiten, Gegenargumente, Unsicherheiten und abweichende regionale Ergebnisse bleiben sichtbar und versioniert; sie ersetzen jedoch nicht stillschweigend das gültige Mehrheitsmandat.
 
+## Mitmachen heißt nicht erst einmal Organisation lernen
+
+VoiceOpenGov soll Menschen einen einfachen Einstieg ermöglichen. Niemand braucht ein Parteibuch, eine politische Karriere oder eine fertige Ortsgruppe, um sich einzubringen.
+
+Menschen können zunächst einfach verbunden bleiben, sich später aktiver beteiligen oder direkt vor Ort etwas anstoßen. Wer sich in klassischen politischen Angeboten nicht wiederfindet oder Beteiligung unmittelbarer erleben möchte, soll einen verständlichen und niedrigschwelligen Einstieg finden.
+
+Die formale rechtliche Organisations- und Mitgliedschaftsstruktur wird dort ausgewiesen, wo sie für Rechte, Pflichten oder Verträge relevant ist. Sie soll nicht die gesamte öffentliche Ansprache dominieren.
+
 ## VoiceOpenGov-Unterstützer und eDebatte
 
 Bestätigte VoiceOpenGov-Unterstützer sollen eDebatte ohne zusätzliche Nutzungsgebühr verwenden können. Die technische Identity kann gemeinsam nutzbar sein; fachliche Daten, Abstimmungen, Rollen und Berechtigungen bleiben dennoch nach ihrem jeweiligen Ursprung nachvollziehbar.
@@ -60,21 +68,32 @@ VoiceOpenGov-Unterstützer dürfen Thesen gezielt vertreten, Dossiers anstoßen,
 
 Finanzielle Unterstützung erzeugt weder zusätzliches Stimmgewicht noch einen Vorrang bei der politischen Umsetzung.
 
-## Regionale Repräsentation
+## Regionale Präsenz: für die Nachbarschaft, nicht für die Zentrale
 
-VoiceOpenGov organisiert die politische Verantwortung regional. Eine Repräsentantin oder ein Repräsentant ist nicht Eigentümer eines eDebatte-Raums und nicht frei darin, dessen gültiges Ergebnis nachträglich umzudeuten. Die Aufgabe besteht darin, den dokumentierten Mehrheitswillen des jeweiligen Geltungsbereichs politisch zu vertreten, Umsetzung einzufordern und den tatsächlichen Fortschritt zurückzumelden.
+VoiceOpenGov soll nicht nur online stattfinden. Regionale Präsenz ist ein zentraler Teil des Modells: Menschen sollen dort ansprechbar sein, wo politische Entscheidungen ihren Alltag betreffen.
 
-Das langfristige Zielbild kann ein bundesweites Netz von etwa 400 lokalen Anlaufstellen umfassen. Diese sollen sichtbar als zusammengehörige **eDebatte × VoiceOpenGov**-Struktur auftreten: eDebatte als offener Beteiligungs- und Entscheidungsraum, VoiceOpenGov als politische Repräsentations- und Umsetzungsschicht. Die Zahl 400 ist ein Ausbauziel und darf erst entsprechend dem realen Aufbaugrad als Bestand kommuniziert werden.
+Eine regionale eDebatte × VoiceOpenGov-Anlaufstelle kann:
+
+- Menschen aus einer Nachbarschaft oder Region zusammenbringen,
+- lokale Anliegen und Konflikte sichtbar machen,
+- den Zugang zu eDebatte und nachvollziehbaren Entscheidungsräumen erleichtern,
+- Räume, Technik, Kontakte und Wissen bündeln,
+- Veranstaltungen, Themenabende und mobile Beteiligungsformate ermöglichen,
+- gültige regionale Entscheidungen in politische Repräsentation und Umsetzungsverfolgung überführen,
+- Fortschritt, Blockaden und Wirkung wieder transparent zurückmelden.
+
+Das langfristige Zielbild kann ein bundesweites Netz von etwa 400 lokalen Anlaufstellen umfassen. Diese sollen sichtbar als zusammengehörige **eDebatte × VoiceOpenGov**-Struktur auftreten: eDebatte als offener Beteiligungs- und Entscheidungsraum, VoiceOpenGov als politische Repräsentations- und Umsetzungsschicht.
+
+Der Aufbau erfolgt Region für Region mit Menschen vor Ort. Öffentliche Statusangaben unterscheiden Planung, Aufbau, Pilot und verifizierten Betrieb, ohne diese Statuslogik zur dominierenden Ansprache zu machen.
 
 Mögliche regionale Formate sind:
 
 - lokale Teams und regionale Verantwortung
-- wiederkehrende Vor-Ort-Formate
+- wiederkehrende Vor-Ort-Treffen
 - Beteiligungsbüros bzw. lokale Anlaufpunkte
 - mobile Beteiligungsformate bis hin zu Bussen oder vergleichbaren mobilen Angeboten
+- regionaler Zugang zu eDebatte
 - transparent legitimierte regionale Repräsentantinnen und Repräsentanten
-
-Planung, Pilot, Aufbau und verifizierter Betrieb müssen öffentlich unterscheidbar bleiben.
 
 ## Transparenz ist unser Betriebssystem
 
@@ -103,9 +122,21 @@ Quelle
 ↓
 Beobachtung
 ↓
-Claim und Evidenz
+Claim
 ↓
-Interpretation und Annahme
+Evidenz
+↓
+Interpretation
+↓
+Annahme
+↓
+Ziel und Wert
+↓
+Alternative
+↓
+erwartete Wirkung
+↓
+Einwand
 ↓
 Zielkonflikt und Alternativen
 ↓
@@ -126,9 +157,9 @@ Der Reasoning Graph und die fachliche Entscheidungsgrundlage gehören in eDebatt
 
 ## Die ersten 50 öffentlichen Fragen
 
-Die erste Seed-Welle besteht aus 50 großen, international verständlichen Orientierungsfragen – nicht aus klassischen Parteikapiteln oder Ministeriumsschubladen.
+Die ersten 50 Fragen sind eine versionierte Seed-Struktur für große gesellschaftliche Themenfelder. Sie sind weder ein unveränderliches Programm noch ein abgeschlossenes Set.
 
-Jeder Raum erhält eine Leitfrage, Zielkonflikte, Werte- und Rechtsbezüge, betroffene Gruppen, internationale Perspektiven, Quellen, Claims, Unsicherheiten, Alternativen, Erfolgskriterien, Beteiligung, Versionierung und Wirkungsprüfung.
+Fragen dürfen verbessert, präzisiert, in konkrete Teilfragen oder Eventualitäten aufgeteilt, um neue Themen erweitert und später erneut entschieden werden. Dass Menschen ihre Meinung ändern, neue Evidenz entsteht oder Rahmenbedingungen sich verändern, gehört ausdrücklich zum Modell.
 
 Siehe: [`docs/VOICEOPENGOV-50-FRAGEN.md`](docs/VOICEOPENGOV-50-FRAGEN.md)
 
@@ -138,36 +169,18 @@ Die kanonische Marken-, Repräsentations- und Vertrauensarchitektur liegt hier:
 
 [`docs/VOICEOPENGOV-MOVEMENT-RELAUNCH-2026.md`](docs/VOICEOPENGOV-MOVEMENT-RELAUNCH-2026.md)
 
-## Technische Architektur
-
-Das Repository ist ein Monorepo mit:
-
-- **apps/web** – Next.js 15 Frontend und öffentliche Bewegungssurfaces
-- **core** – Domain-Logik, Identity, Telemetrie und Orchestrierung
-- **features** – wiederverwendbare UI- und Domain-Module
-- **packages/tri-mongo** – Datenzugriff für `core`, `votes`, `pii` und `ai_reader`
-- **packages/ui** – gemeinsame UI-Bausteine
-
-### Stack
-
-- Node.js 20 und pnpm 10.x
-- Next.js 15 App Router
-- MongoDB, Redis und optionale Graph-Komponenten
-- KI-Orchestrierung mit mehreren Providern
-
-### Lokaler Start
+## Entwicklung
 
 ```bash
-pnpm install --frozen-lockfile
-cp apps/web/.env.example apps/web/.env.local
-pnpm -C apps/web dev
+pnpm install
+pnpm -C apps/web run dev
 ```
 
-### Qualität
+Qualitätschecks:
 
 ```bash
-pnpm -C apps/web exec tsc --noEmit
-pnpm -C apps/web run lint
+pnpm -C apps/web run test:production-readiness
+pnpm -C apps/web run typecheck
 pnpm -C apps/web run build
 ```
 
