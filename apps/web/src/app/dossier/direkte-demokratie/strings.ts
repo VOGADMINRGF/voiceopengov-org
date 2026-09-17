@@ -40,10 +40,10 @@ const STRINGS: Record<SupportedLocale, DossierStrings> = {
       body:
         "Hier entsteht die Diskussion zu diesem Dossier. Die Live-Einbindung folgt; bis dahin kannst du direkt im Tool mitdiskutieren.",
       ctaPrimary: "Diskussion öffnen",
-      ctaSecondary: "Mitglied werden",
+      ctaSecondary: "Community beitreten",
     },
     actions: {
-      primary: "Mitglied werden",
+      primary: "Community beitreten",
       secondary: "Thema einreichen",
     },
   },
@@ -67,10 +67,10 @@ const STRINGS: Record<SupportedLocale, DossierStrings> = {
       body:
         "Discussion for this dossier will appear here. Live embedding is coming; until then you can join directly in the tool.",
       ctaPrimary: "Open discussion",
-      ctaSecondary: "Become a member",
+      ctaSecondary: "Join the community",
     },
     actions: {
-      primary: "Become a member",
+      primary: "Join the community",
       secondary: "Submit a topic",
     },
   },
@@ -94,10 +94,10 @@ const STRINGS: Record<SupportedLocale, DossierStrings> = {
       body:
         "La discussion sur ce dossier apparaîtra ici. L’intégration en direct arrive ; d’ici là, participe directement dans l’outil.",
       ctaPrimary: "Ouvrir la discussion",
-      ctaSecondary: "Devenir membre",
+      ctaSecondary: "Rejoindre la communauté",
     },
     actions: {
-      primary: "Devenir membre",
+      primary: "Rejoindre la communauté",
       secondary: "Proposer un sujet",
     },
   },
@@ -121,10 +121,10 @@ const STRINGS: Record<SupportedLocale, DossierStrings> = {
       body:
         "Tu pojawi się dyskusja o tym dossier. Integracja na żywo wkrótce; do tego czasu możesz dyskutować bezpośrednio w narzędziu.",
       ctaPrimary: "Otwórz dyskusję",
-      ctaSecondary: "Zostań członkiem",
+      ctaSecondary: "Dołącz do społeczności",
     },
     actions: {
-      primary: "Zostań członkiem",
+      primary: "Dołącz do społeczności",
       secondary: "Zgłoś temat",
     },
   },
@@ -148,10 +148,10 @@ const STRINGS: Record<SupportedLocale, DossierStrings> = {
       body:
         "Aquí aparecerá la discusión sobre este dossier. La integración en vivo llegará pronto; mientras tanto puedes debatir directamente en la herramienta.",
       ctaPrimary: "Abrir debate",
-      ctaSecondary: "Hazte miembro",
+      ctaSecondary: "Unirse a la comunidad",
     },
     actions: {
-      primary: "Hazte miembro",
+      primary: "Unirse a la comunidad",
       secondary: "Enviar tema",
     },
   },
@@ -175,10 +175,10 @@ const STRINGS: Record<SupportedLocale, DossierStrings> = {
       body:
         "Qui nascerà la discussione su questo dossier. L’integrazione live arriverà; nel frattempo puoi discutere direttamente nello strumento.",
       ctaPrimary: "Apri discussione",
-      ctaSecondary: "Diventa membro",
+      ctaSecondary: "Unisciti alla community",
     },
     actions: {
-      primary: "Diventa membro",
+      primary: "Unisciti alla community",
       secondary: "Invia un tema",
     },
   },
@@ -202,10 +202,10 @@ const STRINGS: Record<SupportedLocale, DossierStrings> = {
       body:
         "Bu dosyaya ilişkin tartışma burada oluşacak. Canlı entegrasyon yakında; o zamana kadar araçta doğrudan katılabilirsin.",
       ctaPrimary: "Tartışmayı aç",
-      ctaSecondary: "Üye ol",
+      ctaSecondary: "Topluluğa katıl",
     },
     actions: {
-      primary: "Üye ol",
+      primary: "Topluluğa katıl",
       secondary: "Konu gönder",
     },
   },
@@ -229,10 +229,10 @@ const STRINGS: Record<SupportedLocale, DossierStrings> = {
       body:
         "ستظهر المناقشة الخاصة بهذا الملف هنا. سيأتي الربط المباشر لاحقًا؛ وحتى ذلك الحين يمكنك المشاركة مباشرة داخل الأداة.",
       ctaPrimary: "افتح النقاش",
-      ctaSecondary: "كن عضوًا",
+      ctaSecondary: "انضم إلى المجتمع",
     },
     actions: {
-      primary: "كن عضوًا",
+      primary: "انضم إلى المجتمع",
       secondary: "أرسل موضوعًا",
     },
   },
@@ -256,10 +256,10 @@ const STRINGS: Record<SupportedLocale, DossierStrings> = {
       body:
         "Обсуждение по этому досье появится здесь. Живая интеграция скоро; пока можно участвовать прямо в инструменте.",
       ctaPrimary: "Открыть обсуждение",
-      ctaSecondary: "Стать участником",
+      ctaSecondary: "Присоединиться к сообществу",
     },
     actions: {
-      primary: "Стать участником",
+      primary: "Присоединиться к сообществу",
       secondary: "Предложить тему",
     },
   },
@@ -283,10 +283,10 @@ const STRINGS: Record<SupportedLocale, DossierStrings> = {
       body:
         "该档案的讨论将在此展开。实时嵌入即将上线；在此之前可直接在工具中参与。",
       ctaPrimary: "打开讨论",
-      ctaSecondary: "成为成员",
+      ctaSecondary: "加入社区",
     },
     actions: {
-      primary: "成为成员",
+      primary: "加入社区",
       secondary: "提交议题",
     },
   },
