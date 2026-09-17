@@ -4,12 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useLocale } from "@/context/LocaleContext";
-import { getMemberAccountStrings } from "@/app/memberAccountStrings";
+import { getCommunityAccountStrings } from "@/app/communityAccountStrings";
+import { VOG_JOIN_PATH } from "@/config/links";
 
 export default function LoginPage() {
   const router = useRouter();
   const { locale } = useLocale();
-  const strings = getMemberAccountStrings(locale);
+  const strings = getCommunityAccountStrings(locale);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -90,7 +91,7 @@ export default function LoginPage() {
             <Link href="/konto/passwort" className="font-bold text-cyan-400">
               {strings.common.setupAccess}
             </Link>
-            <Link href="/mitglied-werden" className="font-bold text-cyan-400 sm:text-end">
+            <Link href={`${VOG_JOIN_PATH}#mitglied`} className="font-bold text-cyan-400 sm:text-end">
               {strings.login.noMember}
             </Link>
           </div>
