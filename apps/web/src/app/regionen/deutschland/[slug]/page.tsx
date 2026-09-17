@@ -9,6 +9,7 @@ import { GERMAN_STATE_REGIONS, getGermanStateRegion } from "@/content/regionalSt
 import { regionalSeoLocale } from "@/content/regionalSeo";
 import { localeAlternates, localizedCanonicalUrl } from "@/lib/i18n/localeContract";
 import { getRequestLocale } from "@/lib/locale";
+import { REGIONAL_INTEREST_SOURCE_PATH } from "@/lib/regionalInterestContract";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -36,7 +37,7 @@ const COPY: Record<ReturnType<typeof regionalSeoLocale>, GenericCopy> = {
     communityText: "Für diese Region ist derzeit keine verifizierte lokale Gruppe, Mitgliederzahl oder feste Ansprechperson veröffentlicht. Sobald belastbare Strukturen existieren, können sie hier transparent sichtbar werden.",
     actionTitle: "Mitmachen",
     actionText: "Du kannst VoiceOpenGov unterstützen, beim regionalen Aufbau mitwirken oder ein Thema zur nachvollziehbaren Bearbeitung in eDebatte weiterführen.",
-    join: "Bei VoiceOpenGov mitmachen",
+    join: "Regional aktiv werden",
     dossier: "Thema bei eDebatte prüfen",
     back: "Zurück zu Deutschland",
   },
@@ -49,7 +50,7 @@ const COPY: Record<ReturnType<typeof regionalSeoLocale>, GenericCopy> = {
     communityText: "No verified local group, membership count or permanent contact is currently published for this region. Verified structures can be shown transparently once they exist.",
     actionTitle: "Take part",
     actionText: "You can support VoiceOpenGov, help build the regional community or take a topic to eDebatte for traceable examination.",
-    join: "Join VoiceOpenGov",
+    join: "Get active locally",
     dossier: "Examine a topic on eDebatte",
     back: "Back to Germany",
   },
@@ -62,7 +63,7 @@ const COPY: Record<ReturnType<typeof regionalSeoLocale>, GenericCopy> = {
     communityText: "Aucun groupe local vérifié, nombre de membres ou contact permanent n’est actuellement publié pour cette région. Les structures vérifiées pourront être rendues visibles lorsqu’elles existeront.",
     actionTitle: "Participer",
     actionText: "Vous pouvez soutenir VoiceOpenGov, contribuer au développement régional ou poursuivre l’examen d’un sujet sur eDebatte.",
-    join: "Participer à VoiceOpenGov",
+    join: "Agir dans ma région",
     dossier: "Examiner un sujet sur eDebatte",
     back: "Retour à l’Allemagne",
   },
@@ -75,7 +76,7 @@ const COPY: Record<ReturnType<typeof regionalSeoLocale>, GenericCopy> = {
     communityText: "Actualmente no se publica ningún grupo local verificado, cifra de miembros ni contacto permanente para esta región. Las estructuras verificadas podrán mostrarse cuando existan.",
     actionTitle: "Participar",
     actionText: "Puedes apoyar VoiceOpenGov, ayudar a construir la comunidad regional o llevar un tema a eDebatte para su análisis trazable.",
-    join: "Participar en VoiceOpenGov",
+    join: "Participar en mi región",
     dossier: "Analizar un tema en eDebatte",
     back: "Volver a Alemania",
   },
@@ -88,7 +89,7 @@ const COPY: Record<ReturnType<typeof regionalSeoLocale>, GenericCopy> = {
     communityText: "Bu bölge için şu anda doğrulanmış bir yerel grup, üye sayısı veya kalıcı irtibat kişisi yayımlanmamıştır. Doğrulanmış yapılar oluştuğunda şeffaf biçimde gösterilebilir.",
     actionTitle: "Katıl",
     actionText: "VoiceOpenGov’u destekleyebilir, bölgesel topluluğun kurulmasına katkıda bulunabilir veya bir konuyu izlenebilir inceleme için eDebatte’ye taşıyabilirsin.",
-    join: "VoiceOpenGov’a katıl",
+    join: "Bölgemde aktif ol",
     dossier: "Konuyu eDebatte’de incele",
     back: "Almanya’ya dön",
   },
@@ -101,7 +102,7 @@ const COPY: Record<ReturnType<typeof regionalSeoLocale>, GenericCopy> = {
     communityText: "لا توجد حاليًا مجموعة محلية موثقة أو أعداد أعضاء أو جهة اتصال دائمة منشورة لهذه المنطقة. يمكن إظهار الهياكل الموثقة بشفافية عند وجودها.",
     actionTitle: "شارك",
     actionText: "يمكنك دعم VoiceOpenGov أو المساعدة في بناء المجتمع الإقليمي أو نقل موضوع إلى eDebatte لفحصه بصورة قابلة للتتبع.",
-    join: "شارك في VoiceOpenGov",
+    join: "شارك محليًا",
     dossier: "افحص موضوعًا في eDebatte",
     back: "العودة إلى ألمانيا",
   },
@@ -132,6 +133,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description,
+    robots: {
+      index: region.searchVisibility === "index",
+      follow: true,
+    },
     alternates: { canonical, languages: localeAlternates(baseCanonical, REQUIRED_LAUNCH_LOCALES) },
     openGraph: { title, description, url: canonical, type: "website" },
   };
@@ -196,7 +201,7 @@ export default async function StateRegionPage({ params }: PageProps) {
         </div>
 
         <div className="mt-10 flex flex-wrap gap-3">
-          <Link className="rounded-full bg-[#18cfc8] px-6 py-3 font-bold text-[#071727]" href={localHref("/mitmachen", locale)}>{copy.join}</Link>
+          <Link className="rounded-full bg-[#18cfc8] px-6 py-3 font-bold text-[#071727]" href={localHref(REGIONAL_INTEREST_SOURCE_PATH, locale)}>{copy.join}</Link>
           <Link className="rounded-full border border-[#1a8cff] px-6 py-3 font-bold" href={localHref("/go/edebatte", locale)}>{copy.dossier} →</Link>
           <Link className="rounded-full border border-slate-700 px-6 py-3 font-bold" href={localHref("/regionen/deutschland", locale)}>{copy.back}</Link>
         </div>
