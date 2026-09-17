@@ -11,6 +11,7 @@ import {
   localizedCanonicalUrl,
 } from "@/lib/i18n/localeContract";
 import { getRequestLocale } from "@/lib/locale";
+import { REGIONAL_INTEREST_SOURCE_PATH } from "@/lib/regionalInterestContract";
 
 const PATH = "/regionen/deutschland";
 
@@ -138,7 +139,7 @@ export default async function GermanyRegionPage() {
           <Link className="rounded-full bg-[#18cfc8] px-6 py-3 font-bold text-[#071727]" href={href("/regionen/deutschland/berlin", locale)}>
             {copy.berlinAction} →
           </Link>
-          <Link className="rounded-full border border-[#1a8cff] px-6 py-3 font-bold" href={href("/mitmachen", locale)}>
+          <Link className="rounded-full border border-[#1a8cff] px-6 py-3 font-bold" href={href(REGIONAL_INTEREST_SOURCE_PATH, locale)}>
             {copy.regionalAction}
           </Link>
         </div>
