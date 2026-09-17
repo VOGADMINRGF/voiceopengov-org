@@ -34,15 +34,17 @@ describe("public SEO/search contract", () => {
     expect(join).toContain("twitter");
   });
 
-  it("gives transparency and voluntary support distinct search identities", () => {
+  it("gives questions, transparency and support distinct search identities", () => {
+    const questions = source("app/fragen/layout.tsx");
     const transparency = source("app/transparenz/page.tsx");
     const support = source("app/unterstuetzen/page.tsx");
-    for (const page of [transparency, support]) {
+    for (const page of [questions, transparency, support]) {
       expect(page).toContain("localizedCanonicalUrl");
       expect(page).toContain("localeAlternates");
       expect(page).toContain("openGraph");
       expect(page).toContain("twitter");
     }
+    expect(questions).toContain("50 Kernfragen: dynamischer Programmstand");
     expect(transparency).toContain("Transparenz bei VoiceOpenGov");
     expect(support).toContain("Beiträge kaufen kein Stimmgewicht");
   });
