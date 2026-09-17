@@ -10,9 +10,9 @@ Wir bauen keine Plattform, auf der Menschen einer Meinung sein müssen. Wir scha
 
 ## Die Rollen sind klar
 
-- **Vote4Gov** ist die persönliche öffentliche Stimme von Ricky Gerd Fleischer: Geschichte, Motivation, Verantwortung und Vision.
-- **VoiceOpenGov** ist die Mitgliederbewegung: Werte, Charta, Governance, Transparenz und gemeinsames Handeln.
-- **eDebatte** ist die unabhängige Arbeits- und Entscheidungsinfrastruktur: Quellen, Claims, Dossiers, Alternativen, Beteiligung, Mehrheitsbilder, Wirkung und Lernen.
+- **Vote4Gov** ist der kritische Review- und Denkraum für Systemfragen, Thesen und internationale Vergleiche. Vote4Gov darf unbequeme Fragen stellen, behauptet aber keine ungeprüfte politische Wahrheit.
+- **VoiceOpenGov** ist die weltweite Mitgliederbewegung und die kanonische Ebene für Menschen, Regionen, Community, Partnerschaften und gemeinsames Handeln.
+- **eDebatte** ist die unabhängige Arbeits- und Entscheidungsinfrastruktur: Quellen, Claims, Gegenpositionen, Dossiers, Alternativen, Beteiligung, Mehrheitsbilder, Wirkung und Lernen.
 - **Voxy** erklärt, strukturiert und übersetzt. Voxy hilft beim Verstehen. Voxy entscheidet nicht.
 
 ## Wofür wir stehen
