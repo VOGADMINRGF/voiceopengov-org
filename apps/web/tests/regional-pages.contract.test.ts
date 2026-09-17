@@ -51,6 +51,7 @@ describe("regional community page contract", () => {
 
     expect(genericPage).toContain('region.slug !== "berlin"');
     expect(genericPage).toContain('region.slug === "berlin"');
-    expect(berlinPage).toContain("VoiceOpenGov Berlin");
+    expect(berlinPage).toContain('const PATH = "/regionen/deutschland/berlin"');
+    expect(berlinPage).toContain("REGIONAL_SEO_COPY[locale].berlin");
   });
 });
