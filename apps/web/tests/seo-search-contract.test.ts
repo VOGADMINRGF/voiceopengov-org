@@ -25,6 +25,13 @@ describe("public SEO/search contract", () => {
     expect(sitemap).toContain('"/unterstuetzen"');
   });
 
+  it("keeps ecosystem canonical hosts aligned with their own sites", () => {
+    const links = source("config/links.ts");
+    expect(links).toContain('EDEBATTE_CANONICAL_URL = "https://www.edebatte.org"');
+    expect(links).toContain('VOTE4GOV_CANONICAL_URL = "https://www.vote4gov.eu"');
+    expect(links).not.toContain('VOTE4GOV_CANONICAL_URL = "https://vote4gov.eu"');
+  });
+
   it("gives /mitmachen dedicated canonical and social metadata", () => {
     const join = source("app/mitmachen/page.tsx");
     expect(join).toContain("localizedCanonicalUrl");
