@@ -11,50 +11,50 @@ type SiteFooterProps = {
 
 const ECOSYSTEM_COPY = {
   de: {
-    eyebrow: "Ein Ökosystem. Vier klar getrennte Rollen.",
-    title: "Gemeinsame Haltung. Eigenständige Aufgaben.",
-    body: "VoiceOpenGov nutzt eDebatte. Es besitzt eDebatte nicht. Vote4Gov denkt gesellschaftliche Entwicklung weiter. Voxy verbindet die Ebenen, ohne Entscheidungen zu treffen.",
-    footerLine: "Transparenz ist unser gemeinsames Betriebssystem.",
+    eyebrow: "Vier Rollen. Klare Trennung.",
+    title: "Was VoiceOpenGov ist – und was nicht.",
+    body: "VoiceOpenGov ist die Initiative und Community. Sie nutzt eDebatte als eigenständige offene Entscheidungsinfrastruktur. Voxy unterstützt beim Verstehen. Vote4Gov bleibt ein eigenständiges Projekt und spricht nicht für VoiceOpenGov.",
+    footerLine: "Rollen, Finanzierung, KI-Einsatz und Entscheidungen sollen nachvollziehbar bleiben.",
     items: {
       edebatte: {
-        role: "Offene Infrastruktur",
-        description: "Für nachvollziehbare Erkenntnis, Orientierung und Beteiligung – offen für Bürger, Kommunen, Unternehmen, Vereine, Parteien, Wissenschaft, Medien und NGOs.",
+        role: "Eigenständige offene Infrastruktur",
+        description: "Bereitet Themen, Quellen, Aussagen, Gegenpositionen, Alternativen und offene Unsicherheiten nachvollziehbar auf. Die Entscheidung bleibt beim Menschen.",
       },
       voiceopengov: {
-        role: "Internationale Mitgliederbewegung",
-        description: "Menschen organisieren sich über Grenzen hinweg und übernehmen gemeinsam Verantwortung.",
+        role: "Offene Initiative & Community",
+        description: "Organisiert Menschen, Beteiligung und regionale Mitwirkung. VoiceOpenGov befindet sich derzeit in der Aufbauphase.",
       },
       vote4gov: {
-        role: "Gesellschaftliche Denkwerkstatt",
-        description: "Reflektiert, wie demokratische Mitbestimmung im digitalen Zeitalter verantwortungsvoll weiterentwickelt werden kann.",
+        role: "Eigenständiges Projekt",
+        description: "Wird getrennt von VoiceOpenGov geführt. Inhalte oder Positionen dort sind keine Beschlüsse oder verbindlichen Positionen von VoiceOpenGov.",
       },
       voxy: {
-        role: "Verbindende Begleiterin",
-        description: "Erklärt, strukturiert und übersetzt. Voxy hilft beim Verstehen. Voxy entscheidet nicht.",
+        role: "Assistenz",
+        description: "Erklärt, strukturiert und übersetzt. Voxy unterstützt beim Verstehen und trifft keine Entscheidungen für Menschen.",
       },
     },
   },
   en: {
-    eyebrow: "One ecosystem. Four clearly separated roles.",
-    title: "Shared principles. Independent responsibilities.",
-    body: "VoiceOpenGov uses eDebatte. It does not own eDebatte. Vote4Gov explores how society can evolve. Voxy connects the layers without making decisions.",
-    footerLine: "Transparency is our shared operating system.",
+    eyebrow: "Four roles. Clear separation.",
+    title: "What VoiceOpenGov is — and what it is not.",
+    body: "VoiceOpenGov is the initiative and community. It uses eDebatte as an independent open decision infrastructure. Voxy supports understanding. Vote4Gov remains a separate project and does not speak for VoiceOpenGov.",
+    footerLine: "Roles, funding, AI use and decisions should remain traceable.",
     items: {
       edebatte: {
-        role: "Open infrastructure",
-        description: "For traceable insight, orientation and participation — open to citizens, municipalities, businesses, associations, parties, academia, media and NGOs.",
+        role: "Independent open infrastructure",
+        description: "Structures topics, sources, claims, counterpositions, alternatives and open uncertainty in a traceable way. Decisions remain human.",
       },
       voiceopengov: {
-        role: "International membership movement",
-        description: "People organise across borders and take shared responsibility.",
+        role: "Open initiative & community",
+        description: "Organises people, participation and regional engagement. VoiceOpenGov is currently in its build-up phase.",
       },
       vote4gov: {
-        role: "Civic think tank",
-        description: "Explores how democratic participation can be developed responsibly in the digital age.",
+        role: "Separate project",
+        description: "Operates separately from VoiceOpenGov. Content or positions there are not decisions or binding positions of VoiceOpenGov.",
       },
       voxy: {
-        role: "Connecting guide",
-        description: "Explains, structures and translates. Voxy helps people understand. Voxy does not decide.",
+        role: "Assistant",
+        description: "Explains, structures and translates. Voxy supports understanding and does not make decisions for people.",
       },
     },
   },
@@ -68,37 +68,37 @@ export default function SiteFooter({ locale }: SiteFooterProps) {
     : "Build phase: VoiceOpenGov is currently operated by Ricky G. Fleischer as a natural person. No VOG Holding or other separate company currently acts as provider, contractual partner or payment recipient.";
 
   return (
-    <footer className="border-t border-[#f4f1e8]/10 bg-[#07110f] text-[#f4f1e8]" role="contentinfo">
-      <section aria-labelledby="ecosystem-heading" className="border-b border-[#f4f1e8]/10 bg-[#0b1714]">
+    <footer className="border-t border-white/10 bg-[#020617] text-[#f8fafc]" role="contentinfo">
+      <section aria-labelledby="ecosystem-heading" className="border-b border-white/10 bg-[#0b1220]">
         <div className="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-18">
           <div className="grid gap-8 lg:grid-cols-[.75fr_1.25fr] lg:items-end">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-[#d6ff65]">{ecosystem.eyebrow}</p>
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-[#18cfc8]">{ecosystem.eyebrow}</p>
               <h2 id="ecosystem-heading" className="mt-4 text-3xl font-black tracking-tight md:text-4xl">{ecosystem.title}</h2>
             </div>
-            <p className="max-w-3xl text-base leading-7 text-[#f4f1e8]/58">{ecosystem.body}</p>
+            <p className="max-w-3xl text-base leading-7 text-slate-300">{ecosystem.body}</p>
           </div>
 
           <div className="mt-9 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-            <a href={EDEBATTE_URL} className="group rounded-3xl border border-[#f4f1e8]/10 bg-[#07110f]/70 p-5 transition hover:-translate-y-0.5 hover:border-[#d6ff65]/45">
-              <span className="text-xs font-black uppercase tracking-[0.16em] text-[#d6ff65]">{ecosystem.items.edebatte.role}</span>
+            <a href={EDEBATTE_URL} className="group rounded-3xl border border-white/10 bg-[#020617]/70 p-5 transition hover:-translate-y-0.5 hover:border-[#18cfc8]/45">
+              <span className="text-xs font-black uppercase tracking-[0.16em] text-[#18cfc8]">{ecosystem.items.edebatte.role}</span>
               <strong className="mt-3 block text-xl">eDebatte ↗</strong>
-              <span className="mt-3 block text-sm leading-6 text-[#f4f1e8]/48 transition group-hover:text-[#f4f1e8]/68">{ecosystem.items.edebatte.description}</span>
+              <span className="mt-3 block text-sm leading-6 text-slate-400 transition group-hover:text-slate-300">{ecosystem.items.edebatte.description}</span>
             </a>
-            <Link href="/" aria-current="page" className="group rounded-3xl border border-[#d6ff65]/45 bg-[#d6ff65]/10 p-5 shadow-[0_20px_55px_rgba(214,255,101,0.06)] transition hover:-translate-y-0.5">
-              <span className="text-xs font-black uppercase tracking-[0.16em] text-[#d6ff65]">{ecosystem.items.voiceopengov.role}</span>
+            <Link href="/" aria-current="page" className="group rounded-3xl border border-[#18cfc8]/45 bg-[#18cfc8]/10 p-5 shadow-[0_20px_55px_rgba(24,207,200,0.06)] transition hover:-translate-y-0.5">
+              <span className="text-xs font-black uppercase tracking-[0.16em] text-[#18cfc8]">{ecosystem.items.voiceopengov.role}</span>
               <strong className="mt-3 block text-xl">VoiceOpenGov</strong>
-              <span className="mt-3 block text-sm leading-6 text-[#f4f1e8]/55 transition group-hover:text-[#f4f1e8]/72">{ecosystem.items.voiceopengov.description}</span>
+              <span className="mt-3 block text-sm leading-6 text-slate-300 transition group-hover:text-slate-200">{ecosystem.items.voiceopengov.description}</span>
             </Link>
-            <a href={VOTE4GOV_URL} className="group rounded-3xl border border-[#f4f1e8]/10 bg-[#07110f]/70 p-5 transition hover:-translate-y-0.5 hover:border-[#d6ff65]/45">
-              <span className="text-xs font-black uppercase tracking-[0.16em] text-[#d6ff65]">{ecosystem.items.vote4gov.role}</span>
+            <a href={VOTE4GOV_URL} className="group rounded-3xl border border-white/10 bg-[#020617]/70 p-5 transition hover:-translate-y-0.5 hover:border-[#18cfc8]/45">
+              <span className="text-xs font-black uppercase tracking-[0.16em] text-[#18cfc8]">{ecosystem.items.vote4gov.role}</span>
               <strong className="mt-3 block text-xl">Vote4Gov ↗</strong>
-              <span className="mt-3 block text-sm leading-6 text-[#f4f1e8]/48 transition group-hover:text-[#f4f1e8]/68">{ecosystem.items.vote4gov.description}</span>
+              <span className="mt-3 block text-sm leading-6 text-slate-400 transition group-hover:text-slate-300">{ecosystem.items.vote4gov.description}</span>
             </a>
-            <article className="rounded-3xl border border-[#f4f1e8]/10 bg-[#07110f]/70 p-5">
-              <span className="text-xs font-black uppercase tracking-[0.16em] text-[#d6ff65]">{ecosystem.items.voxy.role}</span>
+            <article className="rounded-3xl border border-white/10 bg-[#020617]/70 p-5">
+              <span className="text-xs font-black uppercase tracking-[0.16em] text-[#18cfc8]">{ecosystem.items.voxy.role}</span>
               <strong className="mt-3 block text-xl">Voxy</strong>
-              <span className="mt-3 block text-sm leading-6 text-[#f4f1e8]/48">{ecosystem.items.voxy.description}</span>
+              <span className="mt-3 block text-sm leading-6 text-slate-400">{ecosystem.items.voxy.description}</span>
             </article>
           </div>
         </div>
@@ -107,16 +107,16 @@ export default function SiteFooter({ locale }: SiteFooterProps) {
       <div className="mx-auto max-w-6xl px-5 py-12 md:px-8">
         <div className="grid gap-9 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <Link href="/" className="text-sm font-black uppercase tracking-[0.2em] transition hover:text-[#d6ff65]">VoiceOpenGov</Link>
-            <p className="mt-3 font-bold text-[#f4f1e8]">{strings.brand.claim}</p>
-            <p className="mt-3 text-sm leading-6 text-[#f4f1e8]/48">{strings.brand.body}</p>
+            <Link href="/" className="text-sm font-black uppercase tracking-[0.2em] transition hover:text-[#18cfc8]">VoiceOpenGov</Link>
+            <p className="mt-3 font-bold text-[#f8fafc]">{ecosystem.items.voiceopengov.role}</p>
+            <p className="mt-3 text-sm leading-6 text-slate-400">{ecosystem.items.voiceopengov.description}</p>
           </div>
           <FooterNav title={strings.columns.main} ariaLabel={strings.aria.main} links={strings.links.main} />
           <FooterNav title={strings.columns.initiatives} ariaLabel={strings.aria.initiatives} links={strings.links.initiatives} />
           <FooterNav title={strings.columns.legal} ariaLabel={strings.aria.legal} links={strings.links.legal} />
         </div>
 
-        <div className="mt-10 border-t border-[#f4f1e8]/10 pt-6 text-xs text-[#f4f1e8]/36 md:flex md:items-start md:justify-between md:gap-8">
+        <div className="mt-10 border-t border-white/10 pt-6 text-xs text-slate-500 md:flex md:items-start md:justify-between md:gap-8">
           <p>© {currentYear} VoiceOpenGov</p>
           <div className="mt-3 max-w-3xl space-y-2 md:mt-0 md:text-right">
             <p>{providerStatus}</p>
@@ -137,14 +137,14 @@ type FooterNavProps = {
 function FooterNav({ title, ariaLabel, links }: FooterNavProps) {
   return (
     <nav aria-label={ariaLabel}>
-      <p className="text-sm font-bold text-[#f4f1e8]">{title}</p>
-      <ul className="mt-4 space-y-2.5 text-sm text-[#f4f1e8]/48">
+      <p className="text-sm font-bold text-[#f8fafc]">{title}</p>
+      <ul className="mt-4 space-y-2.5 text-sm text-slate-400">
         {links.map((link) => (
           <li key={`${link.href}-${link.label}`}>
             {link.external ? (
-              <a href={link.href} className="transition hover:text-[#d6ff65]">{link.label}</a>
+              <a href={link.href} className="transition hover:text-[#18cfc8]">{link.label}</a>
             ) : (
-              <Link href={link.href} className="transition hover:text-[#d6ff65]">{link.label}</Link>
+              <Link href={link.href} className="transition hover:text-[#18cfc8]">{link.label}</Link>
             )}
           </li>
         ))}
