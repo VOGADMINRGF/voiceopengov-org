@@ -4,12 +4,11 @@ import { notFound } from "next/navigation";
 import StructuredData from "@/components/seo/StructuredData";
 import TranslationStatusNotice from "@/components/i18n/TranslationStatusNotice";
 import { REQUIRED_LAUNCH_LOCALES, getLocaleConfig } from "@/config/locales";
-import { VOICEOPENGOV_URL } from "@/config/links";
+import { VOICEOPENGOV_URL, VOG_JOIN_PATH } from "@/config/links";
 import { GERMAN_STATE_REGIONS, getGermanStateRegion } from "@/content/regionalStates";
 import { regionalSeoLocale } from "@/content/regionalSeo";
 import { localeAlternates, localizedCanonicalUrl } from "@/lib/i18n/localeContract";
 import { getRequestLocale } from "@/lib/locale";
-import { REGIONAL_INTEREST_SOURCE_PATH } from "@/lib/regionalInterestContract";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -111,7 +110,7 @@ const COPY: Record<ReturnType<typeof regionalSeoLocale>, GenericCopy> = {
 function localHref(path: string, locale: string) {
   const url = new URL(path, VOICEOPENGOV_URL);
   if (locale !== "de") url.searchParams.set("lang", locale);
-  return `${url.pathname}${url.search}`;
+  return `${url.pathname}${url.search}${url.hash}`;
 }
 
 export function generateStaticParams() {
@@ -201,7 +200,7 @@ export default async function StateRegionPage({ params }: PageProps) {
         </div>
 
         <div className="mt-10 flex flex-wrap gap-3">
-          <Link className="rounded-full bg-[#18cfc8] px-6 py-3 font-bold text-[#071727]" href={localHref(REGIONAL_INTEREST_SOURCE_PATH, locale)}>{copy.join}</Link>
+          <Link className="rounded-full bg-[#18cfc8] px-6 py-3 font-bold text-[#071727]" href={localHref(`${VOG_JOIN_PATH}#vor-ort`, locale)}>{copy.join}</Link>
           <Link className="rounded-full border border-[#1a8cff] px-6 py-3 font-bold" href={localHref("/go/edebatte", locale)}>{copy.dossier} →</Link>
           <Link className="rounded-full border border-slate-700 px-6 py-3 font-bold" href={localHref("/regionen/deutschland", locale)}>{copy.back}</Link>
         </div>
