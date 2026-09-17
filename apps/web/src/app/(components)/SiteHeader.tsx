@@ -7,8 +7,8 @@ import { useLocale } from "@/context/LocaleContext";
 import { getLocaleConfig, SUPPORTED_LOCALES, type SupportedLocale } from "@/config/locales";
 import {
   EDEBATTE_URL,
+  VOTE4GOV_URL,
   VOG_JOIN_PATH,
-  VOG_QUESTIONS_PATH,
   VOG_SUPPORT_PATH,
   VOG_TRANSPARENCY_PATH,
 } from "@/config/links";
@@ -16,8 +16,7 @@ import { getHeaderStrings } from "./headerStrings";
 
 type HeaderCopy = {
   tagline: string;
-  why: string;
-  questions: string;
+  regions: string;
   transparency: string;
   support: string;
   join: string;
@@ -25,16 +24,16 @@ type HeaderCopy = {
 };
 
 const COPY: Record<SupportedLocale, HeaderCopy> = {
-  de: { tagline: "Infrastruktur für informierte Demokratie", why: "Warum", questions: "50 Fragen", transparency: "Transparenz", support: "Unterstützen", join: "Mitmachen", login: "Anmelden" },
-  en: { tagline: "Infrastructure for informed democracy", why: "Why", questions: "50 questions", transparency: "Transparency", support: "Support", join: "Participate", login: "Sign in" },
-  fr: { tagline: "Infrastructure pour une démocratie informée", why: "Pourquoi", questions: "50 questions", transparency: "Transparence", support: "Soutenir", join: "Participer", login: "Se connecter" },
-  pl: { tagline: "Infrastruktura świadomej demokracji", why: "Dlaczego", questions: "50 pytań", transparency: "Przejrzystość", support: "Wesprzyj", join: "Dołącz", login: "Zaloguj się" },
-  es: { tagline: "Infraestructura para una democracia informada", why: "Por qué", questions: "50 preguntas", transparency: "Transparencia", support: "Apoyar", join: "Participar", login: "Iniciar sesión" },
-  it: { tagline: "Infrastruttura per una democrazia informata", why: "Perché", questions: "50 domande", transparency: "Trasparenza", support: "Sostieni", join: "Partecipa", login: "Accedi" },
-  tr: { tagline: "Bilgili demokrasi için altyapı", why: "Neden", questions: "50 soru", transparency: "Şeffaflık", support: "Destekle", join: "Katıl", login: "Giriş yap" },
-  ar: { tagline: "بنية تحتية لديمقراطية واعية", why: "لماذا", questions: "50 سؤالاً", transparency: "الشفافية", support: "ادعم", join: "شارك", login: "تسجيل الدخول" },
-  ru: { tagline: "Инфраструктура информированной демократии", why: "Почему", questions: "50 вопросов", transparency: "Прозрачность", support: "Поддержать", join: "Участвовать", login: "Войти" },
-  zh: { tagline: "知情民主的基础设施", why: "为什么", questions: "50 个问题", transparency: "透明度", support: "支持", join: "参与", login: "登录" },
+  de: { tagline: "Weltweite Bewegung · lokal verbunden", regions: "Regionen", transparency: "Transparenz", support: "Unterstützen", join: "Mitmachen", login: "Anmelden" },
+  en: { tagline: "Global movement · locally connected", regions: "Regions", transparency: "Transparency", support: "Support", join: "Participate", login: "Sign in" },
+  fr: { tagline: "Mouvement mondial · ancré localement", regions: "Régions", transparency: "Transparence", support: "Soutenir", join: "Participer", login: "Se connecter" },
+  pl: { tagline: "Globalny ruch · lokalnie połączony", regions: "Regiony", transparency: "Przejrzystość", support: "Wesprzyj", join: "Dołącz", login: "Zaloguj się" },
+  es: { tagline: "Movimiento global · conectado localmente", regions: "Regiones", transparency: "Transparencia", support: "Apoyar", join: "Participar", login: "Iniciar sesión" },
+  it: { tagline: "Movimento globale · connesso localmente", regions: "Regioni", transparency: "Trasparenza", support: "Sostieni", join: "Partecipa", login: "Accedi" },
+  tr: { tagline: "Küresel hareket · yerelde bağlantılı", regions: "Bölgeler", transparency: "Şeffaflık", support: "Destekle", join: "Katıl", login: "Giriş yap" },
+  ar: { tagline: "حركة عالمية · مترابطة محلياً", regions: "المناطق", transparency: "الشفافية", support: "ادعم", join: "شارك", login: "تسجيل الدخول" },
+  ru: { tagline: "Глобальное движение · локальная связь", regions: "Регионы", transparency: "Прозрачность", support: "Поддержать", join: "Участвовать", login: "Войти" },
+  zh: { tagline: "全球行动 · 本地连接", regions: "地区", transparency: "透明度", support: "支持", join: "参与", login: "登录" },
 };
 
 export function SiteHeader() {
@@ -63,9 +62,9 @@ export function SiteHeader() {
   };
 
   const primaryLinks = [
-    { href: "/#warum", label: copy.why },
+    { href: "/regionen", label: copy.regions },
     { href: EDEBATTE_URL, label: "eDebatte ↗" },
-    { href: VOG_QUESTIONS_PATH, label: copy.questions },
+    { href: VOTE4GOV_URL, label: "Vote4Gov ↗" },
     { href: VOG_TRANSPARENCY_PATH, label: copy.transparency },
     { href: VOG_SUPPORT_PATH, label: copy.support },
   ];
