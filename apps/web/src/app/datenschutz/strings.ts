@@ -63,14 +63,19 @@ const STRINGS = {
   dataPoints: {
     de: [
       {
-        label: "Unterstützer:innen",
+        label: "Community-Anmeldung",
         description:
-          "Angaben aus dem Mitmachen-Formular (z. B. Name, E-Mail, Geburtsdatum und -ort, Land, Support-Modus, optionale Motivationstexte und Skills). Wir nutzen diese Daten für Moderation, Rückfragen und interne Abstimmungen. Für den Globus und die Live-Zahlen verwenden wir nur aggregierte Werte.",
+          "Bei der Community-Anmeldung verarbeiten wir E-Mail-Adresse, Geburtsdatum, Ort, optional Land sowie – soweit angegeben – Vor- und Nachname. Zusätzlich speichern wir, ob du der Community beitreten oder aktiv mitwirken möchtest, und ob du VoiceOpenGov-Updates erhalten willst. Das Geburtsdatum dient der Altersprüfung; Ort und Land der regionalen Zuordnung. Die Anmeldung ist derzeit keine Vereins- oder gesellschaftsrechtliche Mitgliedschaft. Öffentliche Standortzahlen werden nur aggregiert dargestellt.",
+      },
+      {
+        label: "Regionale Mitwirkung",
+        description:
+          "Wenn du dich für regionale Mitwirkung meldest, verarbeiten wir Name, E-Mail-Adresse und den angegebenen Ort sowie optional Thema, ausgewählte Mitwirkungsarten und freie Notizen. Zusätzlich speichern wir deine Einwilligung zur Kontaktaufnahme und – nur wenn du sie gesondert erteilst – zur regionalen Vermittlung bzw. zum Matching mit passenden Personen oder Aktivitäten.",
       },
       {
         label: "Freiwillige Unterstützung & Zahlungsstatus",
         description:
-          "Wenn du VoiceOpenGov freiwillig finanziell unterstützt, verarbeiten wir insbesondere Betrag, Zahlungsrhythmus, Zahlungsstatus sowie technische Zahlungs- und Kund:innen-IDs. Die Mitgliedschaft bei VoiceOpenGov ist davon getrennt und derzeit kostenfrei. Die Zahlungsabwicklung erfolgt über Stripe. Wenn PayPal im Stripe-Checkout angeboten und von dir gewählt wird, werden die für diese Zahlung erforderlichen Daten zusätzlich im Rahmen der Stripe-/PayPal-Zahlungsabwicklung verarbeitet. VoiceOpenGov speichert keine vollständigen Karten- oder PayPal-Zugangsdaten.",
+          "Wenn du VoiceOpenGov freiwillig finanziell unterstützt, verarbeiten wir insbesondere Betrag, Zahlungsrhythmus, Zahlungsstatus sowie technische Zahlungs- und Kund:innen-IDs. Die Community-Anmeldung ist davon getrennt und kostenfrei. Die Zahlungsabwicklung erfolgt über Stripe. Wenn PayPal im Stripe-Checkout angeboten und von dir gewählt wird, werden die für diese Zahlung erforderlichen Daten zusätzlich im Rahmen der Stripe-/PayPal-Zahlungsabwicklung verarbeitet. VoiceOpenGov speichert keine vollständigen Karten- oder PayPal-Zugangsdaten.",
       },
       {
         label: "Zahlungsdienstleister",
@@ -90,19 +95,24 @@ const STRINGS = {
       {
         label: "Technische Sicherheitsdaten",
         description:
-          "Protokolldaten zur Absicherung der Formulare (z. B. Zeitstempel, IP-/Agent-Hashes, Rate-Limits). Diese Daten dienen Missbrauchsschutz und Stabilität.",
+          "Protokolldaten zur Absicherung der Formulare (z. B. Zeitstempel, IP-/Agent-Hashes, Rate-Limits und technische Prüf-Tokens). Diese Daten dienen Missbrauchsschutz und Stabilität.",
       },
     ],
     en: [
       {
-        label: "Supporters",
+        label: "Community registration",
         description:
-          "Details submitted via the join form (e.g. name, e-mail, birth date/place, country, support mode, optional motivation text and skills). We use these details for moderation, follow-ups and internal coordination. The globe and live stats show aggregated data only.",
+          "For community registration we process your e-mail address, date of birth, city, optional country and, where provided, first and last name. We also store whether you want to join the community or contribute actively and whether you want VoiceOpenGov updates. Date of birth is used for the age check; city and country for regional allocation. Registration is currently not membership in a legal association or company. Public location figures are shown only in aggregate.",
+      },
+      {
+        label: "Regional participation",
+        description:
+          "If you register interest in regional participation, we process your name, e-mail address and stated location as well as optional topic, selected participation intentions and free-text notes. We also store your consent to be contacted and — only if you separately grant it — consent for regional matching with suitable people or activities.",
       },
       {
         label: "Voluntary support & payment status",
         description:
-          "If you voluntarily support VoiceOpenGov financially, we process, in particular, the amount, payment cadence, payment status, and technical payment and customer IDs. VoiceOpenGov membership is separate from this and is currently free of charge. Payments are processed through Stripe. If PayPal is offered in Stripe Checkout and selected by you, the data required for that payment is also processed as part of the Stripe/PayPal payment flow. VoiceOpenGov does not store full card details or PayPal login credentials.",
+          "If you voluntarily support VoiceOpenGov financially, we process, in particular, the amount, payment cadence, payment status, and technical payment and customer IDs. Community registration is separate from this and free of charge. Payments are processed through Stripe. If PayPal is offered in Stripe Checkout and selected by you, the data required for that payment is also processed as part of the Stripe/PayPal payment flow. VoiceOpenGov does not store full card details or PayPal login credentials.",
       },
       {
         label: "Payment service providers",
@@ -122,7 +132,7 @@ const STRINGS = {
       {
         label: "Technical security data",
         description:
-          "Log data used to protect forms (e.g. timestamps, hashed IP/user agent data, rate limits). This data is used for abuse prevention and stability.",
+          "Log data used to protect forms (e.g. timestamps, hashed IP/user agent data, rate limits and technical verification tokens). This data is used for abuse prevention and stability.",
       },
     ],
   } as LocaleValue<PrivacyDataPoint[]>,
