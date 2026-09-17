@@ -5,6 +5,7 @@ import TranslationStatusNotice from "@/components/i18n/TranslationStatusNotice";
 import { REQUIRED_LAUNCH_LOCALES, getLocaleConfig } from "@/config/locales";
 import { VOICEOPENGOV_URL } from "@/config/links";
 import { REGIONAL_SEO_COPY, regionalSeoLocale } from "@/content/regionalSeo";
+import { GERMANY_STATE_REGIONS, REGION_DIRECTORY_COPY } from "@/content/germanyRegions";
 import {
   localeAlternates,
   localizedCanonicalUrl,
@@ -42,8 +43,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function GermanyRegionPage() {
-  const locale = regionalSeoLocale(await getRequestLocale());
+  const requestLocale = await getRequestLocale();
+  const locale = regionalSeoLocale(requestLocale);
   const copy = REGIONAL_SEO_COPY[locale].germany;
+  const directoryCopy = REGION_DIRECTORY_COPY[requestLocale] ?? REGION_DIRECTORY_COPY.en;
   const baseCanonical = `${VOICEOPENGOV_URL}${PATH}`;
   const canonical = localizedCanonicalUrl(baseCanonical, locale);
 
@@ -106,6 +109,56 @@ export default async function GermanyRegionPage() {
             <p className="mt-4 leading-7 text-slate-300">{copy.guardrailText}</p>
           </article>
         </div>
+
+        <section className="mt-16" aria-labelledby="state-regions-title">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#18cfc8]">Deutschland</p>
+          <h2 id="state-regions-title" className="mt-3 text-3xl font-black sm:text-4xl">{directoryCopy.title}</h2>
+          <p className="mt-4 max-w-3xl leading-7 text-slate-300">{directoryCopy.intro}</p>
+
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {GERMANY_STATE_REGIONS.map((region) => {
+              const content = (
+                <>
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="font-bold text-white">{region.name}</h3>
+                    <span
+                      className={`mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full ${
+                        region.status === "available" ? "bg-[#18cfc8]" : "bg-slate-600"
+                      }`}
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <p className="mt-3 text-sm font-semibold text-slate-300">
+                    {region.status === "available" ? directoryCopy.available : directoryCopy.building}
+                  </p>
+                  {region.status === "building" ? (
+                    <p className="mt-2 text-xs leading-5 text-slate-500">{directoryCopy.buildingDetail}</p>
+                  ) : (
+                    <p className="mt-3 text-xs font-bold uppercase tracking-wide text-[#18cfc8]">{directoryCopy.openRegion} →</p>
+                  )}
+                </>
+              );
+
+              if (region.status === "available") {
+                return (
+                  <Link
+                    key={region.slug}
+                    href={href(`/regionen/deutschland/${region.slug}`, locale)}
+                    className="rounded-2xl border border-[#18cfc8]/30 bg-[#0b1220] p-5 transition hover:border-[#18cfc8]/70"
+                  >
+                    {content}
+                  </Link>
+                );
+              }
+
+              return (
+                <article key={region.slug} className="rounded-2xl border border-slate-800 bg-[#0b1220] p-5">
+                  {content}
+                </article>
+              );
+            })}
+          </div>
+        </section>
 
         <div className="mt-10 flex flex-wrap gap-3">
           <Link className="rounded-full bg-[#18cfc8] px-6 py-3 font-bold text-[#071727]" href={href("/regionen/deutschland/berlin", locale)}>
