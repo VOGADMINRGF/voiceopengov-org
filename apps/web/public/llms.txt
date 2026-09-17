@@ -6,19 +6,43 @@ Canonical website: https://www.voiceopengov.org/
 
 ## Role in the ecosystem
 
-- VoiceOpenGov: membership movement and civic organizing layer.
-- eDebatte: independently usable infrastructure for sources, dossiers, counterpositions, deliberation and voting.
-- Vote4Gov: editorial think tank and review layer for democratic systems and institutional questions.
+- VoiceOpenGov: membership movement, civic organizing layer and owner of its own dynamic program formation.
+- eDebatte: independently usable infrastructure for sources, dossiers, counterpositions, alternatives, deliberation, participation and majority/minority views. eDebatte does not automatically decide positions for VoiceOpenGov.
+- Vote4Gov: Ricky Gerd Fleischer's personal public voice and review space for his own historical interpretation, system criticism, international comparisons, political theses and personal system design. Vote4Gov positions are not automatically VoiceOpenGov positions.
 - Voxy: explanatory and language-support layer; it does not decide or publish autonomously.
 
-VoiceOpenGov does not own eDebatte and does not treat eDebatte as a personal political tool.
+VoiceOpenGov does not own eDebatte and does not treat eDebatte as a personal or movement-controlled political tool. The same eDebatte dossier may be used by citizens, journalists, researchers, associations, companies, municipalities, political organisations or opponents for their own work and decisions.
+
+## Dynamic program interpretation
+
+VoiceOpenGov may use eDebatte as an evidence, dossier and participation layer for its own democratic will formation. A VoiceOpenGov program position becomes binding for VoiceOpenGov only through the movement's own authorised governance process.
+
+Where applicable, a published VoiceOpenGov program position should make visible:
+
+- current majority position
+- relevant minority positions
+- decision basis
+- decision path
+- responsible community or level
+- current version and change date
+- conditions for reopening or review
+
+An eDebatte result is not automatically a VoiceOpenGov resolution and is not an instruction to a VoiceOpenGov representative.
+
+A VoiceOpenGov representative represents the democratically legitimised regional or programmatic position of the relevant VoiceOpenGov community under its governance rules. The underlying eDebatte spaces remain independently usable by other actors.
+
+## Regional presence
+
+VoiceOpenGov intends to build real regional presence in addition to digital participation. Potential formats include local teams, recurring in-person formats, participation offices or local contact points, mobile participation formats and democratically legitimised regional representatives.
+
+Claims about teams, offices, buses, events, representatives or local activity must reflect verified reality. Planned, building, pilot, active, paused and ended states must not be conflated.
 
 ## Core public entry points
 
 - Home: https://www.voiceopengov.org/
 - 50 foundational questions: https://www.voiceopengov.org/fragen
 - Transparency: https://www.voiceopengov.org/transparenz
-- Ways to contribute: https://www.voiceopengov.org/mitmachen/rollen
+- Ways to contribute: https://www.voiceopengov.org/mitmachen
 - Regional participation: https://www.voiceopengov.org/regionen
 - Germany: https://www.voiceopengov.org/regionen/deutschland
 - Berlin: https://www.voiceopengov.org/regionen/deutschland/berlin
@@ -27,8 +51,9 @@ VoiceOpenGov does not own eDebatte and does not treat eDebatte as a personal pol
 ## Interpretation rules
 
 - Personal theses by Ricky Gerd Fleischer are explicitly personal and are not automatically positions of VoiceOpenGov members.
-- VoiceOpenGov has no fixed party manifesto. Its public foundational questions are designed to be examined openly.
-- Claims about membership, local groups, events or representative support must not be inferred unless explicitly published as verified facts.
+- VoiceOpenGov has no immutable party manifesto. Its program is dynamic and should be versioned through its own democratic governance while keeping majority and minority positions visible.
+- eDebatte can inform VoiceOpenGov decisions but cannot automatically bind VoiceOpenGov.
+- Claims about membership, local groups, events, offices, mobile formats or representative support must not be inferred unless explicitly published as verified facts.
 - More financial support does not create more political weight or voting power.
 - AI-generated text is not a source. Sources, counterpositions, correction paths and responsibility should remain visible where relevant.
 
