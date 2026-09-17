@@ -33,11 +33,11 @@ type FooterStrings = {
 const STRINGS: Record<SupportedLocale, FooterStrings> = {
   de: {
     brand: {
-      claim: "Internationale Mitgliederbewegung.",
-      body: "Für nachvollziehbare Erkenntnis, echte Beteiligung und gemeinsam verantwortete Entscheidungen.",
+      claim: "Internationale Initiative & Community.",
+      body: "Für nachvollziehbare Entscheidungsgrundlagen, offene Beteiligung und transparente Verantwortlichkeiten.",
     },
     columns: {
-      main: "Bewegung",
+      main: "Mitmachen",
       initiatives: "Vertiefen",
       legal: "Kontakt & Rechtliches",
     },
@@ -48,7 +48,7 @@ const STRINGS: Record<SupportedLocale, FooterStrings> = {
     },
     links: {
       main: [
-        { href: VOG_JOIN_PATH, label: "Mitglied werden" },
+        { href: VOG_JOIN_PATH, label: "Community beitreten" },
         { href: VOG_QUESTIONS_PATH, label: "50 öffentliche Fragen" },
         { href: VOG_TRANSPARENCY_PATH, label: "Transparenz" },
         { href: VOG_ROLES_PATH, label: "Mitwirkungsrollen" },
@@ -68,22 +68,22 @@ const STRINGS: Record<SupportedLocale, FooterStrings> = {
   },
   en: {
     brand: {
-      claim: "International membership movement.",
-      body: "For traceable insight, genuine participation and decisions carried through shared responsibility.",
+      claim: "International initiative & community.",
+      body: "For traceable decision information, open participation and transparent responsibilities.",
     },
     columns: {
-      main: "Movement",
+      main: "Participate",
       initiatives: "Explore",
       legal: "Contact & legal",
     },
     aria: {
-      main: "Footer navigation: Join",
+      main: "Footer navigation: Participate",
       initiatives: "Footer navigation: Initiatives",
       legal: "Footer navigation: Contact and legal",
     },
     links: {
       main: [
-        { href: VOG_JOIN_PATH, label: "Become a member" },
+        { href: VOG_JOIN_PATH, label: "Join the community" },
         { href: VOG_QUESTIONS_PATH, label: "50 public questions" },
         { href: VOG_TRANSPARENCY_PATH, label: "Transparency" },
         { href: VOG_ROLES_PATH, label: "Ways to contribute" },
@@ -103,8 +103,8 @@ const STRINGS: Record<SupportedLocale, FooterStrings> = {
   },
   fr: {
     brand: {
-      claim: "Mouvement pour des décisions robustes et traçables.",
-      body: "VoiceOpenGov relie personnes, initiatives et organisations qui veulent mettre en place des procédures claires et une participation transparente.",
+      claim: "Initiative et communauté internationales.",
+      body: "Pour des bases de décision traçables, une participation ouverte et des responsabilités transparentes.",
     },
     columns: {
       main: "Participer",
@@ -118,7 +118,7 @@ const STRINGS: Record<SupportedLocale, FooterStrings> = {
     },
     links: {
       main: [
-        { href: "/#mitmachen", label: "Participer" },
+        { href: VOG_JOIN_PATH, label: "Rejoindre la communauté" },
         { href: "/dossier", label: "Dossier" },
         { href: VOG_SUPPORT_PATH, label: "Soutenir" },
       ],
@@ -133,8 +133,8 @@ const STRINGS: Record<SupportedLocale, FooterStrings> = {
   },
   pl: {
     brand: {
-      claim: "Ruch na rzecz solidnych, możliwych do prześledzenia decyzji.",
-      body: "VoiceOpenGov łączy ludzi, inicjatywy i organizacje, które chcą budować jasne procedury i przejrzystą partycypację.",
+      claim: "Międzynarodowa inicjatywa i społeczność.",
+      body: "Dla przejrzystych podstaw decyzji, otwartego uczestnictwa i jasnych odpowiedzialności.",
     },
     columns: {
       main: "Dołącz",
@@ -148,7 +148,7 @@ const STRINGS: Record<SupportedLocale, FooterStrings> = {
     },
     links: {
       main: [
-        { href: "/#mitmachen", label: "Dołącz" },
+        { href: VOG_JOIN_PATH, label: "Dołącz do społeczności" },
         { href: "/dossier", label: "Dossier" },
         { href: VOG_SUPPORT_PATH, label: "Wesprzyj" },
       ],
@@ -163,8 +163,8 @@ const STRINGS: Record<SupportedLocale, FooterStrings> = {
   },
   es: {
     brand: {
-      claim: "Movimiento por decisiones sólidas y verificables.",
-      body: "VoiceOpenGov conecta a personas, iniciativas y organizaciones que quieren construir procesos claros y participación transparente.",
+      claim: "Iniciativa y comunidad internacional.",
+      body: "Para información de decisión trazable, participación abierta y responsabilidades transparentes.",
     },
     columns: {
       main: "Participar",
@@ -178,7 +178,7 @@ const STRINGS: Record<SupportedLocale, FooterStrings> = {
     },
     links: {
       main: [
-        { href: "/#mitmachen", label: "Participar" },
+        { href: VOG_JOIN_PATH, label: "Unirse a la comunidad" },
         { href: "/dossier", label: "Dossier" },
         { href: VOG_SUPPORT_PATH, label: "Apoyar" },
       ],
@@ -193,8 +193,8 @@ const STRINGS: Record<SupportedLocale, FooterStrings> = {
   },
   it: {
     brand: {
-      claim: "Movimento per decisioni solide e tracciabili.",
-      body: "VoiceOpenGov collega persone, iniziative e organizzazioni che vogliono creare processi chiari e partecipazione trasparente.",
+      claim: "Iniziativa e comunità internazionale.",
+      body: "Per basi decisionali tracciabili, partecipazione aperta e responsabilità trasparenti.",
     },
     columns: {
       main: "Partecipa",
@@ -208,7 +208,7 @@ const STRINGS: Record<SupportedLocale, FooterStrings> = {
     },
     links: {
       main: [
-        { href: "/#mitmachen", label: "Partecipa" },
+        { href: VOG_JOIN_PATH, label: "Unisciti alla community" },
         { href: "/dossier", label: "Dossier" },
         { href: VOG_SUPPORT_PATH, label: "Sostieni" },
       ],
@@ -223,8 +223,8 @@ const STRINGS: Record<SupportedLocale, FooterStrings> = {
   },
   tr: {
     brand: {
-      claim: "Sağlam ve izlenebilir kararlar için bir hareket.",
-      body: "VoiceOpenGov, net süreçler ve şeffaf katılım kurmak isteyen insanları, girişimleri ve kuruluşları bir araya getirir.",
+      claim: "Uluslararası girişim ve topluluk.",
+      body: "İzlenebilir karar bilgisi, açık katılım ve şeffaf sorumluluklar için.",
     },
     columns: {
       main: "Katıl",
@@ -238,7 +238,7 @@ const STRINGS: Record<SupportedLocale, FooterStrings> = {
     },
     links: {
       main: [
-        { href: "/#mitmachen", label: "Katıl" },
+        { href: VOG_JOIN_PATH, label: "Topluluğa katıl" },
         { href: "/dossier", label: "Dossier" },
         { href: VOG_SUPPORT_PATH, label: "Destekle" },
       ],
@@ -253,8 +253,8 @@ const STRINGS: Record<SupportedLocale, FooterStrings> = {
   },
   ar: {
     brand: {
-      claim: "حركة لقرارات قوية وقابلة للتتبع.",
-      body: "VoiceOpenGov يربط بين الأفراد والمبادرات والمنظمات التي تريد بناء إجراءات واضحة ومشاركة شفافة.",
+      claim: "مبادرة ومجتمع دولي.",
+      body: "من أجل معلومات قابلة للتتبع لاتخاذ القرار ومشاركة مفتوحة ومسؤوليات شفافة.",
     },
     columns: {
       main: "شارك",
@@ -268,7 +268,7 @@ const STRINGS: Record<SupportedLocale, FooterStrings> = {
     },
     links: {
       main: [
-        { href: "/#mitmachen", label: "شارك" },
+        { href: VOG_JOIN_PATH, label: "انضم إلى المجتمع" },
         { href: "/dossier", label: "ملف" },
         { href: VOG_SUPPORT_PATH, label: "ادعم" },
       ],
@@ -283,8 +283,8 @@ const STRINGS: Record<SupportedLocale, FooterStrings> = {
   },
   ru: {
     brand: {
-      claim: "Движение за устойчивые и проверяемые решения.",
-      body: "VoiceOpenGov объединяет людей, инициативы и организации, которые хотят создавать понятные процессы и прозрачное участие.",
+      claim: "Международная инициатива и сообщество.",
+      body: "Для прослеживаемой информации для решений, открытого участия и прозрачной ответственности.",
     },
     columns: {
       main: "Участвовать",
@@ -298,7 +298,7 @@ const STRINGS: Record<SupportedLocale, FooterStrings> = {
     },
     links: {
       main: [
-        { href: "/#mitmachen", label: "Участвовать" },
+        { href: VOG_JOIN_PATH, label: "Присоединиться к сообществу" },
         { href: "/dossier", label: "Досье" },
         { href: VOG_SUPPORT_PATH, label: "Поддержать" },
       ],
@@ -313,8 +313,8 @@ const STRINGS: Record<SupportedLocale, FooterStrings> = {
   },
   zh: {
     brand: {
-      claim: "推动稳健、可追溯的决策。",
-      body: "VoiceOpenGov 连接希望建立清晰流程与透明参与的人、倡议与组织。",
+      claim: "国际倡议与社区。",
+      body: "致力于可追溯的决策信息、开放参与和透明责任。",
     },
     columns: {
       main: "参与",
@@ -328,7 +328,7 @@ const STRINGS: Record<SupportedLocale, FooterStrings> = {
     },
     links: {
       main: [
-        { href: "/#mitmachen", label: "参与" },
+        { href: VOG_JOIN_PATH, label: "加入社区" },
         { href: "/dossier", label: "档案" },
         { href: VOG_SUPPORT_PATH, label: "支持" },
       ],
