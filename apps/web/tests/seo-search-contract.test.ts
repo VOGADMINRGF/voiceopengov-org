@@ -14,6 +14,24 @@ describe("public SEO/search contract", () => {
     expect(layout).not.toContain("Internationale Initiative & Community");
   });
 
+  it("keeps visible homepage and footer aligned with the identity contract", () => {
+    const home = source("components/home/HomeClient.tsx");
+    const footer = source("components/SiteFooter.tsx");
+
+    for (const surface of [home, footer]) {
+      expect(surface).not.toContain("Internationale Initiative & Community");
+      expect(surface).not.toContain("International initiative & community");
+    }
+
+    expect(home).toContain("politische Bürger- und Mitgliederbewegung im Aufbau");
+    expect(home).toContain("eDebatte ist eine unabhängige offene Infrastruktur");
+    expect(home).toContain("sie entscheidet nicht automatisch für VoiceOpenGov");
+    expect(home).toContain("VoiceOpenGov entscheidet seinen eigenen Programmstand nach den eigenen Governance-Regeln");
+    expect(footer).toContain("Bürgerbewegung & regionale Repräsentation");
+    expect(footer).toContain("Persönliche öffentliche Stimme");
+    expect(footer).toContain("nicht automatisch eine VoiceOpenGov-Position");
+  });
+
   it("keeps sitemap canonical and free of redirects or synthetic freshness", () => {
     const sitemap = source("app/sitemap.ts");
     expect(sitemap).not.toContain('"/mitmachen/rollen"');

@@ -13,20 +13,20 @@ const ECOSYSTEM_COPY = {
   de: {
     eyebrow: "Klare Rollen im Umfeld von VoiceOpenGov",
     title: "Verbunden, aber nicht gleichgesetzt.",
-    body: "VoiceOpenGov organisiert Community und Beteiligung. eDebatte ist eine eigenständige offene Infrastruktur, die VoiceOpenGov nutzt. Vote4Gov ist ein getrenntes Projekt. Voxy unterstützt beim Erklären, Strukturieren und Übersetzen, ohne Entscheidungen zu treffen.",
-    footerLine: "Transparenz über Rollen, Finanzierung und Zuständigkeiten ist Teil des Aufbaus.",
+    body: "VoiceOpenGov organisiert eigene demokratische Willensbildung, einen dynamischen Programmstand, regionale Präsenz und Repräsentation. eDebatte ist eine unabhängige offene Infrastruktur, die VoiceOpenGov nutzt, ohne für VoiceOpenGov zu entscheiden. Vote4Gov ist Ricky Gerd Fleischers persönliche öffentliche Stimme. Voxy erklärt, strukturiert und übersetzt, ohne Entscheidungen zu treffen.",
+    footerLine: "Transparenz über Rollen, Finanzierung, Programmstände und Zuständigkeiten ist Teil des Aufbaus.",
     items: {
       edebatte: {
-        role: "Eigenständige offene Infrastruktur",
-        description: "Für nachvollziehbare Entscheidungsgrundlagen, Quellen und Orientierung – offen für unterschiedliche gesellschaftliche Akteure.",
+        role: "Unabhängige Evidenz- & Beteiligungsinfrastruktur",
+        description: "Für Dossiers, Quellen, Gegenpositionen, Alternativen und Beteiligung – offen für unterschiedliche gesellschaftliche Akteure und nicht im Eigentum von VoiceOpenGov.",
       },
       voiceopengov: {
-        role: "Internationale Initiative & Community",
-        description: "Menschen wirken digital und regional mit. Die endgültige rechtliche Träger- und Mitgliedschaftsstruktur befindet sich noch im Aufbau.",
+        role: "Bürgerbewegung & regionale Repräsentation",
+        description: "Mitglieder und regionale Communities bilden den eigenen demokratischen Willen und einen versionierten Programmstand. Die rechtliche Trägerstruktur befindet sich noch im Aufbau.",
       },
       vote4gov: {
-        role: "Getrenntes Projekt",
-        description: "Ein eigenständiger Raum für Überlegungen zur Weiterentwicklung demokratischer Mitbestimmung; keine verbindliche Position von VoiceOpenGov.",
+        role: "Persönliche öffentliche Stimme",
+        description: "Ricky Gerd Fleischers persönlicher Blick auf Geschichte, Systemkritik, internationale Vergleiche und seinen politischen Ordnungsentwurf – nicht automatisch eine VoiceOpenGov-Position.",
       },
       voxy: {
         role: "Assistenz",
@@ -37,20 +37,20 @@ const ECOSYSTEM_COPY = {
   en: {
     eyebrow: "Clear roles around VoiceOpenGov",
     title: "Connected, but not conflated.",
-    body: "VoiceOpenGov organises community and participation. eDebatte is an independent open infrastructure used by VoiceOpenGov. Vote4Gov is a separate project. Voxy supports explanation, structuring and translation without making decisions.",
-    footerLine: "Transparency about roles, funding and responsibilities is part of the build-up.",
+    body: "VoiceOpenGov organises its own democratic will formation, a dynamic programme state, regional presence and representation. eDebatte is an independent open infrastructure used by VoiceOpenGov without deciding VoiceOpenGov positions. Vote4Gov is Ricky Gerd Fleischer's personal public voice. Voxy explains, structures and translates without making decisions.",
+    footerLine: "Transparency about roles, funding, programme states and responsibilities is part of the build-up.",
     items: {
       edebatte: {
-        role: "Independent open infrastructure",
-        description: "For traceable decision information, sources and orientation — open to different parts of society.",
+        role: "Independent evidence & participation infrastructure",
+        description: "For dossiers, sources, counterpositions, alternatives and participation — open to different parts of society and not owned by VoiceOpenGov.",
       },
       voiceopengov: {
-        role: "International initiative & community",
-        description: "People participate digitally and regionally. The final legal entity and membership structure is still being established.",
+        role: "Civic movement & regional representation",
+        description: "Members and regional communities form the movement's own democratic will and a versioned programme state. The final legal entity structure is still being established.",
       },
       vote4gov: {
-        role: "Separate project",
-        description: "An independent space for exploring the development of democratic participation; not a binding VoiceOpenGov position.",
+        role: "Personal public voice",
+        description: "Ricky Gerd Fleischer's personal view on history, system criticism, international comparisons and his political order design — not automatically a VoiceOpenGov position.",
       },
       voxy: {
         role: "Assistant",
@@ -68,13 +68,13 @@ export default function SiteFooter({ locale }: SiteFooterProps) {
     : "Build phase: VoiceOpenGov is currently operated by Ricky G. Fleischer as a natural person. No VOG Holding or other separate company currently acts as provider, contractual partner or payment recipient.";
   const brandCopy = locale === "de"
     ? {
-        claim: "Internationale Initiative & Community.",
-        body: "Für nachvollziehbare Entscheidungsgrundlagen, offene Beteiligung und transparente Verantwortlichkeiten.",
+        claim: "Bürgerbeteiligung & regionale Repräsentation.",
+        body: "Für einen dynamischen, nachvollziehbaren Programmstand mit sichtbaren Mehrheiten, Minderheitenpositionen und Änderungen.",
       }
     : locale === "en"
       ? {
-          claim: "International initiative & community.",
-          body: "For traceable decision information, open participation and transparent responsibilities.",
+          claim: "Civic participation & regional representation.",
+          body: "For a dynamic, traceable programme state with visible majorities, minority positions and changes.",
         }
       : strings.brand;
 
