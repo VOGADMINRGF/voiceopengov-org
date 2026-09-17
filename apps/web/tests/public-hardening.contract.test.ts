@@ -51,7 +51,7 @@ describe("public web hardening contract", () => {
 
     expect(copy).toContain("gültig abgeschlossenes eDebatte-Ergebnis");
     expect(copy).toContain("bindenden Repräsentationsauftrag");
-    expect(copy).toContain("validly concluded eDebatte decision");
+    expect(copy).toContain("An eDebatte decision validly concluded under published rules");
     expect(copy).toContain("binding representation mandate");
     expect(copy).toContain("Entwürfe, laufende Debatten und informelle Stimmungsbilder");
     expect(copy).not.toContain("VoiceOpenGov entscheidet seinen eigenen Programmstand nach den eigenen Governance-Regeln");
