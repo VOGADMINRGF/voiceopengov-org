@@ -5,7 +5,7 @@ import { getRequestLocale } from "@/lib/locale";
 export const metadata: Metadata = {
   title: "Mitmachen | VoiceOpenGov",
   description:
-    "Als Aktivmitglied oder Mitglied einsteigen oder VoiceOpenGov vor Ort mit Raum, Kontakten, Expertise und Organisation unterstützen.",
+    "Kostenfrei bei VoiceOpenGov dabei sein, sich aktiv einbringen oder gemeinsam mit Nachbarn regionale eDebatte × VoiceOpenGov-Präsenz aufbauen.",
 };
 
 export default async function MitmachenPage() {
