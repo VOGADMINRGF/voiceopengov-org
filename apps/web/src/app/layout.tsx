@@ -29,39 +29,39 @@ const META: Partial<
   Record<SupportedLocale, { title: string; description: string; skip: string }>
 > = {
   de: {
-    title: "VoiceOpenGov | Internationale Initiative & Community",
+    title: "VoiceOpenGov | Bürgerbeteiligung & regionale Repräsentation",
     description:
-      "VoiceOpenGov ist eine internationale Initiative und Community für nachvollziehbare Entscheidungsgrundlagen, offene Beteiligung und transparente Verantwortlichkeiten.",
+      "VoiceOpenGov verbindet Bürgerbeteiligung mit regionaler Präsenz: eDebatte-Entscheidungen nachvollziehbar machen, Mehrheiten vertreten und Umsetzung sichtbar halten.",
     skip: "Zum Inhalt",
   },
   en: {
-    title: "VoiceOpenGov | International initiative & community",
+    title: "VoiceOpenGov | Civic participation & regional representation",
     description:
-      "VoiceOpenGov is an international initiative and community for traceable decision information, open participation and transparent responsibilities.",
+      "VoiceOpenGov links civic participation with local presence: trace eDebatte decisions, represent valid majorities and make political implementation visible.",
     skip: "Skip to content",
   },
   fr: {
-    title: "VoiceOpenGov | Initiative et communauté internationales",
+    title: "VoiceOpenGov | Participation citoyenne & représentation régionale",
     description:
-      "VoiceOpenGov relie des personnes autour d’informations décisionnelles traçables, d’une participation ouverte et de responsabilités transparentes.",
+      "VoiceOpenGov relie participation citoyenne et présence locale : décisions eDebatte traçables, majorités représentées et mise en œuvre politique visible.",
     skip: "Aller au contenu",
   },
   es: {
-    title: "VoiceOpenGov | Iniciativa y comunidad internacional",
+    title: "VoiceOpenGov | Participación ciudadana y representación regional",
     description:
-      "VoiceOpenGov conecta a personas en torno a información verificable para decidir, participación abierta y responsabilidades transparentes.",
+      "VoiceOpenGov conecta participación ciudadana y presencia local: decisiones de eDebatte trazables, mayorías representadas e implementación política visible.",
     skip: "Ir al contenido",
   },
   tr: {
-    title: "VoiceOpenGov | Uluslararası girişim ve topluluk",
+    title: "VoiceOpenGov | Yurttaş katılımı ve bölgesel temsil",
     description:
-      "VoiceOpenGov, izlenebilir karar bilgisi, açık katılım ve şeffaf sorumluluklar etrafında insanları bir araya getirir.",
+      "VoiceOpenGov yurttaş katılımını yerel varlıkla birleştirir: eDebatte kararlarını izlenebilir kılar, geçerli çoğunluğu temsil eder ve uygulamayı görünür tutar.",
     skip: "İçeriğe geç",
   },
   ar: {
-    title: "VoiceOpenGov | مبادرة ومجتمع دولي",
+    title: "VoiceOpenGov | المشاركة المدنية والتمثيل الإقليمي",
     description:
-      "تجمع VoiceOpenGov الناس حول معلومات قابلة للتتبع لاتخاذ القرار ومشاركة مفتوحة ومسؤوليات شفافة.",
+      "تربط VoiceOpenGov المشاركة المدنية بالحضور المحلي: قرارات eDebatte قابلة للتتبع، وتمثيل للأغلبية المعتمدة، ومتابعة شفافة للتنفيذ السياسي.",
     skip: "الانتقال إلى المحتوى",
   },
 };
@@ -74,6 +74,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(VOICEOPENGOV_URL),
     applicationName: "VoiceOpenGov",
+    category: "Civic participation",
     title: {
       default: copy.title,
       template: "%s | VoiceOpenGov",
@@ -90,6 +91,11 @@ export async function generateMetadata(): Promise<Metadata> {
       description: copy.description,
       url: canonical,
       locale: getLocaleConfig(locale).bcp47.replace("-", "_"),
+    },
+    twitter: {
+      card: "summary",
+      title: copy.title,
+      description: copy.description,
     },
     robots: {
       index: true,
@@ -131,11 +137,11 @@ export default async function RootLayout({
       url: `${VOICEOPENGOV_URL}/`,
       description: meta.description,
       knowsAbout: [
-        "democratic participation",
-        "civic engagement",
-        "transparency",
-        "deliberative democracy",
-        "digital democracy",
+        "civic participation",
+        "democratic decision-making",
+        "regional political representation",
+        "transparent political implementation",
+        "majority and minority positions",
       ],
     },
     {
