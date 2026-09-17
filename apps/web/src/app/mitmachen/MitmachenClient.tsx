@@ -16,127 +16,133 @@ const COPY = {
     eyebrow: "Mitmachen",
     title: "Wie möchtest du Teil von VoiceOpenGov werden?",
     intro:
-      "Drei Wege, ein Einstieg: aktiv mitwirken, Mitglied werden oder vor Ort konkret ermöglichen.",
+      "Drei Wege, ein Einstieg: aktiv mitwirken, der Community beitreten oder vor Ort konkret ermöglichen.",
     active: "Aktiv mitwirken",
     activeKicker: "Zeit & Verantwortung",
     activeBody:
       "Du möchtest regelmäßig mitarbeiten, Verantwortung übernehmen oder VoiceOpenGov regional und organisatorisch mit aufbauen.",
-    member: "Mitglied werden",
-    memberKicker: "Zugehörigkeit",
+    member: "Community beitreten",
+    memberKicker: "Verbunden bleiben",
     memberBody:
-      "Du möchtest dazugehören, informiert bleiben und dich beteiligen können – ohne eine feste Aufgabe übernehmen zu müssen.",
+      "Du möchtest zur VoiceOpenGov-Community gehören, informiert bleiben und dich beteiligen können – ohne eine feste Aufgabe übernehmen zu müssen.",
     region: "Vor Ort ermöglichen",
     regionKicker: "Ressourcen & Infrastruktur",
     regionBody:
-      "Du kannst Raum, Treffpunkt, Technik, Kontakte, Expertise, Logistik oder eine Gastgeberrolle beitragen – auch ohne Mitgliedschaft.",
+      "Du kannst Raum, Treffpunkt, Technik, Kontakte, Expertise, Logistik oder eine Gastgeberrolle beitragen – auch ohne Community-Anmeldung.",
     contentHint: "Inhaltlich an Themen und Entscheidungsräumen arbeiten?",
     contentCta: "eDebatte öffnen",
     supportHint: "Du möchtest den Aufbau finanziell unterstützen?",
     supportCta: "Unterstützen",
-    formTitle: "Mitgliedschaft starten",
+    formEyebrow: "Community-Anmeldung",
+    formTitle: "Teil der Community werden",
     formHint:
-      "VoiceOpenGov befindet sich in der Aufbauphase. Die Anmeldung dokumentiert deine Community-Mitgliedschaft; die endgültige rechtliche Träger- und Mitgliedschaftsstruktur wird transparent veröffentlicht, sobald sie feststeht.",
+      "VoiceOpenGov befindet sich in der Aufbauphase. Mit dieser Anmeldung wirst du Teil der VoiceOpenGov-Community. Dies ist derzeit ausdrücklich keine Vereins- oder gesellschaftsrechtliche Mitgliedschaft. Eine spätere rechtliche Träger- oder Mitgliedschaftsstruktur wird separat und transparent angeboten, sobald sie feststeht.",
+    dataHint:
+      "Geburtsdatum wird zur Altersprüfung verarbeitet; Ort und Land dienen der regionalen Zuordnung. Öffentliche Standortzahlen werden nur aggregiert dargestellt.",
     selectedActive: "Aktiv mitwirken",
-    selectedMember: "Mitglied werden",
+    selectedMember: "Community beitreten",
     modeQuestion: "Wie möchtest du starten?",
     modeActive: "Aktiv mitwirken",
     modeActiveHint:
       "Wir melden uns, wenn konkrete Aufgaben, regionale Möglichkeiten oder Aufbaurollen zu deinem Profil passen.",
-    modeMember: "Mitglied werden",
+    modeMember: "Community beitreten",
     modeMemberHint:
-      "Du gehörst dazu, bleibst informiert und kannst später jederzeit aktiver werden.",
+      "Du wirst Teil der Community, bleibst informiert und kannst später jederzeit aktiver mitwirken.",
     firstName: "Vorname",
     lastName: "Nachname",
     birthDate: "Geburtsdatum",
-    birthDateHint: "Erforderlich, weil die Mitgliedschaft derzeit ab 16 Jahren möglich ist.",
+    birthDateHint: "Erforderlich, weil die Community-Anmeldung derzeit ab 16 Jahren möglich ist.",
     email: "E-Mail",
     city: "Ort",
     country: "Land",
     countryPlaceholder: "Land wählen",
     privacy: "Ich akzeptiere die Datenschutzhinweise und das Double-Opt-In-Verfahren.",
     newsletter: "Ich möchte Updates zu VoiceOpenGov erhalten.",
-    submit: "Kostenfrei Mitglied werden",
+    submit: "Kostenfrei der Community beitreten",
     submitting: "Wird eingetragen …",
     successTitle: "Fast geschafft.",
     successBody:
-      "Bitte bestätige jetzt die E-Mail. Erst danach ist deine Anmeldung abgeschlossen.",
+      "Bitte bestätige jetzt die E-Mail. Erst danach ist deine Community-Anmeldung abgeschlossen.",
     successActiveNext:
       "Als nächstes kannst du angeben, wo und wie du aktiv mitwirken möchtest.",
     successMemberNext:
       "Du kannst später jederzeit zu einer aktiveren Mitwirkung wechseln.",
     validation: "Bitte Geburtsdatum, E-Mail, Ort und Datenschutz vollständig angeben.",
     invalidBirthDate: "Bitte gib ein gültiges Geburtsdatum an.",
-    underage: "Die Mitgliedschaft ist derzeit ab 16 Jahren möglich.",
+    underage: "Die Community-Anmeldung ist derzeit ab 16 Jahren möglich.",
     rateLimited: "Zu viele Versuche in kurzer Zeit. Bitte versuche es später erneut.",
     unavailable: "Die Anmeldung ist vorübergehend nicht erreichbar. Bitte versuche es später erneut.",
     error:
       "Die Anmeldung konnte gerade nicht abgeschlossen werden. Bitte versuche es erneut oder schreibe an members@voiceopengov.org.",
     regionalEyebrow: "Vor Ort ermöglichen",
     regionalLead:
-      "Hier geht es nicht um Mitgliedschaft, sondern um konkrete Unterstützung mit Ressourcen, Orten und Infrastruktur.",
+      "Hier geht es nicht um die Community-Anmeldung, sondern um konkrete Unterstützung mit Ressourcen, Orten und Infrastruktur.",
   },
   en: {
     eyebrow: "Participate",
     title: "How would you like to be part of VoiceOpenGov?",
     intro:
-      "Three paths, one entry point: contribute actively, become a member or enable participation locally.",
+      "Three paths, one entry point: contribute actively, join the community or enable participation locally.",
     active: "Contribute actively",
     activeKicker: "Time & responsibility",
     activeBody:
       "You would like to contribute regularly, take responsibility or help build VoiceOpenGov regionally and operationally.",
-    member: "Become a member",
-    memberKicker: "Belonging",
+    member: "Join the community",
+    memberKicker: "Stay connected",
     memberBody:
-      "You want to belong, stay informed and participate without taking on a fixed role.",
+      "You want to be part of the VoiceOpenGov community, stay informed and participate without taking on a fixed role.",
     region: "Enable locally",
     regionKicker: "Resources & infrastructure",
     regionBody:
-      "You can contribute space, a venue, technology, contacts, expertise, logistics or a host role – even without membership.",
+      "You can contribute space, a venue, technology, contacts, expertise, logistics or a host role – even without community registration.",
     contentHint: "Want to work on topics and decision spaces?",
     contentCta: "Open eDebatte",
     supportHint: "Want to support the build financially?",
     supportCta: "Support",
-    formTitle: "Start membership",
+    formEyebrow: "Community registration",
+    formTitle: "Join the community",
     formHint:
-      "VoiceOpenGov is currently in its build-up phase. Registration records your community membership; the final legal entity and membership structure will be published transparently once established.",
+      "VoiceOpenGov is currently in its build-up phase. This registration makes you part of the VoiceOpenGov community. It is explicitly not membership in a legal association or company at this stage. Any future legal entity or formal membership structure will be offered separately and transparently once established.",
+    dataHint:
+      "Your date of birth is processed for the age check; city and country are used for regional allocation. Public location figures are shown only in aggregate.",
     selectedActive: "Contribute actively",
-    selectedMember: "Become a member",
+    selectedMember: "Join the community",
     modeQuestion: "How would you like to start?",
     modeActive: "Contribute actively",
     modeActiveHint:
       "We will contact you when concrete tasks, regional opportunities or build-up roles fit your profile.",
-    modeMember: "Become a member",
+    modeMember: "Join the community",
     modeMemberHint:
-      "You belong, stay informed and can switch to more active participation at any time.",
+      "You become part of the community, stay informed and can contribute more actively at any time later.",
     firstName: "First name",
     lastName: "Last name",
     birthDate: "Date of birth",
-    birthDateHint: "Required because membership is currently available from age 16.",
+    birthDateHint: "Required because community registration is currently available from age 16.",
     email: "Email",
     city: "City",
     country: "Country",
     countryPlaceholder: "Choose country",
     privacy: "I accept the privacy notice and double opt-in process.",
     newsletter: "I would like updates about VoiceOpenGov.",
-    submit: "Join for free",
+    submit: "Join the community for free",
     submitting: "Joining …",
     successTitle: "Almost there.",
     successBody:
-      "Please confirm the email now. Your registration is only complete after confirmation.",
+      "Please confirm the email now. Your community registration is only complete after confirmation.",
     successActiveNext:
       "Next, you can tell us where and how you would like to contribute actively.",
     successMemberNext:
       "You can switch to more active participation at any time later.",
     validation: "Please provide date of birth, email, city and privacy consent.",
     invalidBirthDate: "Please provide a valid date of birth.",
-    underage: "Membership is currently available from age 16.",
+    underage: "Community registration is currently available from age 16.",
     rateLimited: "Too many attempts in a short time. Please try again later.",
     unavailable: "Registration is temporarily unavailable. Please try again later.",
     error:
       "Registration could not be completed right now. Please try again or email members@voiceopengov.org.",
     regionalEyebrow: "Enable locally",
     regionalLead:
-      "This is not about membership. It is about practical support with resources, places and infrastructure.",
+      "This is not about community registration. It is about practical support with resources, places and infrastructure.",
   },
 } as const;
 
@@ -348,11 +354,14 @@ export default function MitmachenClient({
         <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:px-8 lg:grid-cols-[.72fr_1.28fr]">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-[#18cfc8]">
-              Mitgliedschaft
+              {copy.formEyebrow}
             </p>
             <h2 className="mt-4 text-4xl">{copy.formTitle}</h2>
             <p className="mt-5 text-sm leading-7 text-slate-400">
               {copy.formHint}
+            </p>
+            <p className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-xs leading-6 text-slate-400">
+              {copy.dataHint}
             </p>
             <div className="mt-6 rounded-2xl border border-[#18cfc8]/20 bg-[#18cfc8]/[0.06] p-4">
               <p className="text-sm font-black text-[#bff7f3]">
