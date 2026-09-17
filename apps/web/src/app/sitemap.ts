@@ -15,7 +15,9 @@ const STATIC_PUBLIC_PATHS = [
 
 const PUBLIC_PATHS = [
   ...STATIC_PUBLIC_PATHS,
-  ...GERMAN_STATE_REGIONS.map((region) => `/regionen/deutschland/${region.slug}`),
+  ...GERMAN_STATE_REGIONS
+    .filter((region) => region.searchVisibility === "index")
+    .map((region) => `/regionen/deutschland/${region.slug}`),
 ];
 
 function localizedUrl(path: string, locale: string) {
