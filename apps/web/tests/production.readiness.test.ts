@@ -66,13 +66,14 @@ describe("membership and funding production readiness", () => {
     expect(password).toContain('role="status" aria-live="polite"');
   });
 
-  it("keeps /mitmachen focused on membership and local enabling", () => {
+  it("keeps /mitmachen focused on community registration and local enabling", () => {
     const join = source("app/mitmachen/MitmachenClient.tsx");
     const regionalRedirect = source("app/vor-ort/page.tsx");
     expect(join).toContain('id="vor-ort"');
     expect(join).toContain("<RegionalInterestForm strings={regional} />");
     expect(join).toContain("EDEBATTE_URL");
     expect(join).toContain("VOG_SUPPORT_PATH");
+    expect(join).toContain("Community-Anmeldung");
     expect(join).not.toContain("VOG_QUESTIONS_PATH");
     expect(regionalRedirect).toContain('redirect("/mitmachen#vor-ort")');
   });
@@ -83,6 +84,28 @@ describe("membership and funding production readiness", () => {
     expect(join).toContain("copy.successTitle");
     expect(join).toContain("copy.successActiveNext");
     expect(join).toContain("copy.successMemberNext");
+  });
+
+  it("keeps privacy copy aligned with the actual participation data contract", () => {
+    const privacy = source("app/datenschutz/strings.ts");
+    expect(privacy).toContain("Teilnahmemodus");
+    expect(privacy).toContain("Double-Opt-In-Verfahrens");
+    expect(privacy).toContain("UTM-Quelle");
+    expect(privacy).toContain("nach 90 Tagen ab");
+    expect(privacy).toContain("zwischen 30 und 180 Tagen");
+    expect(privacy).not.toContain("Geburtsdatum und -ort");
+    expect(privacy).not.toContain("Motivationstexte und Skills");
+  });
+
+  it("keeps public footer wording community-first across supported locales", () => {
+    const footer = source("components/footerStrings.ts");
+    expect(footer).toContain('label: "Community beitreten"');
+    expect(footer).toContain('label: "Join the community"');
+    expect(footer).toContain('label: "Rejoindre la communauté"');
+    expect(footer).toContain('label: "加入社区"');
+    expect(footer).not.toContain("Mitgliederbewegung");
+    expect(footer).not.toContain("membership movement");
+    expect(footer).not.toContain('/#mitmachen');
   });
 
   it("keeps RTL, privacy retention and no-political-weight gates executable in CI", () => {
