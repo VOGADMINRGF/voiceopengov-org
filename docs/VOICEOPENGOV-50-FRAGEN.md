@@ -1,99 +1,114 @@
-# Die ersten 50 öffentlichen Orientierungsfragen
+# Die 50 öffentlichen Kernfragen
 
-Status: Seed-Welle 1
+Status: Seed-Welle · versionierbarer Themenkanon
 
-Diese Fragen bilden keine fertige politische Agenda. Sie sind offene, international verständliche Arbeitsräume für eDebatte. Jede Frage wird mit Quellen, Zielkonflikten, Alternativen, Beteiligung, Versionierung und Wirkungsprüfung bearbeitet.
+Diese 50 Fragen sind **kein festgeschriebenes Programm und keine fertigen politischen Antworten**. Sie bilden den ersten stabil adressierbaren Themenrahmen für eDebatte und VoiceOpenGov. Die IDs `vog-question-01` bis `vog-question-50` bleiben stabil; Formulierung, Unterfragen, Evidenz, Zuständigkeit und Antworten dürfen versioniert weiterentwickelt werden.
 
-## Menschenbild, Freiheit und Verantwortung
+Eine Kernfrage ist **nicht automatisch eine abstimmungsreife Entscheidungsfrage**. Aus ihr entstehen konkrete, abgegrenzte Unterfragen mit eindeutigem Geltungsbereich, Entscheidungsregel, Alternativen und Wirkungsbezug. Erst ein gültig abgeschlossenes eDebatte-Verfahren kann ein bindendes VoiceOpenGov-Repräsentationsmandat erzeugen.
 
-1. Wie schützen wir die Würde jedes Menschen, wenn Freiheit, Sicherheit und Gemeinwohl miteinander kollidieren?
-2. Welche Verantwortung trägt der Einzelne gegenüber der Gemeinschaft – und wo endet sie?
-3. Wie sichern wir persönliche Souveränität, ohne gesellschaftlichen Zusammenhalt zu schwächen?
-4. Welche Rechte dürfen niemals von Mehrheiten aufgehoben werden?
-5. Wie behandeln wir Menschen fair, wenn ihre Voraussetzungen höchst unterschiedlich sind?
-6. Welche Verantwortung tragen heutige Generationen gegenüber Menschen, die noch nicht geboren sind?
+## Demokratie, Grundrechte und Macht
 
-## Demokratie, Staat und Macht
+1. Welche Grund- und Freiheitsrechte müssen auch gegenüber demokratischen Mehrheiten besonders geschützt bleiben?
+2. Wie soll verbindliche Bürgerbeteiligung zwischen Wahlen funktionieren und wo liegen ihre Grenzen?
+3. Welche Mehrheiten, Quoren und Schutzregeln sollen je nach Tragweite einer Entscheidung gelten?
+4. Wie bleiben Minderheiten wirksam geschützt, ohne den demokratisch festgestellten Mehrheitswillen dauerhaft zu blockieren?
+5. Wie müssen politische Zuständigkeit, Verantwortung und Umsetzung so dokumentiert werden, dass sie für Bürger nachvollziehbar bleiben?
 
-7. Wann ist eine politische Entscheidung wirklich legitim?
-8. Wie verbinden wir repräsentative Demokratie, direkte Beteiligung und fachliche Verantwortung sinnvoll?
-9. Wie verhindern wir, dass Geld, Reichweite oder institutionelle Nähe politische Gewichtung kaufen?
-10. Wie schützen wir Minderheiten, ohne demokratische Mehrheiten handlungsunfähig zu machen?
-11. Wie machen wir politische Verantwortung sichtbar, wenn Entscheidungen über viele Institutionen verteilt sind?
-12. Wann muss eine politische Entscheidung automatisch neu geprüft oder geöffnet werden?
-13. Wie begrenzen wir Macht, ohne notwendige Handlungsfähigkeit zu verlieren?
-14. Wer kontrolliert diejenigen, die Kontrolle ausüben?
-15. Wie schaffen wir einen Staat, der wirksam handelt und dennoch nachvollziehbar bleibt?
-16. Wie verhindern wir, dass Krisen dauerhaft zu weniger Freiheit und Kontrolle führen?
+## Staat, Verwaltung und öffentliche Finanzen
 
-## Wissen, Medien und Orientierung
+6. Welche Aufgaben gehören sinnvoll auf kommunale, regionale, nationale oder europäische Ebene?
+7. Wo brauchen wir einheitliche Standards und wo mehr lokale oder regionale Entscheidungsfreiheit?
+8. Wie sollen Steuern, öffentliche Ausgaben und Verschuldung priorisiert und demokratisch kontrolliert werden?
+9. Welche staatlichen Leistungen sollen digital, analog oder grundsätzlich auf beiden Wegen erreichbar sein?
+10. Welche Transparenz-, Lobby- und Antikorruptionsregeln braucht ein nachvollziehbarer Staat?
 
-17. Wie unterscheiden wir belastbares Wissen, plausible Annahmen und bloße Behauptungen?
-18. Wie gehen wir öffentlich mit wissenschaftlicher Unsicherheit um, ohne Vertrauen zu zerstören?
-19. Wie verhindern wir Desinformation, ohne legitimen Widerspruch oder Meinungsfreiheit zu unterdrücken?
-20. Welche Verantwortung tragen Medien, Plattformen und Bürger für gemeinsame Orientierung?
-21. Wie machen wir Interessenkonflikte sichtbar, ohne Menschen pauschal zu diskreditieren?
-22. Wie können Menschen komplexe Entscheidungen verstehen, ohne Expertenwissen besitzen zu müssen?
-23. Wie bewerten wir Quellen transparent, ohne eine zentrale Wahrheitsbehörde zu schaffen?
-24. Wie schaffen wir Raum für Kursänderungen, ohne sie als Schwäche auszulegen?
+## Wirtschaft, Arbeit und soziale Sicherheit
 
-## Technologie, KI und digitale Souveränität
+11. Wie sollen Steuern, Wettbewerb und Regulierung gestaltet sein, damit Wertschöpfung, Innovation und faire Chancen zusammenpassen?
+12. Welche Regeln für Löhne, Arbeitszeit, Tarifbindung und flexible Arbeit schaffen einen fairen Ausgleich zwischen Beschäftigten und Unternehmen?
+13. Welche soziale Mindestsicherung soll jedem Menschen zustehen und welche Erwartungen dürfen damit verbunden sein?
+14. Wie soll Alterssicherung langfristig finanzierbar, verlässlich und generationengerecht organisiert werden?
+15. Woran sollen Wohlstand, gesellschaftlicher Fortschritt und Verteilungsgerechtigkeit gemessen werden?
 
-25. Wie nutzen wir künstliche Intelligenz so, dass sie Menschen stärkt und nicht ersetzt oder beherrscht?
-26. Welche Entscheidungen dürfen niemals vollständig automatisiert werden?
-27. Wie schützen wir Privatsphäre und Daten, ohne gesellschaftlich nützliche Erkenntnisse unmöglich zu machen?
-28. Wie verhindern wir digitale Machtkonzentration bei Staaten und Unternehmen?
-29. Wem gehören öffentlich relevante Daten und Modelle?
-30. Wie machen wir algorithmische Entscheidungen verständlich, anfechtbar und korrigierbar?
-31. Wie sichern wir digitale Teilhabe, ohne Menschen zur permanenten Vernetzung zu zwingen?
+## Gesundheit, Pflege und Familie
 
-## Soziales, Arbeit und Wohlstand
+16. Wie soll eine hochwertige Gesundheitsversorgung finanziert und für alle verlässlich zugänglich bleiben?
+17. Wie sollen ambulante Versorgung, Krankenhäuser und Notfallversorgung regional zusammenspielen?
+18. Wie organisieren und finanzieren wir Pflege so, dass Würde, Qualität, Angehörige und Fachkräfte gleichermaßen berücksichtigt werden?
+19. Welche Rolle sollen Prävention, Eigenverantwortung und solidarische Finanzierung im Gesundheitssystem jeweils spielen?
+20. Welche Rahmenbedingungen brauchen Kinder, Familien und Jugendliche für verlässliche Teilhabe und Entwicklungschancen?
 
-32. Wie sichern wir gesellschaftliche Teilhabe, ohne Eigenverantwortung und Leistung zu entwerten?
-33. Wie verteilen wir Chancen fairer, ohne Ergebnisse künstlich gleichzumachen?
-34. Wie gestalten wir Arbeit in einer Welt, in der Automatisierung und KI immer mehr Aufgaben übernehmen?
-35. Wie finanzieren wir einen leistungsfähigen Sozialstaat dauerhaft und generationengerecht?
-36. Wie verhindern wir Armut, ohne Abhängigkeit von undurchsichtigen Systemen zu verstärken?
-37. Wie messen wir Wohlstand jenseits von Wachstum und Einkommen?
-38. Wie schaffen wir bezahlbaren Wohnraum, ohne Eigentum, Investitionen und lokale Lebensqualität gegeneinander auszuspielen?
+## Bildung, Forschung, Medien und Kultur
 
-## Bildung und Befähigung
+21. Welche Bildungsstandards sollen überall gelten und welche Unterschiede zwischen Regionen oder Schulformen sind sinnvoll?
+22. Wie sollen frühkindliche Bildung, Schule, Ausbildung und lebenslanges Lernen ineinandergreifen?
+23. Welche Rolle sollen politische Bildung, Medienkompetenz, Quellenprüfung und demokratische Entscheidungsfähigkeit spielen?
+24. Wie viel öffentliche Förderung brauchen Forschung und Innovation und wie sichern wir dabei Freiheit, Offenheit und Transfer?
+25. Wie sollen unabhängige Medien, öffentlich finanzierte Angebote, Kultur und Meinungsvielfalt in einer digitalen Öffentlichkeit gesichert werden?
 
-39. Was muss Bildung leisten, damit Menschen in einer komplexen Demokratie souverän handeln können?
-40. Wie verbinden wir gleiche Chancen mit unterschiedlichen Talenten, Lebenswegen und Lerngeschwindigkeiten?
-41. Wie bereiten wir Kinder und Erwachsene auf eine Welt vor, deren Berufe und Technologien sich ständig verändern?
-42. Welche Rolle sollen Medienkompetenz, Quellenprüfung und demokratische Entscheidungsfähigkeit in Bildung spielen?
+## Wohnen, Verkehr und Infrastruktur
 
-## Gesundheit und Lebensqualität
+26. Wie schaffen wir ausreichend bezahlbaren Wohnraum und welche Rolle sollen Markt, öffentliche Hand und gemeinwohlorientierte Träger spielen?
+27. Wie sollen Flächen für Wohnen, Gewerbe, Natur, Landwirtschaft und öffentliche Infrastruktur gegeneinander abgewogen werden?
+28. Welche Prioritäten sollen öffentlicher Verkehr, Auto, Fahrrad und Fußverkehr in unterschiedlichen Regionen erhalten?
+29. Wie sollen Bahn, Straßen, Netze und andere kritische Infrastruktur finanziert, erhalten und modernisiert werden?
+30. Welche öffentlichen Angebote müssen auch in ländlichen oder strukturschwachen Regionen verlässlich erreichbar bleiben?
 
-43. Wie sichern wir eine hochwertige Gesundheitsversorgung, die solidarisch, finanzierbar und zugänglich bleibt?
-44. Wie verteilen wir knappe medizinische Ressourcen gerecht und transparent?
-45. Wie stärken wir Prävention, ohne Menschen zu bevormunden oder zu benachteiligen?
+## Klima, Energie, Umwelt und Ernährung
 
-## Klima, Ressourcen und Generationen
+31. Welche Klimaziele sollen gelten und mit welchen Instrumenten sollen sie erreicht, überprüft und angepasst werden?
+32. Wie sollen Versorgungssicherheit, Energiepreise, Klimaschutz und technologische Offenheit beim Energiemix gewichtet werden?
+33. Wie viel Schutz brauchen Natur, Wasser, Böden und Artenvielfalt und wie werden Nutzungskonflikte entschieden?
+34. Welche Regeln für Landwirtschaft, Tierhaltung, Lebensmittelqualität und Preise schaffen einen tragfähigen Ausgleich?
+35. Wie reduzieren wir Rohstoffverbrauch und Abfall und welche Verantwortung tragen Produzenten, Verbraucher und Staat?
 
-46. Wie schützen wir unsere Lebensgrundlagen, ohne Wohlstand, Freiheit und soziale Stabilität gegeneinander auszuspielen?
-47. Wie verteilen wir Kosten und Chancen des ökologischen Wandels fair zwischen Regionen, Einkommen und Generationen?
-48. Wie entscheiden wir unter großer Unsicherheit über langfristige und teilweise irreversible Folgen?
+## Digitalisierung, Daten und KI
 
-## Europa, Welt und Frieden
+36. Wie sollen Datenschutz, Datennutzung, offene Daten und gesellschaftlicher Nutzen miteinander ausbalanciert werden?
+37. Welche digitale Identität und welche digitalen Verwaltungsdienste braucht eine demokratische Gesellschaft?
+38. Welche Entscheidungen dürfen KI-Systeme unterstützen oder automatisieren und wo muss menschliche Verantwortung zwingend bleiben?
+39. Welche Transparenz-, Haftungs- und Kontrollregeln brauchen Algorithmen und KI mit erheblicher gesellschaftlicher Wirkung?
+40. Wie sichern wir digitale Infrastruktur, Wettbewerb und Zugang, ohne neue private oder staatliche Machtmonopole zu schaffen?
 
-49. Wie verbinden wir nationale Souveränität, europäische Handlungsfähigkeit und globale Verantwortung?
-50. Wie schaffen wir dauerhaften Frieden und Zusammenarbeit, wenn Interessen, Werte und Macht ungleich verteilt sind?
+## Migration, Sicherheit und Rechtsstaat
+
+41. Welche Regeln sollen für Flucht, Asyl, Einwanderung und Rückkehr gelten und wie werden humanitäre, rechtliche und praktische Anforderungen verbunden?
+42. Welche Rechte, Pflichten und Wege zur gesellschaftlichen Teilhabe sollen Integration und Einbürgerung bestimmen?
+43. Welche Befugnisse brauchen Polizei und Sicherheitsbehörden und welche Kontrollen schützen Freiheitsrechte und Rechtsstaat?
+44. Wie machen wir Justiz schnell, zugänglich und wirksam, ohne Unabhängigkeit und Verfahrensrechte zu schwächen?
+45. Wie sollen Bevölkerungsschutz, Katastrophenvorsorge und Krisenentscheidungen organisiert und demokratisch kontrolliert werden?
+
+## Europa, Welt, Frieden und Zukunft
+
+46. Welche Aufgaben und Kompetenzen sollen künftig bei EU, Mitgliedstaaten, Regionen und Kommunen liegen?
+47. Wie sollen Verteidigung, Bündnisse, zivile Sicherheit und demokratische Kontrolle miteinander verbunden werden?
+48. Nach welchen Regeln sollen Außen-, Handels- und Entwicklungspolitik Interessen, Menschenrechte, Frieden und gegenseitige Abhängigkeiten abwägen?
+49. Welche internationale Zusammenarbeit brauchen grenzüberschreitende Probleme, ohne demokratische Verantwortung unklar werden zu lassen?
+50. Wann und nach welchen Regeln muss eine frühere demokratische Entscheidung wegen neuer Evidenz, veränderter Umstände oder eines veränderten Mehrheitswillens erneut geöffnet werden?
 
 ## Kanonischer Raumvertrag
 
-Jede Frage erhält in eDebatte mindestens:
+Jede Kernfrage kann beliebig viele konkrete Entscheidungsfragen hervorbringen. Für eine abstimmungsreife Frage müssen mindestens dokumentiert sein:
 
-- eine klare Leitfrage und Abgrenzung
-- den zentralen Zielkonflikt
-- Rechts- und Wertebezüge
+- stabile `questionId` und versionierte Formulierung
+- fachliche Abgrenzung und konkrete Entscheidungsfrage
+- sachlicher und geografischer Geltungsbereich
+- zuständige politische bzw. institutionelle Ebene
+- geltende Entscheidungsregel, Mehrheit und Quorum
+- Rechts- und Grundrechtsgrenzen
 - betroffene Gruppen und Grade der Betroffenheit
-- lokale, nationale, europäische und globale Ebenen
 - Quellen, Claims, Gegenclaims und Annahmen
 - sichtbare Unsicherheiten und offene Forschungsfragen
-- mindestens zwei ernsthafte Handlungsalternativen einschließlich Nichtstun
-- Zeitachse und Reversibilität
-- erwartete sowie tatsächlich gemessene Wirkungen
-- Mehrheitsbild, Minderheitenpositionen und Repräsentativität
-- Versionshistorie und Gründe für Änderungen
+- mindestens zwei ernsthafte Handlungsalternativen einschließlich Status quo/Nichtstun, sofern sachlich möglich
+- erwartete Wirkungen, Kosten, Nebenwirkungen und Reversibilität
+- Mehrheitsposition und relevante Minderheitenpositionen
+- Abschlussstatus und unveränderlicher Entscheidungssnapshot
+- Versionshistorie und `supersedes`-Bezug
+- Bedingungen für Review oder Wiedereröffnung
+- politischer Umsetzungsstatus, wenn VoiceOpenGov das gültige Mandat vertritt
+
+## Dynamikvertrag
+
+Menschen dürfen ihre Meinung ändern. Neue Evidenz, neue Rahmenbedingungen oder ein veränderter gesellschaftlicher Mehrheitswille dürfen deshalb frühere Entscheidungen ersetzen.
+
+Der aktuelle VoiceOpenGov-Programmstand ist niemals die Summe historischer Antworten, sondern die **aktuelle, versionierte Sicht der jeweils gültigen eDebatte-Mandate**. Frühere Versionen bleiben aus Transparenzgründen sichtbar, verlieren aber nach einer gültigen Nachfolgeentscheidung ihre aktuelle Bindungswirkung.
