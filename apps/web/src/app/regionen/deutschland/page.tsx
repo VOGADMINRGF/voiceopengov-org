@@ -3,7 +3,7 @@ import Link from "next/link";
 import StructuredData from "@/components/seo/StructuredData";
 import TranslationStatusNotice from "@/components/i18n/TranslationStatusNotice";
 import { REQUIRED_LAUNCH_LOCALES, getLocaleConfig } from "@/config/locales";
-import { VOICEOPENGOV_URL } from "@/config/links";
+import { VOICEOPENGOV_URL, VOG_JOIN_PATH } from "@/config/links";
 import { GERMAN_STATE_REGIONS } from "@/content/regionalStates";
 import { REGIONAL_SEO_COPY, regionalSeoLocale } from "@/content/regionalSeo";
 import {
@@ -11,14 +11,13 @@ import {
   localizedCanonicalUrl,
 } from "@/lib/i18n/localeContract";
 import { getRequestLocale } from "@/lib/locale";
-import { REGIONAL_INTEREST_SOURCE_PATH } from "@/lib/regionalInterestContract";
 
 const PATH = "/regionen/deutschland";
 
 function href(path: string, locale: string) {
   const url = new URL(path, VOICEOPENGOV_URL);
   if (locale !== "de") url.searchParams.set("lang", locale);
-  return `${url.pathname}${url.search}`;
+  return `${url.pathname}${url.search}${url.hash}`;
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -139,7 +138,7 @@ export default async function GermanyRegionPage() {
           <Link className="rounded-full bg-[#18cfc8] px-6 py-3 font-bold text-[#071727]" href={href("/regionen/deutschland/berlin", locale)}>
             {copy.berlinAction} →
           </Link>
-          <Link className="rounded-full border border-[#1a8cff] px-6 py-3 font-bold" href={href(REGIONAL_INTEREST_SOURCE_PATH, locale)}>
+          <Link className="rounded-full border border-[#1a8cff] px-6 py-3 font-bold" href={href(`${VOG_JOIN_PATH}#vor-ort`, locale)}>
             {copy.regionalAction}
           </Link>
         </div>

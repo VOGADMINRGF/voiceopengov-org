@@ -1,4 +1,5 @@
-import HomeClient, { HOME_RELAUNCH_COPY } from "@/components/home/HomeClient";
+import HomeClient from "@/components/home/HomeClient";
+import { HOME_RELAUNCH_COPY } from "@/components/home/homeRelaunchCopy";
 import RegionalActivationTeaser from "@/components/home/RegionalActivationTeaser";
 import HomeDiscoverabilityLinks from "@/components/home/HomeDiscoverabilityLinks";
 import TranslationStatusNotice from "@/components/i18n/TranslationStatusNotice";

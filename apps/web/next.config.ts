@@ -10,6 +10,12 @@ const resolveAlias = {
   "@packages": path.join(__dirname, "../../packages"),
 };
 
+const SECURITY_HEADERS = [
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "Strict-Transport-Security", value: "max-age=31536000" },
+] as const;
+
 const config = {
   experimental: {
     externalDir: true,
@@ -33,6 +39,15 @@ const config = {
       "http://localhost:3000",
       "http://192.168.178.22:3000",
     ],
+
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [...SECURITY_HEADERS],
+      },
+    ];
+  },
 
   // 🔒 WICHTIG: Keine Redirects mehr – so bleibt /contributions/analyze erreichbar.
   async redirects() {

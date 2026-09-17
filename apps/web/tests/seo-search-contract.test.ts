@@ -14,19 +14,24 @@ describe("public SEO/search contract", () => {
     expect(layout).not.toContain("Internationale Initiative & Community");
   });
 
-  it("keeps visible homepage and footer aligned with the identity contract", () => {
-    const home = source("components/home/HomeClient.tsx");
+  it("keeps visible homepage and footer aligned with the identity and mandate contract", () => {
+    const homeClient = source("components/home/HomeClient.tsx");
+    const homeCopy = source("components/home/homeRelaunchCopy.ts");
     const footer = source("components/SiteFooter.tsx");
 
-    for (const surface of [home, footer]) {
+    for (const surface of [homeClient, homeCopy, footer]) {
       expect(surface).not.toContain("Internationale Initiative & Community");
       expect(surface).not.toContain("International initiative & community");
     }
 
-    expect(home).toContain("politische Bürger- und Mitgliederbewegung im Aufbau");
-    expect(home).toContain("eDebatte ist eine unabhängige offene Infrastruktur");
-    expect(home).toContain("sie entscheidet nicht automatisch für VoiceOpenGov");
-    expect(home).toContain("VoiceOpenGov entscheidet seinen eigenen Programmstand nach den eigenen Governance-Regeln");
+    expect(homeCopy).toContain("politische Bürger- und Mitgliederbewegung im Aufbau");
+    expect(homeCopy).toContain("gültig abgeschlossenes eDebatte-Ergebnis");
+    expect(homeCopy).toContain("bindenden Repräsentationsauftrag");
+    expect(homeCopy).toContain("eDebatte bleibt der unabhängige Evidenz-, Beteiligungs- und Entscheidungsraum");
+    expect(homeCopy).not.toContain("sie entscheidet nicht automatisch für VoiceOpenGov");
+    expect(homeCopy).not.toContain("VoiceOpenGov entscheidet seinen eigenen Programmstand nach den eigenen Governance-Regeln");
+    expect(homeClient).toContain('from "./homeRelaunchCopy"');
+
     expect(footer).toContain("Bürgerbewegung & regionale Repräsentation");
     expect(footer).toContain("Persönliche öffentliche Stimme");
     expect(footer).toContain("nicht automatisch eine VoiceOpenGov-Position");

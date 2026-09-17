@@ -3,7 +3,7 @@ import Link from "next/link";
 import StructuredData from "@/components/seo/StructuredData";
 import TranslationStatusNotice from "@/components/i18n/TranslationStatusNotice";
 import { REQUIRED_LAUNCH_LOCALES, getLocaleConfig } from "@/config/locales";
-import { VOICEOPENGOV_URL } from "@/config/links";
+import { VOICEOPENGOV_URL, VOG_JOIN_PATH } from "@/config/links";
 import { REGIONAL_SEO_COPY, regionalSeoLocale } from "@/content/regionalSeo";
 import {
   localeAlternates,
@@ -16,7 +16,7 @@ const PATH = "/regionen/deutschland/berlin";
 function href(path: string, locale: string) {
   const url = new URL(path, VOICEOPENGOV_URL);
   if (locale !== "de") url.searchParams.set("lang", locale);
-  return `${url.pathname}${url.search}`;
+  return `${url.pathname}${url.search}${url.hash}`;
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -112,7 +112,7 @@ export default async function BerlinRegionPage() {
         </div>
 
         <div className="mt-10 flex flex-wrap gap-3">
-          <Link className="rounded-full bg-[#18cfc8] px-6 py-3 font-bold text-[#071727]" href={href("/vor-ort", locale)}>
+          <Link className="rounded-full bg-[#18cfc8] px-6 py-3 font-bold text-[#071727]" href={href(`${VOG_JOIN_PATH}#vor-ort`, locale)}>
             {copy.action}
           </Link>
           <Link className="rounded-full border border-slate-700 px-6 py-3 font-bold" href={href("/regionen/deutschland", locale)}>

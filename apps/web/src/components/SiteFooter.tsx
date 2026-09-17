@@ -13,16 +13,16 @@ const ECOSYSTEM_COPY = {
   de: {
     eyebrow: "Klare Rollen im Umfeld von VoiceOpenGov",
     title: "Verbunden, aber nicht gleichgesetzt.",
-    body: "VoiceOpenGov organisiert eigene demokratische Willensbildung, einen dynamischen Programmstand, regionale Präsenz und Repräsentation. eDebatte ist eine unabhängige offene Infrastruktur, die VoiceOpenGov nutzt, ohne für VoiceOpenGov zu entscheiden. Vote4Gov ist Ricky Gerd Fleischers persönliche öffentliche Stimme. Voxy erklärt, strukturiert und übersetzt, ohne Entscheidungen zu treffen.",
-    footerLine: "Transparenz über Rollen, Finanzierung, Programmstände und Zuständigkeiten ist Teil des Aufbaus.",
+    body: "eDebatte bleibt der unabhängige Evidenz-, Beteiligungs- und Entscheidungsraum. Erst ein nach veröffentlichten Regeln gültig abgeschlossenes Ergebnis bindet die zuständige VoiceOpenGov-Repräsentation im definierten Geltungsbereich. Entwürfe, laufende Debatten und informelle Stimmungsbilder binden nicht. Vote4Gov ist Ricky Gerd Fleischers persönliche öffentliche Stimme. Voxy erklärt, strukturiert und übersetzt, ohne Entscheidungen zu treffen.",
+    footerLine: "Transparenz über Rollen, Finanzierung, gültige Mandate, Programmstände und Zuständigkeiten ist Teil des Aufbaus.",
     items: {
       edebatte: {
-        role: "Unabhängige Evidenz- & Beteiligungsinfrastruktur",
-        description: "Für Dossiers, Quellen, Gegenpositionen, Alternativen und Beteiligung – offen für unterschiedliche gesellschaftliche Akteure und nicht im Eigentum von VoiceOpenGov.",
+        role: "Unabhängige Evidenz-, Beteiligungs- & Entscheidungsinfrastruktur",
+        description: "Für Dossiers, Quellen, Gegenpositionen, Alternativen, Beteiligung und gültig abgeschlossene Entscheidungen – offen für unterschiedliche gesellschaftliche Akteure und nicht im Eigentum von VoiceOpenGov.",
       },
       voiceopengov: {
         role: "Bürgerbewegung & regionale Repräsentation",
-        description: "Mitglieder und regionale Communities bilden den eigenen demokratischen Willen und einen versionierten Programmstand. Die rechtliche Trägerstruktur befindet sich noch im Aufbau.",
+        description: "Mitglieder und regionale Communities bringen Themen, Thesen und Gegenpositionen ein. Der versionierte Programmstand bildet gültige eDebatte-Mandate in ihrem jeweiligen Geltungsbereich ab; die rechtliche Trägerstruktur befindet sich noch im Aufbau.",
       },
       vote4gov: {
         role: "Persönliche öffentliche Stimme",
@@ -37,16 +37,16 @@ const ECOSYSTEM_COPY = {
   en: {
     eyebrow: "Clear roles around VoiceOpenGov",
     title: "Connected, but not conflated.",
-    body: "VoiceOpenGov organises its own democratic will formation, a dynamic programme state, regional presence and representation. eDebatte is an independent open infrastructure used by VoiceOpenGov without deciding VoiceOpenGov positions. Vote4Gov is Ricky Gerd Fleischer's personal public voice. Voxy explains, structures and translates without making decisions.",
-    footerLine: "Transparency about roles, funding, programme states and responsibilities is part of the build-up.",
+    body: "eDebatte remains the independent evidence, participation and decision space. Only a result validly concluded under published rules binds the responsible VoiceOpenGov representation within its defined scope. Drafts, ongoing deliberations and informal sentiment do not bind. Vote4Gov is Ricky Gerd Fleischer's personal public voice. Voxy explains, structures and translates without making decisions.",
+    footerLine: "Transparency about roles, funding, valid mandates, programme states and responsibilities is part of the build-up.",
     items: {
       edebatte: {
-        role: "Independent evidence & participation infrastructure",
-        description: "For dossiers, sources, counterpositions, alternatives and participation — open to different parts of society and not owned by VoiceOpenGov.",
+        role: "Independent evidence, participation & decision infrastructure",
+        description: "For dossiers, sources, counterpositions, alternatives, participation and validly concluded decisions — open to different parts of society and not owned by VoiceOpenGov.",
       },
       voiceopengov: {
         role: "Civic movement & regional representation",
-        description: "Members and regional communities form the movement's own democratic will and a versioned programme state. The final legal entity structure is still being established.",
+        description: "Members and regional communities bring forward topics, theses and counterpositions. The versioned programme state projects valid eDebatte mandates within their respective scope; the final legal entity structure is still being established.",
       },
       vote4gov: {
         role: "Personal public voice",
@@ -69,12 +69,12 @@ export default function SiteFooter({ locale }: SiteFooterProps) {
   const brandCopy = locale === "de"
     ? {
         claim: "Bürgerbeteiligung & regionale Repräsentation.",
-        body: "Für einen dynamischen, nachvollziehbaren Programmstand mit sichtbaren Mehrheiten, Minderheitenpositionen und Änderungen.",
+        body: "Für einen versionierten, nachvollziehbaren Programmstand aus gültigen eDebatte-Mandaten mit sichtbaren Mehrheiten, relevanten Minderheiten, Geltungsbereichen und Änderungen.",
       }
     : locale === "en"
       ? {
           claim: "Civic participation & regional representation.",
-          body: "For a dynamic, traceable programme state with visible majorities, minority positions and changes.",
+          body: "For a versioned, traceable programme state projected from valid eDebatte mandates with visible majorities, relevant minority positions, scope and changes.",
         }
       : strings.brand;
 
