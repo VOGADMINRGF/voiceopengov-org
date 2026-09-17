@@ -63,6 +63,9 @@ jobs:
       - name: Regional architecture contract tests
         run: pnpm -C apps/web run test:regional-contract
 
+      - name: SEO + search acquisition contract tests
+        run: pnpm -C apps/web run test:seo-search-contract
+
       - name: Production build
         run: pnpm build
 
