@@ -91,6 +91,7 @@ export function VogCookieBanner({ strings, initialConsent }: VogCookieBannerProp
                   <input
                     type="checkbox"
                     className="peer sr-only"
+                    aria-label={strings.banner.analyticsTitle}
                     checked={analyticsOptIn}
                     onChange={(e) => setAnalyticsOptIn(e.target.checked)}
                   />
