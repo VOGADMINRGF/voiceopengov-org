@@ -31,37 +31,37 @@ const META: Partial<
   de: {
     title: "VoiceOpenGov | Bürgerbeteiligung & regionale Repräsentation",
     description:
-      "VoiceOpenGov verbindet Bürgerbeteiligung mit regionaler Präsenz und eigener demokratischer Willensbildung: eDebatte als unabhängige Evidenz- und Beteiligungsinfrastruktur nutzen, Mehrheiten und Minderheiten sichtbar halten und den eigenen Programmstand versioniert entscheiden.",
+      "VoiceOpenGov verbindet Bürgerbeteiligung mit regionaler politischer Repräsentation: gültige, nach veröffentlichten Regeln abgeschlossene eDebatte-Entscheidungen im jeweiligen Geltungsbereich vertreten, Minderheiten sichtbar halten und Umsetzung transparent verfolgen.",
     skip: "Zum Inhalt",
   },
   en: {
     title: "VoiceOpenGov | Civic participation & regional representation",
     description:
-      "VoiceOpenGov links civic participation with local presence and its own democratic will-formation: use eDebatte as independent evidence and participation infrastructure, keep majority and minority views visible, and version its own program decisions.",
+      "VoiceOpenGov links civic participation with regional political representation: represent valid eDebatte decisions concluded under published rules within their defined scope, keep minority positions visible, and track implementation transparently.",
     skip: "Skip to content",
   },
   fr: {
     title: "VoiceOpenGov | Participation citoyenne & représentation régionale",
     description:
-      "VoiceOpenGov relie participation citoyenne, présence locale et formation démocratique de sa propre volonté : utiliser eDebatte comme infrastructure indépendante de preuves et de participation, rendre visibles majorité et minorités et décider de son propre programme de façon versionnée.",
+      "VoiceOpenGov relie participation citoyenne et représentation politique régionale : représenter, dans leur champ défini, les décisions eDebatte valides conclues selon des règles publiées, garder visibles les positions minoritaires et suivre leur mise en œuvre de manière transparente.",
     skip: "Aller au contenu",
   },
   es: {
     title: "VoiceOpenGov | Participación ciudadana y representación regional",
     description:
-      "VoiceOpenGov conecta participación ciudadana, presencia local y formación democrática de su propia voluntad: utiliza eDebatte como infraestructura independiente de evidencia y participación, mantiene visibles mayorías y minorías y decide su propio programa de forma versionada.",
+      "VoiceOpenGov conecta participación ciudadana y representación política regional: representa las decisiones válidas de eDebatte concluidas según reglas publicadas dentro de su ámbito definido, mantiene visibles las posiciones minoritarias y sigue la implementación con transparencia.",
     skip: "Ir al contenido",
   },
   tr: {
     title: "VoiceOpenGov | Yurttaş katılımı ve bölgesel temsil",
     description:
-      "VoiceOpenGov yurttaş katılımını, yerel varlığı ve kendi demokratik irade oluşumunu birleştirir: eDebatte'yi bağımsız kanıt ve katılım altyapısı olarak kullanır, çoğunluk ve azınlık görüşlerini görünür tutar ve kendi program durumunu sürümlü biçimde kararlaştırır.",
+      "VoiceOpenGov yurttaş katılımını bölgesel siyasi temsille birleştirir: yayımlanmış kurallara göre geçerli biçimde tamamlanan eDebatte kararlarını tanımlı kapsamlarında temsil eder, azınlık görüşlerini görünür tutar ve uygulamayı şeffaf biçimde izler.",
     skip: "İçeriğe geç",
   },
   ar: {
     title: "VoiceOpenGov | المشاركة المدنية والتمثيل الإقليمي",
     description:
-      "تربط VoiceOpenGov المشاركة المدنية بالحضور المحلي وبناء إرادتها الديمقراطية الخاصة: تستخدم eDebatte كبنية مستقلة للأدلة والمشاركة، وتُبقي مواقف الأغلبية والأقلية ظاهرة، وتقرر حالة برنامجها بإصدارات قابلة للتتبع.",
+      "تربط VoiceOpenGov المشاركة المدنية بالتمثيل السياسي الإقليمي: تمثل قرارات eDebatte الصحيحة والمكتملة وفق قواعد منشورة ضمن نطاقها المحدد، وتُبقي مواقف الأقليات ظاهرة، وتتابع التنفيذ بشفافية.",
     skip: "الانتقال إلى المحتوى",
   },
 };
