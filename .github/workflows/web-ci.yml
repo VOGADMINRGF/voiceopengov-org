@@ -60,6 +60,9 @@ jobs:
       - name: Membership + funding contract tests
         run: pnpm -C apps/web run test:membership-funding
 
+      - name: Regional architecture contract tests
+        run: pnpm -C apps/web run test:regional-contract
+
       - name: Production build
         run: pnpm build
 
@@ -85,6 +88,10 @@ jobs:
 
           curl -fsS http://127.0.0.1:3000/mitmachen >/dev/null
           curl -fsS http://127.0.0.1:3000/fragen >/dev/null
+          curl -fsS http://127.0.0.1:3000/regionen/deutschland >/dev/null
+          curl -fsS http://127.0.0.1:3000/regionen/deutschland/berlin >/dev/null
+          curl -fsS http://127.0.0.1:3000/regionen/deutschland/brandenburg \
+            | grep -Ei '<meta[^>]+name="robots"[^>]+content="noindex[^\"]*follow|<meta[^>]+content="noindex[^\"]*follow"[^>]+name="robots"'
 
           curl -sSI http://127.0.0.1:3000/rollen \
             | tr -d '\r' \
