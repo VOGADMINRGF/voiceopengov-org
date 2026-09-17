@@ -4,6 +4,11 @@ export default function robots() {
   return {
     rules: [
       {
+        userAgent: "OAI-SearchBot",
+        allow: "/",
+        disallow: ["/api/"],
+      },
+      {
         userAgent: "*",
         allow: "/",
         disallow: ["/api/"],

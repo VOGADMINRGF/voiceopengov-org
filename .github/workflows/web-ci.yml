@@ -108,6 +108,11 @@ jobs:
             | tr -d '\r' \
             | grep -Ei '^location: (https?://[^/]+)?/mitmachen#vor-ort$'
 
+      - name: Notify IndexNow after successful Vercel production
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        continue-on-error: true
+        run: node apps/web/scripts/submit-indexnow-after-vercel.mjs
+
       - name: Print app log on failure
         if: failure()
         run: tail -n 250 /tmp/vog-next.log 2>/dev/null || true
