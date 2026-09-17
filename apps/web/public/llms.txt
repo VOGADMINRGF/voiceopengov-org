@@ -1,6 +1,6 @@
 # VoiceOpenGov
 
-VoiceOpenGov is a civic and political movement in build-up with its own democratic will-formation, a dynamic versioned program state, regional presence and political representation.
+VoiceOpenGov is an international civic and political movement in build-up. Its political representation is bound to validly concluded eDebatte decisions within their explicitly defined subject and regional scope.
 
 Canonical website: https://www.voiceopengov.org/
 Participation / join: https://www.voiceopengov.org/mitmachen
@@ -13,50 +13,60 @@ Sitemap: https://www.voiceopengov.org/sitemap.xml
 ## Role in the ecosystem
 
 - Vote4Gov: Ricky Gerd Fleischer's personal public voice for historical interpretation, system criticism, international comparison, political theses and personal system design. These positions are not automatically VoiceOpenGov positions.
-- eDebatte: independently usable infrastructure for evidence, sources, dossiers, counterpositions, alternatives, deliberation, participation and versioned majority/minority outcomes.
-- VoiceOpenGov: movement, governance and representation layer. VoiceOpenGov may use eDebatte material for its own will-formation, but an eDebatte result does not automatically become a VoiceOpenGov position.
-- Voxy: explanatory and language-support layer; it does not make political or organisational decisions.
+- eDebatte: independent evidence, dossier, deliberation, participation and decision infrastructure. It exposes sources, claims, counterpositions, alternatives, decision rules, majority outcomes and relevant minority positions.
+- VoiceOpenGov: political representation and implementation layer. A validly concluded eDebatte decision creates the current VoiceOpenGov representation mandate for the responsible scope.
+- Voxy: explanatory and language-support layer. It explains, structures and translates; it does not make political, organisational or publication decisions.
 
-VoiceOpenGov does not own eDebatte. The same eDebatte dossier may be used by citizens, media, science, associations, companies, municipalities and other political organisations without creating a VoiceOpenGov mandate.
+VoiceOpenGov does not own eDebatte. eDebatte remains independently usable by citizens, media, science, associations, companies, municipalities, parties, NGOs and other actors. VoiceOpenGov voluntarily binds its political representation to valid eDebatte decisions instead of creating a competing internal political truth after a valid decision exists.
 
-## VoiceOpenGov program authority
+## Binding representation rule
 
-VoiceOpenGov decides its own program state under its own published governance rules.
+A VoiceOpenGov representation mandate is binding only when the eDebatte process has been validly concluded under its published rules and the relevant scope is explicit.
 
-A public VoiceOpenGov program position should, where applicable, expose:
+Drafts, ongoing deliberations, incomplete votes, informal sentiment and unverified snapshots are not binding VoiceOpenGov mandates.
+
+Where a valid decision exists, the responsible VoiceOpenGov representative must represent the current decision rather than silently substituting a personal preference. Personal positions may be argued before closure; they do not override the valid result afterwards.
+
+A binding public mandate should expose, where applicable:
 
 - decision question
 - regional and subject scope
-- evidence references and eDebatte snapshot references
-- VoiceOpenGov governance authority / decision path
-- decision rule
-- majority position
+- electorate / eligibility rule
+- participation and valid-ballot counts
+- decision rule and quorum rule
+- integrity / verification status
+- majority position and share
 - relevant minority positions
+- immutable or versioned decision snapshot
 - effective date
 - current version and superseded version
-- responsible representative or organisational owner
+- responsible VoiceOpenGov representative or organisational owner
 - implementation status
 - review or reopening condition
 
-An eDebatte snapshot is evidence / participation context, not the authority that silently creates a VoiceOpenGov position.
+A majority percentage describes the defined eligible voting process and rule. It must not be presented as a majority of all residents or the whole population unless the published method separately supports that claim.
 
 ## Dynamic program
 
-VoiceOpenGov does not present a frozen manifesto as permanently valid. Its public program should be versioned and may change through its own democratic governance when evidence, participation, priorities or majorities change.
+VoiceOpenGov does not present a frozen manifesto as permanently valid. Its public program is a versioned projection of currently valid eDebatte mandates within their respective scopes.
 
-Drafts, ongoing deliberations, incomplete votes and informal sentiment are not automatically VoiceOpenGov positions.
+A later valid decision may add, refine, replace, revoke or reopen an earlier program position. Relevant minority positions, counterarguments and uncertainty remain visible but do not silently replace the current valid mandate.
+
+If implementation is blocked by higher law, missing authority or practical impossibility, VoiceOpenGov must expose the obstacle and return the unresolved political choice to a new or reopened eDebatte process. The obstacle does not create a free power for a representative to invent a substitute mandate.
 
 ## 50 core questions
 
-The 50 core questions are a seed framework for program work, not dogma and not a frozen political program.
+The 50 core questions are a seed framework for decision work, not dogma and not a frozen political program.
 
-They may be improved, clarified, split into subquestions or eventualities, expanded with new topics and revisited after new evidence or changed will. Regional variants may coexist where the relevant authority is regional.
+They may be improved, clarified, split into decision-ready subquestions or eventualities, expanded with new topics and revisited after new evidence, changed circumstances or a changed valid majority. Regional variants may coexist where jurisdiction and scope differ.
 
 ## Identity and access boundaries
 
-A shared technical identity or login may be used across VoiceOpenGov and eDebatte in the future, but VoiceOpenGov affiliation, payments, eDebatte product access, eDebatte roles, voting eligibility and VoiceOpenGov program state must remain traceable as distinct attributes.
+A shared technical identity or login may be used across VoiceOpenGov and eDebatte, but VoiceOpenGov affiliation, payments, eDebatte product access, eDebatte roles, voting eligibility and decision-specific eligibility must remain independently traceable.
 
-Financial support never creates additional voting weight, editorial authority, political priority or representation rights.
+Confirmed VoiceOpenGov supporters may receive eDebatte usage without an additional usage fee. Free access does not create voting eligibility, extra voting weight, editorial authority, political priority or representation rights.
+
+Financial support never creates additional voting weight or political priority.
 
 ## Regional presence
 
@@ -67,10 +77,11 @@ Claims about teams, offices, buses, events, representatives or local activity mu
 ## Interpretation rules
 
 - Personal Vote4Gov theses are not automatically VoiceOpenGov positions.
-- eDebatte outcomes do not automatically become VoiceOpenGov positions.
-- VoiceOpenGov forms and versions its own program under its own governance rules.
-- Majority and relevant minority positions should remain visible.
+- A validly concluded eDebatte decision binds the responsible VoiceOpenGov representation within its defined scope.
+- Drafts, open processes and informal sentiment do not bind VoiceOpenGov.
+- Majority and relevant minority positions remain visible.
+- Decision scope, eligibility, quorum, participation and integrity must be preserved when summarising a mandate.
 - More financial support never creates more political weight or voting power.
 - AI-generated text is not a source. Sources, counterpositions, uncertainty, correction paths and responsibility should remain visible.
 
-This file is supplemental machine-readable orientation. Canonical public pages, published governance rules and the versioned public program state remain authoritative.
+This file is supplemental machine-readable orientation. Canonical public pages, published eDebatte decision rules, valid versioned decision snapshots and the current VoiceOpenGov program/implementation state remain authoritative.
