@@ -29,39 +29,39 @@ const META: Partial<
   Record<SupportedLocale, { title: string; description: string; skip: string }>
 > = {
   de: {
-    title: "VoiceOpenGov | Internationale Mitgliederbewegung",
+    title: "VoiceOpenGov | Internationale Initiative & Community",
     description:
-      "VoiceOpenGov ist die internationale Mitgliederbewegung für nachvollziehbare Erkenntnis, echte Beteiligung und gemeinsam verantwortete Entscheidungen.",
+      "VoiceOpenGov ist eine internationale Initiative und Community für nachvollziehbare Entscheidungsgrundlagen, offene Beteiligung und transparente Verantwortlichkeiten.",
     skip: "Zum Inhalt",
   },
   en: {
-    title: "VoiceOpenGov | International membership movement",
+    title: "VoiceOpenGov | International initiative & community",
     description:
-      "VoiceOpenGov is the international membership movement for traceable insight, genuine participation and decisions carried through shared responsibility.",
+      "VoiceOpenGov is an international initiative and community for traceable decision information, open participation and transparent responsibilities.",
     skip: "Skip to content",
   },
   fr: {
-    title: "VoiceOpenGov | Mouvement international de membres",
+    title: "VoiceOpenGov | Initiative et communauté internationales",
     description:
-      "VoiceOpenGov rassemble des personnes qui veulent comprendre, participer et assumer ensemble des décisions transparentes.",
+      "VoiceOpenGov relie des personnes autour d’informations décisionnelles traçables, d’une participation ouverte et de responsabilités transparentes.",
     skip: "Aller au contenu",
   },
   es: {
-    title: "VoiceOpenGov | Movimiento internacional de miembros",
+    title: "VoiceOpenGov | Iniciativa y comunidad internacional",
     description:
-      "VoiceOpenGov reúne a personas para comprender, participar y asumir conjuntamente decisiones transparentes.",
+      "VoiceOpenGov conecta a personas en torno a información verificable para decidir, participación abierta y responsabilidades transparentes.",
     skip: "Ir al contenido",
   },
   tr: {
-    title: "VoiceOpenGov | Uluslararası üyelik hareketi",
+    title: "VoiceOpenGov | Uluslararası girişim ve topluluk",
     description:
-      "VoiceOpenGov, anlaşılır bilgi, gerçek katılım ve ortak sorumluluk için insanları bir araya getirir.",
+      "VoiceOpenGov, izlenebilir karar bilgisi, açık katılım ve şeffaf sorumluluklar etrafında insanları bir araya getirir.",
     skip: "İçeriğe geç",
   },
   ar: {
-    title: "VoiceOpenGov | حركة عضوية دولية",
+    title: "VoiceOpenGov | مبادرة ومجتمع دولي",
     description:
-      "تجمع VoiceOpenGov الناس من أجل فهم يمكن التحقق منه ومشاركة حقيقية وقرارات تقوم على المسؤولية المشتركة.",
+      "تجمع VoiceOpenGov الناس حول معلومات قابلة للتتبع لاتخاذ القرار ومشاركة مفتوحة ومسؤوليات شفافة.",
     skip: "الانتقال إلى المحتوى",
   },
 };
