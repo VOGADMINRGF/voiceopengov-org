@@ -78,7 +78,7 @@ jobs:
           mkdir -p /tmp/vog-browser
           cd /tmp/vog-browser
           npm init -y >/dev/null 2>&1
-          npm install --no-save --no-package-lock playwright@1.55.0 @axe-core/playwright@4.10.2
+          npm install --no-save --no-package-lock playwright@1.63.0 @axe-core/playwright@4.13.0
           npx playwright install --with-deps chromium
 
       - name: "Production smoke: membership, participation and browser accessibility"
