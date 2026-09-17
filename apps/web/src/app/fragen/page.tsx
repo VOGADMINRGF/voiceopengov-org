@@ -41,11 +41,11 @@ const DE_CONTENT: PageContent = {
   copy: {
     title: "50 Fragen. Keine 50 fertigen Antworten.",
     description:
-      "Die ersten 50 offenen Orientierungsfragen der VoiceOpenGov-Bewegung mit stabilen IDs und eDebatte-Handoff.",
+      "Die ersten 50 offenen Orientierungsfragen der VoiceOpenGov-Initiative mit stabilen IDs und eDebatte-Handoff.",
     eyebrow: "Offener Kompass",
     intro:
       "Diese Fragen sind kein Parteiprogramm. Sie sind der öffentliche Arbeitsbeginn: mit Quellen, Gegenargumenten, Zielkonflikten, Alternativen und einem sichtbaren Lernstand. Jede Frage bleibt in allen Sprachen fachlich dieselbe Frage.",
-    join: "Mitglied werden",
+    join: "Community beitreten",
     transparency: "So machen wir den Stand sichtbar",
     status: "Status: Seed · eDebatte-Handoff vorbereitet",
     openRoom: "Auf eDebatte weiterverfolgen",
@@ -67,11 +67,11 @@ const EN_CONTENT: PageContent = {
   copy: {
     title: "50 questions. Not 50 finished answers.",
     description:
-      "The first 50 open questions guiding VoiceOpenGov, with stable IDs and an eDebatte handoff.",
+      "The first 50 open questions guiding the VoiceOpenGov initiative, with stable IDs and an eDebatte handoff.",
     eyebrow: "An open compass",
     intro:
       "These questions are not a party manifesto. They are where the public work begins: with sources, counterarguments, trade-offs, alternatives and a visible state of learning. Each translation remains the same canonical question.",
-    join: "Become a member",
+    join: "Join the community",
     transparency: "See how we make progress visible",
     status: "Status: seed · eDebatte handoff prepared",
     openRoom: "Continue on eDebatte",
@@ -90,10 +90,7 @@ const EN_CONTENT: PageContent = {
 };
 
 const STATUS_COPY: Partial<
-  Record<
-    SupportedLocale,
-    Record<TranslationStatus, string>
-  >
+  Record<SupportedLocale, Record<TranslationStatus, string>>
 > = {
   de: {
     source: "Deutsche Originalfassung",
@@ -157,34 +154,34 @@ export default async function QuestionsPage() {
   const statusCopy = STATUS_COPY[locale] ?? STATUS_COPY.en!;
 
   return (
-    <main className="min-h-screen bg-[#07110f] text-[#f4f1e8]">
-      <section className="border-b border-[#f4f1e8]/10 bg-[radial-gradient(circle_at_82%_18%,rgba(214,255,101,0.16),transparent_30%)]">
+    <main className="min-h-screen bg-[#020617] text-[#f8fafc]">
+      <section className="border-b border-white/10 bg-[radial-gradient(circle_at_82%_18%,rgba(24,207,200,0.14),transparent_30%)]">
         <div className="mx-auto max-w-6xl px-5 py-20 md:px-8 md:py-28">
-          <p className="text-sm font-black uppercase tracking-[0.24em] text-[#d6ff65]">
+          <p className="text-sm font-black uppercase tracking-[0.24em] text-[#18cfc8]">
             {copy.eyebrow}
           </p>
           <h1 className="mt-5 max-w-4xl text-4xl font-black tracking-[-0.04em] md:text-6xl">
             {copy.title}
           </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-[#f4f1e8]/62">
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
             {copy.intro}
           </p>
           <div className="mt-6 inline-flex rounded-full border border-[#18cfc8]/35 bg-[#18cfc8]/8 px-4 py-2 text-xs font-bold text-[#18cfc8]">
             {statusCopy[bundle.status]}
           </div>
-          <p className="mt-3 text-sm text-[#f4f1e8]/45">
+          <p className="mt-3 text-sm text-slate-500">
             {VOG_QUESTION_COUNT} / 50 · IDs bleiben sprachunabhängig
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href={VOG_JOIN_PATH}
-              className="rounded-full bg-[#d6ff65] px-5 py-3 font-black text-[#07110f] transition hover:-translate-y-0.5"
+              className="rounded-full bg-gradient-to-r from-[#1a8cff] to-[#18cfc8] px-5 py-3 font-black text-[#071727] transition hover:-translate-y-0.5"
             >
               {copy.join}
             </Link>
             <Link
               href={VOG_TRANSPARENCY_PATH}
-              className="rounded-full border border-[#f4f1e8]/18 px-5 py-3 font-bold transition hover:border-[#d6ff65]/55 hover:text-[#d6ff65]"
+              className="rounded-full border border-white/15 px-5 py-3 font-bold transition hover:border-[#18cfc8]/55 hover:text-[#18cfc8]"
             >
               {copy.transparency}
             </Link>
@@ -197,9 +194,9 @@ export default async function QuestionsPage() {
           {groups.map((group) => (
             <article
               key={group.id}
-              className="rounded-3xl border border-[#f4f1e8]/10 bg-[#0b1714] p-6 md:p-7"
+              className="rounded-3xl border border-white/10 bg-[#0b1220] p-6 md:p-7"
             >
-              <h2 className="text-xl font-black text-[#f4f1e8]">
+              <h2 className="text-xl font-black text-[#f8fafc]">
                 {group.title}
               </h2>
               <ol className="mt-5 space-y-5">
@@ -212,16 +209,16 @@ export default async function QuestionsPage() {
                     <li
                       id={question.id}
                       key={question.id}
-                      className="flex gap-4 border-t border-[#f4f1e8]/10 pt-5 first:border-0 first:pt-0"
+                      className="flex gap-4 border-t border-white/10 pt-5 first:border-0 first:pt-0"
                     >
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#d6ff65]/10 text-sm font-black text-[#d6ff65]">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#18cfc8]/10 text-sm font-black text-[#18cfc8]">
                         {current}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold leading-6 text-[#f4f1e8]">
+                        <p className="font-semibold leading-6 text-[#f8fafc]">
                           {question.text}
                         </p>
-                        <p className="mt-2 text-[11px] uppercase tracking-wide text-[#f4f1e8]/38">
+                        <p className="mt-2 text-[11px] uppercase tracking-wide text-slate-500">
                           {copy.stableId}: {question.id} · {copy.status}
                         </p>
                         <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -232,7 +229,7 @@ export default async function QuestionsPage() {
                             {copy.openRoom} ↗
                           </Link>
                           <details className="group">
-                            <summary className="cursor-pointer text-xs font-bold text-[#f4f1e8]/60 hover:text-[#18cfc8]">
+                            <summary className="cursor-pointer text-xs font-bold text-slate-400 hover:text-[#18cfc8]">
                               {copy.qrSummary}
                             </summary>
                             <div className="mt-3 w-fit rounded-2xl bg-white p-3">
