@@ -34,10 +34,24 @@ describe("public SEO/search contract", () => {
     expect(join).toContain("twitter");
   });
 
+  it("gives transparency and voluntary support distinct search identities", () => {
+    const transparency = source("app/transparenz/page.tsx");
+    const support = source("app/unterstuetzen/page.tsx");
+    for (const page of [transparency, support]) {
+      expect(page).toContain("localizedCanonicalUrl");
+      expect(page).toContain("localeAlternates");
+      expect(page).toContain("openGraph");
+      expect(page).toContain("twitter");
+    }
+    expect(transparency).toContain("Transparenz bei VoiceOpenGov");
+    expect(support).toContain("Beiträge kaufen kein Stimmgewicht");
+  });
+
   it("links regional acquisition directly to the canonical /mitmachen anchor", () => {
     const regions = source("app/regionen/page.tsx");
     expect(regions).toContain('new URL("/mitmachen", VOICEOPENGOV_URL)');
     expect(regions).toContain("#vor-ort");
     expect(regions).not.toContain('href={href("/vor-ort", locale)}');
+    expect(regions).not.toContain("{copy.principle}");
   });
 });
