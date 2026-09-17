@@ -1,39 +1,49 @@
 # VoiceOpenGov
 
-VoiceOpenGov is an international, non-partisan membership movement focused on improving democratic participation, traceability and shared civic responsibility.
+VoiceOpenGov is an international membership movement focused on participation, traceability, regional community and shared civic responsibility.
 
 Canonical website: https://www.voiceopengov.org/
 
 ## Role in the ecosystem
 
-- VoiceOpenGov: membership movement and civic organizing layer.
-- eDebatte: independently usable infrastructure for sources, dossiers, counterpositions, deliberation and voting.
-- Vote4Gov: editorial think tank and review layer for democratic systems and institutional questions.
+- VoiceOpenGov: people, regions, membership, community, partnerships and current-topic context.
+- eDebatte: independently usable infrastructure for sources, evidence, counterpositions, dossiers, alternatives, participation, voting and impact.
+- Vote4Gov: critical review layer for system questions, testable theses, institutional questions and international comparisons.
 - Voxy: explanatory and language-support layer; it does not decide or publish autonomously.
 
-VoiceOpenGov does not own eDebatte and does not treat eDebatte as a personal political tool.
+No domain is intended to duplicate the full role of another domain.
 
 ## Core public entry points
 
 - Home: https://www.voiceopengov.org/
-- 50 foundational questions: https://www.voiceopengov.org/fragen
 - Transparency: https://www.voiceopengov.org/transparenz
-- Ways to contribute: https://www.voiceopengov.org/mitmachen/rollen
+- Ways to contribute: https://www.voiceopengov.org/mitmachen
 - Regional participation: https://www.voiceopengov.org/regionen
 - Germany: https://www.voiceopengov.org/regionen/deutschland
 - Berlin: https://www.voiceopengov.org/regionen/deutschland/berlin
-- Personal theses of initiator Ricky Gerd Fleischer: https://www.voiceopengov.org/thesen/ricky-gerd-fleischer
+
+## Legacy public surfaces under migration review
+
+These URLs remain public until an explicit target and redirect plan is implemented. Their presence does not make them the canonical domain for their content type.
+
+- Foundational questions: https://www.voiceopengov.org/fragen
+- Initiator theses: https://www.voiceopengov.org/thesen/ricky-gerd-fleischer
+- VoiceOpenGov dossier routes under `/dossier/*`
+
+System and foundational questions are to be reviewed for Vote4Gov. Evidence, counterpositions, dossiers, alternatives and participation belong to eDebatte. Existing URLs must not be redirected blindly while they still contain mixed material.
 
 ## Interpretation rules
 
-- Personal theses by Ricky Gerd Fleischer are explicitly personal and are not automatically positions of VoiceOpenGov members.
-- VoiceOpenGov has no fixed party manifesto. Its public foundational questions are designed to be examined openly.
-- Claims about membership, local groups, events or representative support must not be inferred unless explicitly published as verified facts.
-- More financial support does not create more political weight or voting power.
+- VoiceOpenGov is the canonical territorial and community layer of the ecosystem.
+- A region entry must not be interpreted as proof that a local group, member count, event, partner or spokesperson exists.
+- Where no verified local community exists, the public state is "Community im Aufbau" / community being built.
+- Vote4Gov may use the same countries and regions for system analysis and international comparison without becoming a second community directory.
+- VoiceOpenGov may surface a current topic with relevance, region and community context; full evidence work belongs to eDebatte.
+- More financial support does not create more voting power.
 - AI-generated text is not a source. Sources, counterpositions, correction paths and responsibility should remain visible where relevant.
 
 ## Languages
 
-The launch language set is German, English, French, Spanish, Turkish and Arabic. Language variants are addressable with the `lang` query parameter and are declared with hreflang metadata.
+The public application supports the configured launch locales. Language variants are addressable with the `lang` query parameter and are declared with hreflang metadata where the page has a canonical localized surface.
 
 This file is an additional machine-readable orientation document for systems that choose to use it. The canonical HTML pages remain the authoritative public source.
