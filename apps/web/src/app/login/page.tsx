@@ -5,6 +5,21 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useLocale } from "@/context/LocaleContext";
 import { getMemberAccountStrings } from "@/app/memberAccountStrings";
+import { VOG_JOIN_PATH } from "@/config/links";
+import type { SupportedLocale } from "@/config/locales";
+
+const JOIN_LABEL: Record<SupportedLocale, string> = {
+  de: "Noch nicht registriert?",
+  en: "Not registered yet?",
+  fr: "Pas encore inscrit ?",
+  es: "¿Aún no te has registrado?",
+  tr: "Henüz kayıt olmadınız mı?",
+  ar: "لم تسجل بعد؟",
+  pl: "Nie masz jeszcze rejestracji?",
+  it: "Non sei ancora registrato?",
+  ru: "Ещё не зарегистрированы?",
+  zh: "还未注册？",
+};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -90,8 +105,8 @@ export default function LoginPage() {
             <Link href="/konto/passwort" className="font-bold text-cyan-400">
               {strings.common.setupAccess}
             </Link>
-            <Link href="/mitglied-werden" className="font-bold text-cyan-400 sm:text-end">
-              {strings.login.noMember}
+            <Link href={VOG_JOIN_PATH} className="font-bold text-cyan-400 sm:text-end">
+              {JOIN_LABEL[locale] ?? JOIN_LABEL.en}
             </Link>
           </div>
         </form>
