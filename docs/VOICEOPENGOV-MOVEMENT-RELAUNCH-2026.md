@@ -1,28 +1,34 @@
 # VoiceOpenGov – Bewegung, Mitgliedschaft und Vertrauensarchitektur
 
-Status: kanonischer Relaunch-Entwurf
+Status: kanonischer Relaunch-Entwurf, aktualisiert am 17. September 2026
 
 ## 1. Klare Markenrollen
 
 ### Vote4Gov
-Vote4Gov ist die persönliche öffentliche Stimme von Ricky Gerd Fleischer: seine Geschichte, Motivation, Verantwortung und Vision für Deutschland, Europa und die Welt.
+Vote4Gov ist der kritische Denk- und Reviewraum des Ökosystems. Dort gehören Systemfragen, prüfbare Thesen, Gegenfragen, institutionelle Reviews und internationale Vergleiche hin. Vote4Gov darf unbequeme Fragen stellen, bildet aber keine eigene Community- oder Abstimmungsebene.
 
 ### VoiceOpenGov
-VoiceOpenGov ist die offene, internationale Mitgliederbewegung für nachvollziehbare Politik, echte Beteiligung, gesellschaftliche Souveränität und eine Kultur des Vertrauens.
+VoiceOpenGov ist die offene, internationale Mitgliederbewegung. Hier liegen Menschen, Regionen, lokale Präsenz, Gruppen, Partner, Veranstaltungen, aktuelle gesellschaftlich relevante Themen und gemeinsames Handeln.
 
 ### eDebatte
-eDebatte ist die unabhängige Infrastruktur, mit der Menschen Informationen prüfen, Quellen verbinden, Zielkonflikte verstehen, Alternativen entwickeln und nachvollziehbare Orientierung sowie Mehrheiten bilden können.
+eDebatte ist die unabhängige fachliche Arbeits- und Entscheidungsinfrastruktur. Dort werden Quellen, Evidenz, Gegenpositionen, Dossiers, Alternativen, Beteiligung, Abstimmungen, Wirkung und Lernstände nachvollziehbar bearbeitet.
 
 ### Voxy
-Voxy verbindet die drei Ebenen als verständliche, transparente Begleiterin. Sie erklärt, strukturiert, übersetzt und zeigt Unsicherheit. Sie entscheidet nicht.
+Voxy erklärt, strukturiert, übersetzt und verbessert Zugänglichkeit. Voxy hilft beim Verstehen und ist keine autonome politische Entscheidungsebene.
+
+Verbindliche Kurzform:
+
+> **Vote4Gov = WARUM? · VoiceOpenGov = WER + WO? · eDebatte = WAS STIMMT UND WAS FOLGT DARAUS? · Voxy = VERSTEHEN.**
+
+Keine Domain soll alle Funktionen selbst abbilden.
 
 ## 2. Nordstern
 
-VoiceOpenGov baut keine Plattform, auf der Menschen einer Meinung sein müssen. VoiceOpenGov schafft eine Bewegung und eine Infrastruktur, in der Menschen trotz unterschiedlicher Meinungen gemeinsam verantwortbare Entscheidungen entwickeln können.
+VoiceOpenGov baut keine Plattform, auf der Menschen einer Meinung sein müssen. VoiceOpenGov schafft eine Bewegung, in der Menschen trotz unterschiedlicher Meinungen dauerhaft verbunden bleiben und Themen in die dafür zuständige fachliche Infrastruktur übergeben können.
 
 Der interne Prüfstein jeder Produkt-, Kommunikations- und Governance-Entscheidung lautet:
 
-> Steigert diese Änderung nachvollziehbares Vertrauen?
+> Steigert diese Änderung nachvollziehbares Vertrauen und bleibt die fachliche Zuständigkeit der Domain eindeutig?
 
 ## 3. Startseitenversprechen
 
@@ -32,32 +38,32 @@ Der interne Prüfstein jeder Produkt-, Kommunikations- und Governance-Entscheidu
 >
 > Wir kennen uns wahrscheinlich nicht. Trotzdem treffen wir jeden Tag Entscheidungen, die unser gemeinsames Leben beeinflussen. Vielleicht wird es Zeit, dass wir anfangen, sie gemeinsam besser zu verstehen.
 
-Die Startseite spricht aus, was viele denken, ohne populistisch zu werden:
+Die Startseite führt nicht in eine fertige politische Position, sondern in eine Bewegung und ihre klar getrennten Arbeitsräume.
 
-- Vertrauen sinkt.
-- Diskussionen werden lauter.
-- Informationen werden mehr.
-- Orientierung wird weniger.
-- Verantwortung bleibt oft unsichtbar.
+Sichtbar werden sollen insbesondere:
 
-Die Antwort ist keine weitere fertige Meinung, sondern ein besseres Verfahren.
+- aktuelle gesellschaftlich relevante Themen,
+- Regionen und Community-Aufbau,
+- konkrete Wege zum Mitmachen,
+- eDebatte als fachlicher Prüf- und Beteiligungsraum,
+- Vote4Gov als Ort für größere System- und Grundsatzfragen.
 
 ## 4. Bewegung statt Produktseite
 
-Die Startseite führt in dieser Reihenfolge:
+Die Startseite führt in dieser Logik:
 
 1. Willkommen Nachbar
-2. Was heute schiefläuft
-3. Was anders funktionieren kann
-4. VoiceOpenGov als internationale Bewegung
-5. Mitgliedschaft und konkrete Rollen
-6. eDebatte als Arbeitsinstrument
-7. Voxy als Begleiterin
-8. Transparenzversprechen
-9. Offene Charta und öffentliche Entwicklung
+2. VoiceOpenGov als internationale Bewegung
+3. Aktuell – welche Themen bewegen Menschen?
+4. Regionen – wo entsteht Community?
+5. Mitmachen – wie kann ich mich beteiligen?
+6. eDebatte – wo werden Themen mit Quellen, Gegenpositionen und Alternativen bearbeitet?
+7. Vote4Gov – wo werden größere Systemfragen gestellt und geprüft?
+8. Voxy – wie werden komplexe Zusammenhänge zugänglich?
+9. Transparenzversprechen und öffentliche Entwicklung
 10. Mitglied werden
 
-Technik, Bände und Fachmodelle bleiben verfügbar, dominieren aber nicht den ersten Eindruck.
+Technik und Fachmodelle bleiben verfügbar, dominieren aber nicht den ersten Eindruck.
 
 ## 5. Mitgliedschaft als tragendes Modell
 
@@ -89,16 +95,31 @@ Grundsatz:
 
 > Geld ermöglicht Arbeit, kauft aber niemals mehr Stimme, Reichweite oder politische Gewichtung.
 
-## 6. Transparenz auf allen drei Domains
+## 6. Regionen und Community
+
+VoiceOpenGov übernimmt die kanonische territoriale und Community-Struktur des Ökosystems.
+
+Eine Region verbindet perspektivisch vier Funktionen:
+
+1. Orientierung – wo befinde ich mich im VoiceOpenGov-Netzwerk?
+2. Aktuelle Themen – was bewegt diese Region?
+3. Community – welche nachweislich vorhandenen Mitglieder, Gruppen, Partner oder Ansprechpartner gibt es?
+4. Handlung – wie kann ich mitmachen oder ein Thema zur vertieften Prüfung an eDebatte übergeben?
+
+Nicht vorhandene Gruppen, Mitgliederzahlen, Veranstaltungen oder Ansprechpartner werden nicht erfunden. Wenn eine regionale Community noch nicht existiert, wird der Zustand als **„Community im Aufbau“** ausgewiesen.
+
+Vote4Gov darf dieselben Regionen für inhaltliche Systemvergleiche verwenden. Das erzeugt jedoch keine zweite territoriale oder Community-Struktur.
+
+## 7. Transparenz auf allen Domains
 
 ### Vote4Gov
 
-- persönliche Interessen und Verbindungen
-- Finanzierung
-- berufliche Historie
-- persönliche Positionen
-- Kursänderungen
-- Fehler und Lernprozesse
+- Quelle einer These oder Systemfrage
+- stärkste Gegenposition
+- Prüffrage und Evidenzbedarf
+- Unsicherheit und Datenlücken
+- Änderungen und Korrekturen
+- internationale Vergleichsgrundlage
 
 ### VoiceOpenGov
 
@@ -111,6 +132,7 @@ Grundsatz:
 - Entscheidungen und Beschwerden
 - KI-Einsatz
 - Wirkung und offene Risiken
+- realer Aufbauzustand regionaler Communitys
 
 ### eDebatte
 
@@ -124,11 +146,11 @@ Grundsatz:
 - Mehrheits- und Minderheitenbilder
 - tatsächliche Wirkung
 
-## 7. Reasoning Graph
+## 8. Reasoning Graph
 
 Der Reasoning Graph gehört methodisch und technisch in eDebatte.
 
-VoiceOpenGov definiert den Transparenzanspruch. eDebatte setzt ihn um.
+VoiceOpenGov liefert Community- und Regionalkontext. Vote4Gov liefert prüfbare Grundsatz- und Systemfragen. eDebatte setzt die fachliche Prüfung und Beteiligung um.
 
 ```text
 Quelle
@@ -160,10 +182,10 @@ tatsächliche Wirkung
 Lernen und neue Version
 ```
 
-## 8. Rolle von Voxy
+## 9. Rolle von Voxy
 
 ### Auf Vote4Gov
-Voxy erklärt Rickys Motivation, unterscheidet persönliche Aussagen von Bewegungspositionen und führt zu den öffentlich nachvollziehbaren Begründungen.
+Voxy erklärt Systemfragen, unterscheidet These, Gegenposition und Prüffrage und macht Vergleichslogik verständlich.
 
 ### Auf VoiceOpenGov
 Voxy erklärt Charta, Mitgliedschaft, Governance, Transparenz, regionale Gruppen und offene Entscheidungen.
@@ -175,7 +197,7 @@ Gemeinsamer Satz:
 
 > Voxy hilft beim Verstehen. Voxy entscheidet nicht.
 
-## 9. Transparenzversprechen
+## 10. Transparenzversprechen
 
 > Wir verlangen nichts, was wir nicht selbst tun.
 
@@ -183,7 +205,7 @@ VoiceOpenGov macht sichtbar:
 
 - Finanzierung
 - Entscheidungen
-- Quellen
+- Quellen der eigenen organisatorischen Aussagen
 - Änderungen
 - Fehler
 - KI-Einsatz
@@ -194,14 +216,14 @@ VoiceOpenGov macht sichtbar:
 
 Nicht behaupten, unabhängig oder objektiv zu sein. Stattdessen Abhängigkeiten und Herleitungen prüfbar machen.
 
-## 10. Öffentliche Lernkultur
+## 11. Öffentliche Lernkultur
 
 VoiceOpenGov zeigt nicht nur Ergebnisse, sondern Entwicklung:
 
 - Was wir noch nicht wissen
 - Was uns Sorgen macht
 - Was wir heute gelernt haben
-- Wo wir unsere Meinung geändert haben
+- Wo wir unsere Einschätzung geändert haben
 - Welche Experimente laufen
 - Was sich bewährt hat
 - Was verworfen wurde
@@ -215,37 +237,30 @@ Statusbegriffe:
 - zu überarbeiten
 - verworfen
 
-## 11. Die ersten 50 öffentlichen Räume
+## 12. Bestehende 50 Fragen und Altinhalte
 
-Die erste Seed-Welle besteht nicht aus klassischen Ministeriumsthemen, sondern aus 50 großen, international verständlichen Orientierungsfragen.
+Die bisherige Seed-Welle mit 50 Orientierungsfragen bleibt als Bestandsinhalt erhalten, ist aber **kein zweiter kanonischer Systemfragen-Raum auf VoiceOpenGov**.
 
-Jeder Raum enthält:
+Für die Migration gilt:
 
-- Leitfrage
-- Zielkonflikt
-- Werte- und Rechtsbezug
-- betroffene Gruppen
-- internationale Vergleichsperspektive
-- Fakten, Claims und Annahmen
-- offene Unsicherheiten
-- Handlungsalternativen
-- Erfolgskriterien
-- Beteiligungsstatus
-- Version und Wirkung
+- System- und Grundsatzfragen werden in ein Vote4Gov-Reviewformat überführt.
+- Quellen, Gegenpositionen, Dossiers, Alternativen und Beteiligung werden bei eDebatte bearbeitet.
+- VoiceOpenGov darf Themen als aktuellen oder regionalen Community-Kontext sichtbar machen, ohne die vollständige fachliche Prüfung zu duplizieren.
+- Bestehende öffentliche URLs werden erst umgeleitet, wenn ein eindeutiges fachliches Ziel vorhanden ist.
+- Keine Seite wird nur deshalb als migriert markiert, weil ein neuer Link existiert.
 
-Die vollständige Liste wird separat versioniert und über eDebatte öffentlich bearbeitet.
-
-## 12. Definition of Done für den Relaunch
+## 13. Definition of Done für den Relaunch
 
 Der Relaunch ist erst abnahmefähig, wenn:
 
-- VoiceOpenGov im ersten Eindruck eindeutig als Mitgliederbewegung erscheint
+- VoiceOpenGov im ersten Eindruck eindeutig als Mitgliederbewegung und Community-Ebene erscheint
+- Regionen kanonisch bei VoiceOpenGov liegen
 - Vote4Gov, VoiceOpenGov und eDebatte sauber abgegrenzt sind
 - Voxy sichtbar und rollengerecht eingebunden ist
 - Transparenz als Markenkern auf der Startseite erkennbar ist
 - Mitgliedschaft der primäre Conversion-Pfad ist
 - freiwillige finanzielle Unterstützung keinen Einflussvorteil erzeugt
-- die Seite emotional, professionell und international verständlich ist
-- die Anrede „Hallo Nachbar“ konsistent verwendet wird
+- keine erfundenen Community-Zahlen, Gruppen, Veranstaltungen oder Ansprechpartner erscheinen
+- eDebatte- und Vote4Gov-Handoffs fachlich eindeutig sind
+- alte Systemfragen-, Thesen- und Dossierflächen über ein explizites Migrationsmanifest behandelt werden
 - technische Grundlagen nicht mehr die Dramaturgie dominieren
-- die öffentliche Charta und die 50 Fragen anschlussfähig verlinkt sind
