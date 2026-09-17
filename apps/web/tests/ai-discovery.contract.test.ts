@@ -28,6 +28,18 @@ describe("AI/search machine-readable contract", () => {
     }
   });
 
+  it("keeps multilingual search metadata on the same governance truth", () => {
+    const layout = read("src/app/layout.tsx");
+    expect(layout).toContain("eigener demokratischer Willensbildung");
+    expect(layout).toContain("its own democratic will-formation");
+    expect(layout).toContain("formation démocratique de sa propre volonté");
+    expect(layout).toContain("formación democrática de su propia voluntad");
+    expect(layout).toContain("kendi demokratik irade oluşumunu");
+    expect(layout).toContain("إرادتها الديمقراطية الخاصة");
+    expect(layout).not.toContain("represent valid majorities");
+    expect(layout).not.toContain("majorités représentées");
+  });
+
   it("explicitly allows OAI-SearchBot while keeping APIs out of crawl scope", () => {
     const robots = read("src/app/robots.ts");
     expect(robots).toContain('userAgent: "OAI-SearchBot"');
@@ -40,5 +52,16 @@ describe("AI/search machine-readable contract", () => {
     expect(links).toContain('export const EDEBATTE_CANONICAL_URL = "https://www.edebatte.org";');
     expect(links).toContain('export const VOTE4GOV_CANONICAL_URL = "https://www.vote4gov.eu";');
     expect(links).not.toContain('VOTE4GOV_CANONICAL_URL = "https://vote4gov.eu"');
+  });
+
+  it("submits IndexNow only after the exact Vercel production status succeeds", () => {
+    const indexNow = read("scripts/submit-indexnow-after-vercel.mjs");
+    const key = read("public/b9e75cf96bbd019de7be3f11b46bd928.txt").trim();
+    expect(key).toBe("b9e75cf96bbd019de7be3f11b46bd928");
+    expect(indexNow).toContain('status.context === "Vercel"');
+    expect(indexNow).toContain('if (vercelState !== "success")');
+    expect(indexNow).toContain("no URLs submitted");
+    expect(indexNow).toContain("https://api.indexnow.org/indexnow");
+    expect(indexNow).toContain("https://www.voiceopengov.org/sitemap.xml");
   });
 });
