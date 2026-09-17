@@ -8,11 +8,13 @@ import { FUNDING_STRINGS } from "./fundingStrings";
 
 const META = {
   de: {
-    title: "VoiceOpenGov freiwillig unterstützen",
+    title: "Freiwillig unterstützen",
+    socialTitle: "VoiceOpenGov freiwillig unterstützen",
     description: "VoiceOpenGov freiwillig finanziell unterstützen. Beiträge kaufen kein Stimmgewicht und sind von kostenfreier Beteiligung und politischer Repräsentation getrennt.",
   },
   en: {
-    title: "Support VoiceOpenGov voluntarily",
+    title: "Support voluntarily",
+    socialTitle: "Support VoiceOpenGov voluntarily",
     description: "Support VoiceOpenGov voluntarily. Financial support does not buy voting weight and remains separate from free participation and political representation.",
   },
 } as const;
@@ -27,8 +29,8 @@ export async function generateMetadata(): Promise<Metadata> {
     title: copy.title,
     description: copy.description,
     alternates: { canonical, languages: localeAlternates(baseCanonical, REQUIRED_LAUNCH_LOCALES) },
-    openGraph: { title: copy.title, description: copy.description, url: canonical, type: "website" },
-    twitter: { card: "summary", title: copy.title, description: copy.description },
+    openGraph: { title: copy.socialTitle, description: copy.description, url: canonical, type: "website" },
+    twitter: { card: "summary", title: copy.socialTitle, description: copy.description },
     robots: { index: true, follow: true },
   };
 }
