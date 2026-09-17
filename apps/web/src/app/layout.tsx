@@ -29,39 +29,39 @@ const META: Partial<
   Record<SupportedLocale, { title: string; description: string; skip: string }>
 > = {
   de: {
-    title: "VoiceOpenGov | Internationale Mitgliederbewegung",
+    title: "VoiceOpenGov | Initiative für informierte Beteiligung",
     description:
-      "VoiceOpenGov ist die internationale Mitgliederbewegung für nachvollziehbare Erkenntnis, echte Beteiligung und gemeinsam verantwortete Entscheidungen.",
+      "VoiceOpenGov ist eine offene zivilgesellschaftliche Initiative in der Aufbauphase. Sie verbindet Community, nachvollziehbare Beteiligung und regionale Mitwirkung und nutzt eDebatte als eigenständige offene Entscheidungsinfrastruktur.",
     skip: "Zum Inhalt",
   },
   en: {
-    title: "VoiceOpenGov | International membership movement",
+    title: "VoiceOpenGov | Initiative for informed participation",
     description:
-      "VoiceOpenGov is the international membership movement for traceable insight, genuine participation and decisions carried through shared responsibility.",
+      "VoiceOpenGov is an open civic initiative in its build-up phase. It connects community, traceable participation and regional engagement and uses eDebatte as an independent open decision infrastructure.",
     skip: "Skip to content",
   },
   fr: {
-    title: "VoiceOpenGov | Mouvement international de membres",
+    title: "VoiceOpenGov | Initiative pour une participation éclairée",
     description:
-      "VoiceOpenGov rassemble des personnes qui veulent comprendre, participer et assumer ensemble des décisions transparentes.",
+      "VoiceOpenGov est une initiative civique ouverte en phase de construction. Elle relie communauté, participation traçable et engagement régional et utilise eDebatte comme infrastructure décisionnelle ouverte et indépendante.",
     skip: "Aller au contenu",
   },
   es: {
-    title: "VoiceOpenGov | Movimiento internacional de miembros",
+    title: "VoiceOpenGov | Iniciativa para una participación informada",
     description:
-      "VoiceOpenGov reúne a personas para comprender, participar y asumir conjuntamente decisiones transparentes.",
+      "VoiceOpenGov es una iniciativa cívica abierta en fase de construcción. Conecta comunidad, participación verificable y compromiso regional y utiliza eDebatte como infraestructura de decisión abierta e independiente.",
     skip: "Ir al contenido",
   },
   tr: {
-    title: "VoiceOpenGov | Uluslararası üyelik hareketi",
+    title: "VoiceOpenGov | Bilinçli katılım için girişim",
     description:
-      "VoiceOpenGov, anlaşılır bilgi, gerçek katılım ve ortak sorumluluk için insanları bir araya getirir.",
+      "VoiceOpenGov kuruluş aşamasındaki açık bir sivil girişimdir. Topluluğu, izlenebilir katılımı ve bölgesel katkıyı bir araya getirir ve eDebatte'yi bağımsız açık karar altyapısı olarak kullanır.",
     skip: "İçeriğe geç",
   },
   ar: {
-    title: "VoiceOpenGov | حركة عضوية دولية",
+    title: "VoiceOpenGov | مبادرة للمشاركة المستنيرة",
     description:
-      "تجمع VoiceOpenGov الناس من أجل فهم يمكن التحقق منه ومشاركة حقيقية وقرارات تقوم على المسؤولية المشتركة.",
+      "VoiceOpenGov مبادرة مدنية مفتوحة في مرحلة البناء. تربط المجتمع بالمشاركة القابلة للتتبع والعمل الإقليمي، وتستخدم eDebatte كبنية مستقلة ومفتوحة لدعم اتخاذ القرار.",
     skip: "الانتقال إلى المحتوى",
   },
 };
