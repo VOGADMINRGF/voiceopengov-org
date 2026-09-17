@@ -55,7 +55,7 @@ export function SupporterBanner() {
               Nur öffentliche Einträge. Namen werden gekürzt.
             </p>
           </div>
-          <div className="text-xs text-slate-400">
+          <div className="text-xs text-slate-400" role="status" aria-live="polite">
             {loading ? "lädt…" : `${supporters.length} sichtbar`}
           </div>
         </div>
@@ -78,11 +78,17 @@ export function SupporterBanner() {
                     <img
                       src={supporter.imageUrl}
                       alt={supporter.name}
+                      width={48}
+                      height={48}
                       className="h-12 w-12 rounded-full border border-slate-700 object-cover"
                       loading="lazy"
+                      decoding="async"
                     />
                   ) : (
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-slate-300">
+                    <div
+                      className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-slate-300"
+                      aria-hidden="true"
+                    >
                       {supporter.name.slice(0, 1).toUpperCase()}
                     </div>
                   )}
