@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getRequestLocale } from "@/lib/locale";
-import { VOG_QUESTIONS_PATH, VOG_ROLES_PATH } from "@/config/links";
+import { VOICEOPENGOV_URL, VOG_QUESTIONS_PATH, VOG_ROLES_PATH } from "@/config/links";
+import { REQUIRED_LAUNCH_LOCALES } from "@/config/locales";
+import { localeAlternates, localizedCanonicalUrl } from "@/lib/i18n/localeContract";
 import TranslationStatusNotice from "@/components/i18n/TranslationStatusNotice";
 
 type Language = "de" | "en";
@@ -8,7 +11,7 @@ type Language = "de" | "en";
 const COPY = {
   de: {
     title: "Wir verlangen nichts, was wir nicht selbst tun.",
-    description: "Öffentlicher Transparenzstand von VoiceOpenGov.",
+    description: "Transparenz bei VoiceOpenGov: Finanzierung, Entscheidungen, Verantwortung, Interessen, KI-Einsatz sowie Fehler und Kursänderungen nachvollziehbar machen.",
     eyebrow: "Transparenzregister",
     intro: "Transparenz ist kein Siegel, das man sich selbst verleiht. Deshalb zeigen wir hier auch Lücken, unfertige Register und offene Prüfungen.",
     sections: [
@@ -26,7 +29,7 @@ const COPY = {
   },
   en: {
     title: "We demand nothing we are unwilling to do ourselves.",
-    description: "The public transparency status of VoiceOpenGov.",
+    description: "VoiceOpenGov transparency: make funding, decisions, responsibility, interests, AI use, mistakes and course changes traceable.",
     eyebrow: "Transparency register",
     intro: "Transparency is not a seal an organisation can award itself. That is why we also show gaps, unfinished registers and open reviews here.",
     sections: [
@@ -44,10 +47,19 @@ const COPY = {
   },
 };
 
-export async function generateMetadata() {
+export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
   const language: Language = locale === "de" ? "de" : "en";
-  return { title: COPY[language].eyebrow, description: COPY[language].description };
+  const copy = COPY[language];
+  const baseCanonical = `${VOICEOPENGOV_URL}/transparenz`;
+  const canonical = localizedCanonicalUrl(baseCanonical, locale);
+  return {
+    title: copy.eyebrow,
+    description: copy.description,
+    alternates: { canonical, languages: localeAlternates(baseCanonical, REQUIRED_LAUNCH_LOCALES) },
+    openGraph: { title: `${copy.eyebrow} | VoiceOpenGov`, description: copy.description, url: canonical, type: "website" },
+    twitter: { card: "summary", title: `${copy.eyebrow} | VoiceOpenGov`, description: copy.description },
+  };
 }
 
 export default async function TransparencyPage() {

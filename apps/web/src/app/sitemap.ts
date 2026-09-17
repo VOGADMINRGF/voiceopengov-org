@@ -7,10 +7,10 @@ const STATIC_PUBLIC_PATHS = [
   "/fragen",
   "/transparenz",
   "/mitmachen",
-  "/mitmachen/rollen",
   "/regionen",
   "/regionen/deutschland",
   "/thesen/ricky-gerd-fleischer",
+  "/unterstuetzen",
 ] as const;
 
 const PUBLIC_PATHS = [
@@ -27,9 +27,7 @@ function localizedUrl(path: string, locale: string) {
 }
 
 export default function sitemap() {
-  const now = new Date();
-
-  return PUBLIC_PATHS.map((path, index) => {
+  return PUBLIC_PATHS.map((path) => {
     const canonical = `${VOICEOPENGOV_URL}${path}`;
     const languages = Object.fromEntries(
       REQUIRED_LAUNCH_LOCALES.map((locale) => [
@@ -40,9 +38,6 @@ export default function sitemap() {
 
     return {
       url: canonical,
-      lastModified: now,
-      changeFrequency: index === 0 ? "weekly" : "monthly",
-      priority: index === 0 ? 1 : path.startsWith("/regionen") ? 0.8 : 0.7,
       alternates: {
         languages: {
           ...languages,
