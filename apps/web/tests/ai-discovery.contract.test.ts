@@ -58,10 +58,11 @@ describe("AI/search machine-readable contract", () => {
     const indexNow = read("scripts/submit-indexnow-after-vercel.mjs");
     const key = read("public/b9e75cf96bbd019de7be3f11b46bd928.txt").trim();
     expect(key).toBe("b9e75cf96bbd019de7be3f11b46bd928");
+    expect(indexNow).toContain('const site = "https://www.voiceopengov.org"');
     expect(indexNow).toContain('status.context === "Vercel"');
     expect(indexNow).toContain('if (vercelState !== "success")');
-    expect(indexNow).toContain("no URLs submitted");
+    expect(indexNow).toContain("production domain does not yet expose the verification key");
+    expect(indexNow).toContain('`${site}/sitemap.xml?indexnow=${encodeURIComponent(sha)}`');
     expect(indexNow).toContain("https://api.indexnow.org/indexnow");
-    expect(indexNow).toContain("https://www.voiceopengov.org/sitemap.xml");
   });
 });
