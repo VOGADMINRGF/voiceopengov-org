@@ -15,7 +15,8 @@
     "prisma:generate": "node ./scripts/prisma-generate-all.mjs",
     "postinstall": "pnpm run prisma:generate",
     "lint": "pnpm exec eslint --cache --cache-location .eslintcache --config eslint.config.js \"src/**/*.{ts,tsx}\"",
-    "test:membership-funding": "vitest run tests/i18n.locale-contract.test.ts tests/regional-interest.contract.test.ts tests/regional-privacy-retention.contract.test.ts tests/security.runtime-secrets.test.ts tests/funnel.events.test.ts tests/funding.checkout.test.ts tests/funding.webhook.test.ts tests/admin.funnel.auth.test.ts tests/newsletter.outbox.test.ts tests/member.account-auth.test.ts tests/production.readiness.test.ts"
+    "test:membership-funding": "vitest run tests/i18n.locale-contract.test.ts tests/regional-interest.contract.test.ts tests/regional-privacy-retention.contract.test.ts tests/security.runtime-secrets.test.ts tests/funnel.events.test.ts tests/funding.checkout.test.ts tests/funding.webhook.test.ts tests/admin.funnel.auth.test.ts tests/newsletter.outbox.test.ts tests/member.account-auth.test.ts tests/production.readiness.test.ts",
+    "test:regional-contract": "vitest run tests/regional-pages.contract.test.ts"
   },
   "dependencies": {
     "@db/web": "workspace:*",

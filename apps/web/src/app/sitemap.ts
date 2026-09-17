@@ -1,7 +1,8 @@
 import { REQUIRED_LAUNCH_LOCALES, getLocaleConfig } from "@/config/locales";
 import { VOICEOPENGOV_URL } from "@/config/links";
+import { GERMAN_STATE_REGIONS } from "@/content/regionalStates";
 
-const PUBLIC_PATHS = [
+const STATIC_PUBLIC_PATHS = [
   "",
   "/fragen",
   "/transparenz",
@@ -9,9 +10,15 @@ const PUBLIC_PATHS = [
   "/mitmachen/rollen",
   "/regionen",
   "/regionen/deutschland",
-  "/regionen/deutschland/berlin",
   "/thesen/ricky-gerd-fleischer",
 ] as const;
+
+const PUBLIC_PATHS = [
+  ...STATIC_PUBLIC_PATHS,
+  ...GERMAN_STATE_REGIONS
+    .filter((region) => region.searchVisibility === "index")
+    .map((region) => `/regionen/deutschland/${region.slug}`),
+];
 
 function localizedUrl(path: string, locale: string) {
   const url = new URL(`${VOICEOPENGOV_URL}${path}`);
