@@ -44,4 +44,19 @@ describe("public web hardening contract", () => {
     expect(supporterBanner).toContain('role="status"');
     expect(supporterBanner).toContain('aria-live="polite"');
   });
+
+  it("keeps the visible homepage on the binding eDebatte representation contract", () => {
+    const copy = read("src/components/home/homeRelaunchCopy.ts");
+    const client = read("src/components/home/HomeClient.tsx");
+
+    expect(copy).toContain("gültig abgeschlossenes eDebatte-Ergebnis");
+    expect(copy).toContain("bindenden Repräsentationsauftrag");
+    expect(copy).toContain("validly concluded eDebatte decision");
+    expect(copy).toContain("binding representation mandate");
+    expect(copy).toContain("Entwürfe, laufende Debatten und informelle Stimmungsbilder");
+    expect(copy).not.toContain("VoiceOpenGov entscheidet seinen eigenen Programmstand nach den eigenen Governance-Regeln");
+    expect(copy).not.toContain("VoiceOpenGov decides its own programme state under its own governance rules");
+    expect(copy).not.toContain("it does not automatically decide VoiceOpenGov positions");
+    expect(client).not.toContain("HOME_RELAUNCH_COPY: Record");
+  });
 });
