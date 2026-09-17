@@ -19,6 +19,12 @@ function href(path: string, locale: string) {
   return `${url.pathname}${url.search}`;
 }
 
+function regionalParticipationHref(locale: string) {
+  const url = new URL("/mitmachen", VOICEOPENGOV_URL);
+  if (locale !== "de") url.searchParams.set("lang", locale);
+  return `${url.pathname}${url.search}#vor-ort`;
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const locale = regionalSeoLocale(await getRequestLocale());
   const copy = REGIONAL_SEO_COPY[locale].hub;
@@ -37,6 +43,11 @@ export async function generateMetadata(): Promise<Metadata> {
       description: copy.intro,
       url: canonical,
       type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title: copy.title,
+      description: copy.intro,
     },
   };
 }
@@ -64,7 +75,7 @@ export default async function RegionsPage() {
       },
       about: {
         "@type": "Thing",
-        name: "Regional democratic participation",
+        name: "Regional civic participation and representation",
       },
       hasPart: [
         {
@@ -149,7 +160,7 @@ export default async function RegionsPage() {
         <div className="mt-10">
           <Link
             className="inline-flex rounded-full bg-[#1a8cff] px-6 py-3 font-bold text-white"
-            href={href("/vor-ort", locale)}
+            href={regionalParticipationHref(locale)}
           >
             {copy.action}
           </Link>
