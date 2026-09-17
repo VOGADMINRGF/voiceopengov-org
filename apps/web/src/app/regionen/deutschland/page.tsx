@@ -4,6 +4,7 @@ import StructuredData from "@/components/seo/StructuredData";
 import TranslationStatusNotice from "@/components/i18n/TranslationStatusNotice";
 import { REQUIRED_LAUNCH_LOCALES, getLocaleConfig } from "@/config/locales";
 import { VOICEOPENGOV_URL } from "@/config/links";
+import { GERMAN_STATE_REGIONS } from "@/content/regionalStates";
 import { REGIONAL_SEO_COPY, regionalSeoLocale } from "@/content/regionalSeo";
 import {
   localeAlternates,
@@ -53,7 +54,7 @@ export default async function GermanyRegionPage() {
         data={[
           {
             "@context": "https://schema.org",
-            "@type": "WebPage",
+            "@type": "CollectionPage",
             "@id": `${canonical}#page`,
             url: canonical,
             name: copy.title,
@@ -70,6 +71,11 @@ export default async function GermanyRegionPage() {
               name: "Germany",
               alternateName: "Deutschland",
             },
+            hasPart: GERMAN_STATE_REGIONS.map((region) => ({
+              "@type": "WebPage",
+              name: `VoiceOpenGov ${region.name}`,
+              url: `${VOICEOPENGOV_URL}/regionen/deutschland/${region.slug}`,
+            })),
           },
           {
             "@context": "https://schema.org",
@@ -107,11 +113,32 @@ export default async function GermanyRegionPage() {
           </article>
         </div>
 
+        <section className="mt-14" aria-labelledby="states-heading">
+          <div className="max-w-3xl">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#18cfc8]">Community · Regionen</p>
+            <h2 id="states-heading" className="mt-3 text-3xl font-bold">Bundesländer</h2>
+            <p className="mt-4 leading-7 text-slate-300">
+              Jeder Einstieg zeigt nur verifizierbare regionale Strukturen. Wo noch keine lokale Community nachweisbar ist, steht ausdrücklich „Community im Aufbau“ statt erfundener Zahlen, Gruppen oder Ansprechpartner.
+            </p>
+          </div>
+          <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {GERMAN_STATE_REGIONS.map((region) => (
+              <Link
+                key={region.slug}
+                href={href(`/regionen/deutschland/${region.slug}`, locale)}
+                className="rounded-2xl border border-slate-800 bg-[#0b1220] px-5 py-4 font-semibold transition hover:border-[#18cfc8] hover:text-[#18cfc8]"
+              >
+                {region.name} →
+              </Link>
+            ))}
+          </div>
+        </section>
+
         <div className="mt-10 flex flex-wrap gap-3">
           <Link className="rounded-full bg-[#18cfc8] px-6 py-3 font-bold text-[#071727]" href={href("/regionen/deutschland/berlin", locale)}>
             {copy.berlinAction} →
           </Link>
-          <Link className="rounded-full border border-[#1a8cff] px-6 py-3 font-bold" href={href("/vor-ort", locale)}>
+          <Link className="rounded-full border border-[#1a8cff] px-6 py-3 font-bold" href={href("/mitmachen", locale)}>
             {copy.regionalAction}
           </Link>
         </div>
