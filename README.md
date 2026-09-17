@@ -10,10 +10,10 @@ Wir bauen keine Plattform, auf der Menschen einer Meinung sein müssen. Wir scha
 
 ## Die Rollen sind klar
 
-- **Vote4Gov** ist die persönliche öffentliche Stimme von Ricky Gerd Fleischer: Geschichte, Motivation, Verantwortung und Vision.
-- **VoiceOpenGov** ist die Mitgliederbewegung: Werte, Charta, Governance, Transparenz und gemeinsames Handeln.
-- **eDebatte** ist die unabhängige Arbeits- und Entscheidungsinfrastruktur: Quellen, Claims, Dossiers, Alternativen, Beteiligung, Mehrheitsbilder, Wirkung und Lernen.
-- **Voxy** erklärt, strukturiert und übersetzt. Voxy hilft beim Verstehen. Voxy entscheidet nicht.
+- **Vote4Gov** ist der kritische Denk- und Reviewraum: Systemfragen, prüfbare Thesen, Gegenfragen und internationale Vergleiche.
+- **VoiceOpenGov** ist die Mitgliederbewegung und Community-Ebene: Menschen, Regionen, lokale Präsenz, Partnerschaften und gemeinsames Handeln.
+- **eDebatte** ist die unabhängige Arbeits- und Entscheidungsinfrastruktur: Quellen, Evidenz, Gegenpositionen, Dossiers, Alternativen, Beteiligung, Abstimmungen, Wirkung und Lernen.
+- **Voxy** erklärt, strukturiert und übersetzt. Voxy hilft beim Verstehen und ist keine autonome Entscheidungsebene.
 
 ## Wofür wir stehen
 
@@ -49,7 +49,7 @@ Darum machen wir schrittweise sichtbar:
 
 Wir behaupten nicht, objektiv oder unabhängig von jeder Beziehung zu sein. Wir machen nachvollziehbar, wie Einschätzungen entstehen und welche Abhängigkeiten bestehen.
 
-## eDebatte: Dort arbeitet die Bewegung
+## eDebatte: Dort werden Themen fachlich bearbeitet
 
 In eDebatte wird aus Information keine schnelle Meinung, sondern ein nachvollziehbarer Weg:
 
@@ -75,15 +75,11 @@ Wirkung
 Lernen und neue Version
 ```
 
-Der Reasoning Graph gehört in den methodischen und technischen Kern von eDebatte. VoiceOpenGov definiert den Transparenzanspruch; eDebatte macht ihn praktisch überprüfbar.
+Der Reasoning Graph gehört in den methodischen und technischen Kern von eDebatte. VoiceOpenGov definiert den Transparenzanspruch und den Community-Kontext; eDebatte macht die fachliche Bearbeitung praktisch überprüfbar.
 
-## Die ersten 50 öffentlichen Fragen
+## Grundsatzfragen und bestehende Altflächen
 
-Die erste Seed-Welle besteht aus 50 großen, international verständlichen Orientierungsfragen – nicht aus klassischen Parteikapiteln oder Ministeriumsschubladen.
-
-Jeder Raum erhält eine Leitfrage, Zielkonflikte, Werte- und Rechtsbezüge, betroffene Gruppen, internationale Perspektiven, Quellen, Claims, Unsicherheiten, Alternativen, Erfolgskriterien, Beteiligung, Versionierung und Wirkungsprüfung.
-
-Siehe: [`docs/VOICEOPENGOV-50-FRAGEN.md`](docs/VOICEOPENGOV-50-FRAGEN.md)
+Grundsatzfragen, Systemthesen, institutionelle Reviews und internationale Systemvergleiche gehören primär zu Vote4Gov. Bestehende ältere VoiceOpenGov-Seiten in diesem Bereich werden nicht stillschweigend gelöscht, sondern über ein dokumentiertes Migrations- und Redirect-Verfahren getrennt.
 
 ## Relaunch-Grundlage
 
