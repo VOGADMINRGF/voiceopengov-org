@@ -17,7 +17,7 @@ export const VOICEOPENGOV_URL = canonicalVoiceOpenGovUrl(
 );
 
 export const EDEBATTE_CANONICAL_URL = "https://www.edebatte.org";
-export const VOTE4GOV_CANONICAL_URL = "https://vote4gov.eu";
+export const VOTE4GOV_CANONICAL_URL = "https://www.vote4gov.eu";
 
 // Public links intentionally use the local bridge. The bridge preserves the
 // validated locale context without sending identity or membership data.
