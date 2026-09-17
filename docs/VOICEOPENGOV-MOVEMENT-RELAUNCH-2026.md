@@ -5,20 +5,28 @@ Status: kanonischer Relaunch-Entwurf
 ## 1. Klare Markenrollen
 
 ### Vote4Gov
-Vote4Gov ist die persönliche öffentliche Stimme von Ricky Gerd Fleischer: seine Geschichte, Motivation, Verantwortung und Vision für Deutschland, Europa und die Welt.
+Vote4Gov ist die persönliche öffentliche Stimme von Ricky Gerd Fleischer: seine Geschichte, Motivation und Verantwortung sowie seine historische Analyse, Systemkritik, internationalen Vergleiche, persönlichen Thesen und eigenen Reform- oder Systementwürfe für Deutschland, Europa und die Welt.
+
+Vote4Gov darf deutlich Position beziehen. Diese Positionen sind persönliche Thesen und werden nicht automatisch zu VoiceOpenGov-Positionen.
 
 ### VoiceOpenGov
-VoiceOpenGov ist die offene, internationale Mitgliederbewegung für nachvollziehbare Politik, echte Beteiligung, gesellschaftliche Souveränität und eine Kultur des Vertrauens.
+VoiceOpenGov ist die offene, internationale Mitgliederbewegung für nachvollziehbare Politik, echte Beteiligung, gesellschaftliche Souveränität und eine Kultur des Vertrauens. Sie organisiert Community, regionale Präsenz, eigene programmatische Willensbildung und die Vertretung des jeweils gültigen programmatischen Standes.
 
 ### eDebatte
-eDebatte ist die unabhängige Infrastruktur, mit der Menschen Informationen prüfen, Quellen verbinden, Zielkonflikte verstehen, Alternativen entwickeln und nachvollziehbare Orientierung sowie Mehrheiten bilden können.
+eDebatte ist die unabhängige Infrastruktur, mit der Menschen Informationen prüfen, Quellen verbinden, Zielkonflikte verstehen, Alternativen entwickeln und nachvollziehbare Orientierung sowie Mehrheitsbilder bilden können.
+
+Ein eDebatte-Ergebnis ist niemals automatisch eine VoiceOpenGov-Position. VoiceOpenGov muss jeden programmatischen Stand durch einen eigenen, transparenten Willensbildungsakt beschließen.
 
 ### Voxy
-Voxy verbindet die drei Ebenen als verständliche, transparente Begleiterin. Sie erklärt, strukturiert, übersetzt und zeigt Unsicherheit. Sie entscheidet nicht.
+Voxy verbindet die Ebenen als verständliche, transparente Begleiterin. Sie erklärt, strukturiert, übersetzt und zeigt Unsicherheit. Sie entscheidet nicht.
+
+Gemeinsamer Rollenkanon:
+
+> **Vote4Gov analysiert und entwirft persönlich. VoiceOpenGov organisiert, entscheidet und vertritt als Bewegung. eDebatte prüft und beteiligt unabhängig. Voxy macht verständlich.**
 
 ## 2. Nordstern
 
-VoiceOpenGov baut keine Plattform, auf der Menschen einer Meinung sein müssen. VoiceOpenGov schafft eine Bewegung und eine Infrastruktur, in der Menschen trotz unterschiedlicher Meinungen gemeinsam verantwortbare Entscheidungen entwickeln können.
+VoiceOpenGov baut keine Plattform, auf der Menschen einer Meinung sein müssen. VoiceOpenGov schafft eine Bewegung, in der Menschen trotz unterschiedlicher Meinungen gemeinsam verantwortbare Entscheidungen entwickeln können.
 
 Der interne Prüfstein jeder Produkt-, Kommunikations- und Governance-Entscheidung lautet:
 
@@ -51,11 +59,13 @@ Die Startseite führt in dieser Reihenfolge:
 3. Was anders funktionieren kann
 4. VoiceOpenGov als internationale Bewegung
 5. Mitgliedschaft und konkrete Rollen
-6. eDebatte als Arbeitsinstrument
-7. Voxy als Begleiterin
-8. Transparenzversprechen
-9. Offene Charta und öffentliche Entwicklung
-10. Mitglied werden
+6. dynamisches Programm mit sichtbaren Mehrheiten und Minderheiten
+7. regionale Präsenz und Repräsentation
+8. eDebatte als unabhängiger Evidenz- und Beteiligungsraum
+9. Voxy als Begleiterin
+10. Transparenzversprechen
+11. Offene Charta und öffentliche Entwicklung
+12. Mitglied werden
 
 Technik, Bände und Fachmodelle bleiben verfügbar, dominieren aber nicht den ersten Eindruck.
 
@@ -81,7 +91,7 @@ Mögliche Rollen:
 - Moderator oder Vermittler
 - Quellenfinder
 - Übersetzer
-- regionaler Hüter
+- regionale Verantwortung / Repräsentation
 - Fördermitglied
 - Organisation oder Partner
 
@@ -89,14 +99,54 @@ Grundsatz:
 
 > Geld ermöglicht Arbeit, kauft aber niemals mehr Stimme, Reichweite oder politische Gewichtung.
 
-## 6. Transparenz auf allen drei Domains
+## 6. Dynamisches Programm
+
+VoiceOpenGov soll kein statisches Programm führen, das nur in großen Abständen geändert wird. Programmatische Positionen werden versioniert, überprüfbar und grundsätzlich änderbar geführt.
+
+Die Willensbildung ist zweistufig:
+
+```text
+eDebatte-Dossier / Evidenzraum
+↓
+unabhängig und für unterschiedliche Akteure nutzbar
+↓
+eigener VoiceOpenGov-Entscheidungsprozess
+↓
+programmatischer Stand der Bewegung
+```
+
+Ein gültiger programmatischer Stand muss mindestens ausweisen:
+
+- Mehrheitsposition,
+- relevante Minderheitenpositionen,
+- Entscheidungsweg und Regelversion,
+- referenzierten Evidenz- und Dossierstand,
+- offene Unsicherheiten und Gegenargumente,
+- Version und Wirksamkeitszeitpunkt,
+- vorherige Position bei Änderung,
+- Prüf- oder Änderungsweg.
+
+Der detaillierte Architekturvertrag liegt in [`VOG-DYNAMIC-PROGRAM-CONTRACT-2026.md`](VOG-DYNAMIC-PROGRAM-CONTRACT-2026.md).
+
+## 7. Regionale Präsenz und Repräsentation
+
+VoiceOpenGov ist nicht ausschließlich digital. Die Bewegung kann schrittweise regionale Teams, offene Treffen, temporäre Beteiligungsstände, mobile Formate und Busse sowie dauerhafte Beteiligungsbüros oder Anlaufstellen aufbauen.
+
+Diese Strukturen werden nur im tatsächlich erreichten Zustand veröffentlicht. `geplant`, `in Vorbereitung`, `Pilot`, `aktiv`, `pausiert` und `beendet` bleiben unterscheidbar.
+
+Ein VoiceOpenGov-Repräsentant vertritt die regionale Community beziehungsweise den dort gültigen programmatischen Stand. Er oder sie besitzt weder das zugrunde liegende eDebatte-Dossier noch darf ein eDebatte-Ergebnis eigenmächtig zur VoiceOpenGov-Position erklärt werden.
+
+Die konkrete rechtliche Form einer späteren politischen oder wahlbezogenen Vertretung wird separat entschieden und nicht vorweggenommen.
+
+## 8. Transparenz auf allen drei Domains
 
 ### Vote4Gov
 
 - persönliche Interessen und Verbindungen
 - Finanzierung
 - berufliche Historie
-- persönliche Positionen
+- persönliche Positionen und Systementwürfe
+- historische und internationale Begründungen
 - Kursänderungen
 - Fehler und Lernprozesse
 
@@ -105,6 +155,9 @@ Grundsatz:
 - Finanzen
 - Mitgliederentwicklung
 - Governance und Verantwortlichkeiten
+- programmatische Versionen
+- Mehrheits- und Minderheitenpositionen
+- regionale Repräsentation und Mandatsgrundlage
 - Partnerschaften
 - Interessenkonflikte
 - Charta-Versionen
@@ -124,11 +177,11 @@ Grundsatz:
 - Mehrheits- und Minderheitenbilder
 - tatsächliche Wirkung
 
-## 7. Reasoning Graph
+## 9. Reasoning Graph
 
 Der Reasoning Graph gehört methodisch und technisch in eDebatte.
 
-VoiceOpenGov definiert den Transparenzanspruch. eDebatte setzt ihn um.
+VoiceOpenGov kann auf ihn referenzieren, besitzt ihn aber nicht und leitet daraus keine automatische Programmautorität ab.
 
 ```text
 Quelle
@@ -153,20 +206,20 @@ Einwand
 ↓
 Orientierung
 ↓
-Entscheidung
+Beteiligung / Mehrheitsbild
 ↓
 tatsächliche Wirkung
 ↓
 Lernen und neue Version
 ```
 
-## 8. Rolle von Voxy
+## 10. Rolle von Voxy
 
 ### Auf Vote4Gov
 Voxy erklärt Rickys Motivation, unterscheidet persönliche Aussagen von Bewegungspositionen und führt zu den öffentlich nachvollziehbaren Begründungen.
 
 ### Auf VoiceOpenGov
-Voxy erklärt Charta, Mitgliedschaft, Governance, Transparenz, regionale Gruppen und offene Entscheidungen.
+Voxy erklärt Charta, Mitgliedschaft, Governance, dynamisches Programm, Minderheitenpositionen, regionale Gruppen und offene Entscheidungen.
 
 ### Auf eDebatte
 Voxy strukturiert Beiträge, erkennt Claims und Zielkonflikte, verbindet Quellen, zeigt Unsicherheiten und übersetzt zwischen Perspektiven.
@@ -175,7 +228,7 @@ Gemeinsamer Satz:
 
 > Voxy hilft beim Verstehen. Voxy entscheidet nicht.
 
-## 9. Transparenzversprechen
+## 11. Transparenzversprechen
 
 > Wir verlangen nichts, was wir nicht selbst tun.
 
@@ -183,18 +236,21 @@ VoiceOpenGov macht sichtbar:
 
 - Finanzierung
 - Entscheidungen
-- Quellen
+- programmatische Versionen
+- Mehrheits- und Minderheitenpositionen
+- Quellenreferenzen
 - Änderungen
 - Fehler
 - KI-Einsatz
 - Abhängigkeiten
 - Interessenkonflikte
 - Mitgliederentwicklung
+- regionale Repräsentation
 - Wirkung
 
 Nicht behaupten, unabhängig oder objektiv zu sein. Stattdessen Abhängigkeiten und Herleitungen prüfbar machen.
 
-## 10. Öffentliche Lernkultur
+## 12. Öffentliche Lernkultur
 
 VoiceOpenGov zeigt nicht nur Ergebnisse, sondern Entwicklung:
 
@@ -211,11 +267,13 @@ Statusbegriffe:
 - Entwurf
 - in Diskussion
 - Experiment
+- gültig
 - bewährt
-- zu überarbeiten
+- zu überprüfen
+- ersetzt
 - verworfen
 
-## 11. Die ersten 50 öffentlichen Räume
+## 13. Die ersten 50 öffentlichen Räume
 
 Die erste Seed-Welle besteht nicht aus klassischen Ministeriumsthemen, sondern aus 50 großen, international verständlichen Orientierungsfragen.
 
@@ -233,14 +291,18 @@ Jeder Raum enthält:
 - Beteiligungsstatus
 - Version und Wirkung
 
-Die vollständige Liste wird separat versioniert und über eDebatte öffentlich bearbeitet.
+Die vollständige Liste wird separat versioniert und über eDebatte öffentlich bearbeitet. Eine dort sichtbare Mehrheitslage wird erst durch einen separaten VoiceOpenGov-Entscheidungsakt zum programmatischen Stand der Bewegung.
 
-## 12. Definition of Done für den Relaunch
+## 14. Definition of Done für den Relaunch
 
 Der Relaunch ist erst abnahmefähig, wenn:
 
 - VoiceOpenGov im ersten Eindruck eindeutig als Mitgliederbewegung erscheint
 - Vote4Gov, VoiceOpenGov und eDebatte sauber abgegrenzt sind
+- Vote4Gov als persönliche Analyse- und Systementwurfsebene erkennbar bleibt
+- kein eDebatte-Ergebnis automatisch als VoiceOpenGov-Position erscheint
+- das dynamische Programm Mehrheiten und relevante Minderheiten gemeinsam sichtbar macht
+- regionale Präsenz und Repräsentation nur im tatsächlich erreichten Status ausgewiesen werden
 - Voxy sichtbar und rollengerecht eingebunden ist
 - Transparenz als Markenkern auf der Startseite erkennbar ist
 - Mitgliedschaft der primäre Conversion-Pfad ist
