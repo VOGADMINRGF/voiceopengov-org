@@ -127,9 +127,6 @@ export default async function RegionsPage() {
         <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
           {copy.intro}
         </p>
-        <p className="mt-6 max-w-3xl border-s-2 border-[#1a8cff] ps-5 leading-7 text-slate-400">
-          {copy.principle}
-        </p>
 
         <div className="mt-12 grid gap-6 md:grid-cols-2">
           <article className="rounded-3xl border border-slate-800 bg-[#0b1220] p-7">
