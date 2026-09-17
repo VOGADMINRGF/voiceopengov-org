@@ -66,17 +66,6 @@ export default function SiteFooter({ locale }: SiteFooterProps) {
   const providerStatus = locale === "de"
     ? "Aufbauphase: VoiceOpenGov wird derzeit von Ricky G. Fleischer als natürlicher Person betrieben. Es besteht aktuell keine VOG Holding oder sonstige eigene Gesellschaft als Anbieter, Vertragspartner oder Zahlungsempfänger."
     : "Build phase: VoiceOpenGov is currently operated by Ricky G. Fleischer as a natural person. No VOG Holding or other separate company currently acts as provider, contractual partner or payment recipient.";
-  const brandCopy = locale === "de"
-    ? {
-        claim: "Internationale Initiative & Community.",
-        body: "Für nachvollziehbare Entscheidungsgrundlagen, offene Beteiligung und transparente Verantwortlichkeiten.",
-      }
-    : locale === "en"
-      ? {
-          claim: "International initiative & community.",
-          body: "For traceable decision information, open participation and transparent responsibilities.",
-        }
-      : strings.brand;
 
   return (
     <footer className="border-t border-white/10 bg-[#020617] text-[#f8fafc]" role="contentinfo">
@@ -119,8 +108,8 @@ export default function SiteFooter({ locale }: SiteFooterProps) {
         <div className="grid gap-9 md:grid-cols-2 lg:grid-cols-4">
           <div>
             <Link href="/" className="text-sm font-black uppercase tracking-[0.2em] transition hover:text-[#18cfc8]">VoiceOpenGov</Link>
-            <p className="mt-3 font-bold text-[#f8fafc]">{brandCopy.claim}</p>
-            <p className="mt-3 text-sm leading-6 text-slate-400">{brandCopy.body}</p>
+            <p className="mt-3 font-bold text-[#f8fafc]">{strings.brand.claim}</p>
+            <p className="mt-3 text-sm leading-6 text-slate-400">{strings.brand.body}</p>
           </div>
           <FooterNav title={strings.columns.main} ariaLabel={strings.aria.main} links={strings.links.main} />
           <FooterNav title={strings.columns.initiatives} ariaLabel={strings.aria.initiatives} links={strings.links.initiatives} />
