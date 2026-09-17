@@ -63,14 +63,29 @@ const STRINGS = {
   dataPoints: {
     de: [
       {
-        label: "Unterstützer:innen",
+        label: "Community-Anmeldung",
         description:
-          "Angaben aus dem Mitmachen-Formular (z. B. Name, E-Mail, Geburtsdatum und -ort, Land, Support-Modus, optionale Motivationstexte und Skills). Wir nutzen diese Daten für Moderation, Rückfragen und interne Abstimmungen. Für den Globus und die Live-Zahlen verwenden wir nur aggregierte Werte.",
+          "Über /mitmachen verarbeiten wir – je nach Angabe – Vor- und Nachname, E-Mail-Adresse, Geburtsdatum, Ort, Land, den gewählten Teilnahmemodus (aktive Mitwirkung oder Community), die Newsletter-Auswahl sowie Bestätigungs- und Zeitstempel des Double-Opt-In-Verfahrens. Vor- und Nachname sowie Land sind im aktuellen Formular optional; E-Mail, Geburtsdatum, Ort und die Datenschutzbestätigung sind erforderlich. Die Anmeldung dokumentiert die Zugehörigkeit zur VoiceOpenGov-Community und ist derzeit keine Vereins- oder gesellschaftsrechtliche Mitgliedschaft.",
+      },
+      {
+        label: "Öffentliche Orts-Summen",
+        description:
+          "Die Community-Anmeldung wird derzeit mit Freigabe für anonyme Orts-Summen gespeichert. Wenn regionale Zahlen öffentlich dargestellt werden, verwenden wir dafür aggregierte Werte; Name, E-Mail-Adresse und Geburtsdatum werden dadurch nicht öffentlich angezeigt.",
+      },
+      {
+        label: "Herkunft & Funnel-Ereignisse",
+        description:
+          "Zur technischen Auswertung des Einstiegs können Landing-Pfad, Referrer sowie UTM-Quelle, -Medium und -Kampagne erfasst werden. Separat gespeicherte Funnel-Ereignisse enthalten nur die dafür vorgesehenen Felder wie Ereignistyp, Zeitstempel, optionalen Session-Hash, Mitglieds-ID, Kampagnenparameter, Land, Sprache und Landing-Pfad und laufen nach 90 Tagen ab. Kampagnenparameter können zusätzlich im Community-Datensatz der Anmeldung gespeichert sein.",
+      },
+      {
+        label: "Regionale Mitwirkung",
+        description:
+          "Beim Formular für regionale Mitwirkung verarbeiten wir Kontaktname, E-Mail-Adresse, Ort/Region, ausgewählte Mitwirkungsinteressen sowie optional Thema und Notizen. Zusätzlich speichern wir Kontakt-, Matching- und Datenschutz-Einwilligungen. Diese Datensätze sind privat, werden nicht automatisch veröffentlicht und nicht für politisches Profiling verwendet. Die technische Aufbewahrungsfrist hängt vom Bearbeitungsstatus ab und beträgt derzeit zwischen 30 und 180 Tagen.",
       },
       {
         label: "Freiwillige Unterstützung & Zahlungsstatus",
         description:
-          "Wenn du VoiceOpenGov freiwillig finanziell unterstützt, verarbeiten wir insbesondere Betrag, Zahlungsrhythmus, Zahlungsstatus sowie technische Zahlungs- und Kund:innen-IDs. Die Mitgliedschaft bei VoiceOpenGov ist davon getrennt und derzeit kostenfrei. Die Zahlungsabwicklung erfolgt über Stripe. Wenn PayPal im Stripe-Checkout angeboten und von dir gewählt wird, werden die für diese Zahlung erforderlichen Daten zusätzlich im Rahmen der Stripe-/PayPal-Zahlungsabwicklung verarbeitet. VoiceOpenGov speichert keine vollständigen Karten- oder PayPal-Zugangsdaten.",
+          "Wenn du VoiceOpenGov freiwillig finanziell unterstützt, verarbeiten wir insbesondere Betrag, Zahlungsrhythmus, Zahlungsstatus sowie technische Zahlungs- und Kund:innen-IDs. Die finanzielle Unterstützung ist von der kostenfreien Community-Anmeldung getrennt und begründet keine rechtliche Mitgliedschaft. Die Zahlungsabwicklung erfolgt über Stripe. Wenn PayPal im Stripe-Checkout angeboten und von dir gewählt wird, werden die für diese Zahlung erforderlichen Daten zusätzlich im Rahmen der Stripe-/PayPal-Zahlungsabwicklung verarbeitet. VoiceOpenGov speichert keine vollständigen Karten- oder PayPal-Zugangsdaten.",
       },
       {
         label: "Zahlungsdienstleister",
@@ -90,19 +105,34 @@ const STRINGS = {
       {
         label: "Technische Sicherheitsdaten",
         description:
-          "Protokolldaten zur Absicherung der Formulare (z. B. Zeitstempel, IP-/Agent-Hashes, Rate-Limits). Diese Daten dienen Missbrauchsschutz und Stabilität.",
+          "Protokoll- und Sicherheitsdaten zur Absicherung der Formulare und Zugänge, z. B. Zeitstempel, technische Hashes und Rate-Limit-Informationen. Diese Daten dienen Missbrauchsschutz, Sicherheit und Stabilität.",
       },
     ],
     en: [
       {
-        label: "Supporters",
+        label: "Community registration",
         description:
-          "Details submitted via the join form (e.g. name, e-mail, birth date/place, country, support mode, optional motivation text and skills). We use these details for moderation, follow-ups and internal coordination. The globe and live stats show aggregated data only.",
+          "Through /mitmachen we process, depending on what you provide, first and last name, email address, date of birth, city, country, the selected participation mode (active contribution or community), newsletter choice, and confirmation/timestamp data for the double opt-in process. First and last name and country are optional in the current form; email, date of birth, city and privacy acknowledgement are required. The registration records affiliation with the VoiceOpenGov community and is not currently a legal association or corporate membership.",
+      },
+      {
+        label: "Public local totals",
+        description:
+          "Community registrations are currently stored with permission for anonymous local totals. If regional figures are displayed publicly, we use aggregated values; name, email address and date of birth are not displayed through those totals.",
+      },
+      {
+        label: "Acquisition & funnel events",
+        description:
+          "To understand the technical entry path we may record the landing path, referrer and UTM source, medium and campaign. Separately stored funnel events contain only the fields intended for this purpose, such as event type, timestamp, optional session hash, member ID, campaign parameters, country, locale and landing path, and expire after 90 days. Campaign parameters may also be stored with the community registration record.",
+      },
+      {
+        label: "Regional participation",
+        description:
+          "For regional participation we process contact name, email address, location/region, selected participation interests and, optionally, a topic and notes. We also store contact, matching and privacy consents. These records are private, are not automatically published and are not used for political profiling. The technical retention period depends on processing status and is currently between 30 and 180 days.",
       },
       {
         label: "Voluntary support & payment status",
         description:
-          "If you voluntarily support VoiceOpenGov financially, we process, in particular, the amount, payment cadence, payment status, and technical payment and customer IDs. VoiceOpenGov membership is separate from this and is currently free of charge. Payments are processed through Stripe. If PayPal is offered in Stripe Checkout and selected by you, the data required for that payment is also processed as part of the Stripe/PayPal payment flow. VoiceOpenGov does not store full card details or PayPal login credentials.",
+          "If you voluntarily support VoiceOpenGov financially, we process, in particular, the amount, payment cadence, payment status, and technical payment and customer IDs. Financial support is separate from free community registration and does not create a legal membership. Payments are processed through Stripe. If PayPal is offered in Stripe Checkout and selected by you, the data required for that payment is also processed as part of the Stripe/PayPal payment flow. VoiceOpenGov does not store full card details or PayPal login credentials.",
       },
       {
         label: "Payment service providers",
@@ -122,7 +152,7 @@ const STRINGS = {
       {
         label: "Technical security data",
         description:
-          "Log data used to protect forms (e.g. timestamps, hashed IP/user agent data, rate limits). This data is used for abuse prevention and stability.",
+          "Logging and security data used to protect forms and access, for example timestamps, technical hashes and rate-limit information. These data are used for abuse prevention, security and stability.",
       },
     ],
   } as LocaleValue<PrivacyDataPoint[]>,
