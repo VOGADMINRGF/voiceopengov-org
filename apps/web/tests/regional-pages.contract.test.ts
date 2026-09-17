@@ -34,13 +34,17 @@ describe("regional community page contract", () => {
     }
   });
 
-  it("routes regional activation and evidence work through the canonical handoffs", () => {
+  it("routes public regional activation to /mitmachen while retaining legacy source attribution only for intake", () => {
     const genericPage = source("app/regionen/deutschland/[slug]/page.tsx");
     const germanyPage = source("app/regionen/deutschland/page.tsx");
+    const berlinPage = source("app/regionen/deutschland/berlin/page.tsx");
 
     expect(REGIONAL_INTEREST_SOURCE_PATH).toBe("/vor-ort");
-    expect(genericPage).toContain("REGIONAL_INTEREST_SOURCE_PATH");
-    expect(germanyPage).toContain("REGIONAL_INTEREST_SOURCE_PATH");
+    for (const page of [genericPage, germanyPage, berlinPage]) {
+      expect(page).toContain("VOG_JOIN_PATH");
+      expect(page).toContain("#vor-ort");
+      expect(page).not.toContain("REGIONAL_INTEREST_SOURCE_PATH");
+    }
     expect(genericPage).toContain('localHref("/go/edebatte", locale)');
     expect(genericPage).toContain('index: region.searchVisibility === "index"');
   });
