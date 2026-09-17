@@ -45,18 +45,27 @@ describe("public web hardening contract", () => {
     expect(supporterBanner).toContain('aria-live="polite"');
   });
 
-  it("keeps the visible homepage on the binding eDebatte representation contract", () => {
+  it("keeps visible homepage and footer on the binding eDebatte representation contract", () => {
     const copy = read("src/components/home/homeRelaunchCopy.ts");
     const client = read("src/components/home/HomeClient.tsx");
+    const footer = read("src/components/SiteFooter.tsx");
 
     expect(copy).toContain("gültig abgeschlossenes eDebatte-Ergebnis");
     expect(copy).toContain("bindenden Repräsentationsauftrag");
     expect(copy).toContain("An eDebatte decision validly concluded under published rules");
     expect(copy).toContain("binding representation mandate");
     expect(copy).toContain("Entwürfe, laufende Debatten und informelle Stimmungsbilder");
-    expect(copy).not.toContain("VoiceOpenGov entscheidet seinen eigenen Programmstand nach den eigenen Governance-Regeln");
-    expect(copy).not.toContain("VoiceOpenGov decides its own programme state under its own governance rules");
-    expect(copy).not.toContain("it does not automatically decide VoiceOpenGov positions");
+
+    expect(footer).toContain("gültig abgeschlossenes Ergebnis bindet die zuständige VoiceOpenGov-Repräsentation");
+    expect(footer).toContain("versionierte Programmstand bildet gültige eDebatte-Mandate");
+    expect(footer).toContain("Only a result validly concluded under published rules binds the responsible VoiceOpenGov representation");
+
+    for (const surface of [copy, footer]) {
+      expect(surface).not.toContain("VoiceOpenGov entscheidet seinen eigenen Programmstand nach den eigenen Governance-Regeln");
+      expect(surface).not.toContain("VoiceOpenGov decides its own programme state under its own governance rules");
+      expect(surface).not.toContain("eDebatte ist eine unabhängige offene Infrastruktur, die VoiceOpenGov nutzt, ohne für VoiceOpenGov zu entscheiden");
+      expect(surface).not.toContain("eDebatte is an independent open infrastructure used by VoiceOpenGov without deciding VoiceOpenGov positions");
+    }
     expect(client).not.toContain("HOME_RELAUNCH_COPY: Record");
   });
 });
