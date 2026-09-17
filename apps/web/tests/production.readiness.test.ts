@@ -66,15 +66,28 @@ describe("membership and funding production readiness", () => {
     expect(password).toContain('role="status" aria-live="polite"');
   });
 
-  it("keeps /mitmachen focused on membership and local enabling", () => {
+  it("keeps /mitmachen focused on joining, eDebatte and local presence", () => {
     const join = source("app/mitmachen/MitmachenClient.tsx");
+    const regional = source("app/vor-ort/strings.ts");
     const regionalRedirect = source("app/vor-ort/page.tsx");
     expect(join).toContain('id="vor-ort"');
     expect(join).toContain("<RegionalInterestForm strings={regional} />");
     expect(join).toContain("EDEBATTE_URL");
     expect(join).toContain("VOG_SUPPORT_PATH");
     expect(join).not.toContain("VOG_QUESTIONS_PATH");
+    expect(join).toContain("Hallo Nachbar. Hier kannst du etwas bewegen.");
+    expect(join).toContain("Für deine Nachbarn etwas bewegen");
+    expect(join).toContain("Statushinweis:");
+    expect(regional).toContain("Für deine Nachbarn. Für deine Region.");
+    expect(regional).toContain("rund 400 eDebatte × VoiceOpenGov-Anlaufstellen");
+    expect(regional).toContain("eine regionale Anlaufstelle mit aufbauen");
     expect(regionalRedirect).toContain('redirect("/mitmachen#vor-ort")');
+  });
+
+  it("keeps legal-status wording compact instead of dominating /mitmachen", () => {
+    const join = source("app/mitmachen/MitmachenClient.tsx");
+    const disclaimerCount = join.match(/keine Vereins- oder Parteimitgliedschaft/g)?.length ?? 0;
+    expect(disclaimerCount).toBe(1);
   });
 
   it("keeps the post-registration DOI journey explicit", () => {
