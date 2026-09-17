@@ -32,6 +32,13 @@ describe("public SEO/search contract", () => {
     expect(footer).toContain("nicht automatisch eine VoiceOpenGov-Position");
   });
 
+  it("keeps ecosystem canonical hosts aligned with their own sites", () => {
+    const links = source("config/links.ts");
+    expect(links).toContain('EDEBATTE_CANONICAL_URL = "https://www.edebatte.org"');
+    expect(links).toContain('VOTE4GOV_CANONICAL_URL = "https://www.vote4gov.eu"');
+    expect(links).not.toContain('VOTE4GOV_CANONICAL_URL = "https://vote4gov.eu"');
+  });
+
   it("keeps sitemap canonical and free of redirects or synthetic freshness", () => {
     const sitemap = source("app/sitemap.ts");
     expect(sitemap).not.toContain('"/mitmachen/rollen"');
