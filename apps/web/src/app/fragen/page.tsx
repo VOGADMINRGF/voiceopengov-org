@@ -39,18 +39,18 @@ type PageContent = {
 
 const DE_CONTENT: PageContent = {
   copy: {
-    title: "50 Fragen. Keine 50 fertigen Antworten.",
+    title: "50 Kernfragen. Ein Programm, das sich ändern darf.",
     description:
-      "Die ersten 50 offenen Orientierungsfragen der VoiceOpenGov-Bewegung mit stabilen IDs und eDebatte-Handoff.",
-    eyebrow: "Offener Kompass",
+      "50 stabile Themenanker für eDebatte und den dynamischen VoiceOpenGov-Programmstand – offen für neue Unterfragen, neue Evidenz und neue Mehrheiten.",
+    eyebrow: "Dynamischer Themenkanon",
     intro:
-      "Diese Fragen sind kein Parteiprogramm. Sie sind der öffentliche Arbeitsbeginn: mit Quellen, Gegenargumenten, Zielkonflikten, Alternativen und einem sichtbaren Lernstand. Jede Frage bleibt in allen Sprachen fachlich dieselbe Frage.",
-    join: "Mitglied werden",
-    transparency: "So machen wir den Stand sichtbar",
-    status: "Status: Seed · eDebatte-Handoff vorbereitet",
-    openRoom: "Auf eDebatte weiterverfolgen",
+      "Die 50 Kernfragen sind weder Parteiprogramm noch 50 fertige Antworten. Sie strukturieren den Einstieg. Aus ihnen entstehen in eDebatte konkrete, abstimmungsreife Fragen mit klarer Zuständigkeit und Geltungsbereich. Neue gültige Entscheidungen dürfen frühere Positionen ersetzen – weil Menschen ihre Meinung ändern dürfen und Demokratie lernfähig sein muss.",
+    join: "Bei VoiceOpenGov mitmachen",
+    transparency: "Versionen & Transparenz",
+    status: "Status: Seed · Fragen versionierbar · Antworten nicht eingefroren",
+    openRoom: "In eDebatte konkretisieren",
     qrSummary: "QR-Code öffnen",
-    qrAlt: "QR-Code zur Frage",
+    qrAlt: "QR-Code zur Kernfrage",
     stableId: "Stabile ID",
   },
   groups: VOG_QUESTION_GROUPS.map((group) => ({
@@ -65,18 +65,18 @@ const DE_CONTENT: PageContent = {
 
 const EN_CONTENT: PageContent = {
   copy: {
-    title: "50 questions. Not 50 finished answers.",
+    title: "50 core questions. A program allowed to change.",
     description:
-      "The first 50 open questions guiding VoiceOpenGov, with stable IDs and an eDebatte handoff.",
-    eyebrow: "An open compass",
+      "50 stable topic anchors for eDebatte and VoiceOpenGov's dynamic program state, open to new subquestions, new evidence and changing majorities.",
+    eyebrow: "Dynamic topic canon",
     intro:
-      "These questions are not a party manifesto. They are where the public work begins: with sources, counterarguments, trade-offs, alternatives and a visible state of learning. Each translation remains the same canonical question.",
-    join: "Become a member",
-    transparency: "See how we make progress visible",
-    status: "Status: seed · eDebatte handoff prepared",
-    openRoom: "Continue on eDebatte",
+      "The 50 core questions are neither a party manifesto nor 50 finished answers. They structure the starting point. In eDebatte they become concrete decision-ready questions with a defined authority and scope. Later valid decisions may replace earlier positions because people may change their minds and democratic systems must be able to learn.",
+    join: "Participate in VoiceOpenGov",
+    transparency: "Versions & transparency",
+    status: "Status: seed · questions versioned · answers not frozen",
+    openRoom: "Refine in eDebatte",
     qrSummary: "Open QR code",
-    qrAlt: "QR code for this question",
+    qrAlt: "QR code for this core question",
     stableId: "Stable ID",
   },
   groups: VOG_QUESTION_GROUPS.map((group) => ({
@@ -90,10 +90,7 @@ const EN_CONTENT: PageContent = {
 };
 
 const STATUS_COPY: Partial<
-  Record<
-    SupportedLocale,
-    Record<TranslationStatus, string>
-  >
+  Record<SupportedLocale, Record<TranslationStatus, string>>
 > = {
   de: {
     source: "Deutsche Originalfassung",
@@ -173,7 +170,7 @@ export default async function QuestionsPage() {
             {statusCopy[bundle.status]}
           </div>
           <p className="mt-3 text-sm text-[#f4f1e8]/45">
-            {VOG_QUESTION_COUNT} / 50 · IDs bleiben sprachunabhängig
+            {VOG_QUESTION_COUNT} / 50 · stabile IDs · Inhalte und Entscheidungen versionierbar
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
