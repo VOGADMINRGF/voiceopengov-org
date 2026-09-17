@@ -1,361 +1,177 @@
-# VoiceOpenGov – Bewegung, Mitgliedschaft und Vertrauensarchitektur
+# VoiceOpenGov – Bewegung, Repräsentation und dynamisches Programm
 
-Status: kanonischer Relaunch-Entwurf
+Status: kanonischer Governance- und Relaunch-Vertrag
 
-## 1. Klare Markenrollen
+## 1. Rollenkanon
 
 ### Vote4Gov
-Vote4Gov ist die persönliche öffentliche Stimme von Ricky Gerd Fleischer: seine Geschichte, Motivation, Verantwortung und sein Blick auf Deutschland, Europa und die politische Ordnung weltweit.
-
-Vote4Gov darf persönliche Thesen, Systemkritik und einen eigenen politischen Ordnungsentwurf formulieren. Diese Positionen sollen historisch eingeordnet, international verglichen, mit Quellen und Gegenpositionen überprüfbar gemacht und sichtbar korrigierbar bleiben. Sie sind nicht automatisch Positionen von VoiceOpenGov.
-
-### VoiceOpenGov
-VoiceOpenGov ist die offene, internationale Mitgliederbewegung für nachvollziehbare Politik, echte Beteiligung, gesellschaftliche Souveränität und eine Kultur des Vertrauens.
-
-VoiceOpenGov organisiert Menschen, Regionen, Community, Partnerschaften, eigenes Programm und gemeinsames Handeln. Sein programmatischer Stand entsteht durch die eigene demokratische Willensbildung der Bewegung und nicht durch automatische Übernahme externer Dossier- oder Abstimmungsergebnisse.
+Vote4Gov ist die persönliche öffentliche Stimme von Ricky Gerd Fleischer: persönliche Thesen, Systemkritik, historische Herleitungen, internationale Vergleiche und ein eigener politischer Ordnungsentwurf. Vote4Gov darf Positionen in eDebatte zur Prüfung stellen. Diese Positionen sind weder automatisch VoiceOpenGov-Positionen noch automatisch Mehrheitspositionen der eDebatte-Gemeinschaft.
 
 ### eDebatte
-eDebatte ist eine unabhängig nutzbare Evidenz-, Dossier- und Beteiligungsinfrastruktur, mit der Menschen Informationen prüfen, Quellen verbinden, Zielkonflikte verstehen, Gegenpositionen und Alternativen entwickeln sowie nachvollziehbare Mehrheits- und Minderheitenbilder bilden können.
+eDebatte ist die unabhängig nutzbare Evidenz-, Dossier-, Beteiligungs- und Entscheidungsinfrastruktur. Dort werden Quellen, Claims, Gegenpositionen, Alternativen, Zuständigkeiten, Unsicherheiten sowie Mehrheits- und Minderheitenbilder nachvollziehbar bearbeitet und versioniert.
 
-VoiceOpenGov kann eDebatte intensiv für die eigene Willensbildung verwenden. Daraus folgt jedoch niemals automatisch: `eDebatte entscheidet → VoiceOpenGov muss übernehmen`.
+Für VoiceOpenGov ist ein nach den veröffentlichten Regeln gültig zustande gekommenes eDebatte-Ergebnis innerhalb seines sachlichen und regionalen Geltungsbereichs politisch bindend.
 
-Dasselbe eDebatte-Dossier kann gleichzeitig von Bürgerinnen und Bürgern, Journalistinnen und Journalisten, Wissenschaft, Vereinen, Unternehmen, Kommunen, anderen politischen Organisationen und politischen Gegnern bearbeitet oder als Grundlage verwendet werden. eDebatte gehört keiner VOG-Repräsentantin und keinem VOG-Repräsentanten.
+### VoiceOpenGov
+VoiceOpenGov ist die politische Umsetzungs- und Repräsentationsschicht hinter eDebatte. VoiceOpenGov organisiert Menschen, Regionen, lokale Präsenz und politische Verantwortlichkeit, erzeugt aber keine konkurrierende politische Wahrheit neben einem gültigen eDebatte-Mehrheitsentscheid.
+
+Wenn gefragt wird, wer die politische Umsetzung eines gültigen eDebatte-Ergebnisses verantwortlich vertritt, ist VoiceOpenGov die dafür vorgesehene Antwort.
 
 ### Voxy
-Voxy verbindet die Ebenen als verständliche, transparente Begleiterin. Sie erklärt, strukturiert, übersetzt und zeigt Unsicherheit. Sie entscheidet nicht.
+Voxy erklärt, strukturiert und übersetzt. Voxy entscheidet nicht.
 
 ### Kurzform
 
 > **Vote4Gov denkt und hinterfragt.**
 >
-> **VoiceOpenGov organisiert und vertritt.**
+> **eDebatte prüft, beteiligt und bildet den gültigen Mehrheitswillen ab.**
 >
-> **eDebatte prüft und beteiligt.**
+> **VoiceOpenGov vertritt und verantwortet dessen politische Umsetzung.**
 >
 > **Voxy macht es verständlich.**
 
-## 2. Nordstern
+## 2. Bindungsprinzip
 
-VoiceOpenGov baut keine Plattform, auf der Menschen einer Meinung sein müssen. VoiceOpenGov schafft eine Bewegung, in der Menschen trotz unterschiedlicher Meinungen gemeinsam verantwortbare Positionen und Entscheidungen entwickeln können.
+Ein VoiceOpenGov-Repräsentant darf eine eigene Meinung und eigene Thesen haben. Er darf diese in eDebatte einreichen, begründen und vor einer Entscheidung öffentlich vertreten.
 
-Der interne Prüfstein jeder Produkt-, Kommunikations- und Governance-Entscheidung lautet:
+Nach Abschluss eines gültigen Verfahrens ist für die politische Repräsentation jedoch das dokumentierte Ergebnis maßgeblich. Eine persönliche Präferenz des Repräsentanten oder ein internes VOG-Gremium darf das Ergebnis nicht stillschweigend ersetzen.
 
-> Steigert diese Änderung nachvollziehbares Vertrauen?
+Ein Ergebnis ist nur dann bindend, wenn der veröffentlichte Verfahrensvertrag erfüllt ist. Entwurf, laufende Debatte, unvollständige Abstimmung oder bloßes Stimmungsbild sind kein bindendes Mandat.
 
-## 3. Startseitenversprechen
-
-### Einstieg
-
-> Willkommen Nachbar.
->
-> Wir kennen uns wahrscheinlich nicht. Trotzdem treffen wir jeden Tag Entscheidungen, die unser gemeinsames Leben beeinflussen. Vielleicht wird es Zeit, dass wir anfangen, sie gemeinsam besser zu verstehen.
-
-Die Startseite spricht aus, was viele denken, ohne populistisch zu werden:
-
-- Vertrauen sinkt.
-- Diskussionen werden lauter.
-- Informationen werden mehr.
-- Orientierung wird weniger.
-- Verantwortung bleibt oft unsichtbar.
-
-Die Antwort ist keine weitere fertige Meinung, sondern ein besseres Verfahren.
-
-## 4. Bewegung statt Produktseite
-
-Die Startseite führt in dieser Reihenfolge:
-
-1. Willkommen Nachbar
-2. Was heute schiefläuft
-3. Was anders funktionieren kann
-4. VoiceOpenGov als internationale Bewegung
-5. Mitgliedschaft und konkrete Rollen
-6. dynamische Programmbildung der Bewegung
-7. eDebatte als unabhängig nutzbare Evidenz- und Beteiligungsinfrastruktur
-8. Voxy als Begleiterin
-9. Transparenzversprechen
-10. regionale Aufbauagenda
-11. offene Charta und öffentliche Entwicklung
-12. Mitglied werden
-
-Technik, Bände und Fachmodelle bleiben verfügbar, dominieren aber nicht den ersten Eindruck.
-
-## 5. Mitgliedschaft als tragendes Modell
-
-VoiceOpenGov ist auf Mitgliedschaften ausgelegt.
-
-Mitgliedschaft bedeutet:
-
-- Teil einer internationalen Bewegung sein
-- die Charta mitentwickeln und mittragen
-- Themen und öffentliche Fragen einbringen
-- regionale und thematische Gruppen aufbauen
-- an Entscheidungen der Bewegung teilnehmen
-- Verantwortung übernehmen
-- VoiceOpenGov öffentlich vertreten
-
-Mögliche Rollen:
-
-- Nachbar / Unterstützer
-- Mitglied
-- aktives Mitglied
-- Moderator oder Vermittler
-- Quellenfinder
-- Übersetzer
-- regionale Verantwortung
-- demokratisch legitimierte regionale Repräsentation
-- Fördermitglied
-- Organisation oder Partner
-
-Grundsatz:
-
-> Geld ermöglicht Arbeit, kauft aber niemals mehr Stimme, Reichweite oder politische Gewichtung.
-
-## 6. Dynamisches Programm und eigene Willensbildung
-
-VoiceOpenGov führt kein unveränderliches Parteiprogramm. Sein aktueller programmatischer Stand wird fortlaufend, versioniert und nachvollziehbar aus der eigenen demokratischen Willensbildung erzeugt.
-
-Ein möglicher Arbeitsweg ist:
+## 3. Entscheidungs- und Umsetzungskette
 
 ```text
-Thema oder Konflikt
+Thema / Konflikt / These
 ↓
-Evidenz, Gegenpositionen und Alternativen prüfen
+Quellen, Evidenz, Gegenpositionen und Alternativen in eDebatte
 ↓
-Beteiligungsgrundlage herstellen
+Beteiligung nach veröffentlichten Regeln
 ↓
-VoiceOpenGov-Entscheidung nach den geltenden Governance-Regeln
+gültiges Mehrheitsbild + sichtbare Minderheitenpositionen
 ↓
-Mehrheit ausweisen
+versionierter eDebatte-Entscheidungssnapshot
 ↓
-Minderheitenposition sichtbar halten
+verbindlicher Repräsentationsauftrag für VoiceOpenGov
 ↓
-Entscheidungsweg dokumentieren
+zuständige regionale oder fachliche VOG-Repräsentation
 ↓
-aktuellen programmatischen Stand versionieren
+politische Vertretung / Umsetzungsinitiative / Verhandlung
 ↓
-bei neuer Evidenz oder veränderter Willensbildung erneut öffnen
+öffentlicher Umsetzungsstatus
+↓
+Wirkungsprüfung
+↓
+bei neuer Evidenz oder verändertem Mehrheitswillen neues Verfahren
 ```
 
-eDebatte kann für die Evidenz-, Dossier- und Beteiligungsschritte eingesetzt werden. Die endgültige programmatische Bindung entsteht jedoch erst durch den dafür legitimierten VoiceOpenGov-Prozess.
+Der eDebatte-Snapshot ist die kanonische Entscheidungsreferenz. VoiceOpenGov ergänzt Umsetzungsstatus und politische Verantwortlichkeit, erzeugt aber keine parallele Wahrheit über das Abstimmungsergebnis.
 
-Für jede veröffentlichte VOG-Position sollen, soweit anwendbar, sichtbar sein:
+## 4. Dynamisches Programm statt eingefrorenem Parteiprogramm
 
-- aktuelle Mehrheitsposition
+VoiceOpenGov ist keine klassische Partei mit einem dauerhaft festgeschriebenen Parteiprogramm. Das öffentliche VOG-Programm ist eine **laufend aktualisierte, versionierte Sicht auf die derzeit gültigen eDebatte-Mandate**, die VoiceOpenGov politisch vertritt.
+
+Das Programm darf und soll sich verändern:
+
+- wenn ein neues Thema erstmals gültig entschieden wird;
+- wenn eine bestehende Frage erneut entschieden wird;
+- wenn neue Evidenz eine Wiedereröffnung auslöst;
+- wenn sich gesellschaftliche Mehrheiten verändern;
+- wenn sich regionale Mehrheiten unterscheiden;
+- wenn eine frühere Position ersetzt, präzisiert oder aufgehoben wird.
+
+Diese Änderbarkeit gilt auf allen Ebenen: kommunal, regional, national, europäisch und international, soweit für die jeweilige Frage ein nachvollziehbarer Geltungsbereich definiert ist.
+
+Menschen dürfen ihre Meinung ändern. Das System muss deshalb politische Meinungsänderung nicht als Inkonsistenz behandeln, sondern als versionierbare demokratische Entwicklung.
+
+Für jede Programmposition sollen mindestens sichtbar sein:
+
+- Entscheidungsfrage
+- Region bzw. sachlicher Geltungsbereich
+- eDebatte-Dossier und Entscheidungssnapshot
+- angewandte Abstimmungsregel
+- Mehrheitsposition
 - relevante Minderheitenpositionen
-- verwendete Entscheidungsgrundlage
-- dokumentierter Entscheidungsweg
-- zuständige Ebene oder Community
-- Version und Änderungsdatum
-- Bedingungen für erneute Prüfung
+- Wirksamkeitsdatum
+- Version und Vorgängerversion
+- zuständige VOG-Repräsentation
+- Umsetzungsstatus
+- Bedingung oder Zeitpunkt einer erneuten Prüfung
 
-Ein eDebatte-Ergebnis ist weder automatisch ein VOG-Beschluss noch eine Weisung an VOG-Repräsentanten.
+## 5. Die 50 Kernfragen sind Seed, nicht Dogma
 
-## 7. Repräsentation
+Die 50 Kernfragen sind der erste strukturierte Themenrahmen von VoiceOpenGov. Sie müssen fachlich weiter verbessert werden und dürfen weder als endgültige Themenliste noch als feststehende politische Antworten missverstanden werden.
 
-Eine VoiceOpenGov-Repräsentantin oder ein VoiceOpenGov-Repräsentant vertritt eine regionale Community bzw. den dort demokratisch legitimierten programmatischen Stand nach den jeweils geltenden Governance-Regeln.
+Für jede Kernfrage gilt:
 
-Repräsentation bedeutet nicht Besitz an Evidenz- oder Beteiligungsräumen. Ein von VOG genutztes eDebatte-Dossier bleibt unabhängig nutzbar und kann parallel von anderen Akteuren ergänzt, kritisiert oder für deren eigene Entscheidungen verwendet werden.
+- die Frage selbst darf präzisiert werden, wenn Sprache, Evidenz oder Zuständigkeit es erfordern;
+- Unterfragen und Eventualitäten dürfen entstehen;
+- neue Themen dürfen jederzeit hinzukommen;
+- bestehende Ergebnisse dürfen durch neue gültige Entscheidungen ersetzt werden;
+- regionale Varianten dürfen sichtbar nebeneinander bestehen, wenn die Zuständigkeit regional ist;
+- jede Änderung bleibt versioniert und nachvollziehbar.
 
-VoiceOpenGov kann perspektivisch Strukturen für demokratisch legitimierte regionale Repräsentation aufbauen. Ob und in welcher rechtlichen Organisationsform solche Repräsentation in Wahlen oder Mandaten antritt, ist davon getrennt zu klären und darf nicht vorweggenommen werden.
+Die 50 Fragen sind damit **Startarchitektur für gesellschaftliche Willensbildung**, nicht ein eingefrorenes Wahlprogramm.
 
-## 8. Regionale Präsenz als Aufbauagenda
+## 6. Repräsentation und persönliche Meinung
 
-VoiceOpenGov soll nicht nur digital stattfinden. Die regionale Präsenz ist ein strategisches Zielbild und wird transparent nach realem Aufbaugrad ausgewiesen.
+Eine VOG-Repräsentantin oder ein VOG-Repräsentant vertritt das für den jeweiligen Geltungsbereich aktuell gültige eDebatte-Mandat.
 
-Mögliche Formate sind:
+War die persönliche Position vor der Abstimmung öffentlich, darf sie sichtbar bleiben. Nach Abschluss muss klar getrennt werden zwischen:
 
-- lokale und regionale Teams
-- wiederkehrende Vor-Ort-Treffen
-- Beteiligungsbüros oder vergleichbare lokale Anlaufstellen
-- mobile Beteiligungsformate, einschließlich Busse oder vergleichbarer mobiler Angebote
-- regionale Moderation und Vermittlung
-- demokratisch legitimierte regionale Repräsentantinnen und Repräsentanten
+- **persönliche Position**
+- **gültiges gesellschaftliches Mehrheitsmandat**
+- **politischer Umsetzungsauftrag**
 
-Öffentliche Statusbegriffe müssen den tatsächlichen Stand wiedergeben, etwa:
+Ein Repräsentant darf das gültige Mandat nicht durch seine persönliche Meinung ersetzen.
 
-- geplant
-- im Aufbau
-- Pilot
-- verifiziert aktiv
-- pausiert
-- beendet
+Kann ein Mandat wegen höherrangigem Recht, fehlender Zuständigkeit oder dokumentierter tatsächlicher Unmöglichkeit nicht umgesetzt werden, erhält der Repräsentant keine freie politische Ersatzkompetenz. Die Hürde wird offengelegt und die erforderliche neue politische Wahl wird an eDebatte zurückgegeben.
 
-Nicht vorhandene Teams, Büros, Busse, Veranstaltungen oder Repräsentanten dürfen nicht als bestehend dargestellt werden.
+## 7. Minderheitenschutz
 
-## 9. Transparenz auf allen drei Domains
+Mehrheitsprinzip bedeutet nicht Unsichtbarkeit der Minderheit. Das bindende Mandat und relevante Minderheitspositionen werden gleichzeitig geführt.
 
-### Vote4Gov
+Minderheiten dürfen weiter argumentieren, neue Evidenz einbringen und eine erneute Befassung nach den Governance-Regeln anstoßen. Sie ersetzen jedoch nicht ohne neues gültiges Verfahren den bestehenden Repräsentationsauftrag.
 
-- persönliche Interessen und Verbindungen
-- Finanzierung
-- berufliche Historie
-- persönliche Positionen und Thesen
-- historische Herleitungen
-- internationale Vergleiche
-- Gegenpositionen
-- eigener Systementwurf
-- Kursänderungen
-- Fehler und Lernprozesse
+## 8. VoiceOpenGov-Unterstützer und eDebatte
 
-### VoiceOpenGov
+Bestätigte VoiceOpenGov-Unterstützer sollen eDebatte ohne zusätzliche Nutzungsgebühr verwenden können.
 
-- Finanzen
-- Mitgliederentwicklung
-- Governance und Verantwortlichkeiten
-- Partnerschaften
-- Interessenkonflikte
-- Charta-Versionen
-- programmatische Versionen
-- Mehrheits- und Minderheitenpositionen
-- Entscheidungen und Beschwerden
-- KI-Einsatz
-- regionale Aufbauzustände
-- Wirkung und offene Risiken
+Dabei gilt:
 
-### eDebatte
+- dieselbe Person soll nicht künstlich widersprüchliche Identitäten führen müssen;
+- ein gemeinsamer Login bzw. eine gemeinsame technische Identity ist zulässig und gewünscht;
+- VOG-Zugehörigkeit, eDebatte-Rollen, Abstimmungsberechtigungen und fachliche Inhalte bleiben als getrennte Attribute nachvollziehbar;
+- kostenloser Zugang ist ein Nutzungsentitlement, kein Kauf politischer Rechte;
+- finanzielle Unterstützung erzeugt niemals zusätzliches Stimmgewicht oder politische Priorität.
 
-- Herkunft einer Information
-- Trennung von Fakt, Claim, Interpretation und Annahme
-- Quellen und Gegenquellen
-- Unsicherheit
-- Zielkonflikte
-- Alternativen
-- Beteiligungsgrundlage
-- Mehrheits- und Minderheitenbilder
-- tatsächliche Wirkung
-- Versionierung und Korrekturwege
+VOG-Unterstützer dürfen Thesen gezielt vertreten, Dossiers initiieren und für Positionen argumentieren. Vor einer gültigen Entscheidung sprechen sie für ihre Position, nicht für die gesamte eDebatte-Gemeinschaft.
 
-## 10. Reasoning Graph
+## 9. Regionale Präsenz und 400-Anlaufstellen-Zielbild
 
-Der Reasoning Graph gehört methodisch und technisch in eDebatte.
+VoiceOpenGov soll die politische Umsetzungsverantwortung vor Ort sichtbar und erreichbar machen.
 
-VoiceOpenGov kann ihn für eigene Entscheidungsprozesse nutzen, definiert aber nicht die Wahrheit in eDebatte. eDebatte wiederum erzeugt keine automatische programmatische Bindung für VoiceOpenGov.
+Langfristiges Deutschland-Zielbild ist ein Netz von ungefähr 400 lokalen Anlaufstellen. Das ist ein Ausbauziel und darf nicht als heutiger Bestand dargestellt werden.
 
-```text
-Quelle
-↓
-Beobachtung
-↓
-Claim
-↓
-Evidenz
-↓
-Interpretation
-↓
-Annahme
-↓
-Ziel und Wert
-↓
-Alternative
-↓
-erwartete Wirkung
-↓
-Einwand
-↓
-Orientierung
-↓
-Beteiligungsbild
-↓
-Entscheidungsoption
-↓
-tatsächliche Wirkung
-↓
-Lernen und neue Version
-```
+Die Standorte sollen im gemeinsamen **eDebatte × VoiceOpenGov**-Branding funktionieren:
 
-## 11. Rolle von Voxy
+- eDebatte: offener Evidenz-, Beteiligungs- und Entscheidungsraum
+- VoiceOpenGov: regionale politische Repräsentation und Umsetzungsverantwortung
 
-### Auf Vote4Gov
-Voxy erklärt Rickys Motivation, unterscheidet persönliche Aussagen von Bewegungspositionen und führt zu den öffentlich nachvollziehbaren Begründungen, Quellen und Gegenpositionen.
+Mögliche Formate sind lokale Teams, feste Anlaufpunkte, regelmäßige Vor-Ort-Termine, mobile Beteiligungsformate, Hilfe bei Dossiers sowie öffentliche Sprechstunden der regionalen VOG-Repräsentation.
 
-### Auf VoiceOpenGov
-Voxy erklärt Charta, Mitgliedschaft, Governance, Transparenz, regionale Gruppen, den aktuellen programmatischen Stand und offene Entscheidungen.
+Jeder Standort braucht einen realen Status wie `geplant`, `im Aufbau`, `Pilot`, `verifiziert aktiv`, `pausiert` oder `beendet`.
 
-### Auf eDebatte
-Voxy strukturiert Beiträge, erkennt Claims und Zielkonflikte, verbindet Quellen, zeigt Unsicherheiten und übersetzt zwischen Perspektiven.
+## 10. Transparenz und Definition of Done
 
-Gemeinsamer Satz:
+VoiceOpenGov macht mindestens nachvollziehbar:
 
-> Voxy hilft beim Verstehen. Voxy entscheidet nicht.
+- welches eDebatte-Ergebnis vertreten wird;
+- welche Mehrheit und welche Minderheitenpositionen vorliegen;
+- welche Version aktuell gilt;
+- welche frühere Position dadurch ersetzt wurde;
+- wer für die politische Umsetzung zuständig ist;
+- wie der Umsetzungsstatus lautet;
+- welche rechtlichen oder tatsächlichen Hürden bestehen;
+- wann und warum eine erneute Entscheidung erfolgt.
 
-## 12. Transparenzversprechen
-
-> Wir verlangen nichts, was wir nicht selbst tun.
-
-VoiceOpenGov macht sichtbar:
-
-- Finanzierung
-- Entscheidungen
-- Quellen und Entscheidungsgrundlagen
-- Mehrheits- und Minderheitenpositionen
-- programmatische Änderungen
-- Fehler
-- KI-Einsatz
-- Abhängigkeiten
-- Interessenkonflikte
-- Mitgliederentwicklung
-- regionale Aufbauzustände
-- Wirkung
-
-Nicht behaupten, unabhängig oder objektiv zu sein. Stattdessen Abhängigkeiten und Herleitungen prüfbar machen.
-
-## 13. Öffentliche Lernkultur
-
-VoiceOpenGov zeigt nicht nur Ergebnisse, sondern Entwicklung:
-
-- Was wir noch nicht wissen
-- Was uns Sorgen macht
-- Was wir heute gelernt haben
-- Wo wir unsere Meinung geändert haben
-- Welche Experimente laufen
-- Was sich bewährt hat
-- Was verworfen wurde
-
-Statusbegriffe:
-
-- Entwurf
-- in Diskussion
-- Experiment
-- bewährt
-- zu überarbeiten
-- verworfen
-
-## 14. Die ersten 50 öffentlichen Räume
-
-Die erste Seed-Welle besteht nicht aus klassischen Ministeriumsthemen, sondern aus 50 großen, international verständlichen Orientierungsfragen.
-
-Jeder Raum enthält:
-
-- Leitfrage
-- Zielkonflikt
-- Werte- und Rechtsbezug
-- betroffene Gruppen
-- internationale Vergleichsperspektive
-- Fakten, Claims und Annahmen
-- offene Unsicherheiten
-- Handlungsalternativen
-- Erfolgskriterien
-- Beteiligungsstatus
-- Mehrheits- und Minderheitenbilder
-- Version und Wirkung
-
-Die vollständige Liste wird separat versioniert und kann über eDebatte öffentlich bearbeitet werden. VoiceOpenGov entscheidet unabhängig davon nach seiner eigenen Governance, welche Ergebnisse programmatisch übernommen werden.
-
-## 15. Definition of Done für den Relaunch
-
-Der Relaunch ist erst abnahmefähig, wenn:
-
-- VoiceOpenGov im ersten Eindruck eindeutig als Mitgliederbewegung erscheint
-- Vote4Gov eindeutig als Rickys persönliche Stimme, Systemkritik und persönlicher Ordnungsentwurf erkennbar ist
-- Vote4Gov, VoiceOpenGov und eDebatte sauber abgegrenzt sind
-- ausdrücklich ausgeschlossen ist, dass eDebatte automatisch für VoiceOpenGov entscheidet
-- der dynamische VOG-Programmprozess Mehrheiten, Minderheitenpositionen, Entscheidungsweg und aktuellen Stand sichtbar machen kann
-- regionale Präsenz als reale Aufbauagenda mit fail-honest Status statt als unbelegter Bestand dargestellt wird
-- Voxy sichtbar und rollengerecht eingebunden ist
-- Transparenz als Markenkern auf der Startseite erkennbar ist
-- Mitgliedschaft der primäre Conversion-Pfad ist
-- freiwillige finanzielle Unterstützung keinen Einflussvorteil erzeugt
-- die Seite emotional, professionell und international verständlich ist
-- die Anrede „Hallo Nachbar“ konsistent verwendet wird
-- technische Grundlagen nicht mehr die Dramaturgie dominieren
-- die öffentliche Charta und die 50 Fragen anschlussfähig verlinkt sind
+Der Relaunch ist erst abnahmefähig, wenn öffentliche Website, `llms.txt`, Governance-Dokumente und technische Verträge denselben Rollenkanon verwenden und keine Stelle mehr behauptet, VoiceOpenGov könne ein gültiges eDebatte-Mehrheitsmandat durch einen separaten internen politischen Beschluss überschreiben.
