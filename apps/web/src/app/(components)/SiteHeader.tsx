@@ -25,16 +25,16 @@ type HeaderCopy = {
 };
 
 const COPY: Record<SupportedLocale, HeaderCopy> = {
-  de: { tagline: "Infrastruktur für informierte Demokratie", why: "Warum", questions: "50 Fragen", transparency: "Transparenz", support: "Unterstützen", join: "Mitmachen", login: "Anmelden" },
-  en: { tagline: "Infrastructure for informed democracy", why: "Why", questions: "50 questions", transparency: "Transparency", support: "Support", join: "Participate", login: "Sign in" },
-  fr: { tagline: "Infrastructure pour une démocratie informée", why: "Pourquoi", questions: "50 questions", transparency: "Transparence", support: "Soutenir", join: "Participer", login: "Se connecter" },
-  pl: { tagline: "Infrastruktura świadomej demokracji", why: "Dlaczego", questions: "50 pytań", transparency: "Przejrzystość", support: "Wesprzyj", join: "Dołącz", login: "Zaloguj się" },
-  es: { tagline: "Infraestructura para una democracia informada", why: "Por qué", questions: "50 preguntas", transparency: "Transparencia", support: "Apoyar", join: "Participar", login: "Iniciar sesión" },
-  it: { tagline: "Infrastruttura per una democrazia informata", why: "Perché", questions: "50 domande", transparency: "Trasparenza", support: "Sostieni", join: "Partecipa", login: "Accedi" },
-  tr: { tagline: "Bilgili demokrasi için altyapı", why: "Neden", questions: "50 soru", transparency: "Şeffaflık", support: "Destekle", join: "Katıl", login: "Giriş yap" },
-  ar: { tagline: "بنية تحتية لديمقراطية واعية", why: "لماذا", questions: "50 سؤالاً", transparency: "الشفافية", support: "ادعم", join: "شارك", login: "تسجيل الدخول" },
-  ru: { tagline: "Инфраструктура информированной демократии", why: "Почему", questions: "50 вопросов", transparency: "Прозрачность", support: "Поддержать", join: "Участвовать", login: "Войти" },
-  zh: { tagline: "知情民主的基础设施", why: "为什么", questions: "50 个问题", transparency: "透明度", support: "支持", join: "参与", login: "登录" },
+  de: { tagline: "Initiative für informierte Beteiligung", why: "Warum", questions: "50 Fragen", transparency: "Transparenz", support: "Unterstützen", join: "Mitmachen", login: "Anmelden" },
+  en: { tagline: "Initiative for informed participation", why: "Why", questions: "50 questions", transparency: "Transparency", support: "Support", join: "Participate", login: "Sign in" },
+  fr: { tagline: "Initiative pour une participation éclairée", why: "Pourquoi", questions: "50 questions", transparency: "Transparence", support: "Soutenir", join: "Participer", login: "Se connecter" },
+  pl: { tagline: "Inicjatywa na rzecz świadomego uczestnictwa", why: "Dlaczego", questions: "50 pytań", transparency: "Przejrzystość", support: "Wesprzyj", join: "Dołącz", login: "Zaloguj się" },
+  es: { tagline: "Iniciativa para una participación informada", why: "Por qué", questions: "50 preguntas", transparency: "Transparencia", support: "Apoyar", join: "Participar", login: "Iniciar sesión" },
+  it: { tagline: "Iniziativa per una partecipazione informata", why: "Perché", questions: "50 domande", transparency: "Trasparenza", support: "Sostieni", join: "Partecipa", login: "Accedi" },
+  tr: { tagline: "Bilinçli katılım için girişim", why: "Neden", questions: "50 soru", transparency: "Şeffaflık", support: "Destekle", join: "Katıl", login: "Giriş yap" },
+  ar: { tagline: "مبادرة للمشاركة المستنيرة", why: "لماذا", questions: "50 سؤالاً", transparency: "الشفافية", support: "ادعم", join: "شارك", login: "تسجيل الدخول" },
+  ru: { tagline: "Инициатива за осознанное участие", why: "Почему", questions: "50 вопросов", transparency: "Прозрачность", support: "Поддержать", join: "Участвовать", login: "Войти" },
+  zh: { tagline: "推动知情参与的倡议", why: "为什么", questions: "50 个问题", transparency: "透明度", support: "支持", join: "参与", login: "登录" },
 };
 
 export function SiteHeader() {
