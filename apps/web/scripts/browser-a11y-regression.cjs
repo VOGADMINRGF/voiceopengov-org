@@ -36,10 +36,24 @@ async function checkPage(context, path) {
   const h1Count = await page.locator("h1").count();
   if (h1Count !== 1) fail(`${path}: expected exactly one h1, found ${h1Count}`);
 
-  const hasOverflow = await page.evaluate(
-    () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
-  );
-  if (hasOverflow) fail(`${path}: horizontal overflow`);
+  const overflow = await page.evaluate(() => {
+    const viewportWidth = document.documentElement.clientWidth;
+    if (document.documentElement.scrollWidth <= viewportWidth + 1) return [];
+    return Array.from(document.querySelectorAll("body *"))
+      .map((element) => {
+        const rect = element.getBoundingClientRect();
+        return {
+          tag: element.tagName.toLowerCase(),
+          className: typeof element.className === "string" ? element.className : "",
+          left: Math.round(rect.left),
+          right: Math.round(rect.right),
+          width: Math.round(rect.width),
+        };
+      })
+      .filter((item) => item.right > viewportWidth + 1 || item.left < -1)
+      .slice(0, 8);
+  });
+  if (overflow.length) fail(`${path}: horizontal overflow — ${JSON.stringify(overflow)}`);
 
   const lang = await page.locator("html").getAttribute("lang");
   const dir = await page.locator("html").getAttribute("dir");
