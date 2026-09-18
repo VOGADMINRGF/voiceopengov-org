@@ -770,3 +770,13 @@ body:not([data-analysis-ready="1"]) [data-requires-analysis] {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+.vog-skip-link {
+  transform: translateY(-200%);
+}
+
+.vog-skip-link:focus,
+.vog-skip-link:focus-visible {
+  transform: translateY(0);
+}
