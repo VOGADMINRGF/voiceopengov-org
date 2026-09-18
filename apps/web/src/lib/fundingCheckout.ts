@@ -1,9 +1,14 @@
 import { createHash } from "crypto";
 import type { SupportedLocale } from "@/config/locales";
 
-export const MIN_FUNDING_CENTS = 499;
+export const MIN_FUNDING_CENTS = 1_500;
+export const MIN_ANNUAL_FUNDING_CENTS = MIN_FUNDING_CENTS * 12;
 export const MAX_FUNDING_CENTS = 1_000_000;
 export type FundingCadence = "one_time" | "monthly" | "annual";
+
+export function minimumFundingCents(cadence: FundingCadence): number {
+  return cadence === "annual" ? MIN_ANNUAL_FUNDING_CENTS : MIN_FUNDING_CENTS;
+}
 
 const CHECKOUT_COPY: Record<SupportedLocale, { product: string; noInfluence: string }> = {
   de: { product: "Freiwillige Unterstützung für VoiceOpenGov", noInfluence: "Die Unterstützung ist freiwillig und kauft weder Stimmgewicht noch politischen Einfluss." },
@@ -33,8 +38,8 @@ export function parseFundingRequest(input: unknown): FundingRequest | null {
   const cadence = value.cadence;
   const locale = value.locale;
   const attemptId = value.attemptId;
-  if (!Number.isSafeInteger(amountCents) || amountCents < MIN_FUNDING_CENTS || amountCents > MAX_FUNDING_CENTS) return null;
   if (cadence !== "one_time" && cadence !== "monthly" && cadence !== "annual") return null;
+  if (!Number.isSafeInteger(amountCents) || amountCents < minimumFundingCents(cadence) || amountCents > MAX_FUNDING_CENTS) return null;
   if (typeof locale !== "string" || !/^(de|en|fr|es|tr|ar|pl|it|ru|zh)$/.test(locale)) return null;
   if (typeof attemptId !== "string" || !/^[A-Za-z0-9_-]{16,80}$/.test(attemptId)) return null;
   if (value.termsAccepted !== true) return null;
