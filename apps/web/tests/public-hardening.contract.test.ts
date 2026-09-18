@@ -66,8 +66,8 @@ describe("public web hardening contract", () => {
     expect(script).toContain('rtlDir !== "rtl"');
     expect(script).toContain("horizontal overflow");
 
-    expect(workflow).toContain("@axe-core/playwright@4.10.2");
-    expect(workflow).toContain("playwright@1.55.0");
+    expect(workflow).toContain("@axe-core/playwright@4.13.0");
+    expect(workflow).toContain("playwright@1.63.0");
     expect(workflow).toContain("NODE_PATH=/tmp/vog-browser/node_modules");
     expect(workflow).toContain("node apps/web/scripts/browser-a11y-regression.cjs");
   });
