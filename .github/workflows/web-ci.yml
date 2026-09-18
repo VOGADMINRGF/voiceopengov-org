@@ -69,6 +69,9 @@ jobs:
       - name: Public accessibility + performance + security contract
         run: pnpm -C apps/web exec vitest run tests/public-hardening.contract.test.ts
 
+      - name: Programme projection contract
+        run: pnpm -C apps/web run test:program-projection
+
       - name: Production build
         run: pnpm build
 
@@ -103,6 +106,8 @@ jobs:
 
           curl -fsS http://127.0.0.1:3000/mitmachen >/dev/null
           curl -fsS http://127.0.0.1:3000/fragen >/dev/null
+          curl -fsS http://127.0.0.1:3000/programm \
+            | grep -Ei '<meta[^>]+name="robots"[^>]+content="noindex[^\"]*follow|<meta[^>]+content="noindex[^\"]*follow"[^>]+name="robots"'
           curl -fsS http://127.0.0.1:3000/regionen/deutschland >/dev/null
           curl -fsS http://127.0.0.1:3000/regionen/deutschland/berlin >/dev/null
           curl -fsS http://127.0.0.1:3000/regionen/deutschland/brandenburg \
