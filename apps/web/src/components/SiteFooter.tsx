@@ -127,7 +127,7 @@ export default function SiteFooter({ locale }: SiteFooterProps) {
           <FooterNav title={strings.columns.legal} ariaLabel={strings.aria.legal} links={strings.links.legal} />
         </div>
 
-        <div className="mt-10 border-t border-white/10 pt-6 text-xs text-slate-500 md:flex md:items-start md:justify-between md:gap-8">
+        <div className="mt-10 border-t border-white/10 pt-6 text-xs text-slate-400 md:flex md:items-start md:justify-between md:gap-8">
           <p>© {currentYear} VoiceOpenGov</p>
           <div className="mt-3 max-w-3xl space-y-2 md:mt-0 md:text-right">
             <p>{providerStatus}</p>
