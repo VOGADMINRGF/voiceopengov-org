@@ -42,7 +42,7 @@ export default async function RegionalActivationTeaser() {
           <p className="mt-5 max-w-3xl text-lg leading-8 text-[#f4f1e8]/62">
             {copy.body}
           </p>
-          <p className="mt-4 max-w-3xl text-sm leading-6 text-[#f4f1e8]/45">
+          <p className="mt-4 max-w-3xl text-sm leading-6 text-[#f4f1e8]/65">
             {copy.note}
           </p>
         </div>
