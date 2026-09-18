@@ -2,10 +2,11 @@
 
 import { useRef, useState } from "react";
 import type { SupportedLocale } from "@/config/locales";
-import type { FundingCadence } from "@/lib/fundingCheckout";
+import { MIN_FUNDING_CENTS, minimumFundingCents, type FundingCadence } from "@/lib/fundingCheckout";
 import type { FundingStrings } from "./fundingStrings";
 
-const PRESETS = [4.99, 15, 25, 50];
+const STANDARD_PRESETS = [15, 25, 50, 100];
+const ANNUAL_PRESETS = [180, 300, 600, 1200];
 
 function formatEuro(value: number, locale: SupportedLocale) {
   return new Intl.NumberFormat(locale === "de" ? "de-DE" : "en-GB", {
@@ -18,12 +19,32 @@ function formatEuro(value: number, locale: SupportedLocale) {
 
 export default function FundingCheckoutForm({ locale, strings, enabled }: { locale: SupportedLocale; strings: FundingStrings; enabled: boolean }) {
   const [cadence, setCadence] = useState<FundingCadence>("monthly");
-  const [amount, setAmount] = useState(4.99);
+  const [amount, setAmount] = useState(MIN_FUNDING_CENTS / 100);
   const [accepted, setAccepted] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState(false);
   const attemptId = useRef(crypto.randomUUID());
   const isGerman = locale === "de";
+  const minimumAmount = minimumFundingCents(cadence) / 100;
+  const presets = cadence === "annual" ? ANNUAL_PRESETS : STANDARD_PRESETS;
+
+  function chooseCadence(value: FundingCadence) {
+    setCadence(value);
+    setAmount(minimumFundingCents(value) / 100);
+  }
+
+  const minimumHint =
+    cadence === "annual"
+      ? isGerman
+        ? "Fördern ab 180 € pro Jahr – entsprechend 15 € pro Monat."
+        : "Support starts at €180 per year — equivalent to €15 per month."
+      : cadence === "monthly"
+        ? isGerman
+          ? "Fördern ab 15 € pro Monat."
+          : "Support starts at €15 per month."
+        : isGerman
+          ? "Einmalige Unterstützung ab 15 €."
+          : "One-time support starts at €15.";
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -80,7 +101,7 @@ export default function FundingCheckoutForm({ locale, strings, enabled }: { loca
             key={value}
             type="button"
             aria-pressed={cadence === value}
-            onClick={() => setCadence(value)}
+            onClick={() => chooseCadence(value)}
             className={`min-w-0 rounded-xl px-2 py-3 text-sm font-semibold ${cadence === value ? "bg-cyan-300 text-slate-950" : "border border-slate-700 text-slate-200"}`}
           >
             {value === "one_time" ? strings.oneTime : value === "monthly" ? strings.monthly : strings.annual}
@@ -91,13 +112,13 @@ export default function FundingCheckoutForm({ locale, strings, enabled }: { loca
       <fieldset className="mt-6">
         <legend className="text-sm font-semibold text-slate-200">{strings.amount}</legend>
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {PRESETS.map((value) => (
+          {presets.map((value) => (
             <button
               key={value}
               type="button"
               aria-pressed={amount === value}
               onClick={() => setAmount(value)}
-              className={`rounded-xl px-3 py-3 font-bold ${amount === value ? "bg-blue-500 text-white" : "border border-slate-700"}`}
+              className={`rounded-xl px-3 py-3 font-bold ${amount === value ? "bg-[#18cfc8] text-[#071727]" : "border border-slate-700"}`}
             >
               {formatEuro(value, locale)}
             </button>
@@ -105,11 +126,11 @@ export default function FundingCheckoutForm({ locale, strings, enabled }: { loca
         </div>
       </fieldset>
 
-      <label className="mt-4 block text-sm text-slate-300">
+      <p className="mt-4 text-xs font-semibold text-cyan-100">{minimumHint}</p>\n\n      <label className="mt-3 block text-sm text-slate-300">
         <span>{strings.customAmount}</span>
         <input
           type="number"
-          min="4.99"
+          min={minimumAmount}
           max="10000"
           step="0.01"
           value={amount}
@@ -136,7 +157,7 @@ export default function FundingCheckoutForm({ locale, strings, enabled }: { loca
       )}
 
       <button
-        disabled={!accepted || !enabled || pending || amount < 4.99 || amount > 10000}
+        disabled={!accepted || !enabled || pending || amount < minimumAmount || amount > 10000}
         className="mt-6 w-full rounded-full bg-gradient-to-r from-cyan-300 to-blue-500 px-6 py-4 font-extrabold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {pending
