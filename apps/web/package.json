@@ -17,7 +17,8 @@
     "lint": "pnpm exec eslint --cache --cache-location .eslintcache --config eslint.config.js \"src/**/*.{ts,tsx}\"",
     "test:membership-funding": "vitest run tests/i18n.locale-contract.test.ts tests/regional-interest.contract.test.ts tests/regional-privacy-retention.contract.test.ts tests/security.runtime-secrets.test.ts tests/funnel.events.test.ts tests/funnel.route-resilience.test.ts tests/funding.checkout.test.ts tests/funding.webhook.test.ts tests/admin.funnel.auth.test.ts tests/newsletter.outbox.test.ts tests/member.account-auth.test.ts tests/production.readiness.test.ts",
     "test:regional-contract": "vitest run tests/regional-pages.contract.test.ts",
-    "test:seo-search-contract": "vitest run tests/seo-search-contract.test.ts tests/ai-discovery.contract.test.ts"
+    "test:seo-search-contract": "vitest run tests/seo-search-contract.test.ts tests/ai-discovery.contract.test.ts",
+    "test:program-projection": "vitest run tests/program-projection.contract.test.ts"
   },
   "dependencies": {
     "@db/web": "workspace:*",
