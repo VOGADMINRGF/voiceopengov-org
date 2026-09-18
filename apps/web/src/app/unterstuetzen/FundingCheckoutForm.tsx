@@ -126,7 +126,9 @@ export default function FundingCheckoutForm({ locale, strings, enabled }: { loca
         </div>
       </fieldset>
 
-      <p className="mt-4 text-xs font-semibold text-cyan-100">{minimumHint}</p>\n\n      <label className="mt-3 block text-sm text-slate-300">
+      <p className="mt-4 text-xs font-semibold text-cyan-100">{minimumHint}</p>
+
+      <label className="mt-3 block text-sm text-slate-300">
         <span>{strings.customAmount}</span>
         <input
           type="number"
