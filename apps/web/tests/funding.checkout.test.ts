@@ -4,9 +4,13 @@ import { buildStripeCheckoutBody, fundingIdempotencyKey, parseFundingRequest } f
 const VALID = { amountCents: 1500, cadence: "monthly", locale: "de", attemptId: "550e8400-e29b-41d4-a716-446655440000", termsAccepted: true } as const;
 
 describe("international funding checkout", () => {
-  it("accepts the 4.99 EUR entry and rejects lower amounts, invalid cadence and missing consent", () => {
-    expect(parseFundingRequest({ ...VALID, amountCents: 499 })).not.toBeNull();
-    expect(parseFundingRequest({ ...VALID, amountCents: 498 })).toBeNull();
+  it("enforces the 15 EUR monthly/one-time floor and annual 12x equivalent", () => {
+    expect(parseFundingRequest({ ...VALID, amountCents: 1500, cadence: "monthly" })).not.toBeNull();
+    expect(parseFundingRequest({ ...VALID, amountCents: 1499, cadence: "monthly" })).toBeNull();
+    expect(parseFundingRequest({ ...VALID, amountCents: 1500, cadence: "one_time" })).not.toBeNull();
+    expect(parseFundingRequest({ ...VALID, amountCents: 1499, cadence: "one_time" })).toBeNull();
+    expect(parseFundingRequest({ ...VALID, amountCents: 18000, cadence: "annual" })).not.toBeNull();
+    expect(parseFundingRequest({ ...VALID, amountCents: 17999, cadence: "annual" })).toBeNull();
     expect(parseFundingRequest({ ...VALID, cadence: "weekly" })).toBeNull();
     expect(parseFundingRequest({ ...VALID, termsAccepted: false })).toBeNull();
   });
@@ -21,6 +25,14 @@ describe("international funding checkout", () => {
     expect(body.get("subscription_data[metadata][attempt_id]")).toBe(VALID.attemptId);
     expect(body.get("success_url")).toContain("{CHECKOUT_SESSION_ID}");
     expect(body.get("custom_text[submit][message]")).toContain("Stimmgewicht");
+  });
+
+  it("builds annual support as a yearly 180 EUR minimum subscription", () => {
+    const parsed = parseFundingRequest({ ...VALID, amountCents: 18000, cadence: "annual" })!;
+    const body = buildStripeCheckoutBody(parsed, "https://www.voiceopengov.org");
+    expect(body.get("mode")).toBe("subscription");
+    expect(body.get("line_items[0][price_data][recurring][interval]")).toBe("year");
+    expect(body.get("line_items[0][price_data][unit_amount]")).toBe("18000");
   });
 
   it("keeps Stripe Checkout eligible for dynamic payment methods such as PayPal when enabled", () => {
