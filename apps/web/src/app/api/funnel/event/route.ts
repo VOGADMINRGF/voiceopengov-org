@@ -18,6 +18,12 @@ function allowed(request: NextRequest): boolean {
   return bucket.count <= MAX_PER_WINDOW;
 }
 
+function errorCode(error: unknown): string {
+  if (!error || typeof error !== "object") return "unknown";
+  const code = (error as { code?: unknown }).code;
+  return typeof code === "string" ? code.slice(0, 40) : "unknown";
+}
+
 export async function POST(request: NextRequest) {
   if (!allowed(request)) return NextResponse.json({ ok: false }, { status: 429 });
   const body = await request.json().catch(() => null);
@@ -25,15 +31,31 @@ export async function POST(request: NextRequest) {
   if (!event || !PUBLIC_FUNNEL_EVENTS.has(event)) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
-  await recordFunnelEvent({
-    event,
-    sessionId: body.sessionId,
-    source: body.source,
-    medium: body.medium,
-    campaign: body.campaign,
-    country: body.country,
-    locale: body.locale,
-    landingPath: body.landingPath,
-  });
-  return NextResponse.json({ ok: true }, { status: 202 });
+
+  try {
+    await recordFunnelEvent({
+      event,
+      sessionId: body.sessionId,
+      source: body.source,
+      medium: body.medium,
+      campaign: body.campaign,
+      country: body.country,
+      locale: body.locale,
+      landingPath: body.landingPath,
+    });
+  } catch (error) {
+    // Public acquisition telemetry is non-critical. Preserve a truthful 503
+    // without leaking connection strings or turning a landing-page metric
+    // outage into an uncaught application error.
+    console.warn("[funnel-event] telemetry store unavailable", {
+      event,
+      code: errorCode(error),
+    });
+    return NextResponse.json(
+      { ok: false, stored: false, error: "telemetry_unavailable" },
+      { status: 503 },
+    );
+  }
+
+  return NextResponse.json({ ok: true, stored: true }, { status: 202 });
 }
