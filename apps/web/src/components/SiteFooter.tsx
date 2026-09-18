@@ -90,23 +90,23 @@ export default function SiteFooter({ locale }: SiteFooterProps) {
             <p className="max-w-3xl text-base leading-7 text-slate-300">{ecosystem.body}</p>
           </div>
 
-          <div className="mt-9 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-            <a href={EDEBATTE_URL} className="group rounded-3xl border border-white/10 bg-[#020617]/70 p-5 transition hover:-translate-y-0.5 hover:border-[#18cfc8]/45">
+          <div className="mt-9 grid min-w-0 gap-3 md:grid-cols-2 lg:grid-cols-4">
+            <a href={EDEBATTE_URL} className="group min-w-0 rounded-3xl border border-white/10 bg-[#020617]/70 p-5 transition hover:-translate-y-0.5 hover:border-[#18cfc8]/45">
               <span className="text-xs font-black uppercase tracking-[0.16em] text-[#18cfc8]">{ecosystem.items.edebatte.role}</span>
               <strong className="mt-3 block text-xl">eDebatte ↗</strong>
               <span className="mt-3 block text-sm leading-6 text-slate-400 transition group-hover:text-slate-300">{ecosystem.items.edebatte.description}</span>
             </a>
-            <Link href="/" aria-current="page" className="group rounded-3xl border border-[#18cfc8]/45 bg-[#18cfc8]/10 p-5 shadow-[0_20px_55px_rgba(24,207,200,0.06)] transition hover:-translate-y-0.5">
+            <Link href="/" aria-current="page" className="group min-w-0 rounded-3xl border border-[#18cfc8]/45 bg-[#18cfc8]/10 p-5 shadow-[0_20px_55px_rgba(24,207,200,0.06)] transition hover:-translate-y-0.5">
               <span className="text-xs font-black uppercase tracking-[0.16em] text-[#18cfc8]">{ecosystem.items.voiceopengov.role}</span>
               <strong className="mt-3 block text-xl">VoiceOpenGov</strong>
               <span className="mt-3 block text-sm leading-6 text-slate-300 transition group-hover:text-white">{ecosystem.items.voiceopengov.description}</span>
             </Link>
-            <a href={VOTE4GOV_URL} className="group rounded-3xl border border-white/10 bg-[#020617]/70 p-5 transition hover:-translate-y-0.5 hover:border-[#18cfc8]/45">
+            <a href={VOTE4GOV_URL} className="group min-w-0 rounded-3xl border border-white/10 bg-[#020617]/70 p-5 transition hover:-translate-y-0.5 hover:border-[#18cfc8]/45">
               <span className="text-xs font-black uppercase tracking-[0.16em] text-[#18cfc8]">{ecosystem.items.vote4gov.role}</span>
               <strong className="mt-3 block text-xl">Vote4Gov ↗</strong>
               <span className="mt-3 block text-sm leading-6 text-slate-400 transition group-hover:text-slate-300">{ecosystem.items.vote4gov.description}</span>
             </a>
-            <article className="rounded-3xl border border-white/10 bg-[#020617]/70 p-5">
+            <article className="min-w-0 rounded-3xl border border-white/10 bg-[#020617]/70 p-5">
               <span className="text-xs font-black uppercase tracking-[0.16em] text-[#18cfc8]">{ecosystem.items.voxy.role}</span>
               <strong className="mt-3 block text-xl">Voxy</strong>
               <span className="mt-3 block text-sm leading-6 text-slate-400">{ecosystem.items.voxy.description}</span>
