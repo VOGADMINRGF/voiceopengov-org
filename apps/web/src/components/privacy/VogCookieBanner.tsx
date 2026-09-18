@@ -59,33 +59,33 @@ export function VogCookieBanner({ strings, initialConsent }: VogCookieBannerProp
 
   return (
     <div className="pointer-events-none fixed bottom-4 left-0 right-0 z-50 flex justify-center overflow-x-clip px-3">
-      <div className="pointer-events-auto w-full max-w-4xl rounded-3xl border border-[#f4f1e8]/12 bg-[#07110f]/96 text-[#f4f1e8] shadow-[0_20px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl">
+      <div className="pointer-events-auto w-full max-w-4xl rounded-3xl border border-white/12 bg-[#020617]/96 text-[#f8fafc] shadow-[0_20px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl">
         <div className="grid min-w-0 gap-4 p-4 md:grid-cols-[1.4fr_1fr] md:p-6">
           <div className="min-w-0 space-y-2">
-            <div className="inline-flex items-center rounded-full bg-[#d6ff65]/10 px-3 py-1 text-xs font-bold text-[#d6ff65]">
+            <div className="inline-flex items-center rounded-full bg-[#18cfc8]/10 px-3 py-1 text-xs font-bold text-[#18cfc8]">
               {strings.banner.title}
             </div>
-            <p className="text-sm text-[#f4f1e8]/62">{strings.banner.lead}</p>
-            <div className="flex flex-wrap gap-4 text-xs text-[#f4f1e8]/65">
-              <Link href="/datenschutz" className="font-semibold text-[#d6ff65] underline underline-offset-2">
+            <p className="text-sm text-slate-300">{strings.banner.lead}</p>
+            <div className="flex flex-wrap gap-4 text-xs text-slate-300">
+              <Link href="/datenschutz" className="font-semibold text-[#18cfc8] underline underline-offset-2">
                 {strings.banner.links.privacy}
               </Link>
-              <Link href="/impressum" className="font-semibold text-[#d6ff65] underline underline-offset-2">
+              <Link href="/impressum" className="font-semibold text-[#18cfc8] underline underline-offset-2">
                 {strings.banner.links.imprint}
               </Link>
             </div>
           </div>
 
-          <div className="min-w-0 space-y-3 rounded-2xl border border-[#f4f1e8]/10 bg-[#0b1714] p-4">
+          <div className="min-w-0 space-y-3 rounded-2xl border border-white/10 bg-[#0b1220] p-4">
             <div className="space-y-1">
-              <p className="text-xs font-semibold text-[#f4f1e8]">{strings.banner.essentialTitle}</p>
-              <p className="text-xs text-[#f4f1e8]/58">{strings.banner.essentialBody}</p>
+              <p className="text-xs font-semibold text-[#f8fafc]">{strings.banner.essentialTitle}</p>
+              <p className="text-xs text-[#f8fafc]/58">{strings.banner.essentialBody}</p>
             </div>
-            <div className="space-y-2 rounded-xl border border-[#f4f1e8]/10 bg-[#07110f]/70 p-3">
+            <div className="space-y-2 rounded-xl border border-white/10 bg-[#020617]/70 p-3">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold text-[#f4f1e8]">{strings.banner.analyticsTitle}</p>
-                  <p className="text-[11px] text-[#f4f1e8]/58">{strings.banner.analyticsBody}</p>
+                  <p className="text-xs font-semibold text-[#f8fafc]">{strings.banner.analyticsTitle}</p>
+                  <p className="text-[11px] text-[#f8fafc]/58">{strings.banner.analyticsBody}</p>
                 </div>
                 <label className="relative inline-flex shrink-0 cursor-pointer items-center">
                   <input
@@ -95,12 +95,12 @@ export function VogCookieBanner({ strings, initialConsent }: VogCookieBannerProp
                     checked={analyticsOptIn}
                     onChange={(e) => setAnalyticsOptIn(e.target.checked)}
                   />
-                  <div className="h-6 w-11 rounded-full bg-[#f4f1e8]/20 transition peer-checked:bg-[#d6ff65]" />
-                  <div className="absolute left-1 top-1 h-4 w-4 rounded-full bg-[#f4f1e8] shadow transition peer-checked:translate-x-5 peer-checked:bg-[#07110f]" />
+                  <div className="h-6 w-11 rounded-full bg-white/20 transition peer-checked:bg-[#18cfc8]" />
+                  <div className="absolute left-1 top-1 h-4 w-4 rounded-full bg-[#f8fafc] shadow transition peer-checked:translate-x-5 peer-checked:bg-[#071727]" />
                 </label>
               </div>
               {settingsOpen && (
-                <p className="text-[11px] text-[#f4f1e8]/58">
+                <p className="text-[11px] text-[#f8fafc]/58">
                   {strings.dialog.intro}
                 </p>
               )}
@@ -108,28 +108,28 @@ export function VogCookieBanner({ strings, initialConsent }: VogCookieBannerProp
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
               <button
                 type="button"
-                className="flex-1 rounded-full bg-[#d6ff65] px-4 py-2 font-black text-[#07110f] shadow transition hover:-translate-y-0.5"
+                className="flex-1 rounded-full bg-[#18cfc8] px-4 py-2 font-black text-[#071727] shadow transition hover:-translate-y-0.5"
                 onClick={() => persistConsent({ essential: true, analytics: true })}
               >
                 {strings.banner.buttons.acceptAll}
               </button>
               <button
                 type="button"
-                className="flex-1 rounded-full border border-[#f4f1e8]/18 bg-[#07110f]/60 px-4 py-2 text-[#f4f1e8] transition hover:border-[#d6ff65]/50 hover:text-[#d6ff65]"
+                className="flex-1 rounded-full border border-white/20 bg-[#020617]/60 px-4 py-2 text-[#f8fafc] transition hover:border-[#18cfc8]/60 hover:text-[#18cfc8]"
                 onClick={() => persistConsent({ essential: true, analytics: false })}
               >
                 {strings.banner.buttons.onlyEssential}
               </button>
               <button
                 type="button"
-                className="rounded-full border border-transparent px-3 py-2 text-[#d6ff65] underline underline-offset-2"
+                className="rounded-full border border-transparent px-3 py-2 text-[#18cfc8] underline underline-offset-2"
                 onClick={() => setSettingsOpen((prev) => !prev)}
               >
                 {strings.banner.buttons.settings}
               </button>
             </div>
             {settingsOpen && (
-              <div className="space-y-1 rounded-xl bg-[#07110f]/60 p-3 text-[11px] text-[#f4f1e8]/58">
+              <div className="space-y-1 rounded-xl bg-[#020617]/60 p-3 text-[11px] text-[#f8fafc]/58">
                 <p className="font-semibold">{strings.dialog.title}</p>
                 <p>{strings.dialog.intro}</p>
               </div>
