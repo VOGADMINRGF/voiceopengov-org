@@ -206,7 +206,7 @@ export default function RegionalInterestForm({
                   <span className="block font-bold text-[#f4f1e8]">
                     {option.label}
                   </span>
-                  <span className="mt-1 block text-xs leading-5 text-[#f4f1e8]/45">
+                  <span className="mt-1 block text-xs leading-5 text-[#f4f1e8]/65">
                     {option.hint}
                   </span>
                 </span>

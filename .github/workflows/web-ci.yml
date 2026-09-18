@@ -72,7 +72,16 @@ jobs:
       - name: Production build
         run: pnpm build
 
-      - name: "Production smoke: membership and public participation journeys"
+      - name: Install isolated browser accessibility runtime
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/vog-browser
+          cd /tmp/vog-browser
+          npm init -y >/dev/null 2>&1
+          npm install --no-save --no-package-lock playwright@1.63.0 @axe-core/playwright@4.13.0
+          npx playwright install --with-deps chromium
+
+      - name: "Production smoke: membership, participation and browser accessibility"
         run: |
           set -euo pipefail
           pnpm -C apps/web start > /tmp/vog-next.log 2>&1 &
@@ -122,6 +131,10 @@ jobs:
           curl -sSI http://127.0.0.1:3000/ \
             | tr -d '\r' \
             | grep -Fi 'strict-transport-security: max-age=31536000'
+
+          NODE_PATH=/tmp/vog-browser/node_modules \
+            SMOKE_BASE_URL=http://127.0.0.1:3000 \
+            node apps/web/scripts/browser-a11y-regression.cjs
 
       - name: Notify IndexNow after successful Vercel production
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

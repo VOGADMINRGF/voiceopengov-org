@@ -5,6 +5,10 @@ function read(path: string) {
   return readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 }
 
+function readRoot(path: string) {
+  return readFileSync(new URL(`../../../${path}`, import.meta.url), "utf8");
+}
+
 describe("public web hardening contract", () => {
   it("does not load the legacy eDebatte compatibility stylesheet as a second public CSS layer", () => {
     expect(existsSync(new URL("../src/app/head.tsx", import.meta.url))).toBe(false);
@@ -43,6 +47,29 @@ describe("public web hardening contract", () => {
     expect(supporterBanner).toContain('decoding="async"');
     expect(supporterBanner).toContain('role="status"');
     expect(supporterBanner).toContain('aria-live="polite"');
+  });
+
+  it("gives the analytics consent control an accessible name", () => {
+    const banner = read("src/components/privacy/VogCookieBanner.tsx");
+    expect(banner).toContain('type="checkbox"');
+    expect(banner).toContain("aria-label={strings.banner.analyticsTitle}");
+  });
+
+  it("runs automated WCAG checks in the built production browser", () => {
+    const script = read("scripts/browser-a11y-regression.cjs");
+    const workflow = readRoot(".github/workflows/web-ci.yml");
+
+    expect(script).toContain('require("@axe-core/playwright").default');
+    expect(script).toContain('"wcag22aa"');
+    expect(script).toContain('a[href="#main-content"]');
+    expect(script).toContain('"/?lang=ar"');
+    expect(script).toContain('rtlDir !== "rtl"');
+    expect(script).toContain("horizontal overflow");
+
+    expect(workflow).toContain("@axe-core/playwright@4.13.0");
+    expect(workflow).toContain("playwright@1.63.0");
+    expect(workflow).toContain("NODE_PATH=/tmp/vog-browser/node_modules");
+    expect(workflow).toContain("node apps/web/scripts/browser-a11y-regression.cjs");
   });
 
   it("keeps visible homepage and footer on the binding eDebatte representation contract", () => {

@@ -97,7 +97,7 @@ export default function FundingCheckoutForm({ locale, strings, enabled }: { loca
               type="button"
               aria-pressed={amount === value}
               onClick={() => setAmount(value)}
-              className={`rounded-xl px-3 py-3 font-bold ${amount === value ? "bg-blue-500 text-white" : "border border-slate-700"}`}
+              className={`rounded-xl px-3 py-3 font-bold ${amount === value ? "bg-[#18cfc8] text-[#071727]" : "border border-slate-700"}`}
             >
               {formatEuro(value, locale)}
             </button>
