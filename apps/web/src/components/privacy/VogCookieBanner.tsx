@@ -58,15 +58,15 @@ export function VogCookieBanner({ strings, initialConsent }: VogCookieBannerProp
   if (!show) return null;
 
   return (
-    <div className="pointer-events-none fixed bottom-4 left-0 right-0 z-50 flex justify-center px-3">
+    <div className="pointer-events-none fixed bottom-4 left-0 right-0 z-50 flex justify-center overflow-x-clip px-3">
       <div className="pointer-events-auto w-full max-w-4xl rounded-3xl border border-[#f4f1e8]/12 bg-[#07110f]/96 text-[#f4f1e8] shadow-[0_20px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl">
-        <div className="grid gap-4 p-4 md:grid-cols-[1.4fr_1fr] md:p-6">
-          <div className="space-y-2">
+        <div className="grid min-w-0 gap-4 p-4 md:grid-cols-[1.4fr_1fr] md:p-6">
+          <div className="min-w-0 space-y-2">
             <div className="inline-flex items-center rounded-full bg-[#d6ff65]/10 px-3 py-1 text-xs font-bold text-[#d6ff65]">
               {strings.banner.title}
             </div>
             <p className="text-sm text-[#f4f1e8]/62">{strings.banner.lead}</p>
-            <div className="flex flex-wrap gap-4 text-xs text-[#f4f1e8]/45">
+            <div className="flex flex-wrap gap-4 text-xs text-[#f4f1e8]/65">
               <Link href="/datenschutz" className="font-semibold text-[#d6ff65] underline underline-offset-2">
                 {strings.banner.links.privacy}
               </Link>
@@ -76,21 +76,22 @@ export function VogCookieBanner({ strings, initialConsent }: VogCookieBannerProp
             </div>
           </div>
 
-          <div className="space-y-3 rounded-2xl border border-[#f4f1e8]/10 bg-[#0b1714] p-4">
+          <div className="min-w-0 space-y-3 rounded-2xl border border-[#f4f1e8]/10 bg-[#0b1714] p-4">
             <div className="space-y-1">
               <p className="text-xs font-semibold text-[#f4f1e8]">{strings.banner.essentialTitle}</p>
               <p className="text-xs text-[#f4f1e8]/58">{strings.banner.essentialBody}</p>
             </div>
             <div className="space-y-2 rounded-xl border border-[#f4f1e8]/10 bg-[#07110f]/70 p-3">
               <div className="flex items-center justify-between gap-3">
-                <div>
+                <div className="min-w-0">
                   <p className="text-xs font-semibold text-[#f4f1e8]">{strings.banner.analyticsTitle}</p>
                   <p className="text-[11px] text-[#f4f1e8]/58">{strings.banner.analyticsBody}</p>
                 </div>
-                <label className="relative inline-flex cursor-pointer items-center">
+                <label className="relative inline-flex shrink-0 cursor-pointer items-center">
                   <input
                     type="checkbox"
                     className="peer sr-only"
+                    aria-label={strings.banner.analyticsTitle}
                     checked={analyticsOptIn}
                     onChange={(e) => setAnalyticsOptIn(e.target.checked)}
                   />
