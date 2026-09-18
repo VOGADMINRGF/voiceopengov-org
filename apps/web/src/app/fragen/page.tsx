@@ -169,7 +169,7 @@ export default async function QuestionsPage() {
           <div className="mt-6 inline-flex rounded-full border border-[#18cfc8]/35 bg-[#18cfc8]/8 px-4 py-2 text-xs font-bold text-[#18cfc8]">
             {statusCopy[bundle.status]}
           </div>
-          <p className="mt-3 text-sm text-[#f4f1e8]/45">
+          <p className="mt-3 text-sm text-[#f4f1e8]/65">
             {VOG_QUESTION_COUNT} / 50 · stabile IDs · Inhalte und Entscheidungen versionierbar
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
