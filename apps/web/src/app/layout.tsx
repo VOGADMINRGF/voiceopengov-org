@@ -170,7 +170,7 @@ export default async function RootLayout({
           <div className="flex min-h-screen flex-col">
             <a
               href="#main-content"
-              className="fixed start-4 top-4 z-[70] -translate-y-24 rounded-full bg-[#18cfc8] px-4 py-2 font-bold text-[#071727] focus:translate-y-0"
+              className="vog-skip-link fixed start-4 top-4 z-[70] rounded-full bg-[#18cfc8] px-4 py-2 font-bold text-[#071727]"
             >
               {meta.skip}
             </a>
