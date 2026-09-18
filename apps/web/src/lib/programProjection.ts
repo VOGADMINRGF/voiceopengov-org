@@ -116,9 +116,53 @@ export type ProgrammeProjectionResult = Readonly<{
   rejected: readonly Readonly<{ mandateId: string; reason: ProjectionRejectionReason }>[];
 }>;
 
+export const EDEBATTE_VOG_MANDATE_FEED_CONTRACT_VERSION =
+  "vog-programme-mandate-v1" as const;
+
+export const EDEBATTE_VOG_MANDATE_FEED_URL =
+  `${EDEBATTE_CANONICAL_URL}/api/public/mandates/voiceopengov`;
+
+export type ProgrammeSourceUnavailableReason =
+  | "network_error"
+  | "timeout"
+  | "http_error"
+  | "invalid_response"
+  | "contract_mismatch"
+  | "invalid_mandates";
+
 export type ProgrammeSourceState =
-  | Readonly<{ status: "source_unconfigured"; positions: readonly ProgrammePosition[] }>
-  | Readonly<{ status: "ready"; positions: readonly ProgrammePosition[] }>;
+  | Readonly<{
+      status: "source_unavailable";
+      positions: readonly ProgrammePosition[];
+      reason: ProgrammeSourceUnavailableReason;
+      httpStatus?: number;
+    }>
+  | Readonly<{
+      status: "ready";
+      positions: readonly ProgrammePosition[];
+      sourceGeneratedAt: string;
+    }>;
+
+type FetchLike = (
+  input: string | URL | Request,
+  init?: RequestInit,
+) => Promise<Response>;
+
+type LoadProgrammeProjectionOptions = Readonly<{
+  fetchImpl?: FetchLike;
+  sourceUrl?: string;
+  timeoutMs?: number;
+}>;
+
+const ProgrammeFeedEnvelopeSchema = z
+  .object({
+    ok: z.literal(true),
+    source: z.literal("runtime"),
+    contractVersion: z.string().trim().min(1),
+    generatedAt: z.string().datetime({ offset: true }),
+    mandates: z.array(z.unknown()),
+  })
+  .strict();
 
 function rejectionReason(mandate: EDebatteMandateProjectionInput): ProjectionRejectionReason | null {
   if (mandate.visibility !== "public_readonly" || !mandate.isReadOnlyPublic) return "not_public_readonly";
@@ -188,9 +232,112 @@ export function projectEDebatteMandates(input: readonly unknown[]): ProgrammePro
   return { positions, rejected };
 }
 
-export async function loadProgrammeProjection(): Promise<ProgrammeSourceState> {
-  // Foundation contract only. A production adapter must consume the canonical
-  // eDebatte mandate source; VoiceOpenGov must never accept manually copied
-  // political positions or a second local decision store as programme truth.
-  return { status: "source_unconfigured", positions: [] };
+
+function hasDuplicateProjectionIdentity(
+  positions: readonly ProgrammePosition[],
+): boolean {
+  const mandateIds = new Set<string>();
+  const snapshots = new Set<string>();
+
+  for (const position of positions) {
+    if (
+      mandateIds.has(position.mandateId) ||
+      snapshots.has(position.decisionSnapshotId)
+    ) {
+      return true;
+    }
+    mandateIds.add(position.mandateId);
+    snapshots.add(position.decisionSnapshotId);
+  }
+
+  return false;
+}
+
+function unavailable(
+  reason: ProgrammeSourceUnavailableReason,
+  httpStatus?: number,
+): ProgrammeSourceState {
+  return {
+    status: "source_unavailable",
+    positions: [],
+    reason,
+    ...(typeof httpStatus === "number" ? { httpStatus } : {}),
+  };
+}
+
+export async function loadProgrammeProjection(
+  options: LoadProgrammeProjectionOptions = {},
+): Promise<ProgrammeSourceState> {
+  const fetchImpl = options.fetchImpl ?? fetch;
+  const sourceUrl = options.sourceUrl ?? EDEBATTE_VOG_MANDATE_FEED_URL;
+  const timeoutMs = Math.max(250, options.timeoutMs ?? 4_000);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  let response: Response;
+  try {
+    response = await fetchImpl(sourceUrl, {
+      method: "GET",
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+      },
+      signal: controller.signal,
+    });
+  } catch (error) {
+    clearTimeout(timeout);
+    const name =
+      error && typeof error === "object" && "name" in error
+        ? String((error as { name?: unknown }).name ?? "")
+        : "";
+    return unavailable(
+      name === "AbortError" || name === "TimeoutError"
+        ? "timeout"
+        : "network_error",
+    );
+  } finally {
+    clearTimeout(timeout);
+  }
+
+  if (!response.ok) {
+    return unavailable("http_error", response.status);
+  }
+
+  let raw: unknown;
+  try {
+    raw = await response.json();
+  } catch {
+    return unavailable("invalid_response", response.status);
+  }
+
+  const envelope = ProgrammeFeedEnvelopeSchema.safeParse(raw);
+  if (!envelope.success) {
+    return unavailable("invalid_response", response.status);
+  }
+
+  if (
+    envelope.data.contractVersion !==
+    EDEBATTE_VOG_MANDATE_FEED_CONTRACT_VERSION
+  ) {
+    return unavailable("contract_mismatch", response.status);
+  }
+
+  const projection = projectEDebatteMandates(envelope.data.mandates);
+  const accountedFor =
+    projection.positions.length + projection.rejected.length ===
+    envelope.data.mandates.length;
+
+  if (
+    !accountedFor ||
+    projection.rejected.length > 0 ||
+    hasDuplicateProjectionIdentity(projection.positions)
+  ) {
+    return unavailable("invalid_mandates", response.status);
+  }
+
+  return {
+    status: "ready",
+    positions: projection.positions,
+    sourceGeneratedAt: envelope.data.generatedAt,
+  };
 }

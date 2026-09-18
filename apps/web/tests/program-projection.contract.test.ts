@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
+  EDEBATTE_VOG_MANDATE_FEED_CONTRACT_VERSION,
+  EDEBATTE_VOG_MANDATE_FEED_URL,
   loadProgrammeProjection,
   projectEDebatteMandates,
 } from "@/lib/programProjection";
@@ -53,7 +55,25 @@ function mandate(overrides: Record<string, unknown> = {}) {
   return { ...base, ...overrides };
 }
 
-describe("VOG programme projection foundation", () => {
+function feed(mandates: unknown[], overrides: Record<string, unknown> = {}) {
+  return {
+    ok: true,
+    source: "runtime",
+    contractVersion: EDEBATTE_VOG_MANDATE_FEED_CONTRACT_VERSION,
+    generatedAt: "2026-09-18T10:00:00.000Z",
+    mandates,
+    ...overrides,
+  };
+}
+
+function response(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+describe("VOG programme projection", () => {
   it("projects only a valid, public, quorate and integrity-verified eDebatte mandate", () => {
     const result = projectEDebatteMandates([mandate()]);
     expect(result.rejected).toEqual([]);
@@ -117,13 +137,133 @@ describe("VOG programme projection foundation", () => {
     expect(result.rejected).toEqual([]);
   });
 
-  it("keeps the public programme surface fail-honest until a canonical source adapter exists", async () => {
-    const state = await loadProgrammeProjection();
-    expect(state).toEqual({ status: "source_unconfigured", positions: [] });
+  it("reads the canonical runtime feed with no cache and accepts an honest empty state", async () => {
+    let requestedUrl = "";
+    let requestedInit: RequestInit | undefined;
+    const state = await loadProgrammeProjection({
+      fetchImpl: async (input, init) => {
+        requestedUrl = String(input);
+        requestedInit = init;
+        return response(feed([]));
+      },
+    });
 
+    expect(requestedUrl).toBe(EDEBATTE_VOG_MANDATE_FEED_URL);
+    expect(requestedInit?.method).toBe("GET");
+    expect(requestedInit?.cache).toBe("no-store");
+    expect(state).toEqual({
+      status: "ready",
+      positions: [],
+      sourceGeneratedAt: "2026-09-18T10:00:00.000Z",
+    });
+  });
+
+  it("revalidates valid runtime mandates locally before projection", async () => {
+    const state = await loadProgrammeProjection({
+      fetchImpl: async () => response(feed([mandate()])),
+    });
+    expect(state.status).toBe("ready");
+    if (state.status !== "ready") return;
+    expect(state.positions).toHaveLength(1);
+    expect(state.positions[0]?.decisionSnapshotId).toBe("decision-snapshot-001");
+  });
+
+  it("fails closed when the canonical source is unavailable", async () => {
+    const state = await loadProgrammeProjection({
+      fetchImpl: async () => response({ ok: false }, 503),
+    });
+    expect(state).toEqual({
+      status: "source_unavailable",
+      positions: [],
+      reason: "http_error",
+      httpStatus: 503,
+    });
+  });
+
+  it("fails closed on contract-version drift", async () => {
+    const state = await loadProgrammeProjection({
+      fetchImpl: async () =>
+        response(feed([], { contractVersion: "vog-programme-mandate-v2" })),
+    });
+    expect(state).toMatchObject({
+      status: "source_unavailable",
+      reason: "contract_mismatch",
+      positions: [],
+    });
+  });
+
+  it("fails the whole feed if any mandate is malformed or non-binding", async () => {
+    const malformed = mandate({
+      decision: { ...mandate().decision, snapshotId: "" },
+    });
+    const draft = mandate({
+      id: "draft-mandate",
+      decision: {
+        ...mandate().decision,
+        snapshotId: "draft-snapshot",
+        status: "draft",
+      },
+    });
+
+    for (const invalid of [malformed, draft]) {
+      const state = await loadProgrammeProjection({
+        fetchImpl: async () => response(feed([mandate(), invalid])),
+      });
+      expect(state).toMatchObject({
+        status: "source_unavailable",
+        reason: "invalid_mandates",
+        positions: [],
+      });
+    }
+  });
+
+  it("fails closed on duplicate mandate or snapshot identity", async () => {
+    const duplicateSnapshot = mandate({
+      id: "decision-mandate-002",
+      decision: {
+        ...mandate().decision,
+        snapshotId: "decision-snapshot-001",
+      },
+    });
+    const state = await loadProgrammeProjection({
+      fetchImpl: async () => response(feed([mandate(), duplicateSnapshot])),
+    });
+    expect(state).toMatchObject({
+      status: "source_unavailable",
+      reason: "invalid_mandates",
+      positions: [],
+    });
+  });
+
+  it("fails closed on network and timeout errors", async () => {
+    const network = await loadProgrammeProjection({
+      fetchImpl: async () => {
+        throw new Error("network_down");
+      },
+    });
+    expect(network).toMatchObject({
+      status: "source_unavailable",
+      reason: "network_error",
+    });
+
+    const timeout = await loadProgrammeProjection({
+      fetchImpl: async () => {
+        throw new DOMException("aborted", "AbortError");
+      },
+    });
+    expect(timeout).toMatchObject({
+      status: "source_unavailable",
+      reason: "timeout",
+    });
+  });
+
+  it("keeps the public programme surface dynamic, noindex and fail-honest", () => {
     const page = readFileSync(new URL("../src/app/programm/page.tsx", import.meta.url), "utf8");
-    expect(page).toContain('index: false');
-    expect(page).toContain("Noch keine produktiv synchronisierten Mandate");
-    expect(page).toContain("keine Demo- oder manuell kopierten Positionen");
+    expect(page).toContain('export const dynamic = "force-dynamic"');
+    expect(page).toContain("index: false");
+    expect(page).toContain("kanonische Entscheidungsquelle ist derzeit nicht verifizierbar");
+    expect(page).toContain("Mandatsfeed ist verbunden");
+    expect(page).toContain("keine Demo- oder Fixture-Daten");
+    expect(page).not.toContain("source_unconfigured");
   });
 });
