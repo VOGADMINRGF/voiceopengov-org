@@ -259,7 +259,7 @@ export default function MitmachenClient({
   }
 
   return (
-    <main className="min-h-screen text-[#f8fafc]">
+    <main className="min-h-screen overflow-x-clip text-[#f8fafc]">
       <section className="border-b border-white/10 bg-[radial-gradient(circle_at_80%_10%,rgba(24,207,200,0.12),transparent_34%)]">
         <div className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-24">
           <p className="text-xs font-black uppercase tracking-[0.24em] text-[#18cfc8]">{copy.eyebrow}</p>
@@ -311,7 +311,7 @@ export default function MitmachenClient({
                 {participationMode === "active" ? copy.modeActiveHint : copy.modeMemberHint}
               </p>
             </div>
-            <p className="mt-5 text-xs leading-5 text-slate-500">{copy.legalHint}</p>
+            <p className="mt-5 text-xs leading-5 text-slate-400">{copy.legalHint}</p>
           </div>
 
           {registrationComplete ? (
@@ -324,7 +324,7 @@ export default function MitmachenClient({
               </p>
             </section>
           ) : (
-            <form onSubmit={submit} className="rounded-3xl border border-white/10 bg-white/[0.045] p-6 md:p-8">
+            <form onSubmit={submit} className="min-w-0 rounded-3xl border border-white/10 bg-white/[0.045] p-6 md:p-8">
               <fieldset>
                 <legend className="text-sm font-black uppercase tracking-[0.16em] text-[#18cfc8]">{copy.modeQuestion}</legend>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -339,23 +339,23 @@ export default function MitmachenClient({
                 </div>
               </fieldset>
 
-              <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                <input aria-label={copy.firstName} autoComplete="given-name" value={firstName} onChange={(event) => setFirstName(event.target.value)} placeholder={copy.firstName} className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8]" />
-                <input aria-label={copy.lastName} autoComplete="family-name" value={lastName} onChange={(event) => setLastName(event.target.value)} placeholder={copy.lastName} className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8]" />
+              <div className="mt-6 grid min-w-0 gap-4 sm:grid-cols-2">
+                <input aria-label={copy.firstName} autoComplete="given-name" value={firstName} onChange={(event) => setFirstName(event.target.value)} placeholder={copy.firstName} className="min-w-0 w-full rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8]" />
+                <input aria-label={copy.lastName} autoComplete="family-name" value={lastName} onChange={(event) => setLastName(event.target.value)} placeholder={copy.lastName} className="min-w-0 w-full rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8]" />
 
-                <label className="grid gap-2 text-sm font-bold text-slate-300">
+                <label className="grid min-w-0 gap-2 text-sm font-bold text-slate-300">
                   {copy.birthDate}
-                  <input type="date" required aria-label={copy.birthDate} autoComplete="bday" value={birthDate} onChange={(event) => setBirthDate(event.target.value)} className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 font-normal outline-none focus:border-[#18cfc8]" />
-                  <span className="text-xs font-normal leading-5 text-slate-500">{copy.birthDateHint}</span>
+                  <input type="date" required aria-label={copy.birthDate} autoComplete="bday" value={birthDate} onChange={(event) => setBirthDate(event.target.value)} className="min-w-0 w-full rounded-xl border border-white/15 bg-[#020617] px-4 py-3 font-normal outline-none focus:border-[#18cfc8]" />
+                  <span className="text-xs font-normal leading-5 text-slate-400">{copy.birthDateHint}</span>
                 </label>
 
                 <label className="grid gap-2 text-sm font-bold text-slate-300">
                   {copy.email}
-                  <input type="email" required aria-label={copy.email} autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder={copy.email} className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 font-normal outline-none focus:border-[#18cfc8]" />
+                  <input type="email" required aria-label={copy.email} autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder={copy.email} className="min-w-0 w-full rounded-xl border border-white/15 bg-[#020617] px-4 py-3 font-normal outline-none focus:border-[#18cfc8]" />
                 </label>
 
-                <input required aria-label={copy.city} autoComplete="address-level2" value={city} onChange={(event) => setCity(event.target.value)} placeholder={copy.city} className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8]" />
-                <select aria-label={copy.country} autoComplete="country" value={country} onChange={(event) => setCountry(event.target.value)} className="rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8]">
+                <input required aria-label={copy.city} autoComplete="address-level2" value={city} onChange={(event) => setCity(event.target.value)} placeholder={copy.city} className="min-w-0 w-full rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8]" />
+                <select aria-label={copy.country} autoComplete="country" value={country} onChange={(event) => setCountry(event.target.value)} className="min-w-0 w-full rounded-xl border border-white/15 bg-[#020617] px-4 py-3 outline-none focus:border-[#18cfc8]">
                   <option value="">{copy.countryPlaceholder}</option>
                   {countries.map((option) => (
                     <option key={option.code} value={option.code}>{option.label}</option>
