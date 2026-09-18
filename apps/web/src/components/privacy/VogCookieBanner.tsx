@@ -66,7 +66,7 @@ export function VogCookieBanner({ strings, initialConsent }: VogCookieBannerProp
               {strings.banner.title}
             </div>
             <p className="text-sm text-[#f4f1e8]/62">{strings.banner.lead}</p>
-            <div className="flex flex-wrap gap-4 text-xs text-[#f4f1e8]/45">
+            <div className="flex flex-wrap gap-4 text-xs text-[#f4f1e8]/65">
               <Link href="/datenschutz" className="font-semibold text-[#d6ff65] underline underline-offset-2">
                 {strings.banner.links.privacy}
               </Link>
