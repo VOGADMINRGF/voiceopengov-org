@@ -150,7 +150,7 @@ export default function HomeClient({
             <div>
               <h2 className="text-4xl md:text-5xl">{copy.trustTitle}</h2>
               <p className="mt-5 text-lg leading-8 text-[#071727]/65">{copy.trustBody}</p>
-              <Link href={VOG_TRANSPARENCY_PATH} className="mt-6 inline-flex font-black text-[#0e8e91]">Transparenz →</Link>
+              <Link href={VOG_TRANSPARENCY_PATH} className="mt-6 inline-flex font-black text-[#0b6f71]">Transparenz →</Link>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
               {copy.trustItems.map((item) => (
