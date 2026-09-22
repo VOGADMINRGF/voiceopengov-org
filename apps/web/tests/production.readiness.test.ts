@@ -6,6 +6,10 @@ function source(path: string) {
   return readFileSync(new URL(`../src/${path}`, import.meta.url), "utf8");
 }
 
+function scriptSource(path: string) {
+  return readFileSync(new URL(`../scripts/${path}`, import.meta.url), "utf8");
+}
+
 const READY_ENV = {
   PUBLIC_BASE_URL: "https://www.voiceopengov.org",
   MONGODB_URI: "mongodb+srv://service:secret@cluster.example/vog",
@@ -118,6 +122,16 @@ describe("membership and funding production readiness", () => {
     expect(mongo).toMatch(/export async function membersCol[\s\S]*?const db = await vogPiiDb\(\)/);
     expect(mongo).toMatch(/export async function chapterIntakeCol[\s\S]*?const db = await vogPiiDb\(\)/);
     expect(mongo).toMatch(/export async function regionalInterestCol[\s\S]*?const db = await vogPiiDb\(\)/);
+  });
+
+  it("keeps the PII cutover migration idempotent and purge-safe", () => {
+    const migration = scriptSource("migrate-vog-pii.mjs");
+    expect(migration).toContain("$setOnInsert");
+    expect(migration).toContain("VOG_PII_PURGE_CONFIRM");
+    expect(migration).toContain("I_HAVE_DEPLOYED_AND_VERIFIED_VOG_PII_CUTOVER");
+    expect(migration).toContain('--purge-source requires --apply');
+    expect(migration).not.toContain("replacement: document");
+    expect(migration).not.toMatch(/deleteMany\(\{\s*\}\)/);
   });
 
   it("keeps RTL, privacy retention and no-political-weight gates executable in CI", () => {
