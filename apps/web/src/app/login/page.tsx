@@ -2,15 +2,13 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useLocale } from "@/context/LocaleContext";
 import { getMemberAccountStrings } from "@/app/memberAccountStrings";
 
 export default function LoginPage() {
   const router = useRouter();
-  const params = useSearchParams();
-  const next = params.get("next") || "";
+
   const { locale } = useLocale();
   const strings = getMemberAccountStrings(locale);
   const [email, setEmail] = useState("");
@@ -26,7 +24,7 @@ export default function LoginPage() {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, password, next }),
+        body: JSON.stringify({ email, password }),
       });
       const payload = (await response.json().catch(() => null)) as
         | { ok?: boolean; error?: string; redirectUrl?: string }
