@@ -21,7 +21,9 @@ export default function LoginPage() {
     setError("");
     setSubmitting(true);
     try {
-      const response = await fetch("/api/auth/login", {
+      const next = new URLSearchParams(window.location.search).get("next");
+      const loginUrl = next ? `/api/auth/login?next=${encodeURIComponent(next)}` : "/api/auth/login";
+      const response = await fetch(loginUrl, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ email, password }),
