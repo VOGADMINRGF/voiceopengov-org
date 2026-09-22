@@ -134,12 +134,16 @@ describe("membership and funding production readiness", () => {
     }
   });
 
-  it("keeps the PII cutover migration idempotent and purge-safe", () => {
+  it("keeps the PII cutover migration idempotent, physically isolated and purge-safe", () => {
     const migration = scriptSource("migrate-vog-pii.mjs");
     expect(migration).toContain("$setOnInsert");
     expect(migration).toContain("VOG_PII_PURGE_CONFIRM");
     expect(migration).toContain("I_HAVE_DEPLOYED_AND_VERIFIED_VOG_PII_CUTOVER");
     expect(migration).toContain('--purge-source requires --apply');
+    expect(migration).toContain(
+      "MONGODB_URI and PII_MONGODB_URI must use different MongoDB cluster hosts for the VOG PII cutover",
+    );
+    expect(migration).toContain("physicalIsolation: true");
     expect(migration).not.toContain("replacement: document");
     expect(migration).not.toMatch(/deleteMany\(\{\s*\}\)/);
   });
