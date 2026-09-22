@@ -30,6 +30,15 @@ describe("membership and funding production readiness", () => {
     expect(validateProductionEnvironment(READY_ENV)).toEqual({ ok: true, errors: [] });
   });
 
+  it("allows one Atlas cluster with separate logical public and PII databases", () => {
+    expect(
+      validateProductionEnvironment({
+        ...READY_ENV,
+        PII_MONGODB_URI: READY_ENV.MONGODB_URI,
+      }),
+    ).toEqual({ ok: true, errors: [] });
+  });
+
   it("fails closed for placeholders, insecure URLs and shared public/PII databases", () => {
     const result = validateProductionEnvironment({
       ...READY_ENV,
