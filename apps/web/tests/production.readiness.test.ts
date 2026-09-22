@@ -10,6 +10,14 @@ function scriptSource(path: string) {
   return readFileSync(new URL(`../scripts/${path}`, import.meta.url), "utf8");
 }
 
+function exportedBlock(text: string, exportName: string) {
+  const marker = `export async function ${exportName}`;
+  const start = text.indexOf(marker);
+  if (start < 0) return "";
+  const nextExport = text.indexOf("\nexport ", start + marker.length);
+  return text.slice(start, nextExport < 0 ? text.length : nextExport);
+}
+
 const READY_ENV = {
   PUBLIC_BASE_URL: "https://www.voiceopengov.org",
   MONGODB_URI: "mongodb+srv://service:secret@cluster.example/vog",
@@ -116,12 +124,12 @@ describe("membership and funding production readiness", () => {
     expect(mongo).toContain("async function vogPiiDb()");
     expect(mongo).toContain('process.env.PII_MONGODB_URI');
     expect(mongo).toContain('process.env.PII_DB_NAME || "vog_pii"');
-    expect(mongo).not.toMatch(/export async function membersCol[\s\S]*?const db = await vogDb\(\)/);
-    expect(mongo).not.toMatch(/export async function chapterIntakeCol[\s\S]*?const db = await vogDb\(\)/);
-    expect(mongo).not.toMatch(/export async function regionalInterestCol[\s\S]*?const db = await vogDb\(\)/);
-    expect(mongo).toMatch(/export async function membersCol[\s\S]*?const db = await vogPiiDb\(\)/);
-    expect(mongo).toMatch(/export async function chapterIntakeCol[\s\S]*?const db = await vogPiiDb\(\)/);
-    expect(mongo).toMatch(/export async function regionalInterestCol[\s\S]*?const db = await vogPiiDb\(\)/);
+
+    for (const functionName of ["membersCol", "chapterIntakeCol", "regionalInterestCol"]) {
+      const block = exportedBlock(mongo, functionName);
+      expect(block).toContain("const db = await vogPiiDb();");
+      expect(block).not.toContain("const db = await vogDb();");
+    }
   });
 
   it("keeps the PII cutover migration idempotent and purge-safe", () => {
