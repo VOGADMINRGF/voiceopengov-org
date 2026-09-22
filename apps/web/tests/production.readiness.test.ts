@@ -24,6 +24,7 @@ const READY_ENV = {
   VOG_DB_NAME: "vog_public",
   PII_MONGODB_URI: "mongodb+srv://service:secret@vog-pii.example/pii",
   PII_DB_NAME: "vog_pii",
+  VOG_EDB_AUTH_HANDOFF_SECRET: "a-unique-cross-domain-handoff-secret-32",
   SMTP_HOST: "smtp.example.org",
   SMTP_USER: "mailer",
   SMTP_PASS: "smtp-secret",
@@ -50,6 +51,19 @@ describe("membership and funding production readiness", () => {
     expect(result.ok).toBe(false);
     expect(result.errors).toContain(
       "MONGODB_URI and PII_MONGODB_URI must use different production cluster hosts",
+    );
+  });
+
+  it("fails closed for invalid Mongo URIs and a weak cross-domain handoff secret", () => {
+    const result = validateProductionEnvironment({
+      ...READY_ENV,
+      MONGODB_URI: "https://not-mongodb.example",
+      VOG_EDB_AUTH_HANDOFF_SECRET: "too-short",
+    });
+    expect(result.ok).toBe(false);
+    expect(result.errors).toContain("MONGODB_URI must be a valid mongodb:// or mongodb+srv:// URI");
+    expect(result.errors).toContain(
+      "VOG_EDB_AUTH_HANDOFF_SECRET must contain at least 32 characters",
     );
   });
 
