@@ -22,6 +22,16 @@ function safeDbName(name, fallback) {
   return value;
 }
 
+function mongoHost(uri, envName) {
+  try {
+    const host = new URL(uri).hostname.toLowerCase();
+    if (!host) throw new Error("missing hostname");
+    return host;
+  } catch {
+    throw new Error(`${envName} must be a valid MongoDB URI with a hostname`);
+  }
+}
+
 function log(message, meta = {}) {
   // Never log connection strings or document contents from this migration.
   console.log(`[vog-pii-migration] ${message}`, meta);
@@ -170,13 +180,20 @@ async function main() {
     throw new Error("VOG_DB_NAME and PII_DB_NAME must be different databases");
   }
 
-  const sharedClient = publicUri === piiUri;
+  const publicHost = mongoHost(publicUri, "MONGODB_URI");
+  const piiHost = mongoHost(piiUri, "PII_MONGODB_URI");
+  if (publicHost === piiHost) {
+    throw new Error(
+      "MONGODB_URI and PII_MONGODB_URI must use different MongoDB cluster hosts for the VOG PII cutover",
+    );
+  }
+
   const publicClient = new MongoClient(publicUri);
-  const piiClient = sharedClient ? publicClient : new MongoClient(piiUri);
+  const piiClient = new MongoClient(piiUri);
 
   try {
     await publicClient.connect();
-    if (!sharedClient) await piiClient.connect();
+    await piiClient.connect();
 
     const sourceDb = publicClient.db(publicDbName);
     const destinationDb = piiClient.db(piiDbName);
@@ -184,7 +201,7 @@ async function main() {
     log("starting", {
       sourceDb: publicDbName,
       destinationDb: piiDbName,
-      sharedCluster: sharedClient,
+      physicalIsolation: true,
       apply: APPLY,
       purgeSource: PURGE_SOURCE,
     });
@@ -229,7 +246,7 @@ async function main() {
     });
   } finally {
     await publicClient.close().catch(() => {});
-    if (!sharedClient) await piiClient.close().catch(() => {});
+    await piiClient.close().catch(() => {});
   }
 }
 
