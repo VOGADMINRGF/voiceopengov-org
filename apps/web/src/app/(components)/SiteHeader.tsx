@@ -153,6 +153,9 @@ export function SiteHeader() {
                   {item.label}
                 </Link>
               ))}
+              <Link href="/login" onClick={() => setMobileOpen(false)} className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 font-semibold text-slate-200 transition hover:border-[#18cfc8]/45 hover:text-[#18cfc8]">
+                {copy.login}
+              </Link>
               <Link href={VOG_JOIN_PATH} onClick={() => setMobileOpen(false)} className="mt-2 rounded-xl bg-gradient-to-r from-[#1a8cff] to-[#18cfc8] px-4 py-3 text-center font-black text-[#071727]">
                 {copy.join}
               </Link>
