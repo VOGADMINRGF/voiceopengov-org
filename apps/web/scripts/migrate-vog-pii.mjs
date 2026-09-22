@@ -6,6 +6,7 @@ const APPLY = process.argv.includes("--apply");
 const PURGE_SOURCE = process.argv.includes("--purge-source");
 const BATCH_SIZE = 250;
 const COLLECTIONS = ["members", "chapter_intake", "regional_interest_intake"];
+const PURGE_CONFIRMATION = "I_HAVE_DEPLOYED_AND_VERIFIED_VOG_PII_CUTOVER";
 
 function required(name) {
   const value = process.env[name]?.trim();
@@ -36,6 +37,12 @@ async function verifyBatch(destination, ids, collectionName) {
   }
 }
 
+async function flushInsertOnlyBatch(destination, operations, ids, collectionName) {
+  if (!operations.length) return;
+  await destination.bulkWrite(operations, { ordered: false });
+  await verifyBatch(destination, ids, collectionName);
+}
+
 async function copyCollection(sourceDb, destinationDb, collectionName) {
   const source = sourceDb.collection(collectionName);
   const destination = destinationDb.collection(collectionName);
@@ -50,79 +57,108 @@ async function copyCollection(sourceDb, destinationDb, collectionName) {
   });
 
   if (!APPLY || sourceCount === 0) {
-    return { collection: collectionName, sourceCount, copied: 0, destinationBefore };
+    return { collection: collectionName, sourceCount, processed: 0, destinationBefore };
   }
 
-  let copied = 0;
+  let processed = 0;
   let operations = [];
   let ids = [];
   const cursor = source.find({}, { batchSize: BATCH_SIZE });
 
   for await (const document of cursor) {
+    const { _id, ...insertFields } = document;
     operations.push({
-      replaceOne: {
-        filter: { _id: document._id },
-        replacement: document,
+      updateOne: {
+        filter: { _id },
+        update: { $setOnInsert: insertFields },
         upsert: true,
       },
     });
-    ids.push(document._id);
+    ids.push(_id);
 
     if (operations.length >= BATCH_SIZE) {
-      await destination.bulkWrite(operations, { ordered: false });
-      await verifyBatch(destination, ids, collectionName);
-      copied += operations.length;
+      await flushInsertOnlyBatch(destination, operations, ids, collectionName);
+      processed += operations.length;
       operations = [];
       ids = [];
     }
   }
 
   if (operations.length) {
-    await destination.bulkWrite(operations, { ordered: false });
-    await verifyBatch(destination, ids, collectionName);
-    copied += operations.length;
+    await flushInsertOnlyBatch(destination, operations, ids, collectionName);
+    processed += operations.length;
   }
 
   const destinationAfter = await destination.countDocuments({});
   log("collection copied", {
     collection: collectionName,
     sourceCount,
-    copied,
+    processed,
     destinationAfter,
   });
 
-  return { collection: collectionName, sourceCount, copied, destinationBefore, destinationAfter };
+  return {
+    collection: collectionName,
+    sourceCount,
+    processed,
+    destinationBefore,
+    destinationAfter,
+  };
 }
 
 async function purgeCollection(sourceDb, destinationDb, collectionName) {
   const source = sourceDb.collection(collectionName);
   const destination = destinationDb.collection(collectionName);
-  const sourceCount = await source.countDocuments({});
-  if (sourceCount === 0) return { collection: collectionName, purged: 0 };
+  const initialSourceCount = await source.countDocuments({});
+  if (initialSourceCount === 0) return { collection: collectionName, purged: 0 };
 
-  const sourceIds = await source.find({}, { projection: { _id: 1 } }).toArray();
-  const ids = sourceIds.map((entry) => entry._id);
-  const destinationCount = await destination.countDocuments({ _id: { $in: ids } });
-  if (destinationCount !== ids.length) {
+  let purged = 0;
+  let ids = [];
+  const cursor = source.find({}, { projection: { _id: 1 }, batchSize: BATCH_SIZE });
+
+  async function purgeBatch() {
+    if (!ids.length) return;
+    const destinationCount = await destination.countDocuments({ _id: { $in: ids } });
+    if (destinationCount !== ids.length) {
+      throw new Error(
+        `Refusing purge for ${collectionName}: destination has ${destinationCount}/${ids.length} source ids`,
+      );
+    }
+    const result = await source.deleteMany({ _id: { $in: ids } });
+    if (result.deletedCount !== ids.length) {
+      throw new Error(
+        `Purge verification failed for ${collectionName}: deleted ${result.deletedCount}/${ids.length}`,
+      );
+    }
+    purged += result.deletedCount;
+    ids = [];
+  }
+
+  for await (const entry of cursor) {
+    ids.push(entry._id);
+    if (ids.length >= BATCH_SIZE) await purgeBatch();
+  }
+  await purgeBatch();
+
+  const remaining = await source.countDocuments({});
+  if (remaining !== 0) {
     throw new Error(
-      `Refusing purge for ${collectionName}: destination has ${destinationCount}/${ids.length} source ids`,
+      `Source ${collectionName} still contains ${remaining} records after purge; rerun copy verification before any further purge`,
     );
   }
 
-  const result = await source.deleteMany({ _id: { $in: ids } });
-  if (result.deletedCount !== ids.length) {
-    throw new Error(
-      `Purge verification failed for ${collectionName}: deleted ${result.deletedCount}/${ids.length}`,
-    );
-  }
-
-  log("source purged", { collection: collectionName, purged: result.deletedCount });
-  return { collection: collectionName, purged: result.deletedCount };
+  log("source purged", { collection: collectionName, purged });
+  return { collection: collectionName, purged };
 }
 
 async function main() {
   if (PURGE_SOURCE && !APPLY) {
     throw new Error("--purge-source requires --apply");
+  }
+  if (PURGE_SOURCE && process.env.VOG_PII_PURGE_CONFIRM !== PURGE_CONFIRMATION) {
+    throw new Error(
+      `Refusing purge: set VOG_PII_PURGE_CONFIRM=${PURGE_CONFIRMATION} only after deploy and smoke verification`,
+    );
   }
 
   const publicUri = required("MONGODB_URI");
@@ -170,6 +206,7 @@ async function main() {
             sourceCounts: Object.fromEntries(
               results.map((result) => [result.collection, result.sourceCount]),
             ),
+            mode: PURGE_SOURCE ? "apply+purge" : "apply",
           },
         },
         { upsert: true },
@@ -187,7 +224,7 @@ async function main() {
       collections: results.map((result) => ({
         collection: result.collection,
         sourceCount: result.sourceCount,
-        copied: result.copied,
+        processed: result.processed,
       })),
     });
   } finally {
