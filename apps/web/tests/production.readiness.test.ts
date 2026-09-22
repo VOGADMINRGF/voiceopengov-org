@@ -98,6 +98,15 @@ describe("membership and funding production readiness", () => {
     expect(join).toContain("copy.successMemberNext");
   });
 
+  it("keeps registration member records on the dedicated PII database", () => {
+    const mongo = source("lib/vogMongo.ts");
+    expect(mongo).toContain("async function vogPiiDb()");
+    expect(mongo).toContain('process.env.PII_MONGODB_URI');
+    expect(mongo).toContain('process.env.PII_DB_NAME || "vog_pii"');
+    expect(mongo).toContain("const db = await vogPiiDb();");
+    expect(mongo).not.toMatch(/export async function membersCol[\\s\\S]*?const db = await vogDb\(\)/);
+  });
+
   it("keeps RTL, privacy retention and no-political-weight gates executable in CI", () => {
     expect(source("app/layout.tsx")).toContain("dir={getTextDirection(initialLocale)}");
     expect(source("lib/funnelEvents.ts")).toContain("const RETENTION_DAYS = 90");
