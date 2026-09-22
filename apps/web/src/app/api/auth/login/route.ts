@@ -11,6 +11,13 @@ import {
 } from "@/lib/memberAuth";
 import { rateLimitFromRequest, rateLimitHeaders } from "@/utils/rateLimitHelpers";
 
+function sanitizeRedirect(raw?: string | null) {
+  if (!raw) return "/konto";
+  const value = raw.trim();
+  if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\") || /[\\r\\n]/.test(value)) return "/konto";
+  return value;
+}
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -38,6 +45,7 @@ export async function POST(req: NextRequest) {
   }
 
   const email = normalizeMemberEmail(parsed.data.email);
+  const redirectUrl = sanitizeRedirect(req.nextUrl.searchParams.get("next"));
   const verified = await verifyMemberCredential(email, parsed.data.password);
   if (!verified.ok || !ObjectId.isValid(verified.memberId)) {
     return NextResponse.json({ ok: false, error: "invalid_credentials" }, { status: 401 });
@@ -53,7 +61,7 @@ export async function POST(req: NextRequest) {
   }
 
   const session = await createMemberSession(String(member._id));
-  const response = NextResponse.json({ ok: true, redirectUrl: "/konto" });
+  const response = NextResponse.json({ ok: true, redirectUrl });
   response.cookies.set({
     name: MEMBER_SESSION_COOKIE,
     value: session.token,
