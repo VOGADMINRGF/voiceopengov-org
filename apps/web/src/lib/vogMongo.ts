@@ -126,7 +126,7 @@ export async function funnelEventsCol(): Promise<Collection<FunnelEventDoc>> {
 
 export async function membersCol(): Promise<Collection<MemberDoc>> {
   // Member records contain direct identifiers and birth dates. Keep them in the
-  // dedicated PII database; public/regional collections remain on vogDb().
+  // dedicated PII database; public/operational collections remain on vogDb().
   const db = await vogPiiDb();
   const col = db.collection<MemberDoc>("members");
 
@@ -167,7 +167,8 @@ export type ChapterIntakeDoc = {
 };
 
 export async function chapterIntakeCol(): Promise<Collection<ChapterIntakeDoc>> {
-  const db = await vogDb();
+  // Intake records contain direct contact identifiers and belong in PII.
+  const db = await vogPiiDb();
   const col = db.collection<ChapterIntakeDoc>("chapter_intake");
 
   await col.createIndex({ status: 1 }).catch(() => {});
@@ -199,7 +200,8 @@ export type RegionalInterestDoc = {
 export async function regionalInterestCol(): Promise<
   Collection<RegionalInterestDoc>
 > {
-  const db = await vogDb();
+  // Regional-interest records contain direct contact identifiers and belong in PII.
+  const db = await vogPiiDb();
   const col = db.collection<RegionalInterestDoc>(REGIONAL_INTEREST_COLLECTION);
 
   await col.createIndex({ status: 1, createdAt: -1 }).catch(() => {});
