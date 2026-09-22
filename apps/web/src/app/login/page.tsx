@@ -8,6 +8,7 @@ import { getMemberAccountStrings } from "@/app/memberAccountStrings";
 
 export default function LoginPage() {
   const router = useRouter();
+
   const { locale } = useLocale();
   const strings = getMemberAccountStrings(locale);
   const [email, setEmail] = useState("");
@@ -20,7 +21,9 @@ export default function LoginPage() {
     setError("");
     setSubmitting(true);
     try {
-      const response = await fetch("/api/auth/login", {
+      const next = new URLSearchParams(window.location.search).get("next");
+      const loginUrl = next ? `/api/auth/login?next=${encodeURIComponent(next)}` : "/api/auth/login";
+      const response = await fetch(loginUrl, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -46,7 +49,7 @@ export default function LoginPage() {
       <div className="mx-auto min-w-0 max-w-lg">
         <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-400">{strings.common.brand}</p>
         <h1 className="mt-3 text-4xl font-black tracking-tight">{strings.login.title}</h1>
-        <p className="mt-3 leading-7 text-slate-300">{strings.login.intro}</p>
+        <p className="mt-3 max-w-xl leading-7 text-slate-300">{strings.login.intro}</p>
 
         <form onSubmit={submit} className="mt-8 grid min-w-0 gap-5 rounded-[2rem] border border-slate-700/70 bg-slate-900 p-6 shadow-2xl shadow-black/25 md:p-8">
           <label className="grid gap-2 text-sm font-bold text-slate-200">
@@ -88,7 +91,7 @@ export default function LoginPage() {
 
           <div className="grid gap-2 border-t border-slate-700/70 pt-5 text-sm text-slate-300 sm:grid-cols-2">
             <Link href="/konto/passwort" className="font-bold text-cyan-400">
-              {strings.common.setupAccess}
+              Passwort vergessen?
             </Link>
             <Link href="/mitglied-werden" className="font-bold text-cyan-400 sm:text-end">
               {strings.login.noMember}

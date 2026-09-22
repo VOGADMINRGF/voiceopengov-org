@@ -6,12 +6,25 @@ function source(path: string) {
   return readFileSync(new URL(`../src/${path}`, import.meta.url), "utf8");
 }
 
+function scriptSource(path: string) {
+  return readFileSync(new URL(`../scripts/${path}`, import.meta.url), "utf8");
+}
+
+function exportedBlock(text: string, exportName: string) {
+  const marker = `export async function ${exportName}`;
+  const start = text.indexOf(marker);
+  if (start < 0) return "";
+  const nextExport = text.indexOf("\nexport ", start + marker.length);
+  return text.slice(start, nextExport < 0 ? text.length : nextExport);
+}
+
 const READY_ENV = {
   PUBLIC_BASE_URL: "https://www.voiceopengov.org",
-  MONGODB_URI: "mongodb+srv://service:secret@cluster.example/vog",
+  MONGODB_URI: "mongodb+srv://service:secret@vog-core.example/vog",
   VOG_DB_NAME: "vog_public",
-  PII_MONGODB_URI: "mongodb+srv://service:secret@cluster.example/pii",
+  PII_MONGODB_URI: "mongodb+srv://service:secret@vog-pii.example/pii",
   PII_DB_NAME: "vog_pii",
+  VOG_EDB_AUTH_HANDOFF_SECRET: "a-unique-cross-domain-handoff-secret-32",
   SMTP_HOST: "smtp.example.org",
   SMTP_USER: "mailer",
   SMTP_PASS: "smtp-secret",
@@ -28,6 +41,30 @@ const READY_ENV = {
 describe("membership and funding production readiness", () => {
   it("accepts a complete environment without exposing secret values", () => {
     expect(validateProductionEnvironment(READY_ENV)).toEqual({ ok: true, errors: [] });
+  });
+
+  it("requires separate physical Atlas cluster hosts for public and PII data", () => {
+    const result = validateProductionEnvironment({
+      ...READY_ENV,
+      PII_MONGODB_URI: "mongodb+srv://pii:secret@vog-core.example/pii",
+    });
+    expect(result.ok).toBe(false);
+    expect(result.errors).toContain(
+      "MONGODB_URI and PII_MONGODB_URI must use different production cluster hosts",
+    );
+  });
+
+  it("fails closed for invalid Mongo URIs and a weak cross-domain handoff secret", () => {
+    const result = validateProductionEnvironment({
+      ...READY_ENV,
+      MONGODB_URI: "https://not-mongodb.example",
+      VOG_EDB_AUTH_HANDOFF_SECRET: "too-short",
+    });
+    expect(result.ok).toBe(false);
+    expect(result.errors).toContain("MONGODB_URI must be a valid mongodb:// or mongodb+srv:// URI");
+    expect(result.errors).toContain(
+      "VOG_EDB_AUTH_HANDOFF_SECRET must contain at least 32 characters",
+    );
   });
 
   it("fails closed for placeholders, insecure URLs and shared public/PII databases", () => {
@@ -96,6 +133,33 @@ describe("membership and funding production readiness", () => {
     expect(join).toContain("copy.successTitle");
     expect(join).toContain("copy.successActiveNext");
     expect(join).toContain("copy.successMemberNext");
+  });
+
+  it("keeps direct member and contact records on the dedicated PII database", () => {
+    const mongo = source("lib/vogMongo.ts");
+    expect(mongo).toContain("async function vogPiiDb()");
+    expect(mongo).toContain('process.env.PII_MONGODB_URI');
+    expect(mongo).toContain('process.env.PII_DB_NAME || "vog_pii"');
+
+    for (const functionName of ["membersCol", "chapterIntakeCol", "regionalInterestCol"]) {
+      const block = exportedBlock(mongo, functionName);
+      expect(block).toContain("const db = await vogPiiDb();");
+      expect(block).not.toContain("const db = await vogDb();");
+    }
+  });
+
+  it("keeps the PII cutover migration idempotent, physically isolated and purge-safe", () => {
+    const migration = scriptSource("migrate-vog-pii.mjs");
+    expect(migration).toContain("$setOnInsert");
+    expect(migration).toContain("VOG_PII_PURGE_CONFIRM");
+    expect(migration).toContain("I_HAVE_DEPLOYED_AND_VERIFIED_VOG_PII_CUTOVER");
+    expect(migration).toContain('--purge-source requires --apply');
+    expect(migration).toContain(
+      "MONGODB_URI and PII_MONGODB_URI must use different MongoDB cluster hosts for the VOG PII cutover",
+    );
+    expect(migration).toContain("physicalIsolation: true");
+    expect(migration).not.toContain("replacement: document");
+    expect(migration).not.toMatch(/deleteMany\(\{\s*\}\)/);
   });
 
   it("keeps RTL, privacy retention and no-political-weight gates executable in CI", () => {
