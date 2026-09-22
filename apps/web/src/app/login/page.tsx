@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useLocale } from "@/context/LocaleContext";
 import { getMemberAccountStrings } from "@/app/memberAccountStrings";
 
 export default function LoginPage() {
   const router = useRouter();
+  const params = useSearchParams();
+  const next = params.get("next") || "";
   const { locale } = useLocale();
   const strings = getMemberAccountStrings(locale);
   const [email, setEmail] = useState("");
@@ -23,7 +26,7 @@ export default function LoginPage() {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, next }),
       });
       const payload = (await response.json().catch(() => null)) as
         | { ok?: boolean; error?: string; redirectUrl?: string }
@@ -87,6 +90,9 @@ export default function LoginPage() {
           </button>
 
           <div className="grid gap-2 border-t border-slate-700/70 pt-5 text-sm text-slate-300 sm:grid-cols-2">
+            <Link href="/api/auth/edebatte-handoff?next=/" className="font-bold text-cyan-400 sm:col-span-2">
+              Mit VoiceOpenGov bei eDebatte weitergehen
+            </Link>
             <Link href="/konto/passwort" className="font-bold text-cyan-400">
               {strings.common.setupAccess}
             </Link>
