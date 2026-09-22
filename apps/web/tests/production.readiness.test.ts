@@ -20,9 +20,9 @@ function exportedBlock(text: string, exportName: string) {
 
 const READY_ENV = {
   PUBLIC_BASE_URL: "https://www.voiceopengov.org",
-  MONGODB_URI: "mongodb+srv://service:secret@cluster.example/vog",
+  MONGODB_URI: "mongodb+srv://service:secret@vog-core.example/vog",
   VOG_DB_NAME: "vog_public",
-  PII_MONGODB_URI: "mongodb+srv://service:secret@cluster.example/pii",
+  PII_MONGODB_URI: "mongodb+srv://service:secret@vog-pii.example/pii",
   PII_DB_NAME: "vog_pii",
   SMTP_HOST: "smtp.example.org",
   SMTP_USER: "mailer",
@@ -42,13 +42,15 @@ describe("membership and funding production readiness", () => {
     expect(validateProductionEnvironment(READY_ENV)).toEqual({ ok: true, errors: [] });
   });
 
-  it("allows one Atlas cluster with separate logical public and PII databases", () => {
-    expect(
-      validateProductionEnvironment({
-        ...READY_ENV,
-        PII_MONGODB_URI: READY_ENV.MONGODB_URI,
-      }),
-    ).toEqual({ ok: true, errors: [] });
+  it("requires separate physical Atlas cluster hosts for public and PII data", () => {
+    const result = validateProductionEnvironment({
+      ...READY_ENV,
+      PII_MONGODB_URI: "mongodb+srv://pii:secret@vog-core.example/pii",
+    });
+    expect(result.ok).toBe(false);
+    expect(result.errors).toContain(
+      "MONGODB_URI and PII_MONGODB_URI must use different production cluster hosts",
+    );
   });
 
   it("fails closed for placeholders, insecure URLs and shared public/PII databases", () => {
