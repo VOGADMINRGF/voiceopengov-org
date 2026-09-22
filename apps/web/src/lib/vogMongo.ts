@@ -9,6 +9,8 @@ import {
 
 let _client: MongoClient | null = null;
 let _db: Db | null = null;
+let _piiClient: MongoClient | null = null;
+let _piiDb: Db | null = null;
 
 function env(name: string): string {
   const value = process.env[name];
@@ -31,6 +33,19 @@ export async function vogDb(): Promise<Db> {
   await _client.connect();
   _db = _client.db(dbName);
   return _db;
+}
+
+async function vogPiiDb(): Promise<Db> {
+  if (_piiDb) return _piiDb;
+  const uri =
+    process.env.PII_MONGODB_URI ||
+    (process.env.NODE_ENV === "production" ? undefined : process.env.MONGODB_URI);
+  if (!uri) throw new Error("Missing env: PII_MONGODB_URI");
+  const dbName = process.env.PII_DB_NAME || "vog_pii";
+  _piiClient = _piiClient ?? new MongoClient(uri);
+  await _piiClient.connect();
+  _piiDb = _piiClient.db(dbName);
+  return _piiDb;
 }
 
 export type MemberType = "person" | "organisation";
@@ -110,7 +125,9 @@ export async function funnelEventsCol(): Promise<Collection<FunnelEventDoc>> {
 }
 
 export async function membersCol(): Promise<Collection<MemberDoc>> {
-  const db = await vogDb();
+  // Member records contain direct identifiers and birth dates. Keep them in the
+  // dedicated PII database; public/regional collections remain on vogDb().
+  const db = await vogPiiDb();
   const col = db.collection<MemberDoc>("members");
 
   await col
