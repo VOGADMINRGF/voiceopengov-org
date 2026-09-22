@@ -9,6 +9,7 @@ export const PROFILES = {
     "VOG_DB_NAME",
     "PII_MONGODB_URI",
     "PII_DB_NAME",
+    "VOG_EDB_AUTH_HANDOFF_SECRET",
     "SMTP_HOST",
     "SMTP_USER",
     "SMTP_PASS",
@@ -44,7 +45,9 @@ function isHttpsUrl(candidate) {
 function mongoHost(candidate) {
   if (!candidate) return undefined;
   try {
-    return new URL(candidate).hostname.toLowerCase();
+    const parsed = new URL(candidate);
+    if (parsed.protocol !== "mongodb:" && parsed.protocol !== "mongodb+srv:") return undefined;
+    return parsed.hostname.toLowerCase() || undefined;
   } catch {
     return undefined;
   }
@@ -69,10 +72,23 @@ export function validateProductionEnvironment(environment, profile = "full") {
     errors.push("VOG_DB_NAME and PII_DB_NAME must be different databases");
   }
 
-  const publicMongoHost = mongoHost(value(environment, "MONGODB_URI"));
-  const piiMongoHost = mongoHost(value(environment, "PII_MONGODB_URI"));
+  const publicMongoUri = value(environment, "MONGODB_URI");
+  const piiMongoUri = value(environment, "PII_MONGODB_URI");
+  const publicMongoHost = mongoHost(publicMongoUri);
+  const piiMongoHost = mongoHost(piiMongoUri);
+  if (publicMongoUri && !publicMongoHost) {
+    errors.push("MONGODB_URI must be a valid mongodb:// or mongodb+srv:// URI");
+  }
+  if (piiMongoUri && !piiMongoHost) {
+    errors.push("PII_MONGODB_URI must be a valid mongodb:// or mongodb+srv:// URI");
+  }
   if (publicMongoHost && piiMongoHost && publicMongoHost === piiMongoHost) {
     errors.push("MONGODB_URI and PII_MONGODB_URI must use different production cluster hosts");
+  }
+
+  const handoffSecret = value(environment, "VOG_EDB_AUTH_HANDOFF_SECRET");
+  if (handoffSecret && handoffSecret.length < 32) {
+    errors.push("VOG_EDB_AUTH_HANDOFF_SECRET must contain at least 32 characters");
   }
 
   const adminPassword = value(environment, "VOG_ADMIN_PASSWORD");
