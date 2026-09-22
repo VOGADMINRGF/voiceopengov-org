@@ -41,6 +41,15 @@ function isHttpsUrl(candidate) {
   }
 }
 
+function mongoHost(candidate) {
+  if (!candidate) return undefined;
+  try {
+    return new URL(candidate).hostname.toLowerCase();
+  } catch {
+    return undefined;
+  }
+}
+
 export function validateProductionEnvironment(environment, profile = "full") {
   const selected = profile === "full"
     ? [...new Set([...PROFILES.membership, ...PROFILES.funding])]
@@ -58,6 +67,12 @@ export function validateProductionEnvironment(environment, profile = "full") {
   const piiDb = value(environment, "PII_DB_NAME");
   if (publicDb && piiDb && publicDb === piiDb) {
     errors.push("VOG_DB_NAME and PII_DB_NAME must be different databases");
+  }
+
+  const publicMongoHost = mongoHost(value(environment, "MONGODB_URI"));
+  const piiMongoHost = mongoHost(value(environment, "PII_MONGODB_URI"));
+  if (publicMongoHost && piiMongoHost && publicMongoHost === piiMongoHost) {
+    errors.push("MONGODB_URI and PII_MONGODB_URI must use different production cluster hosts");
   }
 
   const adminPassword = value(environment, "VOG_ADMIN_PASSWORD");
