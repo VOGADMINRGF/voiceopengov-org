@@ -32,7 +32,7 @@ Nach dem Build startet CI die gebaute Anwendung und prüft Startseite, Mitglieds
 - `PII_MONGODB_URI`: Produktionsverbindung zum dedizierten VoiceOpenGov-PII-Cluster für Mitgliederstammdaten, DOI-Zustand, direkte Kontakt-/Intake-Daten, Credentials und Sessions
 - `PII_DB_NAME`: von `VOG_DB_NAME` verschiedene PII-Datenbank, empfohlen `vog_pii`
 - `MONGODB_URI` und `PII_MONGODB_URI` müssen in Produktion auf unterschiedliche MongoDB-Cluster-Hosts zeigen; der Production-Readiness-Check lehnt einen gemeinsamen Cluster ab
-- SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`: produktiver, domain-verifizierter Transaktionsversand
+- `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`: produktiver, domain-verifizierter Transaktionsversand
 - `VOG_ADMIN_USER`, `VOG_ADMIN_PASSWORD`: dedizierter Admin-Zugang; Passwort mindestens 24 zufällige Zeichen
 - optional gehärtet: `BCRYPT_ROUNDS=12`, `SESSION_TTL_DAYS=7`
 
