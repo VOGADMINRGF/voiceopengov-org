@@ -27,12 +27,12 @@ Nach dem Build startet CI die gebaute Anwendung und prüft Startseite, Mitglieds
 ### Mitgliedschaft und Konto (zwingend)
 
 - `PUBLIC_BASE_URL`: kanonische HTTPS-URL, derzeit `https://www.voiceopengov.org`
-- `MONGODB_URI`: erreichbare Produktionsverbindung für operative, nicht direkt identifizierende VOG-Daten wie Funnel-/Map-Daten
+- `MONGODB_URI`: Produktionsverbindung zum dedizierten VoiceOpenGov-Core-Cluster für operative, nicht direkt identifizierende VOG-Daten wie Funnel-/Map-Daten
 - `VOG_DB_NAME`: operative/logische VoiceOpenGov-Datenbank, empfohlen `vog_public`
-- `PII_MONGODB_URI`: Produktionsverbindung für Mitgliederstammdaten, DOI-Zustand, direkte Kontakt-/Intake-Daten, Credentials und Sessions
+- `PII_MONGODB_URI`: Produktionsverbindung zum dedizierten VoiceOpenGov-PII-Cluster für Mitgliederstammdaten, DOI-Zustand, direkte Kontakt-/Intake-Daten, Credentials und Sessions
 - `PII_DB_NAME`: von `VOG_DB_NAME` verschiedene PII-Datenbank, empfohlen `vog_pii`
-- `MONGODB_URI` und `PII_MONGODB_URI` dürfen auf denselben MongoDB-Atlas-Cluster zeigen; die logische Trennung erfolgt über unterschiedliche DB-Namen
-- `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`: produktiver, domain-verifizierter Transaktionsversand
+- `MONGODB_URI` und `PII_MONGODB_URI` müssen in Produktion auf unterschiedliche MongoDB-Cluster-Hosts zeigen; der Production-Readiness-Check lehnt einen gemeinsamen Cluster ab
+- SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`: produktiver, domain-verifizierter Transaktionsversand
 - `VOG_ADMIN_USER`, `VOG_ADMIN_PASSWORD`: dedizierter Admin-Zugang; Passwort mindestens 24 zufällige Zeichen
 - optional gehärtet: `BCRYPT_ROUNDS=12`, `SESSION_TTL_DAYS=7`
 
@@ -42,6 +42,7 @@ Nach dem Build startet CI die gebaute Anwendung und prüft Startseite, Mitglieds
 - niemals als `NEXT_PUBLIC_*` setzen
 - niemals in Git oder Client-Code schreiben
 - VOG- und eDebatte-Sessions bleiben getrennt; kein Domain-Cookie und kein Passwort wird zwischen den Systemen geteilt
+- VOG und eDebatte teilen in Produktion keinen MongoDB-Cluster; der Handoff ist die einzige vorgesehene Identitätsbrücke
 
 ### Internationale Unterstützung (zwingend für Online-Zahlungen)
 
@@ -71,7 +72,7 @@ Geheimnisse gehören ausschließlich in den Secret Store des Hosters. Sie dürfe
 
 ## PII-Cutover aus bestehendem `vog_public`
 
-Der Migrationsbefehl ist standardmäßig ein Dry-Run und protokolliert nur Counts und DB-Namen, niemals Verbindungsstrings oder Dokumentinhalte.
+Der Migrationsbefehl ist standardmäßig ein Dry-Run und protokolliert nur Counts und DB-Namen, niemals Verbindungsstrings oder Dokumentinhalte. Quelle und Ziel dürfen und sollen in Produktion auf unterschiedlichen Atlas-Clustern liegen.
 
 ```bash
 pnpm --dir apps/web run migrate:vog-pii
@@ -95,7 +96,7 @@ Der Purge prüft batchweise, dass jede zu löschende `_id` im Ziel vorhanden ist
 ## Inbetriebnahme und Rollback
 
 1. Environment-Check für `membership`, danach für `funding` ausführen.
-2. Atlas-DNS, Netzwerkfreigabe und getrennte Datenbanknamen prüfen.
+2. Atlas-DNS, Netzwerkfreigabe und zwei unterschiedliche Cluster-Hosts für VOG Core und VOG PII prüfen.
 3. Vor dem PII-Cutover den Migration-Dry-Run ausführen und Counts dokumentieren.
 4. Migration mit `--apply` ausführen; noch nichts aus `vog_public` löschen.
 5. Neuen Code deployen.
@@ -112,7 +113,7 @@ Bei Fehlern werden zuerst die vorherigen Environment-Werte wiederhergestellt und
 
 ## Noch notwendige menschliche Freigaben
 
-- gültige Produktionszugänge für MongoDB/PII-Mongo, SMTP und Stripe
+- gültige Produktionszugänge für den dedizierten VOG-Core-Cluster und den dedizierten VOG-PII-Cluster sowie SMTP und Stripe
 - rechtliche Endprüfung von Anbieter-, Gebühren-, Erstattungs-/Widerrufs- und Transparenztexten
 - redaktionelle/muttersprachliche Freigabe der nicht-deutschen Kerntexte
 - bewusste Anbieterentscheidung für Newsletter/CRM samt Auftragsverarbeitung; bis dahin bleibt die Outbox intern
